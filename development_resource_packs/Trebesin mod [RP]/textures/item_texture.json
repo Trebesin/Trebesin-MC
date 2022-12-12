@@ -1,0 +1,8 @@
+{
+    "resource_pack_name" : "trebesin_mod",
+    "texture_data" : {
+       "trebesin.cmd_phaser" : {
+          "textures" : "textures/items/cmd_phaser"
+       }
+    }
+ }

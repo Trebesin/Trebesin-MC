@@ -1,0 +1,38 @@
+{
+    "resource_pack_name": "trebesin_mod",
+    "texture_name": "atlas.terrain",
+    "padding": 8,
+    "num_mip_levels": 4,
+    "texture_data": {
+        "image_prague": {
+            "textures": "textures/blocks/prague"
+        },
+        "image_czech_emblem": {
+            "textures": "textures/blocks/czech_emblem"
+        },
+        "trebesin.image_high_voltage_sign": {
+            "textures": "textures/blocks/high_voltage_sign"
+        },
+        "trebesin.image_logo_bufet_A1": {
+            "textures": "textures/blocks/logo_bufet_A1"
+        },
+        "trebesin.image_logo_bufet_A2": {
+            "textures": "textures/blocks/logo_bufet_A2"
+        },
+        "trebesin.image_logo_bufet_A3": {
+            "textures": "textures/blocks/logo_bufet_A3"
+        },
+        "trebesin.image_logo_bufet_A4": {
+            "textures": "textures/blocks/logo_bufet_A4"
+        },
+        "trebesin.image_pricetable_bufet_A1": {
+            "textures": "textures/blocks/pricetable_bufet_A1"
+        },
+        "trebesin.image_pricetable_bufet_B1": {
+            "textures": "textures/blocks/pricetable_bufet_B1"
+        },
+        "trebesin.image_pricetable_bufet_C1": {
+            "textures": "textures/blocks/pricetable_bufet_C1"
+        }
+    }
+}

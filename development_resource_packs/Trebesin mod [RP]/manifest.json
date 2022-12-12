@@ -1,0 +1,26 @@
+{
+    "format_version": 2,
+    "metadata": {
+        "authors": ["PavelDobCZ23","tpko<nějaký čísla>"],
+        "url": "https://www.trebesin.cz/",
+        "license": "GNU GPL v3.0"
+    }, 
+    "header": {
+        "description": "Resource Pack for Třebešín",
+        "name": "Třebešín Mód [RP]",
+        "uuid": "551d5da1-7964-4bd2-95f3-eeeee720fea0",
+        "version": [ 1, 0, 0 ],
+        "min_engine_version": [ 1, 19, 40 ]
+    },
+    "modules": [
+        {
+            "description": "Třebešín Mód [RP] - resources module",
+            "type": "resources",
+            "uuid": "e8bb0fda-3993-4718-b2cf-1d11dd12d07e",
+            "version": [1, 0, 0]
+        }
+    ],
+    "capabilities": ["raytraced"],//I will add ray tracing *shiny*
+	"dependencies": [
+	]
+}

@@ -1,0 +1,106 @@
+{
+            "format_version": "1.19.0",
+            "minecraft:block": {
+                "description": {
+                    "identifier": "trebesin:imageboard_wall_high_voltage_sign",
+                    "properties": {
+                        "trebesin:direction": [2, 3, 4, 5, 6]
+                    },
+                    "is_experimental": true,
+                    "register_to_creative_menu": true
+                },
+                "components": {
+                    "minecraft:geometry": "geometry.imageboard_wall",
+                    "minecraft:destroy_time": 0.0,
+                    "minecraft:block_light_filter": 0,
+                    "minecraft:collision_box": {
+                        "origin": [-8,0,-8],
+                        "size": [16,16,1]
+                    },
+                    "minecraft:selection_box": {
+                        "origin": [-8,0,-8],
+                        "size": [16,16,1]
+                    },
+                    "minecraft:material_instances": {
+                        "south": {
+                            "texture": "trebesin.image_high_voltage_sign",
+                            "render_method": "alpha_test"
+                        },
+                        "north": {
+                            "texture": "trebesin.image_high_voltage_sign",
+                            "render_method": "alpha_test"
+                        },
+                        "*": {
+                            "texture": "wood_oak",
+                            "render_method": "alpha_test"
+                        }
+                    },
+                    "minecraft:on_player_placing": {
+                        "event": "trebesin:set_direction",
+                        "target": "self"
+                    },
+                    "minecraft:creative_category": {
+                        "category": "construction"
+                    }
+                },
+                "events": {
+                    "trebesin:set_direction": {
+                        "set_block_property": {
+                            "trebesin:direction": "query.cardinal_facing_2d"
+                        }
+                    }
+                },
+                "permutations": [
+                    {
+                        "condition": "query.block_property('trebesin:direction') == 2.0",
+                        "components": {
+                            "minecraft:rotation": [
+                                0,
+                                0,
+                                0
+                            ]
+                        }
+                    },
+                    {
+                        "condition": "query.block_property('trebesin:direction') == 3.0",
+                        "components": {
+                            "minecraft:rotation": [
+                                0,
+                                180,
+                                0
+                            ]
+                        }
+                    },
+                    {
+                        "condition": "query.block_property('trebesin:direction') == 4.0",
+                        "components": {
+                            "minecraft:rotation": [
+                                0,
+                                90,
+                                0
+                            ]
+                        }
+                    },
+                    {
+                        "condition": "query.block_property('trebesin:direction') == 5.0",
+                        "components": {
+                            "minecraft:rotation": [
+                                0,
+                                270,
+                                0
+                            ]
+                        }
+                    },
+                    {
+                        "condition": "query.block_property('trebesin:direction') == 6.0",
+                        "components": {
+                            "minecraft:rotation": [
+                                0,
+                                0,
+                                0
+                            ]
+                        }
+                    }
+                ]
+            }
+        }

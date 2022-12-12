@@ -1,0 +1,53 @@
+{
+    "format_version": 2,
+    "metadata": {
+        "authors": ["PavelDobCZ23","tpko<nějaký čísla>"],
+        "url": "https://www.trebesin.cz/",
+        "license": "GNU GPL v3.0"
+    },
+    "header": {
+        "description": "Behaviors for Třebešín",
+        "name": "Třebešín Mód [BP]",
+        "uuid": "6131cbff-1172-4c3e-a701-52f21fc9c9d3",
+        "version": [ 1, 0, 0 ],
+        "min_engine_version": [ 1, 19, 50 ]
+    },
+    "modules": [
+        {
+            "description": "Třebešín Mód [BP] - data module",
+            "type": "data",
+            "uuid": "39e08f47-5e87-47a1-a927-fc6c4e5ebfa9",
+            "version": [1, 0, 0]
+        },
+        {
+            "description": "Třebešín Mód [BP] - scripts module",
+            "type": "script",
+            "language": "javascript",
+            "entry": "scripts/main.js",
+            "uuid": "39e08f47-5e87-47a1-a927-fc6c4e5ebfa9",
+            "version": [1, 0, 0]
+        }
+    ],
+	"dependencies": [
+        {
+            "module_name": "@minecraft/server-gametest",
+            "version": "1.0.0-beta"
+        },
+        {
+            "module_name": "@minecraft/server",
+            "version": "1.1.0-beta"
+        },
+        {
+            "module_name": "@minecraft/server-ui",
+            "version": "1.0.0-beta"
+        },
+        {
+            "module_name": "@minecraft/server-net",
+            "version": "1.0.0-beta"
+        },
+        {
+            "module_name": "@minecraft/server-admin",
+            "version": "1.0.0-beta"
+        }
+	]
+}
