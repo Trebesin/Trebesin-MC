@@ -11,11 +11,16 @@ function main(){
             try {
                 const response = await exported.connection.query(request);
                 for(const block_alteration of response.result){
+                    var hey = true
                     for (const player of world.getPlayers()) {
                         if (player.id === block_alteration.actor_id) {
                             sendMessage(`${player.name}: ${block_alteration.before_id} -> ${block_alteration.after_id}`,'CMD',sender);
-                            return
+                            hey = false; //im sure this can be done better but i dont care at this point
+                            break;
                         }
+                    }
+                    if (hey) {
+                            sendMessage(`player with id[${block_alteration.id}]: ${block_alteration.before_id} -> ${block_alteration.after_id}`,'CMD',sender);
                     }
                 }
             }
