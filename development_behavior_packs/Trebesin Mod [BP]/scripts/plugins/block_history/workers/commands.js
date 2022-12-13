@@ -7,7 +7,7 @@ function main(){
         world.say(parameter.command)
         if(isAdmin(sender) && (parameter.command === "inspect" || parameter.command === "i")){
             const request = {
-                sql : `Select * FROM 'block_history' WHERE x = ${sender.location.x} AND y = ${sender.location.y} AND z = ${sender.location.z}`
+                sql : `Select * FROM \`block_history\` WHERE x = ${Math.floor(sender.location.x)} AND y = ${Math.floor(sender.location.y)} AND z = ${Math.floor(sender.location.z)}`
             }
             try {
             const response = await exported.connection.query(request);
@@ -15,7 +15,6 @@ function main(){
             } catch(error) {
                 sendMessage(`${error}`,'CMD',sender);
             }
-            await sendMessage(exported.connection.query(request).stringify,"bh",sender)
         }
     }
   command_parser.registerCommand("bh", {
