@@ -121,7 +121,7 @@ async function main() {
     function chainCheck(block) {
     }
     
-    world.events.itemStartUseOn.subscribe((eventData) => {
+    world.events.itemStartUseOn.subscribe(async(eventData) => {
         const player = eventData.source;
         const offset = FACE_DIRECTIONS[eventData.blockFace];
         const faceBlockLocation = eventData.blockLocation.offset(offset.x,offset.y,offset.z);
@@ -129,7 +129,7 @@ async function main() {
         const faceBlockOld = copyBlock(faceBlock);
         const block = player.dimension.getBlock(eventData.blockLocation);
         const blockOld = copyBlock(block);
-        system.run(() => {
+        system.run(async () => {
             //Debug:
             //world.say(`§aBefore block§r - ${blockOld.typeId}`);
             //world.say(`§dAfter block§r - ${block.typeId}`);
@@ -151,7 +151,12 @@ async function main() {
             //Function:
             saveBlockUpdate(faceBlockOld,copyBlock(faceBlock),player.id);
             saveBlockUpdate(blockOld,copyBlock(block),player.id);
+
         })
+        await blockUpdateIteration(faceBlockLocation,faceBlockOld.dimension,(blockBefore,blockAfter,tick) => {
+            const vec = subVectors(blockBefore.location,faceBlockOld.location);
+            world.say(`${blockBefore.typeId} -> ${blockAfter.typeId} @ ${vec.x},${vec.y},${vec.z}:${tick}`);
+        });
     });  
 
     world.events.blockPlace.subscribe(async (eventData) => {
