@@ -187,8 +187,8 @@ async function main() {
             world.say(`${JSON.stringify(blockUpdates,null,1)}`);
         }
     })
-    console.warn('Loaded Block History...\n{');
-    world.say('Loaded Block History...\n{');
+    console.warn('}\nLoaded Block History...\n{');
+    world.say('}\nLoaded Block History...\n{');
 }
 
 //*Functions:
