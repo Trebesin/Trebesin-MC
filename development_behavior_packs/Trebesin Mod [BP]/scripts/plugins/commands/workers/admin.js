@@ -124,4 +124,4 @@ function main(){
   });
 }
 
-export {main, command_parser};
+export {main, command_parser, isAdmin};
