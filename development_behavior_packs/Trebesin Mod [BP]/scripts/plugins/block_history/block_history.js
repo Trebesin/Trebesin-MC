@@ -5,7 +5,7 @@ import { sendMessage } from '../../mc_modules/commandParser';
 import { copyBlock, compareBlocks, getPermutations, blockUpdateIteration } from '../../mc_modules/block';
 import { sumVectors, copyVector, subVectors } from '../../js_modules/vector';
 import { containsArray } from '../../js_modules/array';
-import { main } from './workers/commands';
+import * as commands from './workers/commands';
 const FACE_DIRECTIONS = {
     west: {x:-1,y:0,z:0},
     east: {x:1,y:0,z:0},
