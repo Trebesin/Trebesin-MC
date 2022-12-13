@@ -46,4 +46,4 @@ function compareVectors(vectorA,vectorB) {
     return (vectorA.x === vectorB.x && vectorA.y === vectorB.y && vectorA.z === vectorB.z)
 }
 
-export {setVectorLength,getVectorLength,sumVectors,copyVector}
+export {setVectorLength,getVectorLength,sumVectors,copyVector,compareVectors}
