@@ -17,7 +17,7 @@ function main(){
                 for(const block_alteration of response.result){
                     var hey = true
                     for (const player of world.getPlayers()) {
-                        const timeOfBlockAlteration = system.tick - block_alteration.tick
+                        const timeOfBlockAlteration = system.tick - parseInt(block_alteration.tick)
                         if (player.id === block_alteration.actor_id) {
                             sendMessage(`${player.name}: ${block_alteration.before_id} -> ${block_alteration.after_id} - before: ${Math.floor(timeOfBlockAlteration/tickInADay)}d${Math.floor(timeOfBlockAlteration/tickInAnOur)}h${Math.floor(timeOfBlockAlteration/tickInAMin)}m${Math.floor(timeOfBlockAlteration/tickInASec)}s`,'CMD',sender);
                             hey = false; //im sure this can be done better but i dont care at this point
