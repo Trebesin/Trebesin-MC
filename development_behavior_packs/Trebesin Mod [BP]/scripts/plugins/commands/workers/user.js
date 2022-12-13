@@ -44,7 +44,7 @@ function main(){
   }
 
   command_parser.registerCommand("phase", {
-    aliases: ["p","phaser"], parameters: [{id: "distance", type: "int", optional: true}], run: phase
+    parameters: [{id: "distance", type: "int", optional: true}], aliases: ["p","phaser"], run: phase
   })
 
   async function fly(sender){
