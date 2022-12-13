@@ -5,7 +5,7 @@ const command_parser = new CommandParser({
   prefix: "!", caseSensitive: false
 })
 
-function isAdmin(){
+function isAdmin(sender){
   return sender.hasTag("admin"); 
 }
 
