@@ -14,3 +14,5 @@ async function blockHistoryHandler(sender, parameter){
 function main(){
     command_parser.registerCommand("bh", {aliases: ["blockhistory", "coreprotect", "co"], parameters: [{id: "command", type: "string", optional: "true"}], run: blockHistoryHandler})
 }
+
+export {main}

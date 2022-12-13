@@ -5,6 +5,7 @@ import { sendMessage } from '../../mc_modules/commandParser';
 import { copyBlock, compareBlocks, getPermutations, blockUpdateIteration } from '../../mc_modules/block';
 import { sumVectors, copyVector, subVectors } from '../../js_modules/vector';
 import { containsArray } from '../../js_modules/array';
+import { main } from './workers/commands';
 const FACE_DIRECTIONS = {
     west: {x:-1,y:0,z:0},
     east: {x:1,y:0,z:0},
@@ -19,6 +20,13 @@ const exported = {};
 const blockUpdates = {};
 
 async function main() {
+
+    console.warn('Loading Block History...\n{');
+    world.say('Loading Block History...\n{');
+    commands.main();
+    console.warn('   Block History commands Loaded');
+    world.say('   Block History commands Loaded');
+    
     //Connect to the database:
     const connection = new DatabaseConnection({
         connection: {
@@ -179,6 +187,8 @@ async function main() {
             world.say(`${JSON.stringify(blockUpdates,null,1)}`);
         }
     })
+    console.warn('Loaded Block History...\n{');
+    world.say('Loaded Block History...\n{');
 }
 
 //*Functions:
