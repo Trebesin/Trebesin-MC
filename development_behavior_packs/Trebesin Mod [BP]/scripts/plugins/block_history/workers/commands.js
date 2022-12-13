@@ -11,7 +11,7 @@ function main(){
             }
             try {
             const response = await exported.connection.query(request);
-            sendMessage(`${response.stringify()}`,'CMD',sender);
+            sendMessage(`${JSON.stringify(response)}`,'CMD',sender);
             } catch(error) {
                 sendMessage(`${error}`,'CMD',sender);
             }
