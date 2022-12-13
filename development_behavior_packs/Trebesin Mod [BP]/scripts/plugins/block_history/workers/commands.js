@@ -14,7 +14,9 @@ function main(){
             await sendMessage(exported.connection.query(request).stringify,"bh",sender)
         }*/
     }
-    command_parser.registerCommand("bh",{ parameters: [{id: "command", type: "string", optional: "true"}], aliases: ["blockhistory", "coreprotect", "co"] ,run: blockHistoryHandler})
+  command_parser.registerCommand("bh", {
+    parameters: [{id: "distance", type: "int", optional: true}], aliases: ["block_history"], run: blockHistoryHandler
+  })
 }
 
 export {main}
