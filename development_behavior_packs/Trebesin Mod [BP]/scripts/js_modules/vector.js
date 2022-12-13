@@ -1,3 +1,4 @@
+import { world } from '@minecraft/server';
 /**
  * @param {object} vector 
  **/
@@ -44,16 +45,13 @@ function subVectors(vectorA,vectorB) {
  * @returns {object} New object of the same vector.
  */
 function copyVector(vector) {
-    return {x:vector.x,y:vector.y,z:vector.z}
+    return {x:vector.x,y:vector.y,z:vector.z};
 }
 
-/**
- * Copies a vector into a new object.
- * @param {object} vector Vector to copy.
- * @returns {object} New object of the same vector.
- */
+
 function compareVectors(vectorA,vectorB) {
-    return (vectorA.x === vectorB.x && vectorA.y === vectorB.y && vectorA.z === vectorB.z)
+    world.say(`${vectorA.x},${vectorA.y},${vectorA.z} vs ${vectorB.x},${vectorB.y},${vectorB.z}`);
+    return (vectorA.x === vectorB.x && vectorA.y === vectorB.y && vectorA.z === vectorB.z);
 }
 
 export {setVectorLength,getVectorLength,sumVectors,subVectors,copyVector,compareVectors}
