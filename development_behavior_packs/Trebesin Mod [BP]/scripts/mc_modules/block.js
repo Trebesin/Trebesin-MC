@@ -121,8 +121,10 @@ function getAdjecentBlockCoords(coord) {
 }
 
 async function blockUpdateIteration(location,dimension,callback) {
+    world.say(`starting block update iteration @ ${location.x},${location.y},${location.z} [${system.currentTick}]`);
     let blockUpdateSignal = [];
     blockUpdateSignal.push(...getAdjecentBlockCopies(location,dimension));
+    world.say(`${blockUpdateSignal.length}`)
     while (blockUpdateSignal.length !== 0) {
         blockUpdateSignal = await waitForNextTick(() => {
             const newBlockUpdates = [];
@@ -144,6 +146,7 @@ async function blockUpdateIteration(location,dimension,callback) {
             return newBlockUpdates;
         });
     }
+    world.say(`ending block update iteration [${system.currentTick}]`);
 }
 
 async function blockUpdateIterationObject(location,dimension,callback) {
