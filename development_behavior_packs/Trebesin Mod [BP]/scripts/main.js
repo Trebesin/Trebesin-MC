@@ -3,7 +3,6 @@ import * as blockyTools from './plugins/blocky_tools/blocky_tools';
 import * as server from './plugins/server/server';
 import * as commands from './plugins/commands/commands';
 import { world } from '@minecraft/server';
-//test1
 console.warn('\n\nReloading Trebesin Mod...\n\n');
 world.say('\n\nReloading Trebesin Mod...\n\n');
 function executePlugins() {
