@@ -4,13 +4,14 @@ import { command_parser, isAdmin } from "../../commands/workers/admin";
 import { exported } from "../block_history";
 function main(){
   async function blockHistoryHandler(sender, parameter){
-    try {
-      const newLocation = Vector.add(sender.location, vectorMath.setVectorLength(sender.viewDirection, parameter.distance ?? 2));
-      sender.teleport(newLocation, sender.dimension, sender.rotation.x, sender.rotation.y);
-      sendMessage("§l§bWHOOSH!§r");
-    } catch (error) {
-      world.say(`${error}`)
-    }
+        sendMessage("hello", sender, "bh")
+        /*
+        if(isAdmin(sender) && (parameter.command === "inspect" || parameter.command === "i")){
+            const request = {
+                sql : `Select * FROM 'block_history' WHERE x = ${sender.location.x} AND y = ${sender.location.y} AND z = ${sender.location.z}`
+            }
+            await sendMessage(exported.connection.query(request).stringify,"bh",sender)
+        }*/
   }
   command_parser.registerCommand("bh", {
     parameters: [{id: "distance", type: "int", optional: true}], aliases: ["block_history"], run: blockHistoryHandler
