@@ -10,9 +10,17 @@ function main(){
                 sql : `Select * FROM \`block_history\` WHERE x = ${Math.floor(sender.location.x)} AND y = ${Math.floor(sender.location.y)} AND z = ${Math.floor(sender.location.z)}`
             }
             try {
-            const response = await exported.connection.query(request);
-            sendMessage(`${JSON.stringify(response.result)}`,'CMD',sender);
-            } catch(error) {
+                const response = await exported.connection.query(request);
+                for(const block_alteration of response.result){
+                    for (const player of world.getPlayers()) {
+                        if (player.id === block_alteration.actor_id) {
+                            sendMessage(`${player.name}: ${block_alteration.before_id} -> ${block_alteration.after_id}`,'CMD',sender);
+                            return
+                        }
+                    }
+                }
+            }
+            catch(error) {
                 sendMessage(`${error}`,'CMD',sender);
             }
         }
