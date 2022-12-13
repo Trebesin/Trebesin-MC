@@ -3,7 +3,8 @@ import {CommandParser, sendMessage} from "../../../mc_modules/commandParser";
 import { command_parser, isAdmin } from "../../commands/workers/admin";
 import { exported } from "../block_history";
 function main(){
-    function blockHistoryHandler(sender, parameter){
+    world.say("here iam!")
+    async function blockHistoryHandler(sender, parameter){
         sendMessage("hello", sender, "bh")
         /*
         if(isAdmin(sender) && (parameter.command === "inspect" || parameter.command === "i")){
