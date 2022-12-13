@@ -34,8 +34,7 @@ function main(){
    */
   async function phase(sender, parameter){
     try {
-      const newLocation = Vector.add(sender.location, vectorMath.setVectorLength(sender.viewDirection, parameter.distance));
-      if(!parameter.distance) parameter.distance = 2;
+      const newLocation = Vector.add(sender.location, vectorMath.setVectorLength(sender.viewDirection, parameter.distance ?? 2));
       sender.teleport(newLocation, sender.dimension, sender.rotation.x, sender.rotation.y);
       sendMessage("§l§bWHOOSH!§r");
     } catch (error) {
