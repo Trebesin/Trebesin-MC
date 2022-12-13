@@ -124,8 +124,8 @@ async function blockUpdateIteration(location,dimension,callback) {
     world.say(`starting block update iteration @ ${location.x},${location.y},${location.z} [${system.currentTick}]`);
     let blockUpdateSignal = [];
     blockUpdateSignal.push(...getAdjecentBlockCopies(location,dimension));
-    world.say(`${blockUpdateSignal.length}`)
     while (blockUpdateSignal.length !== 0) {
+        world.say(`${blockUpdateSignal.length}`)
         blockUpdateSignal = await waitForNextTick(() => {
             const newBlockUpdates = [];
             for (let index = 0;index < blockUpdateSignal.length;index++) {
