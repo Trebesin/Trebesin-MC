@@ -5,6 +5,10 @@ const command_parser = new CommandParser({
   prefix: "!", caseSensitive: false
 })
 
+function isAdmin(){
+  return sender.hasTag("admin"); 
+}
+
 function main(){
 
   async function DBDisconnect(sender) {
@@ -24,18 +28,14 @@ function main(){
     }
   }
 
-  command_parser.registerCommand("disconnect", {parameters: [], senderCheck: (sender) => {
-    return sender.hasTag("admin"); 
-    }, run: DBDisconnect
+  command_parser.registerCommand("disconnect", {parameters: [], senderCheck: isAdmin, run: DBDisconnect
   })
 
-  command_parser.registerCommand("connect", {parameters: [], senderCheck: (sender) => {
-    return sender.hasTag("admin"); 
-    }, run: DBConnect
+  command_parser.registerCommand("connect", {parameters: [], senderCheck: isAdmin, run: DBConnect
   })
 
   command_parser.registerCommand("block", {
-    parameters: [],
+    parameters: [], senderCheck: isAdmin,
     run: (sender,parameters) => {
       const location = new BlockLocation(Math.round(sender.location.x),Math.round(sender.location.y),Math.round(sender.location.z));
       world.say(`${sender.dimension.getBlock(location).typeId}`);
@@ -59,9 +59,7 @@ function main(){
     sendMessage(`§cCouldn't find "${parameter.player}"!`,'CMD',sender);
   }
 
-  command_parser.registerCommand("op", {parameters: [{id: "player", type: "string", optional: true}], senderCheck: (sender) => {
-    return sender.hasTag("admin"); 
-    }, run: op
+  command_parser.registerCommand("op", {parameters: [{id: "player", type: "string", optional: true}], senderCheck: isAdmin, run: op
   })
 
   async function deop(sender, parameter){
@@ -81,9 +79,7 @@ function main(){
     sendMessage(`§cCouldn't find "${parameter.player}"!`,'CMD',sender);
   }
 
-  command_parser.registerCommand("deop", {parameters: [{id: "player", type: "string", optional: true}], senderCheck: (sender) => {
-    return sender.hasTag("admin"); 
-    }, run: deop
+  command_parser.registerCommand("deop", {parameters: [{id: "player", type: "string", optional: true}], senderCheck: isAdmin, run: deop
   })
 
 
@@ -101,9 +97,7 @@ function main(){
   }
 
   command_parser.registerCommand("gmc", {
-    aliases: ["gamemodecreative", "gamemode", "gamemodec", "gm0", "gmcreative", "creative"], parameters: [], senderCheck: (sender) => {
-      return sender.hasTag("admin");
-    }, run: gmc
+    aliases: ["gamemodecreative", "gamemode", "gamemodec", "gm0", "gmcreative", "creative"], parameters: [], senderCheck: isAdmin, run: gmc
   })
 
   async function gms(sender){
@@ -118,17 +112,15 @@ function main(){
   }
 
   command_parser.registerCommand("gms", {
-    aliases: ["gamemodesurvival", "gamemodes", "gm1", "gmsurvival", "survival"], parameters: [], senderCheck: (sender) => {
-      return sender.hasTag("admin");
-    }, run: gms,
+    aliases: ["gamemodesurvival", "gamemodes", "gm1", "gmsurvival", "survival"], parameters: [], senderCheck: isAdmin, run: gms
   })
   //movement commands
 
   command_parser.registerCommand("getvector", {
-    aliases: ["vector"], parameters: [], run: (sender) => sendMessage(`${sender.viewVector.x}, ${sender.viewVector.y}, ${sender.viewVector.z}`,'CMD',sender)
+    aliases: ["vector"], parameters: [],senderCheck: isAdmin, run: (sender) => sendMessage(`${sender.viewVector.x}, ${sender.viewVector.y}, ${sender.viewVector.z}`,'CMD',sender)
   });
   command_parser.registerCommand("getcoords", {
-    aliases: ["vector"], parameters: [], run: (sender) => sendMessage(`${sender.location.x}, ${sender.location.y}, ${sender.location.z}`,'CMD',sender)
+    aliases: ["vector"], parameters: [],senderCheck: isAdmin, run: (sender) => sendMessage(`${sender.location.x}, ${sender.location.y}, ${sender.location.z}`,'CMD',sender)
   });
 }
 
