@@ -3,7 +3,7 @@ import {CommandParser, sendMessage} from "../../../mc_modules/commandParser";
 import { copyVector, sumVectors } from '../../../js_modules/vector';
 import { setBlockType } from '../../block_history/block_history';
 const commands = new CommandParser({
-  prefix: "bt!", caseSensitive: false
+  prefix: ".", caseSensitive: false
 })
 async function main() {
   commands.registerCommand('idk',{
