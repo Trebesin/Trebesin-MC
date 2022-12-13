@@ -4,7 +4,6 @@ import { command_parser, isAdmin } from "../../commands/workers/admin";
 import { exported } from "../block_history";
 function main(){
     async function blockHistoryHandler(sender, parameter){
-        world.say(parameter.command)
         if(isAdmin(sender) && (parameter.command === "inspect" || parameter.command === "i")){
             const request = {
                 sql : `Select * FROM \`block_history\` WHERE x = ${Math.floor(sender.location.x)} AND y = ${Math.floor(sender.location.y)} AND z = ${Math.floor(sender.location.z)}`
