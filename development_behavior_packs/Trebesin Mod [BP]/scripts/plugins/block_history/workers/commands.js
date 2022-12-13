@@ -1,7 +1,6 @@
 import {CommandResult, MinecraftEffectTypes , system, world, BlockLocation} from "@minecraft/server";
 import {CommandParser, sendMessage} from "../../../mc_modules/commandParser";
 import { command_parser, isAdmin } from "../../commands/workers/admin";
-import { sendMessage } from "../../../mc_modules/commandParser";
 import { exported } from "../block_history";
 async function blockHistoryHandler(sender, parameter){
     if(isAdmin(sender) && (parameter.command === "inspect" || parameter.command === "i")){
