@@ -29,6 +29,16 @@ function setVectorLength(vector, length) {
 }
 
 /**
+ * Subs 2 vectors together.
+ * @param {object} vectorA First vector to sub.
+ * @param {object} vectorB Second vector to sub.
+ * @returns {object} New object with the result of the sub of the vector.
+ */
+function subVectors(vectorA,vectorB) {
+    return {x:vectorA.x-vectorB.x,y:vectorA.y-vectorB.y,z:vectorA.z-vectorB.z};
+}
+
+/**
  * Copies a vector into a new object.
  * @param {object} vector Vector to copy.
  * @returns {object} New object of the same vector.
@@ -46,4 +56,4 @@ function compareVectors(vectorA,vectorB) {
     return (vectorA.x === vectorB.x && vectorA.y === vectorB.y && vectorA.z === vectorB.z)
 }
 
-export {setVectorLength,getVectorLength,sumVectors,copyVector,compareVectors}
+export {setVectorLength,getVectorLength,sumVectors,subVectors,copyVector,compareVectors}

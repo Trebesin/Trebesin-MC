@@ -2,8 +2,8 @@ import { DatabaseConnection } from '../../mc_modules/network/database';
 import { world,system, Block, BlockType, BlockLocation, Entity, BlockPermutation} from '@minecraft/server';
 import * as serverAdmin from '@minecraft/server-admin';
 import { sendMessage } from '../../mc_modules/commandParser';
-import { copyBlock, compareBlocks, getPermutations } from '../../mc_modules/block';
-import { sumVectors, copyVector } from '../../js_modules/vector';
+import { copyBlock, compareBlocks, getPermutations, blockUpdateIteration } from '../../mc_modules/block';
+import { sumVectors, copyVector, subVectors } from '../../js_modules/vector';
 import { containsArray } from '../../js_modules/array';
 const FACE_DIRECTIONS = {
     west: {x:-1,y:0,z:0},
@@ -84,7 +84,7 @@ async function main() {
     },DB_UPDATE_INTERVAL)
 
     //Block Updates:
-    world.events.blockBreak.subscribe((eventData) => {
+    world.events.blockBreak.subscribe(async (eventData) => {
         world.say('§cBlock Break');
         const blockOld = {
             typeId: eventData.brokenBlockPermutation.type.id,
@@ -95,18 +95,25 @@ async function main() {
         }
         saveBlockUpdate(blockOld,copyBlock(eventData.block),eventData.player.id);
 
-        //Future feature:
-        const dimension = eventData.dimension;
-        const blockAbove = dimension.getBlock(eventData.block.location.offset(0,1,0));
-        world.say(`Above Break Before: ${blockAbove.typeId}`);
-        system.run(() => {
-            world.say(`Above Break After: ${blockAbove.typeId}`);
-            const doubleBlockAbove = dimension.getBlock(blockAbove.location.offset(0,1,0));
-            world.say(`2xAbove Break Before: ${doubleBlockAbove.typeId}`);
-            system.run(() => {
-                world.say(`2xAbove Break After: ${doubleBlockAbove.typeId}`);
-            });
+        //Testing:
+        await blockUpdateIteration(blockOld.location,blockOld.dimension,(blockBefore,blockAfter,tick) => {
+            const vec = subVectors(blockBefore,blockOld);
+            world.say(`${blockBefore.typeId} -> ${blockAfter.typeId} @ ${vec.x},${vec.y},${vec.z}:${tick}`);
         });
+
+        
+        //Future feature:
+        //const dimension = eventData.dimension;
+        //const blockAbove = dimension.getBlock(eventData.block.location.offset(0,1,0));
+        //world.say(`Above Break Before: ${blockAbove.typeId} - ${system.currentTick}`);
+        //system.run(() => {
+        //    world.say(`Above Break After: ${blockAbove.typeId} - ${system.currentTick}`);
+        //    const doubleBlockAbove = dimension.getBlock(blockAbove.location.offset(0,1,0));
+        //    world.say(`2xAbove Break Before: ${doubleBlockAbove.typeId} - ${system.currentTick}`);
+        //    system.run(() => {
+        //        world.say(`2xAbove Break After: ${doubleBlockAbove.typeId} - ${system.currentTick}`);
+        //    });
+        //});
     });
 
     //!falling blocks will need a special treatment.
