@@ -9,6 +9,12 @@ function main(){
             const request = {
                 sql : `Select * FROM 'block_history' WHERE x = ${sender.location.x} AND y = ${sender.location.y} AND z = ${sender.location.z}`
             }
+            try {
+            const response = await exported.connection.query(request);
+            sendMessage(`${response}`,'CMD',sender);
+            } catch(error) {
+                sendMessage(`${error}`,'CMD',sender);
+            }
             await sendMessage(exported.connection.query(request).stringify,"bh",sender)
         }
     }
