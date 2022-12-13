@@ -97,7 +97,7 @@ async function main() {
 
         //Testing:
         await blockUpdateIteration(blockOld.location,blockOld.dimension,(blockBefore,blockAfter,tick) => {
-            const vec = subVectors(blockBefore,blockOld);
+            const vec = subVectors(blockBefore.location,blockOld.location);
             world.say(`${blockBefore.typeId} -> ${blockAfter.typeId} @ ${vec.x},${vec.y},${vec.z}:${tick}`);
         });
 

@@ -1,6 +1,6 @@
 import {Block, BlockPermutation, world, system, BlockLocation} from '@minecraft/server';
-import { arrayDifference, findLast } from '../js_modules/array';
-import { sumVectors } from '../js_modules/vector';
+import { arrayDifference, find } from '../js_modules/array';
+import { sumVectors, compareVectors } from '../js_modules/vector';
 const TREBESIN_PERMUTATIONS = [
     {name:'trebesin:direction'},{name:'trebesin:vertical_direction'},{name:'trebesin:horizontal_direction'}
 ];
@@ -127,20 +127,15 @@ async function blockUpdateIteration(location,dimension,callback) {
     while (blockUpdateSignal.length !== 0) {
         blockUpdateSignal = await waitForNextTick(() => {
             const newBlockUpdates = [];
-            world.say(`inside the new tick - ${blockUpdateSignal.length}`);
             for (let index = 0;index < blockUpdateSignal.length;index++) {
-                world.say(`index - ${index}`);
                 const blockBefore = blockUpdateSignal[index];
-                const location = blockBefore.location;
-                const blockAfter = copyBlock(dimension.getBlock(location));
+                const blockLocation = blockBefore.location;
+                const blockAfter = copyBlock(dimension.getBlock(blockLocation));
                 if (!compareBlocks(blockBefore,blockAfter,false)) {
-                    world.say(`${blockBefore.typeId} vs ${blockAfter.typeId}`);
-                    const adjecentBlocks = getAdjecentBlockCopies(location,dimension);
+                    const adjecentBlocks = getAdjecentBlockCopies(blockLocation,dimension);
                     for (let adjecentIndex = 0;adjecentIndex < adjecentBlocks.length;adjecentIndex++) {
-                        world.say(`adjecent index - ${adjecentIndex}`);
                         const adjecentBlock = adjecentBlocks[adjecentIndex];
-                        world.say(`${compareVectors(newBlockUpdates[0].location,adjecentBlock.location)}`);
-                        if (findLast(newBlockUpdates,(block) => compareVectors(block.location,adjecentBlock.location)) == null) {
+                        if (newBlockUpdates.find((block) => compareVectors(block.location,adjecentBlock.location)) == null) {
                             newBlockUpdates.push(adjecentBlock);
                         }
                     }
@@ -151,12 +146,6 @@ async function blockUpdateIteration(location,dimension,callback) {
         });
     }
     world.say(`ending block update iteration [${system.currentTick}]`);
-}
-
-
-function compareVectors(vectorA,vectorB) {
-    world.say(`${vectorA.x},${vectorA.y},${vectorA.z} vs ${vectorB.x},${vectorB.y},${vectorB.z}`);
-    return (vectorA.x === vectorB.x && vectorA.y === vectorB.y && vectorA.z === vectorB.z);
 }
 
 async function blockUpdateIterationObject(location,dimension,callback) {

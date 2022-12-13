@@ -1,4 +1,3 @@
-import { world } from '@minecraft/server';
 /**
  * @param {object} vector 
  **/
@@ -50,7 +49,6 @@ function copyVector(vector) {
 
 
 function compareVectors(vectorA,vectorB) {
-    world.say(`${vectorA.x},${vectorA.y},${vectorA.z} vs ${vectorB.x},${vectorB.y},${vectorB.z}`);
     return (vectorA.x === vectorB.x && vectorA.y === vectorB.y && vectorA.z === vectorB.z);
 }
 
