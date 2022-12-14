@@ -15,7 +15,7 @@ function main(){
                 const tickInAMin = 1200
                 const tickInASec = 20
                 for(const block_alteration of response.result){
-                    var hey = true
+                    let hey = true
                     const timeOfBlockAlteration = system.currentTick - parseInt(block_alteration.tick)
                     for (const player of world.getPlayers()) {
                         if (player.id === block_alteration.actor_id) {
