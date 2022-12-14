@@ -10,8 +10,8 @@ function main(){
             }
             try {
                 const response = await exported.connection.query(request);
-                const tickInAnOur = 4320000
-                const tickInADay = 72000
+                const tickInADay = 4320000
+                const tickInAnHour = 72000
                 const tickInAMin = 1200
                 const tickInASec = 20
                 for(const block_alteration of response.result){
@@ -19,13 +19,13 @@ function main(){
                     const timeOfBlockAlteration = system.currentTick - parseInt(block_alteration.tick)
                     for (const player of world.getPlayers()) {
                         if (player.id === block_alteration.actor_id) {
-                            sendMessage(`${player.name}: ${block_alteration.before_id} -> ${block_alteration.after_id} - before: ${Math.floor(timeOfBlockAlteration/tickInADay)}d${Math.floor(timeOfBlockAlteration%tickInADay/tickInAnOur)}h${Math.floor(timeOfBlockAlteration%tickInAnOur/tickInAMin)}m${Math.floor(timeOfBlockAlteration%tickInAMin/tickInASec)}s`,'BH',sender);
+                            sendMessage(`${player.name}: ${block_alteration.before_id} -> ${block_alteration.after_id} - before: ${Math.floor(timeOfBlockAlteration/tickInADay)}d${Math.floor(timeOfBlockAlteration%tickInADay/tickInAnHour)}h${Math.floor(timeOfBlockAlteration%tickInAnHour/tickInAMin)}m${Math.floor(timeOfBlockAlteration%tickInAMin/tickInASec)}s`,'BH',sender);
                             hey = false; //im sure this can be done better but i dont care at this point
                             break;
                         }
                     }
                     if (hey) {
-                            sendMessage(`player with id[${block_alteration.actor_id}]: ${block_alteration.before_id} -> ${block_alteration.after_id} - before: ${Math.floor(timeOfBlockAlteration/tickInADay)}d${Math.floor(timeOfBlockAlteration%tickInADay/tickInAnOur)}h${Math.floor(timeOfBlockAlteration%tickInAnOur/tickInAMin)}m${Math.floor(timeOfBlockAlteration%tickInAMin/tickInASec)}s`,'BH',sender);
+                            sendMessage(`player with id[${block_alteration.actor_id}]: ${block_alteration.before_id} -> ${block_alteration.after_id} - before: ${Math.floor(timeOfBlockAlteration/tickInADay)}d${Math.floor(timeOfBlockAlteration%tickInADay/tickInAnHour)}h${Math.floor(timeOfBlockAlteration%tickInAnHour/tickInAMin)}m${Math.floor(timeOfBlockAlteration%tickInAMin/tickInASec)}s`,'BH',sender);
                     }
                 }
             }
