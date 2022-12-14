@@ -21,13 +21,13 @@ function main(){
                     world.say(toString(parseInt(system.currentTick)))
                     for (const player of world.getPlayers()) {
                         if (player.id === block_alteration.actor_id) {
-                            sendMessage(`${player.name}: ${block_alteration.before_id} -> ${block_alteration.after_id} - before: ${Math.floor(timeOfBlockAlteration/tickInADay)}d${Math.floor(timeOfBlockAlteration%tickInADay/tickInAnOur)}h${Math.floor(timeOfBlockAlteration%tickInAnOur/tickInAMin)}m${Math.floor(timeOfBlockAlteration%tickInAMin/tickInASec)}s`,'BH',sender);
+                            sendMessage(`${player.name}: ${block_alteration.before_id} -> ${block_alteration.after_id} - before: ${Math.floor(timeOfBlockAlteration/tickInADay)}d${timeOfBlockAlteration%tickInADay}h${timeOfBlockAlteration%tickInAnOur}m${timeOfBlockAlteration%tickInAMin}s`,'BH',sender);
                             hey = false; //im sure this can be done better but i dont care at this point
                             break;
                         }
                     }
                     if (hey) {
-                            sendMessage(`player with id[${block_alteration.actor_id}]: ${block_alteration.before_id} -> ${block_alteration.after_id} - before: ${Math.floor(timeOfBlockAlteration/tickInADay)}d${Math.floor(timeOfBlockAlteration%tickInADay/tickInAnOur)}h${Math.floor(timeOfBlockAlteration%tickInAnOur/tickInAMin)}m${Math.floor(timeOfBlockAlteration%tickInAMin/tickInASec)}s`,'BH',sender);
+                            sendMessage(`player with id[${block_alteration.actor_id}]: ${block_alteration.before_id} -> ${block_alteration.after_id} - before: ${Math.floor(timeOfBlockAlteration/tickInADay)}d${timeOfBlockAlteration%tickInADay}h${timeOfBlockAlteration%tickInAnOur}m${timeOfBlockAlteration%tickInAMin}s`,'BH',sender);
                     }
                 }
             }
