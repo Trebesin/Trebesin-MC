@@ -32,13 +32,20 @@ class Server {
             const randomTickCallbacks = this.#callbacks.onRandomTick;
             if (randomTickCallbacks.length) {
                 try {
-                    const loadedChunks = this.#chunkManager.updateLoadedChunks();
+                    
+                    //!this has very good performance:
+                    this.#chunkManager.updateLoadedChunks();
+                    
+                    //!this has terrible performance:
+                    const loadedChunks = this.#chunkManager.loadedChunks;
                     for (const dimensionId in loadedChunks) {
                         const dimension = world.getDimension(dimensionId);
                         const chunks = loadedChunks[dimensionId];
                         for (let chunkIndex = 0;chunkIndex < chunks.length;chunkIndex++) {
                             const subChunks = getSubchunksCoords(chunks[chunkIndex],true);
                             for (let subChunkIndex = 0;subChunkIndex < subChunks.length;subChunkIndex++) {
+                                //!the performance problem lies here:
+                                //!40-45% CPU Usage Getting The Block, 40-45% CPU Usage Generating the Number :/
                                 for (let index = 0;index <= this.#tickSpeed;index++) {
                                     const subChunk = subChunks[subChunkIndex];
                                     const blockLocation = new BlockLocation(
