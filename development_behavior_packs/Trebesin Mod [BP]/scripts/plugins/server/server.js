@@ -13,6 +13,15 @@ async function main() {
     },20);
 
     //try {
+    //    const index = server.playerEquipSubscribe((eventData) => {
+    //        world.say(`Before: ${eventData.itemBefore.typeId} - ${eventData.slotBefore}`);
+    //        world.say(`After: ${eventData.itemAfter.typeId} - ${eventData.slotAfter}`);
+    //    })
+    //    world.say(`${index} subscribed`);
+    //} catch (error) {
+    //    world.say(`${error}`);
+    //}
+    //try {
     //    const index = server.randomTickSubscribe((block) => {
     //        if (block.typeId === 'minecraft:red_flower') world.say('Found a flower.');
     //    });

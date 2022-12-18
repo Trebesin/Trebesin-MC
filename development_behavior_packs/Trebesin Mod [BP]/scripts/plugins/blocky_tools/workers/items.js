@@ -1,13 +1,41 @@
-import { BoolBlockProperty, DirectionBlockProperty, IntBlockProperty, StringBlockProperty, world, system, Block} from '@minecraft/server';
+import { BoolBlockProperty, MolangVariableMap, Color, DirectionBlockProperty, IntBlockProperty, StringBlockProperty, world, system, Block} from '@minecraft/server';
 import * as FormUi from '../../../mc_modules/ui';
 import {mapArray,insertToArray} from '../../../js_modules/array';
-import {setBlockPermutation,setBlockType} from '../../block_history/block_history'
+import {setBlockPermutation,setBlockType} from '../../block_history/block_history';
+import { spawnBlockSelection, spawnLine } from '../../../mc_modules/particles';
+import { getAbsoluteChunkCoord, getOriginChunkCoord} from '../../../mc_modules/chunk';
+import { Server } from '../../../mc_modules/server';
 
 function main() {
+    const server = new Server();
+    const showChunkBorder = {};
+    server.playerEquipSubscribe((eventData) => {
+        if (eventData.itemAfter.typeId === 'trebesin:bh_debug_stick') showChunkBorder[eventData.player.id] = 1;
+        else showChunkBorder[eventData.player.id] = 0;
+    });
+    system.runSchedule(() => {
+        try {
+            const players = world.getAllPlayers();
+            for (let playerIndex = 0;playerIndex < players.length;playerIndex++) {
+                const player = players[playerIndex];
+                
+                if (showChunkBorder[player.id] === 0 || showChunkBorder[player.id] == null) continue; 
+                const chunk = getOriginChunkCoord(player.location);
+                const molang = new MolangVariableMap()
+                    .setColorRGBA('variable.colour',new Color(Math.random(),Math.random(),Math.random(),1));
+                spawnLine('trebesin:selection_dot',[{x:chunk.x,y:player.location.y-20,z:chunk.z},{x:chunk.x,y:player.location.y+20,z:chunk.z}],player.dimension,molang);
+                spawnLine('trebesin:selection_dot',[{x:chunk.x+15,y:player.location.y-20,z:chunk.z},{x:chunk.x+15,y:player.location.y+20,z:chunk.z}],player.dimension,molang);
+                spawnLine('trebesin:selection_dot',[{x:chunk.x+15,y:player.location.y-20,z:chunk.z+15},{x:chunk.x+15,y:player.location.y+20,z:chunk.z+15}],player.dimension,molang);
+                spawnLine('trebesin:selection_dot',[{x:chunk.x,y:player.location.y-20,z:chunk.z+15},{x:chunk.x,y:player.location.y+20,z:chunk.z+15}],player.dimension,molang);
+            }
+        } catch (error) {
+            world.say(`${error}`);
+        }
+    },20)
     addItemStartUseOnListener(async (eventData) => {
         if (eventData.item.typeId === 'trebesin:bh_debug_stick') {
             const block = eventData.source.dimension.getBlock(eventData.blockLocation);
-            const player =eventData.source;
+            const player = eventData.source;
             const menuData = {
                 title: `${block.typeId}`,
                 withIds: true,

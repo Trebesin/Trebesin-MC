@@ -2,6 +2,7 @@ import { world, system, BlockLocation } from "@minecraft/server";
 import { ChunkManager, getSubchunksCoords } from './chunk.js';
 import { randInt } from '../js_modules/random.js';
 import { insertToArray, deleteFromArray } from "../js_modules/array.js";
+import { compareItems } from './items.js';
 
 /**
  * @description - Class with helper functions that relate to scheduling or backend functioning of the server.
@@ -18,53 +19,15 @@ class Server {
             if (this.#playersLoaded === false && [...world.getPlayers()].length) {
                 this.#playersLoaded = true;
             }
-            //Timeout functionality
-            const timeoutCallbacks = this.#callbacks.onTimeout;
-            for (let index = 0; index < timeoutCallbacks.length; index++) {
-                const item = timeoutCallbacks[index];
-                if (item && this.#tick === item[1]) {
-                    item[0]();
-                    deleteFromArray(timeoutCallbacks,index);
-                }
-            }
+            //Timeouts
+            executeTimeout(this.#callbacks.onTimeout,this.#tick);
 
-            //Random Ticking Functionality
-            const randomTickCallbacks = this.#callbacks.onRandomTick;
-            if (randomTickCallbacks.length) {
-                try {
-                    
-                    //!this has very good performance:
-                    this.#chunkManager.updateLoadedChunks();
-                    
-                    //!this has terrible performance:
-                    const loadedChunks = this.#chunkManager.loadedChunks;
-                    for (const dimensionId in loadedChunks) {
-                        const dimension = world.getDimension(dimensionId);
-                        const chunks = loadedChunks[dimensionId];
-                        for (let chunkIndex = 0;chunkIndex < chunks.length;chunkIndex++) {
-                            const subChunks = getSubchunksCoords(chunks[chunkIndex],true);
-                            for (let subChunkIndex = 0;subChunkIndex < subChunks.length;subChunkIndex++) {
-                                //!the performance problem lies here:
-                                //!40-45% CPU Usage Getting The Block, 40-45% CPU Usage Generating the Number :/
-                                for (let index = 0;index <= this.#tickSpeed;index++) {
-                                    const subChunk = subChunks[subChunkIndex];
-                                    const blockLocation = new BlockLocation(
-                                        randInt(subChunk.x,subChunk.x + 15),
-                                        randInt(subChunk.y,subChunk.y + 15),
-                                        randInt(subChunk.z,subChunk.z + 15)
-                                    );
-                                    const block = dimension.getBlock(blockLocation);
-                                    for (let callbackIndex = 0;callbackIndex < randomTickCallbacks.length;callbackIndex++) {
-                                        randomTickCallbacks[callbackIndex](block);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                } catch (error) {
-                    world.say(`${error}`);
-                }
-            }
+            //Random Ticking
+            const loadedChunks = this.#chunkManager.updateLoadedChunks();
+            executeRandomTick(this.#callbacks.onRandomTick,loadedChunks,this.#tickSpeed);
+
+            //Player Equip
+            executePlayerEquip(this.#callbacks.playerEquip,this.#playerData);
             
         }
 
@@ -76,9 +39,13 @@ class Server {
     }
 
     #chunkManager;
+    #playerData = {
+        equip: {}
+    };
     #callbacks = {
         onTimeout: [],
-        onRandomTick: []
+        onRandomTick: [],
+        playerEquip: []
     };
     #tickSpeed = 3;
     #tick = 0;
@@ -115,6 +82,14 @@ class Server {
 
     randomTickUnsubscribe(index) {
         deleteFromArray(this.#callbacks.onRandomTick,index);
+    }
+
+    playerEquipSubscribe(callback) {
+        return insertToArray(this.#callbacks.playerEquip,callback);
+    }
+
+    playerEquipUnsubscribe(index) {
+        deleteFromArray(this.#callbacks.playerEquip,index);
     }
 
     /**
@@ -178,6 +153,77 @@ class Server {
                 }
             })
         })
+    }
+}
+
+class Events {
+    
+}
+
+function executePlayerEquip(callbackArray,playerData) {
+    const players = world.getAllPlayers();
+    for (let playerIndex = 0; playerIndex < players.length; playerIndex++) {
+        const player = players[playerIndex];
+        if (playerData.equip[player.id] == null) playerData.equip[player.id] = {};
+        const itemBefore = playerData.equip[player.id].item;
+        const slotBefore = playerData.equip[player.id].slot;
+        const itemAfter = player.getComponent('inventory').container.getSlot(player.selectedSlot).getItem();
+        const slotAfter = player.selectedSlot;
+        if (!compareItems(itemAfter,itemBefore) || slotBefore != slotAfter) {
+            for (let callbackIndex = 0;callbackIndex < callbackArray.length;callbackIndex++) {
+                try {
+                    callbackArray[callbackIndex]({
+                        itemBefore,
+                        itemAfter,
+                        slotBefore,
+                        slotAfter,
+                        player
+                    });
+                } catch {}
+            }
+        }
+        playerData.equip[player.id].item = itemAfter;
+        playerData.equip[player.id].slot = slotAfter;
+    }
+}
+
+
+function executeTimeout(callbackArray,tick) {
+    for (let index = 0; index < callbackArray.length; index++) {
+        const item = callbackArray[index];
+        if (item && tick === item[1]) {
+            item[0]();
+            deleteFromArray(callbackArray,index);
+        }
+    }
+}
+
+function executeRandomTick(callbackArray,loadedChunks,tickSpeed) {
+    if (callbackArray.length) {
+        //!this has terrible performance:
+        for (const dimensionId in loadedChunks) {
+            const dimension = world.getDimension(dimensionId);
+            const chunks = loadedChunks[dimensionId];
+            for (let chunkIndex = 0;chunkIndex < chunks.length;chunkIndex++) {
+                const subChunks = getSubchunksCoords(chunks[chunkIndex],true);
+                for (let subChunkIndex = 0;subChunkIndex < subChunks.length;subChunkIndex++) {
+                    //!the performance problem lies here:
+                    //!40-45% CPU Usage Getting The Block, 40-45% CPU Usage Generating the Number :/
+                    for (let index = 0;index <= tickSpeed;index++) {
+                        const subChunk = subChunks[subChunkIndex];
+                        const blockLocation = new BlockLocation(
+                            randInt(subChunk.x,subChunk.x + 15),
+                            randInt(subChunk.y,subChunk.y + 15),
+                            randInt(subChunk.z,subChunk.z + 15)
+                        );
+                        const block = dimension.getBlock(blockLocation);
+                        for (let callbackIndex = 0;callbackIndex < callbackArray.length;callbackIndex++) {
+                            callbackArray[callbackIndex](block);
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 

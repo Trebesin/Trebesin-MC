@@ -40,4 +40,4 @@ function spawnLine(particle,coords,dimension,molang) {
     })
 }
 
-export {spawnBlockSelection,getGridLine}
+export {spawnBlockSelection,spawnLine}
