@@ -38,6 +38,23 @@ class Server {
         });
     }
 
+    //* New modular event scheme for server module™️
+    #eventInfo = {
+        playerEquip: {
+            callbacks: [],//can also be an object to define sub events
+            initialize() {},
+            execute() {},
+            data: {}
+        }
+    }
+    events = {
+        playerEquip: {
+            subscribe() {},
+            unsubscribe() {}
+        }
+    }
+
+
     #chunkManager;
     #playerData = {
         equip: {}
@@ -156,8 +173,10 @@ class Server {
     }
 }
 
-class Events {
-    
+class ServerEvent {
+    constructor(callback) {
+
+    }
 }
 
 function executePlayerEquip(callbackArray,playerData) {
