@@ -20,7 +20,7 @@ function main(){
                     for (const player of world.getPlayers()) {
                         if (player.id === block_alteration.actor_id) {
                             sendMessage(`${player.name}: ${block_alteration.before_id} -> ${block_alteration.after_id} - before: ${Math.floor(timeOfBlockAlteration/tickInADay)}d${Math.floor(timeOfBlockAlteration%tickInADay/tickInAnHour)}h${Math.floor(timeOfBlockAlteration%tickInAnHour/tickInAMin)}m${Math.floor(timeOfBlockAlteration%tickInAMin/tickInASec)}s`,'BH',sender);
-                            hey = false; //im sure this can be done better but i dont care at this point
+                            hey = false; //im sure this can be done better but i dont care at this point 
                             break;
                         }
                     }

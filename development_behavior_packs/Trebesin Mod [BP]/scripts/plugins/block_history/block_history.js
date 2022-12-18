@@ -126,8 +126,6 @@ async function main() {
 
     //!falling blocks will need a special treatment.
     //!also placing blocks can have chain effect too.
-    function chainCheck(block) {
-    }
     
     world.events.itemStartUseOn.subscribe(async(eventData) => {
         const player = eventData.source;

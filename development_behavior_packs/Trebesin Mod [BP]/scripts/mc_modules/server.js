@@ -1,5 +1,7 @@
-import { world, system } from "@minecraft/server";
-import { insertToArray } from "./../js_modules/array.js";
+import { world, system, BlockLocation } from "@minecraft/server";
+import { ChunkManager, getSubchunksCoords } from './chunk.js';
+import { randInt } from '../js_modules/random.js';
+import { insertToArray, deleteFromArray } from "../js_modules/array.js";
 
 /**
  * @description - Class with helper functions that relate to scheduling or backend functioning of the server.
@@ -7,6 +9,8 @@ import { insertToArray } from "./../js_modules/array.js";
 class Server {
     constructor(initialTick = 0) {
         this.#tick = initialTick;
+        this.#chunkManager = new ChunkManager();
+
         const tickEvent = () => {
             //Property 'relativeTick'
             this.#tick++;
@@ -15,11 +19,43 @@ class Server {
                 this.#playersLoaded = true;
             }
             //Timeout functionality
-            for (let index = 0; index < this.#timeouts.length; index++) {
-                const item = this.#timeouts[index];
+            const timeoutCallbacks = this.#callbacks.onTimeout;
+            for (let index = 0; index < timeoutCallbacks.length; index++) {
+                const item = timeoutCallbacks[index];
                 if (item && this.#tick === item[1]) {
                     item[0]();
-                    delete this.#timeouts[index];
+                    deleteFromArray(timeoutCallbacks,index);
+                }
+            }
+
+            //Random Ticking Functionality
+            const randomTickCallbacks = this.#callbacks.onRandomTick;
+            if (randomTickCallbacks.length) {
+                try {
+                    const loadedChunks = this.#chunkManager.updateLoadedChunks();
+                    for (const dimensionId in loadedChunks) {
+                        const dimension = world.getDimension(dimensionId);
+                        const chunks = loadedChunks[dimensionId];
+                        for (let chunkIndex = 0;chunkIndex < chunks.length;chunkIndex++) {
+                            const subChunks = getSubchunksCoords(chunks[chunkIndex],true);
+                            for (let subChunkIndex = 0;subChunkIndex < subChunks.length;subChunkIndex++) {
+                                for (let index = 0;index <= this.#tickSpeed;index++) {
+                                    const subChunk = subChunks[subChunkIndex];
+                                    const blockLocation = new BlockLocation(
+                                        randInt(subChunk.x,subChunk.x + 15),
+                                        randInt(subChunk.y,subChunk.y + 15),
+                                        randInt(subChunk.z,subChunk.z + 15)
+                                    );
+                                    const block = dimension.getBlock(blockLocation);
+                                    for (let callbackIndex = 0;callbackIndex < randomTickCallbacks.length;callbackIndex++) {
+                                        randomTickCallbacks[callbackIndex](block);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                } catch {
+                    world.say(`${error}`);
                 }
             }
             
@@ -32,10 +68,15 @@ class Server {
         });
     }
 
-    #timeouts = []
-    #tick = 0
-    #playersLoaded = false
-    #watchdogTerminate = false
+    #chunkManager;
+    #callbacks = {
+        onTimeout: [],
+        onRandomTick: []
+    };
+    #tickSpeed = 3;
+    #tick = 0;
+    #playersLoaded = false;
+    #watchdogTerminate = false;
 
     /**
      * @param {boolean} value - Set to `true` to cancel watchdog server termination.
@@ -54,11 +95,20 @@ class Server {
     }
 
     setTimeout(callback, ticks) {
-        return insertToArray(this.#timeouts,[callback, this.#tick + ticks]);
+        return insertToArray(this.#callbacks.onTimeout,[callback, this.#tick + ticks]);
     }
     
     clearTimeout(index) {
-        delete this.#timeouts[index];
+        deleteFromArray(this.#callbacks.onTimeout,index)
+    }
+
+    randomTick = {
+        subscribe(callback) {
+            return insertToArray(this.#callbacks.onRandomTick,callback);
+        },
+        unsubscribe(index) {
+            deleteFromArray(this.#callbacks.onRandomTick,index);
+        }
     }
 
     /**

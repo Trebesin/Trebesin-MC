@@ -51,7 +51,7 @@ class LinkedList {
     /**
      * Sets a callback to iterate over every node in the linked kist.
      * @param {NodeSignal} callback Callback for iterating over a linked list.
-     * @param {boolean} reverse If the iteration should reverse its direction, default is towards the end.
+     * @param {boolean} [reverse] If the iteration should reverse its direction, default is towards the end.
      * @param {LinkedListNode} [start] Optional node to start the iteration at, default to `start` or `end` depending on the `reverse` parameter respectively.
      */
     forEach(callback,reverse = false,start = null) {
@@ -65,13 +65,13 @@ class LinkedList {
     }
 
     /**
-     * Returns node for which the `callback` returns true.
+     * Returns first node for which the `callback` returns true.
      * @param {NodeSignal} callback Callback for iterating over the linked list.
-     * @param {boolean} reverse If the search should reverse its direction, default is towards the end.
+     * @param {boolean} [reverse] If the search should reverse its direction, default is towards the end.
      * @param {LinkedListNode} [start] Optional node to start the search at, default to `start` or `end` depending on the `reverse` parameter respectively.
      * @returns {LinkedListNode} The found node.
     */
-    find(callback,reverse,start = null) {
+    find(callback,reverse = false,start = null) {
         let node;
         if (start != null) node = start;
         if (start == null) node = reverse ? this.#pointers.end : this.#pointers.start;

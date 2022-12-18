@@ -1,4 +1,4 @@
-import { world, MolangVariableMap, MinecraftBlockTypes, Color } from '@minecraft/server';
+import { world, MolangVariableMap, MinecraftBlockTypes, Color, system } from '@minecraft/server';
 import { Server } from './../modules/server';
 import { insertToArray } from '../modules/helpers/array';
 import { spawnBlockSelection } from '../modules/particles';
@@ -91,7 +91,7 @@ class Selection {
 /* global selection functions */
 const Selections = {};
 
-server.setInterval(() => {
+system.runSchedule(() => {
     for (player in Selections) {
         const selection = Selections[player];
         const molang = new MolangVariableMap()

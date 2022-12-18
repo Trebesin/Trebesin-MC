@@ -1,4 +1,4 @@
-import {world,Location,EntityQueryOptions} from '@minecraft/server';
+import {world,Location} from '@minecraft/server';
 import {setVectorLength} from './../js_modules/vector';
 
 //Finish help command, add parameter preprocesser
@@ -365,9 +365,6 @@ class CommandParser {
 
     #parseSelector(string,option) {
         const selectorEntities = [];
-        /**
-         * @type {EntityQueryOptions}
-         */
         const queryOptions = {};
         const selector = this.#getSelector(string,option);
         if (selector.values.name) {
