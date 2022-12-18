@@ -54,7 +54,7 @@ class Server {
                             }
                         }
                     }
-                } catch {
+                } catch (error) {
                     world.say(`${error}`);
                 }
             }
@@ -102,13 +102,12 @@ class Server {
         deleteFromArray(this.#callbacks.onTimeout,index)
     }
 
-    randomTick = {
-        subscribe(callback) {
-            return insertToArray(this.#callbacks.onRandomTick,callback);
-        },
-        unsubscribe(index) {
-            deleteFromArray(this.#callbacks.onRandomTick,index);
-        }
+    randomTickSubscribe(callback) {
+        return insertToArray(this.#callbacks.onRandomTick,callback);
+    }
+
+    randomTickUnsubscribe(index) {
+        deleteFromArray(this.#callbacks.onRandomTick,index);
     }
 
     /**

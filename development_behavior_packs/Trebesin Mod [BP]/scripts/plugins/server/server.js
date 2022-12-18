@@ -1,6 +1,7 @@
 import {world,system,MinecraftEffectTypes,MolangVariableMap,Color} from '@minecraft/server';
 import { Server } from '../../mc_modules/server';
-import { spawnBlockSelection } from './../../mc_modules/particles'
+import { spawnBlockSelection } from './../../mc_modules/particles';
+import { randInt } from '../../js_modules/random';
 
 async function main() {
     const server = new Server();
@@ -11,12 +12,14 @@ async function main() {
         }
     },20);
 
-    server.randomTick.subscribe((block) => {
-        if (block == null) return;
-        let molang = new MolangVariableMap();
-        molang.setColorRGB('variable.colour',new Color(Math.random(),Math.random(),Math.random(),1));
-        spawnBlockSelection('trebesin:selection_dot',[block.location,block.location],block.dimension,molang);
-    });
+    //try {
+    //    const index = server.randomTickSubscribe((block) => {
+    //        if (block.typeId === 'minecraft:red_flower') world.say('Found a flower.');
+    //    });
+    //    world.say(`${index} subscribed`);
+    //} catch (error) {
+    //    world.say(`${error}`)
+    //}
     
 }
 
