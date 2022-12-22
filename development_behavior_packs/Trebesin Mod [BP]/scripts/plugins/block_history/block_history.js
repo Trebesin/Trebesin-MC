@@ -92,8 +92,40 @@ async function main() {
     },DB_UPDATE_INTERVAL)
 
     //Block Updates:
+
+    //Fall block tests:
+    const fallingBlocksTracked = []; // {location,tick,id,playerId}
+    world.events.entitySpawn.subscribe((eventData) => {
+        if (eventData.entity.typeId === 'minecraft:falling_block') {
+            const location = eventData.entity.location;
+            fallingBlocksTracked.push({
+                location: {
+                    start: new BlockLocation(location.x,location.y,location.z),
+                    current: new BlockLocation(location.x,location.y,location.z)
+                },
+                tick: {
+                    start:  system.currentTick,
+                    current:  system.currentTick
+                },
+                id: eventData.entity.id,
+                playerId: 0
+            })
+            world.say(`§aBlock Starts Falling§r - ${system.currentTick}`);
+        }
+    });
+
+    //system.runSchedule(() => {
+    //    for (let index = 0;index < fallingBlocksTracked.length;index++) {
+//
+    //    }
+    //});
+
+    //function getEntityById(id,type,) {
+    //    //const entities =
+    //}
+
     world.events.blockBreak.subscribe(async (eventData) => {
-        world.say('§cBlock Break');
+        world.say(`§cBlock Break§r - ${system.currentTick}`);
         const blockOld = {
             typeId: eventData.brokenBlockPermutation.type.id,
             isWaterlogged: eventData.block.isWaterlogged,
