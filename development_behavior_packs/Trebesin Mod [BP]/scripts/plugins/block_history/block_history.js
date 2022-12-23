@@ -4,16 +4,9 @@ import * as serverAdmin from '@minecraft/server-admin';
 import { sendMessage } from '../../mc_modules/commandParser';
 import { copyBlock, compareBlocks, getPermutations, blockUpdateIteration } from '../../mc_modules/block';
 import { sumVectors, copyVector, subVectors } from '../../js_modules/vector';
-import { containsArray } from '../../js_modules/array';
+import { containsArray, filter, insertToArray, deleteFromArray } from '../../js_modules/array';
 import * as Block_history_commands from './workers/commands';
-const FACE_DIRECTIONS = {
-    west: {x:-1,y:0,z:0},
-    east: {x:1,y:0,z:0},
-    down: {x:0,y:-1,z:0},
-    up: {x:0,y:1,z:0},
-    north: {x:0,y:0,z:-1},
-    south: {x:0,y:0,z:1}
-};
+import { DIMENSION_IDS , FACE_DIRECTIONS } from '../../mc_modules/constants';
 const DB_UPDATE_INTERVAL = 1200;
 
 const exported = {};
@@ -98,31 +91,53 @@ async function main() {
     world.events.entitySpawn.subscribe((eventData) => {
         if (eventData.entity.typeId === 'minecraft:falling_block') {
             const location = eventData.entity.location;
-            fallingBlocksTracked.push({
-                location: {
-                    start: new BlockLocation(location.x,location.y,location.z),
-                    current: new BlockLocation(location.x,location.y,location.z)
-                },
-                tick: {
-                    start:  system.currentTick,
-                    current:  system.currentTick
-                },
-                id: eventData.entity.id,
-                playerId: 0
-            })
-            world.say(`§aBlock Starts Falling§r - ${system.currentTick}`);
+            insertToArray(
+                fallingBlocksTracked,
+                {
+                    location: {
+                        start: new BlockLocation(location.x,location.y,location.z),
+                        current: new BlockLocation(location.x,location.y,location.z)
+                    },
+                    tick: {
+                        start:  system.currentTick,
+                        current:  system.currentTick
+                    },
+                    id: eventData.entity.id,
+                    dimensionId: eventData.entity.dimension.id,
+                    playerId: 0
+                }
+            );
+            world.say(`§aBlock Starts Falling§r [${location.x},${location.y},${location.z}] @ ${system.currentTick}`);
         }
     });
 
-    //system.runSchedule(() => {
-    //    for (let index = 0;index < fallingBlocksTracked.length;index++) {
-//
-    //    }
-    //});
+    system.runSchedule(() => {
+        for (let index = 0;index < fallingBlocksTracked.length;index++) {
+            const fallingBlockData = fallingBlocksTracked[index];
+            const fallingBlockEntity = getEntityById(
+                fallingBlockData.id,
+                { type: 'minecraft:falling_block' },
+                [fallingBlockData.dimensionId]
+            )
+            if (fallingBlockEntity == null) {
+                const location = fallingBlockData.location.current;
+                const tick = fallingBlockData.tick.current;
+                world.say(`§aBlock Ends Falling§r [${location.x},${location.y},${location.z}] @ ${tick}`);
+                deleteFromArray(fallingBlocksTracked,index);
+            } else {
+                fallingBlockData.location.current = fallingBlockEntity.location;
+                fallingBlockData.tick.current = system.currentTick;
+            }
+        }
+    });
 
-    //function getEntityById(id,type,) {
-    //    //const entities =
-    //}
+    function getEntityById(id,queryOptions,dimensionIds = DIMENSION_IDS) {
+        for (let index = 0;index < dimensionIds.length;index++) {
+            const dimension = world.getDimension(DIMENSION_IDS[index]);
+            const entities = dimension.getEntities(queryOptions);
+            return filter(entities,(entity) => entity.id === id)[0];
+        }
+    }
 
     world.events.blockBreak.subscribe(async (eventData) => {
         world.say(`§cBlock Break§r - ${system.currentTick}`);
