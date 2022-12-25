@@ -2,6 +2,7 @@ import * as blockHistory from './plugins/block_history/block_history';
 import * as blockyTools from './plugins/blocky_tools/blocky_tools';
 import * as server from './plugins/server/server';
 import * as commands from './plugins/commands/commands';
+import * as debug from './plugins/debug/debug';
 import { world } from '@minecraft/server';
 console.warn('\n\nReloading Trebesin Mod...\n\n');
 world.say('\n\nReloading Trebesin Mod...\n\n');
@@ -36,6 +37,15 @@ function executePlugins() {
         commands.main();
         console.warn('Loaded commands');
         world.say('Loaded commands');
+    } catch (error) {
+        console.warn(error);
+        world.say(`${error}`);
+    }
+
+    try {
+        debug.main();
+        console.warn('Loaded debug');
+        world.say('Loaded debug');
     } catch (error) {
         console.warn(error);
         world.say(`${error}`);

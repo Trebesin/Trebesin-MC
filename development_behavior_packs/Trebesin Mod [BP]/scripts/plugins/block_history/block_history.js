@@ -6,7 +6,7 @@ import { copyBlock, compareBlocks, getPermutations, blockUpdateIteration } from 
 import { sumVectors, copyVector, subVectors } from '../../js_modules/vector';
 import { containsArray, filter, insertToArray, deleteFromArray } from '../../js_modules/array';
 import * as BlockHistoryCommandsWorker from './workers/commands';
-import * as Debug from '../../mc_modules/debug';
+import * as Debug from '../debug/debug';
 import { DIMENSION_IDS , FACE_DIRECTIONS } from '../../mc_modules/constants';
 const DB_UPDATE_INTERVAL = 1200;
 let databaseExport = null;
@@ -105,7 +105,7 @@ async function main() {
                     playerId: null
                 }
             );
-            world.say(`§aBlock Starts Falling§r [${blockLocation.x},${blockLocation.y},${blockLocation.z}] @ ${system.currentTick}`);
+            Debug.logMessage(`§aBlock Starts Falling§r [${blockLocation.x},${blockLocation.y},${blockLocation.z}] @ ${system.currentTick}`);
         }
     });
 

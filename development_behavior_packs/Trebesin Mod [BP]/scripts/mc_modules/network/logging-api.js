@@ -65,7 +65,7 @@ class LoggingConnection {
             .addHeader('username',this.#options.server.username)
             .addHeader('content-type','application/json')
             .addHeader('accept','text/plain')
-            .setBody(JSON.stringify(this.#options.connection))
+            .setBody('{}')
             .setMethod(HttpRequestMethod.POST)
             .setTimeout(3);
             const response = await http.request(request);
