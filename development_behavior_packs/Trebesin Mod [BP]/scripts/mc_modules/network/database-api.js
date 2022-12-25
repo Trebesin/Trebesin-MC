@@ -38,7 +38,7 @@ class DatabaseConnection {
      */
     async disconnect(attempts = 0) {
         return new Promise(async (resolve,reject) => {
-            const request = new HttpRequest(this.#options.server.url+'/disconnect')
+            const request = new HttpRequest(this.#options.server.url+'/sql/disconnect')
             .addHeader('password',this.#options.server.password)
             .addHeader('username',this.#options.server.username)
             .addHeader('content-type','application/json')
@@ -67,7 +67,7 @@ class DatabaseConnection {
      */
     async connect(attempts = 0) {
         return new Promise(async (resolve,reject) => {
-            const request = new HttpRequest(this.#options.server.url+'/connect')
+            const request = new HttpRequest(this.#options.server.url+'/sql/connect')
             .addHeader('password',this.#options.server.password)
             .addHeader('username',this.#options.server.username)
             .addHeader('content-type','application/json')

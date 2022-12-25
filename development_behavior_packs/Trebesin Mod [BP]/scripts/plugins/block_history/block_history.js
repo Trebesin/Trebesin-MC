@@ -1,26 +1,25 @@
-import { DatabaseConnection } from '../../mc_modules/network/database';
-import { world,system, Block, BlockType, BlockLocation, Entity, BlockPermutation} from '@minecraft/server';
+import { DatabaseConnection } from '../../mc_modules/network/database-api';
+import { world,system, Block, BlockType, BlockLocation, Entity, BlockPermutation, EntityQueryOptions} from '@minecraft/server';
 import * as serverAdmin from '@minecraft/server-admin';
 import { sendMessage } from '../../mc_modules/commandParser';
 import { copyBlock, compareBlocks, getPermutations, blockUpdateIteration } from '../../mc_modules/block';
 import { sumVectors, copyVector, subVectors } from '../../js_modules/vector';
 import { containsArray, filter, insertToArray, deleteFromArray } from '../../js_modules/array';
-import * as Block_history_commands from './workers/commands';
+import * as BlockHistoryCommandsWorker from './workers/commands';
+import * as Debug from '../../mc_modules/debug';
 import { DIMENSION_IDS , FACE_DIRECTIONS } from '../../mc_modules/constants';
 const DB_UPDATE_INTERVAL = 1200;
+let databaseExport = null;
 
-const exported = {};
 const blockUpdates = {};
+const fallingBlocksTracked = [];
 
 async function main() {
-
-    console.warn('Loading Block History...\n{');
-    world.say('Loading Block History...\n{');
-    Block_history_commands.main();
-    console.warn('   Block History commands Loaded');
-    world.say('   Block History commands Loaded');
+    //# Workers:
+    loadWorkers();
     
-    //Connect to the database:
+    //# Database:
+    //## Initial DB Connection:
     const connection = new DatabaseConnection({
         connection: {
             host: 'db1.falix.cc',
@@ -35,16 +34,16 @@ async function main() {
             password: serverAdmin.variables.get('db-server-password')
         }
     });
-    exported.connection = connection;
+    databaseExport = connection;
     try {
         const response = await connection.connect();
-        if (response.status === 200) world.say('successfully connected to the database');
-        else world.say(`couldn't connect to database: \n[${response.status}] ${response.body}`);
+        if (response.status === 200) Debug.logMessage('Successfully connected to the database!');
+        else Debug.logMessage(`Couldn't connect to database! [${response.status}]\n${response.body}`);
     } catch (error) {
-        world.say(`${error}`);
+        Debug.logMessage(error);
     }
     
-    //Saving to the permanent database:
+    //## DB Save Schedule:
     system.runSchedule(async () => {
         let empty = true;
         const request = {
@@ -84,10 +83,8 @@ async function main() {
         }
     },DB_UPDATE_INTERVAL)
 
-    //Block Updates:
-
-    //Fall block tests:
-    const fallingBlocksTracked = [];
+    //# Block Updates:
+    //## Falling Block Patches:
     world.events.entitySpawn.subscribe((eventData) => {
         if (eventData.entity.typeId === 'minecraft:falling_block') {
             const location = eventData.entity.location;
@@ -143,15 +140,7 @@ async function main() {
                 fallingBlockData.tick.current = system.currentTick;
             }
         }
-    });
-
-    function getEntityById(id,queryOptions,dimensionIds = DIMENSION_IDS) {
-        for (let index = 0;index < dimensionIds.length;index++) {
-            const dimension = world.getDimension(DIMENSION_IDS[index]);
-            const entities = [...dimension.getEntities(queryOptions)];
-            return filter(entities,(entity) => entity.id === id)[0];
-        }
-    }
+    },1);
 
     world.events.blockBreak.subscribe(async (eventData) => {
         world.say(`§cBlock Break§r - ${system.currentTick}`);
@@ -249,11 +238,32 @@ async function main() {
             world.say(`${JSON.stringify(blockUpdates,null,1)}`);
         }
     })
-    console.warn('}\nLoaded Block History...\n{');
-    world.say('}\nLoaded Block History...\n{');
 }
 
-//*Functions:
+//# Functions:
+
+function loadWorkers() {
+    BlockHistoryCommandsWorker.main();
+    console.warn('   Block History commands Loaded');
+    world.say('   Block History commands Loaded');
+}
+
+/**
+ * Function used to get entity with a specified ID from the world.
+ * @param {*} id Id of the entity to find.
+ * @param {EntityQueryOptions} [queryOptions] Optional query options to further specify the entity to look for.
+ * @param {string[]} [dimensionIds] IDs of dimensions to look for. Defaults to all dimensions of the world.
+ * @returns {Entity|undefined} Entity with the specified ID or undefined if no entity was found.
+ */
+function getEntityById(id,queryOptions = {},dimensionIds = DIMENSION_IDS) {
+    for (let index = 0;index < dimensionIds.length;index++) {
+        const dimension = world.getDimension(DIMENSION_IDS[index]);
+        const entities = [...dimension.getEntities(queryOptions)];
+        const entityWithId = filter(entities,(entity) => entity.id === id)[0]
+        if (entityWithId != null) return entityWithId;
+    }
+}
+
 /**
  * Function for saving block updates into the Block History memory database.
  * @param {object} blockBefore **Copy** of the `Block` class object saved as the block before the update.
@@ -287,7 +297,7 @@ function saveBlockUpdate(blockBefore,blockAfter,actorId) {
     }
 }
 
-//*Export Functions:
+//## Export Functions:
 /**
  * Custom set block type function, does the same as `Block.setType()` method but also records the update to the block hisory database.
  * @param {Block} block `Block` class object to invoke `setType()` method on.
@@ -314,6 +324,11 @@ function setBlockPermutation(block,permutation,actorId) {
     saveBlockUpdate(blockBefore,blockAfter,actorId);
 }
 
-export {main,setBlockType,setBlockPermutation,exported};
+export {
+    main,
+    setBlockType,
+    setBlockPermutation,
+    databaseExport as database
+};
 
 

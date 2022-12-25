@@ -7,9 +7,11 @@ console.warn('\n\nReloading Trebesin Mod...\n\n');
 world.say('\n\nReloading Trebesin Mod...\n\n');
 function executePlugins() {
     try {
+        console.warn('Loading Block History...\n{');
+        world.say('Loading Block History...\n{');
         blockHistory.main();
-        console.warn('Loaded Block History');
-        world.say('Loaded Block History');
+        console.warn('}\nLoaded Block History...\n{');
+        world.say('}\nLoaded Block History...\n{');
     } catch (error) {
         console.warn(error);
         world.say(`${error}`);
