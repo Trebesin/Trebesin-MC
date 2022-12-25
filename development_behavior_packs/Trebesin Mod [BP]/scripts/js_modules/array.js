@@ -1,3 +1,5 @@
+import { logMessage } from '../plugins/debug/debug';
+
 /**
  * @description Inserts value at the first empty index in the array and returns the index.
  * @param {any[]} array - Array to insert the value into.
@@ -5,7 +7,8 @@
  * @returns {number} Index that the value was inserted to.
  **/
  function insertToArray(array, value) {
-    for (let index = 0;true;index++) {
+    if (!Array.isArray(array)) return null
+    for (let index = 0;index <= array.length;index++) {
         if (array[index] == null) {
             array[index] = value;
             return index;

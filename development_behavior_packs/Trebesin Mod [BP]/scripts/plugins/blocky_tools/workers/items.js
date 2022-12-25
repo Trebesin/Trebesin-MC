@@ -4,10 +4,12 @@ import {mapArray,insertToArray} from '../../../js_modules/array';
 import {setBlockPermutation,setBlockType} from '../../block_history/block_history';
 import { spawnBlockSelection, spawnLine } from '../../../mc_modules/particles';
 import { getAbsoluteChunkCoord, getOriginChunkCoord} from '../../../mc_modules/chunk';
+import * as Debug from './../../debug/debug';
 import { Server } from '../../backend/backend';
 
 function main() {
     const showChunkBorder = {};
+    Debug.logMessage('subbing')
     Server.events.playerEquip.subscribe((eventData) => {
         if (eventData.itemAfter.typeId === 'trebesin:bh_debug_stick') showChunkBorder[eventData.player.id] = 1;
         else showChunkBorder[eventData.player.id] = 0;

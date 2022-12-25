@@ -3,6 +3,7 @@ import { ChunkManager, getSubchunksCoords } from './chunk.js';
 import { randInt } from '../js_modules/random.js';
 import { insertToArray, deleteFromArray } from "../js_modules/array.js";
 import { compareItems } from './items.js';
+import * as Debug from './../plugins/debug/debug'
 
 /**
  * @description - Class with helper functions that relate to scheduling or backend functioning of the server.
@@ -61,10 +62,12 @@ class Server {
     registerEvent(eventId,eventObject) {
         this.#eventsRegister[eventId] = eventObject;
         eventObject.initialize?.();
-        for (const eventCallback in eventObject.callback) {
+        for (const eventCallback in eventObject.callbacks) {
             this.events[eventCallback] = {};
-            this.events[eventCallback].subscribe = eventObject.callback[eventCallback].subscribe;
+            this.events[eventCallback].subscribe = eventObject.callbacks[eventCallback].subscribe;
         }
+        
+        Debug.logMessage(this.#eventsRegister[eventId]);
     }
 
     setTimeout(callback, ticks) {
@@ -140,14 +143,26 @@ class Server {
 }
 
 class ServerEventCallback {
-    constructor() {}
-    saved = [];
+    constructor() {
+        Debug.logMessage(`${this.saved}`);
+    }
+
     subscribe(callback) {
-        return insertToArray(this.saved,callback);
+        Debug.logMessage(`${this.saved}`)
+        insertToArray(this.#savedCallbacks,callback);
     }
+
     unsubscribe(index) {
-        deleteFromArray(this.saved,index);
+        Debug.logMessage(`${this.saved}`);
+        deleteFromArray(this.#savedCallbacks,index);
     }
+
+
+    get saved() {
+        return this.#savedCallbacks;
+    };
+
+    #savedCallbacks = [];
 }
 
 
