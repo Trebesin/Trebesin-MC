@@ -1,5 +1,7 @@
+import { world } from '@minecraft/server';
 import { Server, ServerEventCallback } from '../../mc_modules/server';
 import { compareItems } from '../../mc_modules/items';
+import * as Debug from '../debug/debug';
 
 const server = new Server(0);
 
@@ -15,7 +17,6 @@ function PluginMain() {
             const players = world.getAllPlayers();
             for (let playerIndex = 0; playerIndex < players.length; playerIndex++) {
                 const player = players[playerIndex];
-
                 //## playerEquip event:
                 const playerEquipCallbacks = callbacks.playerEquip.saved;
                 if (playerEquipCallbacks.length) {

@@ -9,11 +9,13 @@ import { Server } from '../../backend/backend';
 
 function main() {
     const showChunkBorder = {};
-    Debug.logMessage('subbing')
+    Debug.logMessage('subbing');
     Server.events.playerEquip.subscribe((eventData) => {
         if (eventData.itemAfter.typeId === 'trebesin:bh_debug_stick') showChunkBorder[eventData.player.id] = 1;
         else showChunkBorder[eventData.player.id] = 0;
     });
+    Debug.logMessage('subbed');
+    Debug.logMessage(Server.events.playerEquip.saved.length);
     system.runSchedule(() => {
         try {
             const players = world.getAllPlayers();

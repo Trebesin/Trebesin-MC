@@ -61,10 +61,9 @@ class Server {
 
     registerEvent(eventId,eventObject) {
         this.#eventsRegister[eventId] = eventObject;
-        eventObject.initialize?.();
+        eventObject.initialize?.(this);
         for (const eventCallback in eventObject.callbacks) {
-            this.events[eventCallback] = {};
-            this.events[eventCallback].subscribe = eventObject.callbacks[eventCallback].subscribe;
+            this.events[eventCallback] = eventObject.callbacks[eventCallback];
         }
         
         Debug.logMessage(this.#eventsRegister[eventId]);
@@ -145,22 +144,13 @@ class Server {
 class ServerEventCallback {
     constructor() {
         this.saved = [];
-        Debug.logMessage('construct')
-        Debug.logMessage(`${this.saved}`);
-        Debug.logMessage(`${Array.isArray(this.saved)}`);
     }
-
     subscribe(callback) {
-        Debug.logMessage('sub')
-        Debug.logMessage(`${this.saved}`);
-        Debug.logMessage(`${Array.isArray(this.saved)}`);
-        insertToArray(this.saved,callback);
+        return insertToArray(this.saved,callback);
     }
-
     unsubscribe(index) {
         deleteFromArray(this.saved,index);
     }
-
     saved;
 }
 
