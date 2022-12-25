@@ -144,25 +144,20 @@ class Server {
 
 class ServerEventCallback {
     constructor() {
+        this.saved = [];
         Debug.logMessage(`${this.saved}`);
+        Debug.logMessage(`${Array.isArray(this.saved)}`);
     }
 
     subscribe(callback) {
-        Debug.logMessage(`${this.saved}`)
-        insertToArray(this.#savedCallbacks,callback);
+        insertToArray(this.saved,callback);
     }
 
     unsubscribe(index) {
-        Debug.logMessage(`${this.saved}`);
-        deleteFromArray(this.#savedCallbacks,index);
+        deleteFromArray(this.saved,index);
     }
 
-
-    get saved() {
-        return this.#savedCallbacks;
-    };
-
-    #savedCallbacks = [];
+    saved;
 }
 
 
