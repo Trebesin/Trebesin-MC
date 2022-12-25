@@ -13,17 +13,17 @@ const apiLog = new LoggingConnection({
 
 async function main() {
     const response = await apiLog.connect();
-    logMessage(response.status);
 }
 
 /**
  * Sends a log message to the world chat, MC server content log and console API server.
- * @param {string} message 
+ * @param {string} message Log message.
  */
-async function logMessage(message) {
-    world.say(`${message}`);
-    console.warn(`${message}`);
-    await apiLog.sendLog(`${message}`);
+async function logMessage(message,options) {
+    const logOptions = Object.assign({api:true,world:true,content:true},options);
+    if (logOptions.world) world.say(`${message}`);
+    if (logOptions.content) console.warn(`${message}`);
+    if (logOptions.api) await apiLog.sendLog(`${message}`);
 }
 
 export { logMessage , main }

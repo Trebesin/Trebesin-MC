@@ -244,8 +244,7 @@ async function main() {
 
 function loadWorkers() {
     BlockHistoryCommandsWorker.main();
-    console.warn('   Block History commands Loaded');
-    world.say('   Block History commands Loaded');
+    Debug.logMessage('   Block History commands Loaded');
 }
 
 /**
