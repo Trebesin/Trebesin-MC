@@ -33,8 +33,8 @@ function spawnBlockSelection(particle,coords,dimension,molang) {
     }
 }
 
-function spawnLine(particle,coords,dimension,molang) {
-    getGridLine(coords,{stepBy:1,round:false},(coord) => {
+function spawnLine(particle,coords,dimension,molang,stepBy = 1) {
+    getGridLine(coords,{stepBy,round:false},(coord) => {
         const location = new Location(coord.x,coord.y,coord.z);
         dimension.spawnParticle(particle,location,molang);
     })

@@ -98,6 +98,7 @@ class LoggingConnection {
             .addHeader('token',this.#token)
             .addHeader('username',this.#options.server.username)
             .addHeader('content-type','application/json')
+            .addHeader('blank','true')
             .setBody(JSON.stringify({message}))
             .setMethod(HttpRequestMethod.POST)
             .setTimeout(3);

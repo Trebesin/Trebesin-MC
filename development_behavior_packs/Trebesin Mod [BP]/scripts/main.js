@@ -6,17 +6,17 @@ import * as Debug from './plugins/debug/debug';
 import { world } from '@minecraft/server';
 
 Debug.logMessage('\n\nReloading Trebesin Mod...\n\n',{api:false});
-function executePlugins() {
+async function executePlugins() {
     try {
-        Debug.main();
+        await Debug.main();
         Debug.logMessage('Loaded debug');
     } catch (error) {
         Debug.logMessage(error);
     }
     try {
         Debug.logMessage('Loading Block History...\n{');
-        blockHistory.main();
-        Debug.logMessage('}\nLoaded Block History...\n');
+        await blockHistory.main();
+        Debug.logMessage('}\nLoaded Block History...');
     } catch (error) {
         Debug.logMessage(error);
     }
@@ -33,8 +33,9 @@ function executePlugins() {
         Debug.logMessage(error);
     }
     try {
+        Debug.logMessage('Loading Commands...\n{');
         commands.main();
-        Debug.logMessage('Loaded commands');
+        Debug.logMessage('}\nLoaded Commands...');
     } catch (error) {
         Debug.logMessage(error);
     }
