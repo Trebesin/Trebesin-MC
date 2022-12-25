@@ -19,7 +19,7 @@ class Server {
             if (!this.#playersLoaded && world.getAllPlayers().length) this.#playersLoaded = true;
 
             //Events
-            for (const eventId in this.#eventRegister) {
+            for (const eventId in this.#eventsRegister) {
                 this.#eventRegister[eventId].execute?.(this);
             }
 
@@ -34,7 +34,7 @@ class Server {
         });
     }
 
-    #eventRegister = {}
+    #eventsRegister = {}
     events = {}
 
     #timeouts = [];
