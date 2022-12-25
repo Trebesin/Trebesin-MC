@@ -1,12 +1,12 @@
-import * as ItemsWorker from "./workers/admin"
-import * as ItemsWorker from "./workers/user"
+import * as AdminWorker from "./workers/admin"
+import * as UserWorker from "./workers/user"
 import * as ItemsWorker from "./workers/items"
 import * as Debug from "../debug/debug"
 
 async function main(){
-    ItemsWorker.main();
+    AdminWorker.main();
     Debug.logMessage('   Admin commands set');
-    ItemsWorker.main();
+    UserWorker.main();
     Debug.logMessage('   User commands set');
     ItemsWorker.main()
     Debug.logMessage('   item links to commands set');
