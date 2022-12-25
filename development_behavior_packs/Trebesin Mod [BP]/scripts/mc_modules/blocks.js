@@ -1,17 +1,7 @@
 import {Block, BlockPermutation, world, system, BlockLocation} from '@minecraft/server';
 import { arrayDifference, find } from '../js_modules/array';
 import { sumVectors, compareVectors } from '../js_modules/vector';
-const TREBESIN_PERMUTATIONS = [
-    {name:'trebesin:direction'},{name:'trebesin:vertical_direction'},{name:'trebesin:horizontal_direction'}
-];
-const DIRECTIONS = [
-    {x:-1,y:0,z:0},
-    {x:1,y:0,z:0},
-    {x:0,y:-1,z:0},
-    {x:0,y:1,z:0},
-    {x:0,y:0,z:-1},
-    {x:0,y:0,z:1}
-]
+import { DIRECTIONS, TREBESIN_PERMUTATIONS } from './constants';
 
 /**
  * Function for comparing 2 `Block` class objects.

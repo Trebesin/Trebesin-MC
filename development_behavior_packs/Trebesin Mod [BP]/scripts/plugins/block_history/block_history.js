@@ -2,7 +2,7 @@ import { DatabaseConnection } from '../../mc_modules/network/database-api';
 import { world,system, Block, BlockType, BlockLocation, Entity, BlockPermutation} from '@minecraft/server';
 import * as serverAdmin from '@minecraft/server-admin';
 import { sendMessage } from '../../mc_modules/commandParser';
-import { copyBlock, compareBlocks, getPermutations, blockUpdateIteration } from '../../mc_modules/block';
+import { copyBlock, compareBlocks, getPermutations, blockUpdateIteration } from '../../mc_modules/blocks';
 import { sumVectors, copyVector, subVectors } from '../../js_modules/vector';
 import { containsArray, filter, insertToArray, deleteFromArray } from '../../js_modules/array';
 import * as BlockHistoryCommandsWorker from './workers/commands';

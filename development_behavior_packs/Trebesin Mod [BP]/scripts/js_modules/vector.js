@@ -39,6 +39,16 @@ function subVectors(vectorA,vectorB) {
 }
 
 /**
+ * Multiply vector.
+ * @param {object} vector Vector to multiply.
+ * @param {number} amount Multiplication.
+ * @returns {object} Result of the vector multiplication.
+ */
+function multiplyVector(vector,amount) {
+    return {x:vector.x*amount,y:vector.y*amount,z:vector.z*amount};
+}
+
+/**
  * Copies a vector into a new object.
  * @param {object} vector Vector to copy.
  * @returns {object} New object of the same vector.
@@ -52,4 +62,4 @@ function compareVectors(vectorA,vectorB) {
     return (vectorA.x === vectorB.x && vectorA.y === vectorB.y && vectorA.z === vectorB.z);
 }
 
-export {setVectorLength,getVectorLength,sumVectors,subVectors,copyVector,compareVectors}
+export {setVectorLength,getVectorLength,sumVectors,subVectors,multiplyVector,copyVector,compareVectors}

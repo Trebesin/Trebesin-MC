@@ -7,4 +7,9 @@ function compareItems(itemA,itemB) {
     return true;
 }
 
+function copyItem(itemA,itemB) {
+
+}
+
+
 export { compareItems }

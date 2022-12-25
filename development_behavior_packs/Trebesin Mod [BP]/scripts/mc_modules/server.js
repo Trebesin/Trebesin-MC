@@ -10,25 +10,21 @@ import { compareItems } from './items.js';
 class Server {
     constructor(initialTick = 0) {
         this.#tick = initialTick;
-        this.#chunkManager = new ChunkManager();
 
         const tickEvent = () => {
             //Property 'relativeTick'
             this.#tick++;
-            //Property 'playersLoaded'
-            if (this.#playersLoaded === false && [...world.getPlayers()].length) {
-                this.#playersLoaded = true;
-            }
-            //Timeouts
-            executeTimeout(this.#callbacks.onTimeout,this.#tick);
-
-            //Random Ticking
-            const loadedChunks = this.#chunkManager.updateLoadedChunks();
-            executeRandomTick(this.#callbacks.onRandomTick,loadedChunks,this.#tickSpeed);
-
-            //Player Equip
-            executePlayerEquip(this.#callbacks.playerEquip,this.#playerData);
             
+            //Property 'playersLoaded'
+            if (!this.#playersLoaded && world.getAllPlayers().length) this.#playersLoaded = true;
+
+            //Events
+            for (const eventId in this.#eventRegister) {
+                this.#eventRegister[eventId].execute?.(this);
+            }
+
+            //Timeouts
+            executeTimeout(this.#timeouts,this.#tick);
         }
 
         system.runSchedule(tickEvent,1);
@@ -38,33 +34,10 @@ class Server {
         });
     }
 
-    //* New modular event scheme for server module™️
-    #eventInfo = {
-        playerEquip: {
-            callbacks: [],//can also be an object to define sub events
-            initialize() {},
-            execute() {},
-            data: {}
-        }
-    }
-    events = {
-        playerEquip: {
-            subscribe() {},
-            unsubscribe() {}
-        }
-    }
+    #eventRegister = {}
+    events = {}
 
-
-    #chunkManager;
-    #playerData = {
-        equip: {}
-    };
-    #callbacks = {
-        onTimeout: [],
-        onRandomTick: [],
-        playerEquip: []
-    };
-    #tickSpeed = 3;
+    #timeouts = [];
     #tick = 0;
     #playersLoaded = false;
     #watchdogTerminate = false;
@@ -85,28 +58,21 @@ class Server {
         return this.#playersLoaded;
     }
 
+    registerEvent(eventId,eventObject) {
+        this.#eventsRegister[eventId] = eventObject;
+        eventObject.initialize?.();
+        for (const eventCallback in eventObject.callback) {
+            this.events[eventCallback] = {};
+            this.events[eventCallback].subscribe = eventObject.callback[eventCallback].subscribe;
+        }
+    }
+
     setTimeout(callback, ticks) {
-        return insertToArray(this.#callbacks.onTimeout,[callback, this.#tick + ticks]);
+        return insertToArray(this.#timeouts,[callback, this.#tick + ticks]);
     }
     
     clearTimeout(index) {
-        deleteFromArray(this.#callbacks.onTimeout,index)
-    }
-
-    randomTickSubscribe(callback) {
-        return insertToArray(this.#callbacks.onRandomTick,callback);
-    }
-
-    randomTickUnsubscribe(index) {
-        deleteFromArray(this.#callbacks.onRandomTick,index);
-    }
-
-    playerEquipSubscribe(callback) {
-        return insertToArray(this.#callbacks.playerEquip,callback);
-    }
-
-    playerEquipUnsubscribe(index) {
-        deleteFromArray(this.#callbacks.playerEquip,index);
+        deleteFromArray(this.#timeouts,index)
     }
 
     /**
@@ -173,36 +139,14 @@ class Server {
     }
 }
 
-class ServerEvent {
-    constructor(callback) {
-
+class ServerEventCallback {
+    constructor() {}
+    saved = [];
+    subscribe(callback) {
+        return insertToArray(this.saved,callback);
     }
-}
-
-function executePlayerEquip(callbackArray,playerData) {
-    const players = world.getAllPlayers();
-    for (let playerIndex = 0; playerIndex < players.length; playerIndex++) {
-        const player = players[playerIndex];
-        if (playerData.equip[player.id] == null) playerData.equip[player.id] = {};
-        const itemBefore = playerData.equip[player.id].item;
-        const slotBefore = playerData.equip[player.id].slot;
-        const itemAfter = player.getComponent('inventory').container.getSlot(player.selectedSlot).getItem();
-        const slotAfter = player.selectedSlot;
-        if (!compareItems(itemAfter,itemBefore) || slotBefore != slotAfter) {
-            for (let callbackIndex = 0;callbackIndex < callbackArray.length;callbackIndex++) {
-                try {
-                    callbackArray[callbackIndex]({
-                        itemBefore,
-                        itemAfter,
-                        slotBefore,
-                        slotAfter,
-                        player
-                    });
-                } catch {}
-            }
-        }
-        playerData.equip[player.id].item = itemAfter;
-        playerData.equip[player.id].slot = slotAfter;
+    unsubscribe(index) {
+        deleteFromArray(this.saved,index);
     }
 }
 
@@ -246,4 +190,4 @@ function executeRandomTick(callbackArray,loadedChunks,tickSpeed) {
     }
 }
 
-export { Server }
+export { Server , ServerEventCallback }
