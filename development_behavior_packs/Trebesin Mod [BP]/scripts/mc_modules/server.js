@@ -145,11 +145,15 @@ class Server {
 class ServerEventCallback {
     constructor() {
         this.saved = [];
+        Debug.logMessage('construct')
         Debug.logMessage(`${this.saved}`);
         Debug.logMessage(`${Array.isArray(this.saved)}`);
     }
 
     subscribe(callback) {
+        Debug.logMessage('sub')
+        Debug.logMessage(`${this.saved}`);
+        Debug.logMessage(`${Array.isArray(this.saved)}`);
         insertToArray(this.saved,callback);
     }
 
