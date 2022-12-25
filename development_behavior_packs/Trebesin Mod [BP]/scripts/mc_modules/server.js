@@ -20,7 +20,7 @@ class Server {
 
             //Events
             for (const eventId in this.#eventsRegister) {
-                this.#eventRegister[eventId].execute?.(this);
+                this.#eventsRegister[eventId].execute?.(this);
             }
 
             //Timeouts
