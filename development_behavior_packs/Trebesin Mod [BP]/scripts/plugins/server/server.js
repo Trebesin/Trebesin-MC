@@ -1,8 +1,10 @@
+//Base imports
 import {world,system,MinecraftEffectTypes,MolangVariableMap,Color,Location} from '@minecraft/server';
-import { Server } from '../../mc_modules/server';
-import { spawnBlockSelection,spawnLine } from './../../mc_modules/particles';
+import * as Debug from './../debug/debug';
+//MC module imports
+import * as Particles from './../../mc_modules/particles';
+//JS module imports
 import { randInt } from '../../js_modules/random';
-import * as Debug from './../debug/debug'
 import { setVectorLength, sumVectors } from '../../js_modules/vector';
 
 const playerData = {
@@ -10,7 +12,6 @@ const playerData = {
 };
 
 async function main() {
-    const server = new Server();
     system.runSchedule(() => {
         for (const player of world.getPlayers()) {
             player.addEffect(MinecraftEffectTypes.saturation,9999,128,false);
@@ -40,7 +41,7 @@ async function main() {
             if (equipedItem.typeId === 'trebesin:cmd_phaser') {
                 const molang = new MolangVariableMap()
                 .setColorRGBA('variable.colour',new Color(0,1,1,1));
-                spawnLine(
+                Particles.spawnLine(
                     'trebesin:selection_dot_fast',
                     [
                         player.location,
@@ -61,6 +62,10 @@ async function main() {
             playerData.instaKill[entity.id] = false;
         }
     })
+
+    world.events.playerJoin.subscribe((eventData) => {
+
+    });
 
     //try {
     //    const index = server.playerEquipSubscribe((eventData) => {

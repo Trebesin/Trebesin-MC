@@ -1,4 +1,4 @@
-import { world } from '@minecraft/server';
+import { world, system } from '@minecraft/server';
 import { Server, ServerEventCallback } from '../../mc_modules/server';
 import { compareItems } from '../../mc_modules/items';
 import * as Debug from '../debug/debug';
@@ -47,6 +47,28 @@ function PluginMain() {
             playerEquip: {}
         }
     });
+
+    server.registerEvent('itemStartUseOn',{
+        callbacks: {
+            itemStartUseOn: new ServerEventCallback()
+        },
+        initialize() {
+            const {data,callbacks} = this;
+            world.events.itemUseOn.subscribe(eventData => {
+                const itemStartUseOnCallbacks = callbacks.itemStartUseOn.saved;
+                if (((data[eventData.source.id] ?? 0) + 1) < system.currentTick) {
+                    for (let callbackIndex = 0;callbackIndex < itemStartUseOnCallbacks.length;callbackIndex++) {
+                        try {
+                            itemStartUseOnCallbacks[callbackIndex](eventData);
+                        } catch {}
+                    }
+                }
+                data[eventData.source.id] = system.currentTick;
+            });
+        },
+        execute() {},
+        data: {}
+    })
 }
 
 export { server as Server , PluginMain as main, PluginName as name }

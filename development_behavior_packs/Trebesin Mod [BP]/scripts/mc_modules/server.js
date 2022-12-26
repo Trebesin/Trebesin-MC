@@ -78,22 +78,22 @@ class Server {
     }
 
     /**
-     * @param {string} eventName Name of the event function is waiting for.
+     * @param {object} eventObject Object containing `subscribe()` and `unsubscribe()` methods.
      * @param {Function} callback Callback that gets passed event data, it must return an object that contains property `tries` that modifies the tries counter and a property `saveValue` which gets saved and counts the event as success if its value isn't nullish.
      * @param {number} tries A variable that changes everytime the event fires depending on the condition return value if it is a number. Getting tires to/below 0 results in rejection of the promise.
      * @param {number} timeout Number of ticks before rejecting the promise. Enter 0 for infinite timeout (not recommended).
      * @param {number} amount Number of events to wait for before resolving the promise, it must get there or else the promise times out. 0 will wait until the timeout and resolve everything that met the condition. Negative values will resolve the promise even if it doesn't get to the requested amount.
      */
-     async waitForEvent(eventName,callback,tries = 10,timeout = 200,amount = 1) {
+     async waitForEvent(eventObject,callback,tries = 10,timeout = 200,amount = 1) {
         return new Promise((resolve, reject) => {
             let savedEvents = [];
             let timeoutIndex;
-            const event = world.events[eventName].subscribe((data) => {
+            const event = eventObject.subscribe((data) => {
                 const result = callback(data);
                 tries += result.tries;
                 if (tries <= 0) {
                     if (Number.isFinite(timeoutIndex)) this.clearTimeout(timeoutIndex);
-                    world.events[eventName].unsubscribe(event);
+                    eventObject.unsubscribe(event);
                     reject({timeout:false,tries:true});
                 }
                 
@@ -101,7 +101,7 @@ class Server {
                     savedEvents.push(result.saveValue);
                     if ((amount > 0 && savedEvents.length === amount) || (amount < 0 && savedEvents.length + amount === 0)) {
                         if (Number.isFinite(timeoutIndex)) this.clearTimeout(timeoutIndex);
-                        world.events[eventName].unsubscribe(event);
+                        eventObject.unsubscribe(event);
                         resolve(savedEvents);
                     }
                 } else console.warn('[Script] Invalid condition return value!');
@@ -110,12 +110,12 @@ class Server {
             if (timeout > 0) {
                 if (amount > 0) {
                     timeoutIndex = this.setTimeout(() => {
-                        world.events[eventName].unsubscribe(event);
+                        eventObject.unsubscribe(event);
                         reject({timeout:true,tries:false});
                     },timeout)
                 } else {
                     timeoutIndex = this.setTimeout(() => {
-                        world.events[eventName].unsubscribe(event);
+                        eventObject.unsubscribe(event);
                         resolve(savedEvents);
                     },timeout)
                 }

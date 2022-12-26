@@ -38,8 +38,9 @@ async function executePlugins() {
         Debug.logMessage(error);
     }
     try {
+        Debug.logMessage('Loading Blocky Tools...\n{');
         BlockyToolsPlugin.main();
-        Debug.logMessage('Loaded Blocky Tools');
+        Debug.logMessage('}\nLoaded Blocky Tools...');
     } catch (error) {
         Debug.logMessage(error);
     }
