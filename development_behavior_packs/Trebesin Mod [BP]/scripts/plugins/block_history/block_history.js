@@ -141,6 +141,7 @@ async function main() {
         }
     },1);
 
+    //## Block Breaking Detection:
     world.events.blockBreak.subscribe(async (eventData) => {
         world.say(`§cBlock Break§r - ${system.currentTick}`);
         const playerId = eventData.player.id;
@@ -162,25 +163,12 @@ async function main() {
             const fallObject = fallingBlocksTracked.find((block) => blockBefore.location.equals(block.location.start));
             if (fallObject) fallObject.playerId = playerId;
         });
-
-        
-        //Future feature:
-        //const dimension = eventData.dimension;
-        //const blockAbove = dimension.getBlock(eventData.block.location.offset(0,1,0));
-        //world.say(`Above Break Before: ${blockAbove.typeId} - ${system.currentTick}`);
-        //system.run(() => {
-        //    world.say(`Above Break After: ${blockAbove.typeId} - ${system.currentTick}`);
-        //    const doubleBlockAbove = dimension.getBlock(blockAbove.location.offset(0,1,0));
-        //    world.say(`2xAbove Break Before: ${doubleBlockAbove.typeId} - ${system.currentTick}`);
-        //    system.run(() => {
-        //        world.say(`2xAbove Break After: ${doubleBlockAbove.typeId} - ${system.currentTick}`);
-        //    });
-        //});
     });
 
     //!falling blocks will need a special treatment.
     //!also placing blocks can have chain effect too.
     
+    //## Block Placing Detection:
     world.events.itemStartUseOn.subscribe(async(eventData) => {
         const player = eventData.source;
         const offset = FACE_DIRECTIONS[eventData.blockFace];
@@ -211,6 +199,7 @@ async function main() {
         });
     });  
 
+    //Debug:
     world.events.itemUseOn.subscribe((eventData) => {
         if (eventData.item.typeId === 'minecraft:stick') {
             const block = eventData.source.dimension.getBlock(eventData.blockLocation);
@@ -231,6 +220,7 @@ async function main() {
 
 //# Functions:
 
+//## Internal Functions:
 function loadWorkers() {
     BlockHistoryCommandsWorker.main();
     Debug.logMessage('   Block History commands Loaded');
@@ -285,7 +275,7 @@ function saveBlockUpdate(blockBefore,blockAfter,actorId) {
     }
 }
 
-//## Export Functions:
+//## Exported Functions:
 /**
  * Custom set block type function, does the same as `Block.setType()` method but also records the update to the block hisory database.
  * @param {Block} block `Block` class object to invoke `setType()` method on.

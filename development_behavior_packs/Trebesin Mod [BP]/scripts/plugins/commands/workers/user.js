@@ -1,4 +1,4 @@
-import {CommandResult, system, world, Vector, Player} from "@minecraft/server";
+import {CommandResult, Location, system, world, Vector, Player} from "@minecraft/server";
 import {CommandParser, sendMessage} from "../../../mc_modules/commandParser";
 import * as Debug from './../../debug/debug';
 import { playerData as serverPlayerData } from '../../server/server';
@@ -87,6 +87,23 @@ function main(){
       if (instaKillStatus) serverPlayerData.instaKill[sender.id] = false;
       else serverPlayerData.instaKill[sender.id] = true;
       sendMessage(`Your new InstaKill status: ${serverPlayerData.instaKill[sender.id]}`,'CMD',sender);
+    }
+  });
+
+  command_parser.registerCommand("dupe", {
+    parameters: [], aliases: [], run: (sender,parameters) => {
+      const container = sender.getComponent('inventory').container
+      const item = container.getItem(sender.selectedSlot);
+      if (item != null) {
+        if (container.emptySlotsCount > 0) {
+          container.addItem(item);
+        } else {
+          sender.dimension.spawnItem(item,new Location(sender.location.x,sender.location.y,sender.location.z));
+        }
+        sendMessage(`Added copy of ${item.typeId} to your inventory!`,'CMD',sender);
+      } else {
+        sendMessage(`No item equipped!`,'CMD',sender);
+      }
     }
   });
     
