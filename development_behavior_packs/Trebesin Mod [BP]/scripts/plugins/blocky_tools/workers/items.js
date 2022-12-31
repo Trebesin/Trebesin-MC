@@ -10,7 +10,7 @@ import { Server } from '../../backend/backend';
 function main() {
     const showChunkBorder = {};
     Server.events.playerEquip.subscribe((eventData) => {
-        if (eventData.itemAfter.typeId === 'trebesin:bh_debug_stick') showChunkBorder[eventData.player.id] = 1;
+        if (eventData.itemAfter.typeId === 'trebesin:bt_debug_stick') showChunkBorder[eventData.player.id] = 1;
         else showChunkBorder[eventData.player.id] = 0;
     });
     system.runSchedule(() => {
@@ -35,7 +35,7 @@ function main() {
     },20);
     
     addItemStartUseOnListener(async (eventData) => {
-        if (eventData.item.typeId === 'trebesin:bh_debug_stick') {
+        if (eventData.item.typeId === 'trebesin:bt_debug_stick') {
             const block = eventData.source.dimension.getBlock(eventData.blockLocation);
             const player = eventData.source;
             const menuData = {

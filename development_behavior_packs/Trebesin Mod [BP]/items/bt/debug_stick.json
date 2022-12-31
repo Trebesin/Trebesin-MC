@@ -2,7 +2,7 @@
   "format_version": "1.19.0",
   "minecraft:item": {
     "description": {
-      "identifier": "trebesin:bh_debug_stick",
+      "identifier": "trebesin:bt_debug_stick",
       "category": "Equipment"
     },
     "components": {
