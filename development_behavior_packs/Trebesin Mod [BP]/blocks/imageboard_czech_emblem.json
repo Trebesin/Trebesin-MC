@@ -27,11 +27,11 @@
             },
             "minecraft:material_instances": {
                 "south": {
-                    "texture": "trebesin.image_czech_embled",
+                    "texture": "trebesin.image_czech_emblem",
                     "render_method": "alpha_test"
                 },
                 "north": {
-                    "texture": "trebesin.image_czech_embled",
+                    "texture": "trebesin.image_czech_emblem",
                     "render_method": "alpha_test"
                 },
                 "*": {

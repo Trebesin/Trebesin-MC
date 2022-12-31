@@ -14,7 +14,7 @@
             }
         },
         "components": {
-            "minecraft:geometry": "geometry.imageboard_wall",
+            "minecraft:geometry": "geometry.imageboard",
             "minecraft:destroy_time": 0.0,
             "minecraft:block_light_filter": 0,
             "minecraft:collision_box": {
