@@ -1,5 +1,6 @@
 import { command_parser } from './admin';
 import {world,ItemTypes, ItemStack} from '@minecraft/server';
+import { sendMessage } from '../../../mc_modules/commandParser';
 
 function main() {
     const itemCommands = {
@@ -28,6 +29,7 @@ function main() {
             const commandItem = new ItemStack(ItemTypes.get('trebesin:cmd_universal'),1);
             commandItem.setLore([parameters.commandName,parameters.commandParameters]);
             sender.getComponent('inventory').container.addItem(commandItem);
+            sendMessage(`Successfully created item for the command ${parameters.commandName}. It's been addded to your inventory.`,'CMD',sender);
         }
     });
 
