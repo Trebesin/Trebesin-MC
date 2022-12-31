@@ -15,7 +15,6 @@ const process = require('process');
  * @returns {undefined}
  */
 function generateBlock(id,packDefinition,languageDefinitions,onGround = false) {
-    const type = onGround ? 'ground' : 'wall';
     const terrainTexturePath = path.join(packDefinition.resourceFolder,'\\textures\\terrain_texture.json');
     let terrainTexture = JSON.parse(fs.readFileSync(terrainTexturePath));
     const textureData = terrainTexture.texture_data;
@@ -26,10 +25,10 @@ function generateBlock(id,packDefinition,languageDefinitions,onGround = false) {
 
     const blocksPath = path.join(packDefinition.resourceFolder,'\\blocks.json');
     let blocks = JSON.parse(fs.readFileSync(blocksPath));
-    blocks[`${packDefinition.namespace}:imageboard_${type}_${id}`] = {};
-    blocks[`${packDefinition.namespace}:imageboard_${type}_${id}`].sounds = 'wood';
-    blocks[`${packDefinition.namespace}:imageboard_${type}_${id}`].textures = {};
-    const textures = blocks[`${packDefinition.namespace}:imageboard_wall_${id}`].textures;
+    blocks[`${packDefinition.namespace}:imageboard_${id}`] = {};
+    blocks[`${packDefinition.namespace}:imageboard_${id}`].sounds = 'wood';
+    blocks[`${packDefinition.namespace}:imageboard_${id}`].textures = {};
+    const textures = blocks[`${packDefinition.namespace}:imageboard_${id}`].textures;
     textures.north = `${packDefinition.namespace}.image_${id}`;
     textures.south = `${packDefinition.namespace}.image_${id}`;
     textures.west = 'wood_oak';
@@ -39,288 +38,203 @@ function generateBlock(id,packDefinition,languageDefinitions,onGround = false) {
     blocks = JSON.stringify(blocks,null,2);
     fs.writeFileSync(blocksPath,blocks);
 
-    const blockDefinitionPath = path.join(packDefinition.behaviorFolder,`\\blocks\\imageboard_${type}_${id}.json`);
-    let blockDefinition;
-    if (onGround) {
-        blockDefinition = `{
-            "format_version": "1.19.0",
-            "minecraft:block": {
-                "description": {
-                    "identifier": "${packDefinition.namespace}:imageboard_ground_${id}",
-                    "properties": {
-                        "${packDefinition.namespace}:horizontal_direction": [2, 3, 4, 5, 6],
-                        "${packDefinition.namespace}:vertical_direction": [1 ,0]
-                    },
-                    "is_experimental": true,
-                    "register_to_creative_menu": true
+    const blockDefinitionPath = path.join(packDefinition.behaviorFolder,`\\blocks\\imageboard_${id}.json`);
+    const blockDefinition = `{
+        "format_version": "1.19.0",
+        "minecraft:block": {
+            "description": {
+                "identifier": "${packDefinition.namespace}:imageboard_${id}",
+                "properties": {
+                    "${packDefinition.namespace}:direction": [0, 1, 2, 3, 4, 5, 6],
+                    "${packDefinition.namespace}:ground_rotation": [2, 3, 4, 5, 6]
                 },
-                "components": {
-                    "minecraft:geometry": "geometry.imageboard_ground",
-                    "minecraft:destroy_time": 0.0,
-                    "minecraft:block_light_filter": 0,
-                    //Breaks stuff, don't use!
-                    //"minecraft:placement_filter":{
-                    //    "conditions": [
-                    //        {
-                    //            "allowed_faces": ["up", "down"]
-                    //        }
-                    //    ]
-                    //},
-                    "minecraft:collision_box": {
-                        "origin": [-8,0,-8],
-                        "size": [16,1,16]
+                "is_experimental": true,
+                "register_to_creative_menu": true,
+                "menu_category": {
+                    "category": "construction"
+                }
+            },
+            "components": {
+                "minecraft:geometry": "geometry.imageboard",
+                "minecraft:destroy_time": 0.0,
+                "minecraft:block_light_filter": 0,
+                "minecraft:collision_box": {
+                    "origin": [-8,0,-8],
+                    "size": [16,16,1]
+                },
+                "minecraft:selection_box": {
+                    "origin": [-8,0,-8],
+                    "size": [16,16,1]
+                },
+                "minecraft:material_instances": {
+                    "south": {
+                        "texture": "image_${id}",
+                        "render_method": "alpha_test"
                     },
-                    "minecraft:selection_box": {
-                        "origin": [-8,0,-8],
-                        "size": [16,1,16]
+                    "north": {
+                        "texture": "image_${id}",
+                        "render_method": "alpha_test"
                     },
-                    "minecraft:material_instances": {
-                        "up": {
-                            "texture": "${packDefinition.namespace}.image_${id}",
-                            "render_method": "alpha_test"
-                        },
-                        "down": {
-                            "texture": "${packDefinition.namespace}.image_${id}",
-                            "render_method": "alpha_test"
-                        },
-                        "*": {
-                            "texture": "wood_oak",
-                            "render_method": "alpha_test"
-                        }
-                    },
-                    "minecraft:on_player_placing": {
-                        "event": "${packDefinition.namespace}:set_direction",
-                        "target": "self"
-                    },
-                    "minecraft:creative_category": {
-                        "category": "construction"
+                    "*": {
+                        "texture": "wood_oak",
+                        "render_method": "alpha_test"
                     }
                 },
-                "events": {
-                    "${packDefinition.namespace}:set_direction": {
-                        "set_block_property": {
-                            "${packDefinition.namespace}:horizontal_direction": "query.cardinal_facing_2d",
-                            "${packDefinition.namespace}:vertical_direction": "query.block_face"
-                        }
+                "minecraft:on_player_placing": {
+                    "event": "${packDefinition.namespace}:set_rotation",
+                    "target": "self"
+                },
+                "minecraft:creative_category": {
+                    "category": "construction"
+                }
+            },
+            "events": {
+                "${packDefinition.namespace}:set_rotation": {
+                    "set_block_property": {
+                        "${packDefinition.namespace}:direction": "q.block_face",
+                        "${packDefinition.namespace}:ground_rotation": "q.cardinal_facing_2d"
+                    }
+                }
+            },
+            "permutations": [
+                {
+                    "condition": "q.block_property('${packDefinition.namespace}:direction') == 0.0 && (q.block_property('${packDefinition.namespace}:ground_rotation') == 2.0 || q.block_property('${packDefinition.namespace}:ground_rotation') == 6.0)",
+                    "components": {
+                        "minecraft:rotation": [
+                            90,
+                            0,
+                            0
+                        ]
                     }
                 },
-                "permutations": [
-                    {
-                        "condition": "query.block_property('${packDefinition.namespace}:horizontal_direction') == 2.0 && query.block_property('${packDefinition.namespace}:vertical_direction') == 1.0",
-                        "components": {
-                            "minecraft:rotation": [
-                                0,
-                                0,
-                                0
-                            ]
-                        }
-                    },
-                    {
-                        "condition": "query.block_property('${packDefinition.namespace}:horizontal_direction') == 3.0 && query.block_property('${packDefinition.namespace}:vertical_direction') == 1.0",
-                        "components": {
-                            "minecraft:rotation": [
-                                0,
-                                180,
-                                0
-                            ]
-                        }
-                    },
-                    {
-                        "condition": "query.block_property('${packDefinition.namespace}:horizontal_direction') == 4.0 && query.block_property('${packDefinition.namespace}:vertical_direction') == 1.0",
-                        "components": {
-                            "minecraft:rotation": [
-                                0,
-                                90,
-                                0
-                            ]
-                        }
-                    },
-                    {
-                        "condition": "query.block_property('${packDefinition.namespace}:horizontal_direction') == 5.0 && query.block_property('${packDefinition.namespace}:vertical_direction') == 1.0",
-                        "components": {
-                            "minecraft:rotation": [
-                                0,
-                                270,
-                                0
-                            ]
-                        }
-                    },
-                    {
-                        "condition": "query.block_property('${packDefinition.namespace}:horizontal_direction') == 6.0 && query.block_property('${packDefinition.namespace}:vertical_direction') == 1.0",
-                        "components": {
-                            "minecraft:rotation": [
-                                0,
-                                0,
-                                0
-                            ]
-                        }
-                    },
-                    {
-                        "condition": "query.block_property('${packDefinition.namespace}:horizontal_direction') == 2.0 && query.block_property('${packDefinition.namespace}:vertical_direction') == 0.0",
-                        "components": {
-                            "minecraft:rotation": [
-                                180,
-                                180,
-                                0
-                            ]
-                        }
-                    },
-                    {
-                        "condition": "query.block_property('${packDefinition.namespace}:horizontal_direction') == 3.0 && query.block_property('${packDefinition.namespace}:vertical_direction') == 0.0",
-                        "components": {
-                            "minecraft:rotation": [
-                                180,
-                                0,
-                                0
-                            ]
-                        }
-                    },
-                    {
-                        "condition": "query.block_property('${packDefinition.namespace}:horizontal_direction') == 4.0 && query.block_property('${packDefinition.namespace}:vertical_direction') == 0.0",
-                        "components": {
-                            "minecraft:rotation": [
-                                180,
-                                270,
-                                0
-                            ]
-                        }
-                    },
-                    {
-                        "condition": "query.block_property('${packDefinition.namespace}:horizontal_direction') == 5.0 && query.block_property('${packDefinition.namespace}:vertical_direction') == 0.0",
-                        "components": {
-                            "minecraft:rotation": [
-                                180,
-                                90,
-                                0
-                            ]
-                        }
-                    },
-                    {
-                        "condition": "query.block_property('${packDefinition.namespace}:horizontal_direction') == 6.0 && query.block_property('${packDefinition.namespace}:vertical_direction') == 0.0",
-                        "components": {
-                            "minecraft:rotation": [
-                                180,
-                                180,
-                                0
-                            ]
-                        }
-                    }
-                ]
-            }
-        }` 
-    } else {
-        blockDefinition = `{
-            "format_version": "1.19.0",
-            "minecraft:block": {
-                "description": {
-                    "identifier": "${packDefinition.namespace}:imageboard_wall_${id}",
-                    "properties": {
-                        "${packDefinition.namespace}:direction": [2, 3, 4, 5, 6]
-                    },
-                    "is_experimental": true,
-                    "register_to_creative_menu": true
-                },
-                "components": {
-                    "minecraft:geometry": "geometry.imageboard_wall",
-                    "minecraft:destroy_time": 0.0,
-                    "minecraft:block_light_filter": 0,
-                    "minecraft:collision_box": {
-                        "origin": [-8,0,-8],
-                        "size": [16,16,1]
-                    },
-                    "minecraft:selection_box": {
-                        "origin": [-8,0,-8],
-                        "size": [16,16,1]
-                    },
-                    "minecraft:material_instances": {
-                        "south": {
-                            "texture": "${packDefinition.namespace}.image_${id}",
-                            "render_method": "alpha_test"
-                        },
-                        "north": {
-                            "texture": "${packDefinition.namespace}.image_${id}",
-                            "render_method": "alpha_test"
-                        },
-                        "*": {
-                            "texture": "wood_oak",
-                            "render_method": "alpha_test"
-                        }
-                    },
-                    "minecraft:on_player_placing": {
-                        "event": "${packDefinition.namespace}:set_direction",
-                        "target": "self"
-                    },
-                    "minecraft:creative_category": {
-                        "category": "construction"
+                {
+                    "condition": "q.block_property('${packDefinition.namespace}:direction') == 0.0 && q.block_property('${packDefinition.namespace}:ground_rotation') == 3.0",
+                    "components": {
+                        "minecraft:rotation": [
+                            90,
+                            180,
+                            0
+                        ]
                     }
                 },
-                "events": {
-                    "${packDefinition.namespace}:set_direction": {
-                        "set_block_property": {
-                            "${packDefinition.namespace}:direction": "query.cardinal_facing_2d"
-                        }
+                {
+                    "condition": "q.block_property('${packDefinition.namespace}:direction') == 0.0 && q.block_property('${packDefinition.namespace}:ground_rotation') == 4.0",
+                    "components": {
+                        "minecraft:rotation": [
+                            90,
+                            90,
+                            0
+                        ]
                     }
                 },
-                "permutations": [
-                    {
-                        "condition": "query.block_property('${packDefinition.namespace}:direction') == 2.0",
-                        "components": {
-                            "minecraft:rotation": [
-                                0,
-                                0,
-                                0
-                            ]
-                        }
-                    },
-                    {
-                        "condition": "query.block_property('${packDefinition.namespace}:direction') == 3.0",
-                        "components": {
-                            "minecraft:rotation": [
-                                0,
-                                180,
-                                0
-                            ]
-                        }
-                    },
-                    {
-                        "condition": "query.block_property('${packDefinition.namespace}:direction') == 4.0",
-                        "components": {
-                            "minecraft:rotation": [
-                                0,
-                                90,
-                                0
-                            ]
-                        }
-                    },
-                    {
-                        "condition": "query.block_property('${packDefinition.namespace}:direction') == 5.0",
-                        "components": {
-                            "minecraft:rotation": [
-                                0,
-                                270,
-                                0
-                            ]
-                        }
-                    },
-                    {
-                        "condition": "query.block_property('${packDefinition.namespace}:direction') == 6.0",
-                        "components": {
-                            "minecraft:rotation": [
-                                0,
-                                0,
-                                0
-                            ]
-                        }
+                {
+                    "condition": "q.block_property('${packDefinition.namespace}:direction') == 0.0 && q.block_property('${packDefinition.namespace}:ground_rotation') == 5.0",
+                    "components": {
+                        "minecraft:rotation": [
+                            90,
+                            270,
+                            0
+                        ]
                     }
-                ]
-            }
-        }`
-    }
+                },
+                {
+                    "condition": "q.block_property('${packDefinition.namespace}:direction') == 1.0 && (q.block_property('${packDefinition.namespace}:ground_rotation') == 2.0 || q.block_property('${packDefinition.namespace}:ground_rotation') == 6.0)",
+                    "components": {
+                        "minecraft:rotation": [
+                            270,
+                            0,
+                            0
+                        ]
+                    }
+                },
+                {
+                    "condition": "q.block_property('${packDefinition.namespace}:direction') == 1.0 && q.block_property('${packDefinition.namespace}:ground_rotation') == 3.0",
+                    "components": {
+                        "minecraft:rotation": [
+                            270,
+                            180,
+                            0
+                        ]
+                    }
+                },
+                {
+                    "condition": "q.block_property('${packDefinition.namespace}:direction') == 1.0 && q.block_property('${packDefinition.namespace}:ground_rotation') == 4.0",
+                    "components": {
+                        "minecraft:rotation": [
+                            270,
+                            90,
+                            0
+                        ]
+                    }
+                },
+                {
+                    "condition": "q.block_property('${packDefinition.namespace}:direction') == 1.0 && q.block_property('${packDefinition.namespace}:ground_rotation') == 5.0",
+                    "components": {
+                        "minecraft:rotation": [
+                            270,
+                            270,
+                            0
+                        ]
+                    }
+                },
+                {
+                    "condition": "q.block_property('${packDefinition.namespace}:direction') == 2.0 || q.block_property('${packDefinition.namespace}:direction') == 6.0",
+                    "components": {
+                        "minecraft:rotation": [
+                            0,
+                            180,
+                            0
+                        ]
+                    }
+                },
+                {
+                    "condition": "q.block_property('${packDefinition.namespace}:direction') == 3.0",
+                    "components": {
+                        "minecraft:rotation": [
+                            0,
+                            0,
+                            0
+                        ]
+                    }
+                },
+                {
+                    "condition": "q.block_property('${packDefinition.namespace}:direction') == 4.0",
+                    "components": {
+                        "minecraft:rotation": [
+                            0,
+                            270,
+                            0
+                        ]
+                    }
+                },
+                {
+                    "condition": "q.block_property('${packDefinition.namespace}:direction') == 5.0",
+                    "components": {
+                        "minecraft:rotation": [
+                            0,
+                            90,
+                            0
+                        ]
+                    }
+                },
+                {
+                    "condition": "q.block_property('${packDefinition.namespace}:direction') == 6.0",
+                    "components": {
+                        "minecraft:rotation": [
+                            0,
+                            0,
+                            0
+                        ]
+                    }
+                }
+            ]
+        }
+    }`;
     fs.writeFileSync(blockDefinitionPath,blockDefinition);
 
     for (const language of languageDefinitions) {
         const languagePath = path.join(packDefinition.resourceFolder,`\\texts\\${language.langId}.lang`);
-        fs.appendFileSync(languagePath,`tile.${packDefinition.namespace}:imageboard_${type}_${id}.name=${language.text}`);
+        fs.appendFileSync(languagePath,`tile.${packDefinition.namespace}:imageboard_${id}.name=${language.text}`);
     }
 }
 
@@ -335,13 +249,6 @@ async function askForInput(message) {
 async function main() {
     const id = await askForInput('What is the ID of the block?');
     const namespace = await askForInput('What is the namespace of the add-on?');
-    let onGround = null;
-    while (onGround === null) {
-        const input = await askForInput('Is the block meant to be placed on the floor/ceiling or on the wall? <floor|wall>');
-        if (input === 'wall') { onGround = false; }
-        else if (input === 'floor') { onGround = true; }
-        else { process.stdout.write('Wrong Input!\n'); }
-    }
     const resourceFolder = await askForInput('What is the file path to the root of the resource pack?');
     const behaviorFolder = await askForInput('What is the file path to the root of the behavior pack?');
     const langDefinitions = [];
@@ -357,7 +264,7 @@ async function main() {
         }
     }
     console.log(langDefinitions);
-    generateBlock(id,{resourceFolder,behaviorFolder,namespace},langDefinitions,onGround);
+    generateBlock(id,{resourceFolder,behaviorFolder,namespace},langDefinitions);
     process.stdout.write('Block successfully generated!');
 }
 
