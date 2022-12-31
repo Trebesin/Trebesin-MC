@@ -60,9 +60,9 @@
                 "condition": "query.block_property('trebesin:direction') == 0.0",
                 "components": {
                     "minecraft:rotation": [
-                        90,
                         0,
-                        0
+                        0,
+                        270
                     ]
                 }
             },
