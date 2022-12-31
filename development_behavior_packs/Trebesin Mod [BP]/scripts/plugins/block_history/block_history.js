@@ -112,20 +112,19 @@ async function main() {
     system.runSchedule(() => {
         for (let index = 0;index < fallingBlocksTracked.length;index++) {
             const fallingBlockData = fallingBlocksTracked[index];
+            if (fallingBlockData == null) continue;
             const fallingBlockEntity = getEntityById(
-                fallingBlockData.id,
-                { type: 'minecraft:falling_block' },
-                [fallingBlockData.dimensionId]
-            )
+                    fallingBlockData.id,
+                    { type: 'minecraft:falling_block' },
+                    [fallingBlockData.dimensionId]
+            );
             if (fallingBlockEntity == null) {
                 const location = fallingBlockData.location;
                 const tick = fallingBlockData.tick;
                 const blocksTravelled = location.start.y - location.current.y;
                 const timeTravelled = tick.current - tick.start;
                 const speed = blocksTravelled/timeTravelled;
-                world.say(`§aBlock Ends Falling§r [${location.current.x},${location.current.y},${location.current.z}] @ ${tick.current}`);
-                world.say(`§aFalling Speed§r Blocks: ${blocksTravelled} Time: ${timeTravelled} Speed: ${speed.toPrecision(4)}b/t`);
-                world.say(`§aDone By Player§r - ${getEntityById(
+                world.say(`§aBlock Ends Falling§r [${location.current.x},${location.current.y},${location.current.z}] @ ${tick.current} - ${getEntityById(
                     fallingBlockData.playerId,
                     {},
                     [fallingBlockData.dimensionId]
@@ -152,12 +151,14 @@ async function main() {
             location: eventData.block.location,
             permutation: eventData.brokenBlockPermutation
         }
+        //This Block:
         saveBlockUpdate(blockOld,copyBlock(eventData.block),playerId);
 
-        //Testing:
+        //Updated Blocks:
         await blockUpdateIteration(blockOld.location,blockOld.dimension,(blockBefore,blockAfter,tick) => {
             const vec = subVectors(blockBefore.location,blockOld.location);
             world.say(`${blockBefore.typeId} -> ${blockAfter.typeId} @ ${vec.x},${vec.y},${vec.z}:${tick}`);
+            //Falling Blocks:
             const fallObject = fallingBlocksTracked.find((block) => blockBefore.location.equals(block.location.start));
             if (fallObject) fallObject.playerId = playerId;
         });
@@ -188,39 +189,27 @@ async function main() {
         const faceBlockOld = copyBlock(faceBlock);
         const block = player.dimension.getBlock(eventData.blockLocation);
         const blockOld = copyBlock(block);
-        system.run(async () => {
-            //Debug:
-            //world.say(`§aBefore block§r - ${blockOld.typeId}`);
-            //world.say(`§dAfter block§r - ${block.typeId}`);
-            //if (compareBlocks(block,blockOld)) {
-            //    world.say('They are the same.');
-            //} else {
-            //    saveBlockUpdate(faceBlockOld,copyBlock(faceBlock),player);
-            //    world.say('They are NOT the same.');
-            //}
-            //world.say(`§aBefore face§r - ${faceBlockOld.typeId}`);
-            //world.say(`§dAfter face§r - ${faceBlock.typeId}`);
-            //if (compareBlocks(faceBlock,faceBlockOld)) {
-            //    world.say('They are the same.');
-            //} else {
-            //    saveBlockUpdate(blockOld,copyBlock(block),player);
-            //    world.say('They are NOT the same.');
-            //}
 
-            //Function:
+        //Those Blocks:
+        system.run(async () => {
             saveBlockUpdate(faceBlockOld,copyBlock(faceBlock),player.id);
             saveBlockUpdate(blockOld,copyBlock(block),player.id);
+            //Falling Blocks
+            system.run(() => {
+                const fallObject = fallingBlocksTracked.find((block) => faceBlock.location.equals(block.location.start));
+                if (fallObject) fallObject.playerId = player.id;
+            })
+        });
 
-        })
+        //Updated Blocks:
         await blockUpdateIteration(faceBlockLocation,faceBlockOld.dimension,(blockBefore,blockAfter,tick) => {
             const vec = subVectors(blockBefore.location,faceBlockOld.location);
             world.say(`${blockBefore.typeId} -> ${blockAfter.typeId} @ ${vec.x},${vec.y},${vec.z}:${tick}`);
+            //Falling Blocks:
+            const fallObject = fallingBlocksTracked.find((block) => blockBefore.location.equals(block.location.start));
+            if (fallObject) fallObject.playerId = player.id;
         });
     });  
-
-    world.events.blockPlace.subscribe(async (eventData) => {
-        world.say('§bBlock Place');
-    });
 
     world.events.itemUseOn.subscribe((eventData) => {
         if (eventData.item.typeId === 'minecraft:stick') {
