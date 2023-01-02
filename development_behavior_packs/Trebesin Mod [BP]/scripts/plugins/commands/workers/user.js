@@ -38,7 +38,7 @@ function main(){
     try {
       const newLocation = Vector.add(sender.location, vectorMath.setVectorLength(sender.viewDirection, parameter.distance ?? 2));
       sender.teleport(newLocation, sender.dimension, sender.rotation.x, sender.rotation.y);
-      sendMessage("§l§bWHOOSH!§r");
+      sendMessage("§l§bWHOOSH!§r", "", sender);
     } catch (error) {
       world.say(`${error}`)
     }
