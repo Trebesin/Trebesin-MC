@@ -453,7 +453,7 @@ class CommandParser {
 
         }
         //Custom Options:
-        if (selector.values.dimension) parseListSelectorArg(selector.values.dimension,customOptions.dimension,customOptions.)
+        //if (selector.values.dimension) parseListSelectorArg(selector.values.dimension,customOptions.dimension,customOptions.)
         const entities = world.get
     }
 
