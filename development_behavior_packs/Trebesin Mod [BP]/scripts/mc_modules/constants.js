@@ -19,9 +19,24 @@ const DIRECTIONS = [
     {x:0,y:0,z:1}
 ]
 
+const EDGE_AXES = [
+    ['x','y'],
+    ['x','z'],
+    ['y','z']
+]
+
+const EDGE_COORDS = [
+    [1,1],
+    [-1,1],
+    [1,-1],
+    [-1,-1]
+]
+
 export {
     DIMENSION_IDS,
     FACE_DIRECTIONS,
     TREBESIN_PERMUTATIONS,
-    DIRECTIONS
+    DIRECTIONS,
+    EDGE_AXES,
+    EDGE_COORDS
 }
