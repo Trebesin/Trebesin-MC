@@ -2,7 +2,7 @@
         "format_version": "1.19.0",
         "minecraft:block": {
             "description": {
-                "identifier": "trebesin:imageboard_high_voltage_sign",
+                "identifier": "trebesin:imageboard_cnc_poster1_B1",
                 "properties": {
                     "trebesin:direction": [0, 1, 2, 3, 4, 5, 6],
                     "trebesin:ground_rotation": [2, 3, 4, 5, 6]
@@ -27,11 +27,11 @@
                 },
                 "minecraft:material_instances": {
                     "south": {
-                        "texture": "image_high_voltage_sign",
+                        "texture": "image_cnc_poster1_B1",
                         "render_method": "alpha_test"
                     },
                     "north": {
-                        "texture": "image_high_voltage_sign",
+                        "texture": "image_cnc_poster1_B1",
                         "render_method": "alpha_test"
                     },
                     "*": {

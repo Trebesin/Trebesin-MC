@@ -14,7 +14,7 @@ const process = require('process');
  * @param {boolean} onGround - Whether to make teh block placeable on the ground.
  * @returns {undefined}
  */
-function generateBlock(id,packDefinition,languageDefinitions,onGround = false) {
+function generateBlock(id,packDefinition,languageDefinitions) {
     const terrainTexturePath = path.join(packDefinition.resourceFolder,'\\textures\\terrain_texture.json');
     let terrainTexture = JSON.parse(fs.readFileSync(terrainTexturePath));
     const textureData = terrainTexture.texture_data;
@@ -238,7 +238,6 @@ function generateBlock(id,packDefinition,languageDefinitions,onGround = false) {
     }
 }
 
-//Will be cmd utility;
 async function askForInput(message) {
     return new Promise((resolve => {
         process.stdout.write(message + '\n');
@@ -266,6 +265,18 @@ async function main() {
     console.log(langDefinitions);
     generateBlock(id,{resourceFolder,behaviorFolder,namespace},langDefinitions);
     process.stdout.write('Block successfully generated!');
+}
+
+async function mainAutom() {
+    const packDefinition= {
+        resourceFolder:'D:\\Code\\Projects\\Trebesin\\MCBE Server Beta\\development_resource_packs\\Trebesin mod [RP]',
+        behaviorFolder: 'D:\\Code\\Projects\\Trebesin\\MCBE Server Beta\\development_behavior_packs\\Trebesin Mod [BP]',
+        namespace: 'trebesin'
+    }
+    const blocks = []
+    for (const block of blocks) {
+        generateBlock(block,packDefinition,[]);
+    }
 }
 
 main();

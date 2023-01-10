@@ -1,38 +1,101 @@
 {
-    "resource_pack_name": "trebesin_mod",
-    "texture_name": "atlas.terrain",
-    "padding": 8,
-    "num_mip_levels": 4,
-    "texture_data": {
-        "trebesin.image_prague": {
-            "textures": "textures/blocks/prague"
-        },
-        "trebesin.image_czech_emblem": {
-            "textures": "textures/blocks/czech_emblem"
-        },
-        "trebesin.image_high_voltage_sign": {
-            "textures": "textures/blocks/high_voltage_sign"
-        },
-        "trebesin.image_logo_bufet_A1": {
-            "textures": "textures/blocks/logo_bufet_A1"
-        },
-        "trebesin.image_logo_bufet_A2": {
-            "textures": "textures/blocks/logo_bufet_A2"
-        },
-        "trebesin.image_logo_bufet_A3": {
-            "textures": "textures/blocks/logo_bufet_A3"
-        },
-        "trebesin.image_logo_bufet_A4": {
-            "textures": "textures/blocks/logo_bufet_A4"
-        },
-        "trebesin.image_pricetable_bufet_A1": {
-            "textures": "textures/blocks/pricetable_bufet_A1"
-        },
-        "trebesin.image_pricetable_bufet_B1": {
-            "textures": "textures/blocks/pricetable_bufet_B1"
-        },
-        "trebesin.image_pricetable_bufet_C1": {
-            "textures": "textures/blocks/pricetable_bufet_C1"
-        }
+  "resource_pack_name": "trebesin_mod",
+  "texture_name": "atlas.terrain",
+  "padding": 8,
+  "num_mip_levels": 4,
+  "texture_data": {
+    "trebesin.image_prague": {
+      "textures": "textures/blocks/prague"
+    },
+    "trebesin.image_czech_emblem": {
+      "textures": "textures/blocks/czech_emblem"
+    },
+    "trebesin.image_high_voltage_sign": {
+      "textures": "textures/blocks/high_voltage_sign"
+    },
+    "trebesin.image_logo_bufet_A1": {
+      "textures": "textures/blocks/logo_bufet_A1"
+    },
+    "trebesin.image_logo_bufet_A2": {
+      "textures": "textures/blocks/logo_bufet_A2"
+    },
+    "trebesin.image_logo_bufet_A3": {
+      "textures": "textures/blocks/logo_bufet_A3"
+    },
+    "trebesin.image_logo_bufet_A4": {
+      "textures": "textures/blocks/logo_bufet_A4"
+    },
+    "trebesin.image_pricetable_bufet_A1": {
+      "textures": "textures/blocks/pricetable_bufet_A1"
+    },
+    "trebesin.image_pricetable_bufet_B1": {
+      "textures": "textures/blocks/pricetable_bufet_B1"
+    },
+    "trebesin.image_pricetable_bufet_C1": {
+      "textures": "textures/blocks/pricetable_bufet_C1"
+    },
+    "trebesin.image_black": {
+      "textures": "textures/blocks/black"
+    },
+    "trebesin.image_cnc_poster1_A1": {
+      "textures": "textures/blocks/cnc_poster1_A1"
+    },
+    "trebesin.image_cnc_poster1_B1": {
+      "textures": "textures/blocks/cnc_poster1_B1"
+    },
+    "trebesin.image_cnc_poster2_A1": {
+      "textures": "textures/blocks/cnc_poster2_A1"
+    },
+    "trebesin.image_cnc_poster_B1": {
+      "textures": "textures/blocks/cnc_poster_B1"
+    },
+    "trebesin.image_pool_temps_A1": {
+      "textures": "textures/blocks/pool_temps_A1"
+    },
+    "trebesin.image_pool_temps_A2": {
+      "textures": "textures/blocks/pool_temps_A2"
+    },
+    "trebesin.image_school_logo_A1": {
+      "textures": "textures/blocks/school_logo_A1"
+    },
+    "trebesin.image_school_logo_A2": {
+      "textures": "textures/blocks/school_logo_A2"
+    },
+    "trebesin.image_school_logo_A3": {
+      "textures": "textures/blocks/school_logo_A3"
+    },
+    "trebesin.image_school_logo_A4": {
+      "textures": "textures/blocks/school_logo_A4"
+    },
+    "trebesin.image_school_logo_A5": {
+      "textures": "textures/blocks/school_logo_A5"
+    },
+    "trebesin.image_school_logo_B1": {
+      "textures": "textures/blocks/school_logo_B1"
+    },
+    "trebesin.image_school_logo_B2": {
+      "textures": "textures/blocks/school_logo_B2"
+    },
+    "trebesin.image_school_logo_B3": {
+      "textures": "textures/blocks/school_logo_B3"
+    },
+    "trebesin.image_school_logo_B4": {
+      "textures": "textures/blocks/school_logo_B4"
+    },
+    "trebesin.image_school_logo_B5": {
+      "textures": "textures/blocks/school_logo_B5"
+    },
+    "trebesin.image_smoking_prohibition_sign_A1": {
+      "textures": "textures/blocks/smoking_prohibition_sign_A1"
+    },
+    "trebesin.image_smoking_prohibition_sign_A2": {
+      "textures": "textures/blocks/smoking_prohibition_sign_A2"
+    },
+    "trebesin.image_sports_logo": {
+      "textures": "textures/blocks/sports_logo"
+    },
+    "trebesin.image_white": {
+      "textures": "textures/blocks/white"
     }
+  }
 }

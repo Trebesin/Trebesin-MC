@@ -1,124 +1,366 @@
 {
-    "format_version": "1.19.0",
-    "trebesin:imageboard_wall_prague": {
-        "textures": {
-            "north": "image_prague",
-            "south": "image_prague",
-            "east": "wood_oak",
-            "west": "wood_oak",
-            "up": "wood_oak",
-            "down": "wood_oak"
-        },
-        "sound": "wood"
+  "format_version": "1.19.0",
+  "trebesin:imageboard_wall_prague": {
+    "textures": {
+      "north": "image_prague",
+      "south": "image_prague",
+      "east": "wood_oak",
+      "west": "wood_oak",
+      "up": "wood_oak",
+      "down": "wood_oak"
     },
-    "trebesin:imageboard_ground_czech_emblem": {
-        "textures": {
-            "north": "image_czech_emblem",
-            "south": "image_czech_emblem",
-            "east": "wood_oak",
-            "west": "wood_oak",
-            "up": "wood_oak",
-            "down": "wood_oak"
-        },
-        "sound": "wood"
+    "sound": "wood"
+  },
+  "trebesin:imageboard_ground_czech_emblem": {
+    "textures": {
+      "north": "image_czech_emblem",
+      "south": "image_czech_emblem",
+      "east": "wood_oak",
+      "west": "wood_oak",
+      "up": "wood_oak",
+      "down": "wood_oak"
     },
-    "undefined:imageboard_wall_high_voltage_sign": {
-        "sounds": "wood",
-        "textures": {
-            "north": "trebesin.image_high_voltage_sign",
-            "south": "trebesin.image_high_voltage_sign",
-            "west": "wood_oak",
-            "east": "wood_oak",
-            "up": "wood_oak",
-            "down": "wood_oak"
-        }
-    },
-    "trebesin:imageboard_wall_high_voltage_sign": {
-        "sounds": "wood",
-        "textures": {
-            "north": "trebesin.image_high_voltage_sign",
-            "south": "trebesin.image_high_voltage_sign",
-            "west": "wood_oak",
-            "east": "wood_oak",
-            "up": "wood_oak",
-            "down": "wood_oak"
-        }
-    },
-    "trebesin:imageboard_wall_logo_bufet_A1": {
-        "sounds": "wood",
-        "textures": {
-            "north": "trebesin.image_logo_bufet_A1",
-            "south": "trebesin.image_logo_bufet_A1",
-            "west": "wood_oak",
-            "east": "wood_oak",
-            "up": "wood_oak",
-            "down": "wood_oak"
-        }
-    },
-    "trebesin:imageboard_wall_logo_bufet_A2": {
-        "sounds": "wood",
-        "textures": {
-            "north": "trebesin.image_logo_bufet_A2",
-            "south": "trebesin.image_logo_bufet_A2",
-            "west": "wood_oak",
-            "east": "wood_oak",
-            "up": "wood_oak",
-            "down": "wood_oak"
-        }
-    },
-    "trebesin:imageboard_wall_logo_bufet_A3": {
-        "sounds": "wood",
-        "textures": {
-            "north": "trebesin.image_logo_bufet_A3",
-            "south": "trebesin.image_logo_bufet_A3",
-            "west": "wood_oak",
-            "east": "wood_oak",
-            "up": "wood_oak",
-            "down": "wood_oak"
-        }
-    },
-    "trebesin:imageboard_wall_logo_bufet_A4": {
-        "sounds": "wood",
-        "textures": {
-            "north": "trebesin.image_logo_bufet_A4",
-            "south": "trebesin.image_logo_bufet_A4",
-            "west": "wood_oak",
-            "east": "wood_oak",
-            "up": "wood_oak",
-            "down": "wood_oak"
-        }
-    },
-    "trebesin:imageboard_wall_pricetable_bufet_A1": {
-        "sounds": "wood",
-        "textures": {
-            "north": "trebesin.image_pricetable_bufet_A1",
-            "south": "trebesin.image_pricetable_bufet_A1",
-            "west": "wood_oak",
-            "east": "wood_oak",
-            "up": "wood_oak",
-            "down": "wood_oak"
-        }
-    },
-    "trebesin:imageboard_wall_pricetable_bufet_B1": {
-        "sounds": "wood",
-        "textures": {
-            "north": "trebesin.image_pricetable_bufet_B1",
-            "south": "trebesin.image_pricetable_bufet_B1",
-            "west": "wood_oak",
-            "east": "wood_oak",
-            "up": "wood_oak",
-            "down": "wood_oak"
-        }
-    },
-    "trebesin:imageboard_wall_pricetable_bufet_C1": {
-        "sounds": "wood",
-        "textures": {
-            "north": "trebesin.image_pricetable_bufet_C1",
-            "south": "trebesin.image_pricetable_bufet_C1",
-            "west": "wood_oak",
-            "east": "wood_oak",
-            "up": "wood_oak",
-            "down": "wood_oak"
-        }
+    "sound": "wood"
+  },
+  "undefined:imageboard_wall_high_voltage_sign": {
+    "sounds": "wood",
+    "textures": {
+      "north": "trebesin.image_high_voltage_sign",
+      "south": "trebesin.image_high_voltage_sign",
+      "west": "wood_oak",
+      "east": "wood_oak",
+      "up": "wood_oak",
+      "down": "wood_oak"
     }
+  },
+  "trebesin:imageboard_wall_high_voltage_sign": {
+    "sounds": "wood",
+    "textures": {
+      "north": "trebesin.image_high_voltage_sign",
+      "south": "trebesin.image_high_voltage_sign",
+      "west": "wood_oak",
+      "east": "wood_oak",
+      "up": "wood_oak",
+      "down": "wood_oak"
+    }
+  },
+  "trebesin:imageboard_wall_logo_bufet_A1": {
+    "sounds": "wood",
+    "textures": {
+      "north": "trebesin.image_logo_bufet_A1",
+      "south": "trebesin.image_logo_bufet_A1",
+      "west": "wood_oak",
+      "east": "wood_oak",
+      "up": "wood_oak",
+      "down": "wood_oak"
+    }
+  },
+  "trebesin:imageboard_wall_logo_bufet_A2": {
+    "sounds": "wood",
+    "textures": {
+      "north": "trebesin.image_logo_bufet_A2",
+      "south": "trebesin.image_logo_bufet_A2",
+      "west": "wood_oak",
+      "east": "wood_oak",
+      "up": "wood_oak",
+      "down": "wood_oak"
+    }
+  },
+  "trebesin:imageboard_wall_logo_bufet_A3": {
+    "sounds": "wood",
+    "textures": {
+      "north": "trebesin.image_logo_bufet_A3",
+      "south": "trebesin.image_logo_bufet_A3",
+      "west": "wood_oak",
+      "east": "wood_oak",
+      "up": "wood_oak",
+      "down": "wood_oak"
+    }
+  },
+  "trebesin:imageboard_wall_logo_bufet_A4": {
+    "sounds": "wood",
+    "textures": {
+      "north": "trebesin.image_logo_bufet_A4",
+      "south": "trebesin.image_logo_bufet_A4",
+      "west": "wood_oak",
+      "east": "wood_oak",
+      "up": "wood_oak",
+      "down": "wood_oak"
+    }
+  },
+  "trebesin:imageboard_wall_pricetable_bufet_A1": {
+    "sounds": "wood",
+    "textures": {
+      "north": "trebesin.image_pricetable_bufet_A1",
+      "south": "trebesin.image_pricetable_bufet_A1",
+      "west": "wood_oak",
+      "east": "wood_oak",
+      "up": "wood_oak",
+      "down": "wood_oak"
+    }
+  },
+  "trebesin:imageboard_wall_pricetable_bufet_B1": {
+    "sounds": "wood",
+    "textures": {
+      "north": "trebesin.image_pricetable_bufet_B1",
+      "south": "trebesin.image_pricetable_bufet_B1",
+      "west": "wood_oak",
+      "east": "wood_oak",
+      "up": "wood_oak",
+      "down": "wood_oak"
+    }
+  },
+  "trebesin:imageboard_wall_pricetable_bufet_C1": {
+    "sounds": "wood",
+    "textures": {
+      "north": "trebesin.image_pricetable_bufet_C1",
+      "south": "trebesin.image_pricetable_bufet_C1",
+      "west": "wood_oak",
+      "east": "wood_oak",
+      "up": "wood_oak",
+      "down": "wood_oak"
+    }
+  },
+  "trebesin:imageboard_black": {
+    "sounds": "wood",
+    "textures": {
+      "north": "trebesin.image_black",
+      "south": "trebesin.image_black",
+      "west": "wood_oak",
+      "east": "wood_oak",
+      "up": "wood_oak",
+      "down": "wood_oak"
+    }
+  },
+  "trebesin:imageboard_cnc_poster1_A1": {
+    "sounds": "wood",
+    "textures": {
+      "north": "trebesin.image_cnc_poster1_A1",
+      "south": "trebesin.image_cnc_poster1_A1",
+      "west": "wood_oak",
+      "east": "wood_oak",
+      "up": "wood_oak",
+      "down": "wood_oak"
+    }
+  },
+  "trebesin:imageboard_cnc_poster1_B1": {
+    "sounds": "wood",
+    "textures": {
+      "north": "trebesin.image_cnc_poster1_B1",
+      "south": "trebesin.image_cnc_poster1_B1",
+      "west": "wood_oak",
+      "east": "wood_oak",
+      "up": "wood_oak",
+      "down": "wood_oak"
+    }
+  },
+  "trebesin:imageboard_cnc_poster2_A1": {
+    "sounds": "wood",
+    "textures": {
+      "north": "trebesin.image_cnc_poster2_A1",
+      "south": "trebesin.image_cnc_poster2_A1",
+      "west": "wood_oak",
+      "east": "wood_oak",
+      "up": "wood_oak",
+      "down": "wood_oak"
+    }
+  },
+  "trebesin:imageboard_cnc_poster_B1": {
+    "sounds": "wood",
+    "textures": {
+      "north": "trebesin.image_cnc_poster_B1",
+      "south": "trebesin.image_cnc_poster_B1",
+      "west": "wood_oak",
+      "east": "wood_oak",
+      "up": "wood_oak",
+      "down": "wood_oak"
+    }
+  },
+  "trebesin:imageboard_high_voltage_sign": {
+    "sounds": "wood",
+    "textures": {
+      "north": "trebesin.image_high_voltage_sign",
+      "south": "trebesin.image_high_voltage_sign",
+      "west": "wood_oak",
+      "east": "wood_oak",
+      "up": "wood_oak",
+      "down": "wood_oak"
+    }
+  },
+  "trebesin:imageboard_pool_temps_A1": {
+    "sounds": "wood",
+    "textures": {
+      "north": "trebesin.image_pool_temps_A1",
+      "south": "trebesin.image_pool_temps_A1",
+      "west": "wood_oak",
+      "east": "wood_oak",
+      "up": "wood_oak",
+      "down": "wood_oak"
+    }
+  },
+  "trebesin:imageboard_pool_temps_A2": {
+    "sounds": "wood",
+    "textures": {
+      "north": "trebesin.image_pool_temps_A2",
+      "south": "trebesin.image_pool_temps_A2",
+      "west": "wood_oak",
+      "east": "wood_oak",
+      "up": "wood_oak",
+      "down": "wood_oak"
+    }
+  },
+  "trebesin:imageboard_school_logo_A1": {
+    "sounds": "wood",
+    "textures": {
+      "north": "trebesin.image_school_logo_A1",
+      "south": "trebesin.image_school_logo_A1",
+      "west": "wood_oak",
+      "east": "wood_oak",
+      "up": "wood_oak",
+      "down": "wood_oak"
+    }
+  },
+  "trebesin:imageboard_school_logo_A2": {
+    "sounds": "wood",
+    "textures": {
+      "north": "trebesin.image_school_logo_A2",
+      "south": "trebesin.image_school_logo_A2",
+      "west": "wood_oak",
+      "east": "wood_oak",
+      "up": "wood_oak",
+      "down": "wood_oak"
+    }
+  },
+  "trebesin:imageboard_school_logo_A3": {
+    "sounds": "wood",
+    "textures": {
+      "north": "trebesin.image_school_logo_A3",
+      "south": "trebesin.image_school_logo_A3",
+      "west": "wood_oak",
+      "east": "wood_oak",
+      "up": "wood_oak",
+      "down": "wood_oak"
+    }
+  },
+  "trebesin:imageboard_school_logo_A4": {
+    "sounds": "wood",
+    "textures": {
+      "north": "trebesin.image_school_logo_A4",
+      "south": "trebesin.image_school_logo_A4",
+      "west": "wood_oak",
+      "east": "wood_oak",
+      "up": "wood_oak",
+      "down": "wood_oak"
+    }
+  },
+  "trebesin:imageboard_school_logo_A5": {
+    "sounds": "wood",
+    "textures": {
+      "north": "trebesin.image_school_logo_A5",
+      "south": "trebesin.image_school_logo_A5",
+      "west": "wood_oak",
+      "east": "wood_oak",
+      "up": "wood_oak",
+      "down": "wood_oak"
+    }
+  },
+  "trebesin:imageboard_school_logo_B1": {
+    "sounds": "wood",
+    "textures": {
+      "north": "trebesin.image_school_logo_B1",
+      "south": "trebesin.image_school_logo_B1",
+      "west": "wood_oak",
+      "east": "wood_oak",
+      "up": "wood_oak",
+      "down": "wood_oak"
+    }
+  },
+  "trebesin:imageboard_school_logo_B2": {
+    "sounds": "wood",
+    "textures": {
+      "north": "trebesin.image_school_logo_B2",
+      "south": "trebesin.image_school_logo_B2",
+      "west": "wood_oak",
+      "east": "wood_oak",
+      "up": "wood_oak",
+      "down": "wood_oak"
+    }
+  },
+  "trebesin:imageboard_school_logo_B3": {
+    "sounds": "wood",
+    "textures": {
+      "north": "trebesin.image_school_logo_B3",
+      "south": "trebesin.image_school_logo_B3",
+      "west": "wood_oak",
+      "east": "wood_oak",
+      "up": "wood_oak",
+      "down": "wood_oak"
+    }
+  },
+  "trebesin:imageboard_school_logo_B4": {
+    "sounds": "wood",
+    "textures": {
+      "north": "trebesin.image_school_logo_B4",
+      "south": "trebesin.image_school_logo_B4",
+      "west": "wood_oak",
+      "east": "wood_oak",
+      "up": "wood_oak",
+      "down": "wood_oak"
+    }
+  },
+  "trebesin:imageboard_school_logo_B5": {
+    "sounds": "wood",
+    "textures": {
+      "north": "trebesin.image_school_logo_B5",
+      "south": "trebesin.image_school_logo_B5",
+      "west": "wood_oak",
+      "east": "wood_oak",
+      "up": "wood_oak",
+      "down": "wood_oak"
+    }
+  },
+  "trebesin:imageboard_smoking_prohibition_sign_A1": {
+    "sounds": "wood",
+    "textures": {
+      "north": "trebesin.image_smoking_prohibition_sign_A1",
+      "south": "trebesin.image_smoking_prohibition_sign_A1",
+      "west": "wood_oak",
+      "east": "wood_oak",
+      "up": "wood_oak",
+      "down": "wood_oak"
+    }
+  },
+  "trebesin:imageboard_smoking_prohibition_sign_A2": {
+    "sounds": "wood",
+    "textures": {
+      "north": "trebesin.image_smoking_prohibition_sign_A2",
+      "south": "trebesin.image_smoking_prohibition_sign_A2",
+      "west": "wood_oak",
+      "east": "wood_oak",
+      "up": "wood_oak",
+      "down": "wood_oak"
+    }
+  },
+  "trebesin:imageboard_sports_logo": {
+    "sounds": "wood",
+    "textures": {
+      "north": "trebesin.image_sports_logo",
+      "south": "trebesin.image_sports_logo",
+      "west": "wood_oak",
+      "east": "wood_oak",
+      "up": "wood_oak",
+      "down": "wood_oak"
+    }
+  },
+  "trebesin:imageboard_white": {
+    "sounds": "wood",
+    "textures": {
+      "north": "trebesin.image_white",
+      "south": "trebesin.image_white",
+      "west": "wood_oak",
+      "east": "wood_oak",
+      "up": "wood_oak",
+      "down": "wood_oak"
+    }
+  }
 }
