@@ -27,11 +27,11 @@
                 },
                 "minecraft:material_instances": {
                     "south": {
-                        "texture": "image_smoking_prohibition_sign_A2",
+                        "texture": "trebesin.image_smoking_prohibition_sign_A2",
                         "render_method": "alpha_test"
                     },
                     "north": {
-                        "texture": "image_smoking_prohibition_sign_A2",
+                        "texture": "trebesin.image_smoking_prohibition_sign_A2",
                         "render_method": "alpha_test"
                     },
                     "*": {

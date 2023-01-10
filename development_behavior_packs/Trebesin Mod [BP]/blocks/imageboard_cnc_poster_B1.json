@@ -27,11 +27,11 @@
                 },
                 "minecraft:material_instances": {
                     "south": {
-                        "texture": "image_cnc_poster_B1",
+                        "texture": "trebesin.image_cnc_poster_B1",
                         "render_method": "alpha_test"
                     },
                     "north": {
-                        "texture": "image_cnc_poster_B1",
+                        "texture": "trebesin.image_cnc_poster_B1",
                         "render_method": "alpha_test"
                     },
                     "*": {

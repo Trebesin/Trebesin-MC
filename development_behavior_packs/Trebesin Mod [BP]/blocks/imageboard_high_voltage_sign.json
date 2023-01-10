@@ -27,11 +27,11 @@
                 },
                 "minecraft:material_instances": {
                     "south": {
-                        "texture": "image_high_voltage_sign",
+                        "texture": "trebesin.image_high_voltage_sign",
                         "render_method": "alpha_test"
                     },
                     "north": {
-                        "texture": "image_high_voltage_sign",
+                        "texture": "trebesin.image_high_voltage_sign",
                         "render_method": "alpha_test"
                     },
                     "*": {

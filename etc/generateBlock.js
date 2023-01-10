@@ -68,11 +68,11 @@ function generateBlock(id,packDefinition,languageDefinitions) {
                 },
                 "minecraft:material_instances": {
                     "south": {
-                        "texture": "image_${id}",
+                        "texture": "${packDefinition.namespace}.image_${id}",
                         "render_method": "alpha_test"
                     },
                     "north": {
-                        "texture": "image_${id}",
+                        "texture": "${packDefinition.namespace}.image_${id}",
                         "render_method": "alpha_test"
                     },
                     "*": {
@@ -273,10 +273,31 @@ async function mainAutom() {
         behaviorFolder: 'D:\\Code\\Projects\\Trebesin\\MCBE Server Beta\\development_behavior_packs\\Trebesin Mod [BP]',
         namespace: 'trebesin'
     }
-    const blocks = []
+    const blocks = [  'black',
+    'cnc_poster1_A1',
+    'cnc_poster1_B1',
+    'cnc_poster2_A1',
+    'cnc_poster_B1',
+    'high_voltage_sign',
+    'pool_temps_A1',
+    'pool_temps_A2',
+    'school_logo_A1',
+    'school_logo_A2',
+    'school_logo_A3',
+    'school_logo_A4',
+    'school_logo_A5',
+    'school_logo_B1',
+    'school_logo_B2',
+    'school_logo_B3',
+    'school_logo_B4',
+    'school_logo_B5',
+    'smoking_prohibition_sign_A1',
+    'smoking_prohibition_sign_A2',
+    'sports_logo',
+    'white']
     for (const block of blocks) {
         generateBlock(block,packDefinition,[]);
     }
 }
 
-main();
+mainAutom();

@@ -27,11 +27,11 @@
                 },
                 "minecraft:material_instances": {
                     "south": {
-                        "texture": "image_white",
+                        "texture": "trebesin.image_white",
                         "render_method": "alpha_test"
                     },
                     "north": {
-                        "texture": "image_white",
+                        "texture": "trebesin.image_white",
                         "render_method": "alpha_test"
                     },
                     "*": {

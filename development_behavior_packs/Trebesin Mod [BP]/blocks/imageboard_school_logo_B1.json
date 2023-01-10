@@ -27,11 +27,11 @@
                 },
                 "minecraft:material_instances": {
                     "south": {
-                        "texture": "image_school_logo_B1",
+                        "texture": "trebesin.image_school_logo_B1",
                         "render_method": "alpha_test"
                     },
                     "north": {
-                        "texture": "image_school_logo_B1",
+                        "texture": "trebesin.image_school_logo_B1",
                         "render_method": "alpha_test"
                     },
                     "*": {
