@@ -199,26 +199,26 @@ class CommandParser {
     }
 
 
-    #getParameterChainNew(parameters,options,sender) {
+    #getParameterChain(parameters,options,sender) {
         let output = {};
         let optional = false;
         let currentOptions = options;
         let currentParameters = parameters;
 
-        for (let index = 0;optionIndex < currentOptions.length;index++) { 
+        for (let index = 0;index < currentOptions.length;index++) { 
             const option = currentOptions[index];
             const parameter = currentParameters[index];
 
             if (option.optional) optional = true;
 
-            if (index >= parameters.length) {
+            if (index >= currentParameters.length) {
                 if (optional) return output;
                 throw new CommandError(`Missing parameter '${option.id}'!`);
             }
 
             //Position type
             if (option.type === 'position' || option.type === 'pos') {
-                const coords = parameters.slice(index,index += 3);
+                const coords = currentParameters.slice(index,index += 3);
                 const parsedPosition = this.#parsePosition(coords,sender,option);
                 output[option.id] = parsedPosition;
                 continue
@@ -226,10 +226,10 @@ class CommandParser {
             //Array type
             if (option.array) {
                 let parameterArray = [];
-                if (parameters.length < index + option.array) {
+                if (currentParameters.length < index + option.array) {
                     throw new CommandError(`Incomplete array parameter '${option.id}'!`);
                 }
-                for (const arrayParameter of parameters.slice(index,index += option.array)) {
+                for (const arrayParameter of currentParameters.slice(index,index += option.array)) {
                     const parsedArrayParameter = this.#parseParameterType(arrayParameter,option);
                     parameterArray.push(parsedArrayParameter);
                 }
@@ -247,7 +247,7 @@ class CommandParser {
                 //Restart with new options defined by the choice
                 index = 0;
                 currentOptions = option.choice[parameter];
-                currentParameters = parameters.slice(index+1)
+                currentParameters = currentParameters.slice(index+1)
             //Default type
             } else {
                 output[option.id] = parsedParameter;
@@ -258,7 +258,7 @@ class CommandParser {
         return output
     }
 
-    #getParameterChain(parameters,options,sender,index = 0,optional = false) {
+    #getParameterChainOld(parameters,options,sender,index = 0,optional = false) {
         let output = {};
         //let options = 
 
