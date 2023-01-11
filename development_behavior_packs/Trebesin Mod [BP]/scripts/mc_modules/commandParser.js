@@ -199,7 +199,7 @@ class CommandParser {
     }
 
 
-    #getParameterChain(parameters,options,sender) {
+    #getParameterChainOld(parameters,options,sender) {
         let output = {};
         let optional = false;
         let currentOptions = options;
@@ -258,7 +258,7 @@ class CommandParser {
         return output
     }
 
-    #getParameterChainOld(parameters,options,sender,index = 0,optional = false) {
+    #getParameterChain(parameters,options,sender,index = 0,optional = false) {
         let output = {};
         //let options = 
 
