@@ -461,10 +461,10 @@ class CommandParser {
         if (selector.values.sort[0]) {
             switch (selector.values.sort[0]) {
                 case 'furthest':
-                    queryOptions.farthest = parseInt(selector.values.limit[0]) ?? 99;
+                    queryOptions.farthest = parseInt(selector.values.limit[0]) ?? 99;//can set this by default to a real high value ?Infinity to make limit selectors work well with ID patch and other future possible patches
                     break;
                 case 'nearest':
-                    queryOptions.closest = parseInt(selector.values.limit[0]) ?? 99;
+                    queryOptions.closest = parseInt(selector.values.limit[0]) ?? 99;//same as above
                     break;
                 case 'random':
                     randomize = true; //Prepares to randomize after getting all the entities from the query.
@@ -495,7 +495,7 @@ class CommandParser {
                 idSelection = new Set();
                 idSelection.add(sender.id);
         }
-        //Getting all entities from chosen dimension:
+        //Getting all entities from a chosen dimension:
         let entities;
         if (!allPlayersOnly) {
             entities = world.getPlayers(queryOptions);
