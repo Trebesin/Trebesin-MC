@@ -1,6 +1,7 @@
 import { world, Location, BlockAreaSize } from '@minecraft/server';
 import { setVectorLength } from './../js_modules/vector';
 import { filter } from '../js_modules/array';
+import { randInt } from '../js_modules/random';
 import { DIMENSION_IDS } from './constants';
 import { findCharIndex, findLastCharIndex, findNumber } from '../js_modules/string';
 
@@ -372,15 +373,16 @@ class CommandParser {
     }
 
     #parseSelector(string,sender,option) {
-        const selectorEntities = [];
-        /**
-         * @type {import('@minecraft/server').EntityQueryOptions}
-         */
+        const selectedEntities = [];
         const queryOptions = {};
-        const customOptions = {};
         const selector = this.#getSelector(string,option);
         let randomize = false;
-        //Default EntityQueryOptions:
+        let allPlayersOnly = false;
+        //Overridable entity queries from selector type:
+        if (selector.name = 'r') queryOptions.type = 'minecraft:player';
+        //All entity queries from selector arguments:
+        const idSelection = new Set(selector.values.id);
+
         if (selector.values.name) {
             parseListSelectorArg(
                 selector.values.name,
@@ -439,34 +441,83 @@ class CommandParser {
             );
         }
 
+        if (selector.values.scores) {
+            queryOptions.scoreOptions = {};
+            parseScoresSelectorArg(selector.values.scores[0],{options:queryOptions,scores:'scoreOptions'});
+        }
+
         if (selector.values.x && selector.values.y && selector.values.z) {
             queryOptions.location = this.#parsePosition(
-                [selector.values.x,selector.values.y,selector.values.z],sender,option
+                [selector.values.x[0],selector.values.y[0],selector.values.z[0]],sender,option
             );
         }
 
         if (selector.values.dx && selector.values.dy && selector.values.dz) {
             queryOptions.volume = new BlockAreaSize(
-                parseInt(selector.values.dx),parseInt(selector.values.dy),parseInt(selector.values.dz)
+                parseInt(selector.values.dx[0]),parseInt(selector.values.dy[0]),parseInt(selector.values.dz[0])
             );
         }
-        if (selector.values.sort) {
-            switch (selector.values.sort) {
+
+        if (selector.values.sort[0]) {
+            switch (selector.values.sort[0]) {
                 case 'furthest':
-                    queryOptions.farthest = parseInt(selector.values.limit) ?? 99;
-                    break
+                    queryOptions.farthest = parseInt(selector.values.limit[0]) ?? 99;
+                    break;
                 case 'nearest':
-                    queryOptions.closest = parseInt(selector.values.limit) ?? 99;
-                    break
+                    queryOptions.closest = parseInt(selector.values.limit[0]) ?? 99;
+                    break;
                 case 'random':
                     randomize = true; //Prepares to randomize after getting all the entities from the query.
-                    break
+                    break;
             }
         }
-        //!Don't forget adding scoreboard selectors 
-        //Custom Options:
-        //if (selector.values.dimension) parseListSelectorArg(selector.values.dimension,customOptions.dimension,customOptions.)
-        const entities = world.get
+        //Forced entity queries from selector type:
+        switch (selector.name) {
+            case 'e':
+                break;
+            case 'a':
+                allPlayersOnly = true;
+                queryOptions.type = 'minecraft:player';
+                queryOptions.excludeTypes = [];
+                break;
+            case 'p':
+                queryOptions.farthest = null;
+                queryOptions.closest = parseInt(selector.values.limit[0]) ?? 1;
+                queryOptions.type = 'minecraft:player';
+                queryOptions.excludeTypes = [];
+                break;
+            case 'r':
+                queryOptions.farthest = null;
+                queryOptions.closest = null;
+                randomize = true;
+                break;
+            case 's':
+                idSelection = new Set();
+                idSelection.add(sender.id);
+        }
+        //Getting all entities from chosen dimension:
+        let entities;
+        if (!allPlayersOnly) {
+            entities = world.getPlayers(queryOptions);
+        } else {
+            const dimension = world.getDimension(selector.values.dimension[0] ?? sender.dimension.id);
+            entities = dimension.getEntities(queryOptions);
+        }
+        for (const entity of entities) {
+            if (!idSelection || idSelection.has(entity.id)) selectedEntities.push(entity);
+            if (!randomize && selectedEntities.length === selector.values.limit[0]) break;
+        }
+        if (randomize) {
+            randomizedEntities = [];
+            for (let randomStep = 0;randomStep < selector.values.limit[0];randomStep++) {
+                const randomIndex = randInt(0,selectedEntities.length-1);
+                randomizedEntities.push(selectedEntities[randomIndex]);
+                selectedEntities.splice(randomIndex,1);
+            }
+            selectedEntities = randomizedEntities;
+        }
+        //!needs testing
+        return selectedEntities;
     }
 
     #getSelector(string,option,options = {selectorChar: '@', escapeChar: '\\', quoteChar: '\"', separator: ','}) {
@@ -524,7 +575,7 @@ class CommandParser {
                     currentName = '';
                     continue;
                 }
-                if (quoted || (char !== ' ')) selector.values[currentName][itemIndex] += char;
+                if (quoted || (char !== ' ')) selector.values[currentName][itemIndex] += char ?? '';
             }
 
             if (escaped) escaped = false;
@@ -561,7 +612,7 @@ class CommandError extends Error {
     }
 }
 
-function parseRangeSelectorArg(selectorArg,query,options) {
+function parseRangeSelectorArg(selectorArg,query,options = {}) {
     let min,max;
     const firstDotIndex = findCharIndex(selectorArg,'.');
     const lastDotIndex = findLastCharIndex(selectorArg,'.');
@@ -591,4 +642,62 @@ function parseListSelectorArg(selectorArg,query,options = {}) {
     query.options[query.exclude] = exclude;
 }
 
+function parseScoresSelectorArg(selectorArg,query,options = {}) {
+    const scoreOptions = [];
+    if (selectorArg[0] === '{' && selectorArg[selectorArg.length-1] === '}') {
+        const scoreStrings = getScoreSelectors(selectorArg);
+        for (const objective in scoreStrings) {
+            let objectiveValue = scoreStrings[objective];
+            let exclude = false;
+            if (objectiveValue[0] === '!') {
+                exclude = true;
+                objectiveValue = objectiveValue.slice(1);
+            }
+            const scoreQuery = {objective,exclude};
+            parseRangeSelectorArg(objectiveValue,{options:scoreQuery,min:'scoreMin',max:'scoreMax'});
+            scoreOptions.push(scoreQuery);
+        }
+    }
+
+    query.options[query.scores] = scoreOptions;
+}
+
 export {CommandParser,sendMessage}
+
+function getScoreSelectors(string,options = {escapeChar: '\\', separator: ','}) {
+    const selector = {};
+    const {escapeChar,separator} = options;
+    let part = 0; //0: objective name; 1: objective value
+    let currentName = '';
+    let escaped;
+
+    for (let index = 1;index < string.length-1;index++) {
+        const char = string[index];
+        if (!escaped && char === escapeChar) {
+            escaped = true;
+            continue;
+        }
+
+        if (part === 0) {
+            if (!escaped && char === '=') {
+                if (selector[currentName] == null) selector[currentName] = '';
+                part = 1;
+                selector[currentName] = '';
+                continue;
+            };
+            if (char !== ' ') currentName += char ?? '';
+        }
+        
+        if (part === 1) {
+            if (!escaped && (char === separator || char === null)) {
+                part = 0;
+                currentName = '';
+                continue;
+            }
+            if (char !== ' ') selector[currentName] += char ?? '';
+        }
+
+        if (escaped) escaped = false;
+    }
+    return selector
+}
