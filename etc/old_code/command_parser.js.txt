@@ -1,0 +1,52 @@
+function getParameterChainOld(parameters,options,sender,index = 0,optional = false) {
+    let output = {};
+    for (const option of options) {
+        //const option = options[optionIndex];
+        const parameter = parameters[index];
+
+        if (option.optional) optional = true;
+
+        if (index >= parameters.length) {
+            if (optional) return output;
+            throw new CommandError(`Missing parameter '${option.id}'!`);
+        }
+
+        //Position type
+        if (option.type === 'position' || option.type === 'pos') {
+            const coords = parameters.slice(index,index += 3);
+            const parsedPosition = this.#parsePosition(coords,sender,option);
+            output[option.id] = parsedPosition;
+            continue
+        }
+        //Array type
+        if (option.array) {
+            let parameterArray = [];
+            if (parameters.length < index + option.array) {
+                throw new CommandError(`Incomplete array parameter '${option.id}'!`);
+            }
+            for (const arrayParameter of parameters.slice(index,index += option.array)) {
+                const parsedArrayParameter = this.#parseParameterType(arrayParameter,option);
+                parameterArray.push(parsedArrayParameter);
+            }
+            output[option.id] = parameterArray;
+            continue
+        }
+
+        const parsedParameter = this.#parseParameterType(parameter,option);
+        //Choice type
+        if (option.choice) {
+            output[option.id] = parsedParameter;
+            if (!(parameter in option.choice)) {
+                throw new CommandError(`Invalid choice of '${parameter}' at ${option.id}!`);
+            }
+            const choiceOutput = this.#getParameterChain(parameters.slice(index+1),option.choice[parameter],sender,0,optional);
+            Object.assign(output,choiceOutput);
+        //Default type
+        } else {
+            output[option.id] = parsedParameter;
+            index++;
+        }
+    }
+
+    return output
+}

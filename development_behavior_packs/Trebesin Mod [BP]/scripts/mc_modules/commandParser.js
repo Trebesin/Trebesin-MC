@@ -1,5 +1,7 @@
-import {world,Location} from '@minecraft/server';
-import {setVectorLength} from './../js_modules/vector';
+import { world, Location, BlockAreaSize } from '@minecraft/server';
+import { setVectorLength } from './../js_modules/vector';
+import { filter } from '../js_modules/array';
+import { DIMENSION_IDS } from './constants';
 import { findCharIndex, findLastCharIndex, findNumber } from '../js_modules/string';
 
 //Finish help command, add parameter preprocesser
@@ -199,7 +201,7 @@ class CommandParser {
     }
 
 
-    #getParameterChainOld(parameters,options,sender) {
+    #getParameterChain(parameters,options,sender) {
         let output = {};
         let optional = false;
         let currentOptions = options;
@@ -256,64 +258,7 @@ class CommandParser {
         }
 
         return output
-    }
-
-    #getParameterChain(parameters,options,sender,index = 0,optional = false) {
-        let output = {};
-        //let options = 
-
-        //for (let optionIndex = 0;optionIndex < ) { }
-        for (const option of options) {
-            //const option = options[optionIndex];
-            const parameter = parameters[index];
-
-            if (option.optional) optional = true;
-
-            if (index >= parameters.length) {
-                if (optional) return output;
-                throw new CommandError(`Missing parameter '${option.id}'!`);
-            }
-
-            //Position type
-            if (option.type === 'position' || option.type === 'pos') {
-                const coords = parameters.slice(index,index += 3);
-                const parsedPosition = this.#parsePosition(coords,sender,option);
-                output[option.id] = parsedPosition;
-                continue
-            }
-            //Array type
-            if (option.array) {
-                let parameterArray = [];
-                if (parameters.length < index + option.array) {
-                    throw new CommandError(`Incomplete array parameter '${option.id}'!`);
-                }
-                for (const arrayParameter of parameters.slice(index,index += option.array)) {
-                    const parsedArrayParameter = this.#parseParameterType(arrayParameter,option);
-                    parameterArray.push(parsedArrayParameter);
-                }
-                output[option.id] = parameterArray;
-                continue
-            }
-
-            const parsedParameter = this.#parseParameterType(parameter,option);
-            //Choice type
-            if (option.choice) {
-                output[option.id] = parsedParameter;
-                if (!(parameter in option.choice)) {
-                    throw new CommandError(`Invalid choice of '${parameter}' at ${option.id}!`);
-                }
-                const choiceOutput = this.#getParameterChain(parameters.slice(index+1),option.choice[parameter],sender,0,optional);
-                Object.assign(output,choiceOutput);
-            //Default type
-            } else {
-                output[option.id] = parsedParameter;
-                index++;
-            }
-        }
-
-        return output
-    }
-    
+    }   
 
     #parseParameterType(parameter,option) {
         let parsedParameter, value;
@@ -426,7 +371,7 @@ class CommandParser {
         return new Location(...coord);
     }
 
-    #parseSelector(string,option) {
+    #parseSelector(string,sender,option) {
         const selectorEntities = [];
         /**
          * @type {import('@minecraft/server').EntityQueryOptions}
@@ -434,23 +379,91 @@ class CommandParser {
         const queryOptions = {};
         const customOptions = {};
         const selector = this.#getSelector(string,option);
+        let randomize = false;
         //Default EntityQueryOptions:
-        if (selector.values.name) parseListSelectorArg(selector.values.name,queryOptions.name,queryOptions.excludeNames);//This needs to be for string only
-        if (selector.values.type) parseListSelectorArg(selector.values.type,queryOptions.type,queryOptions.excludeTypes);//This needs to be for string only
-        if (selector.values.tag) parseListSelectorArg(selector.values.tag,queryOptions.tags,queryOptions.excludeTags);
-        if (selector.values.family) parseListSelectorArg(selector.values.family,queryOptions.families,queryOptions.excludeFamilies);
-        if (selector.values.gamemode) parseListSelectorArg(selector.values.gamemode,queryOptions.gameMode,queryOptions.excludeGameModes);
-        if (selector.values.level) parseRangeSelectorArg(selector.values.level,queryOptions.minLevel,queryOptions.maxLevel);
-        if (selector.values.distance) parseRangeSelectorArg(selector.values.distance,queryOptions.minDistance,queryOptions.maxDistance);
-        if (selector.values.x_rotation) parseRangeSelectorArg(selector.values.x_rotation,queryOptions.minHorizontalRotation,queryOptions.maxHorizontalRotation);
-        if (selector.values.y_rotation) parseRangeSelectorArg(selector.values.y_rotation,queryOptions.minVerticalRotation,queryOptions.maxVerticalRotation);
+        if (selector.values.name) {
+            parseListSelectorArg(
+                selector.values.name,
+                {options:queryOptions,include:'name',exclude:'excludeNames'},
+                {includeSingleItem:true}
+            );
+        }
+        if (selector.values.type) {
+            parseListSelectorArg(
+                selector.values.type,
+                {options:queryOptions,include:'type',exclude:'excludeTypes'},
+                {includeSingleItem:true}
+            );
+        }
+        if (selector.values.tag) {
+            parseListSelectorArg(
+                selector.values.tag,
+                {options:queryOptions,include:'tags',exclude:'excludeTags'}
+            );
+        }
+        if (selector.values.family) {
+            parseListSelectorArg(
+                selector.values.family,
+                {options:queryOptions,include:'families',exclude:'excludeFamilies'}
+            );
+        }
+        if (selector.values.gamemode) {
+            parseListSelectorArg(
+                selector.values.gamemode,
+                {options:queryOptions,include:'gameMode',exclude:'excludeGameModes'},
+                {includeSingleItem:true}
+            );
+        }
+        if (selector.values.level) {
+            parseRangeSelectorArg(
+                selector.values.level[0],
+                {options:queryOptions,max:'maxLevel',min:'minLevel'}
+            );
+        };
+        if (selector.values.distance) {
+            parseRangeSelectorArg(
+                selector.values.distance[0],
+                {options:queryOptions,max:'maxDistance',min:'minDistance'}
+            );
+        }
+        if (selector.values.x_rotation) {
+            parseRangeSelectorArg(
+                selector.values.x_rotation[0],
+                {options:queryOptions,max:'maxHorizontalRotation',min:'minHorizontalRotation'}
+            );
+        }
+        if (selector.values.y_rotation) {
+            parseRangeSelectorArg(
+                selector.values.y_rotation[0],
+                {options:queryOptions,max:'maxVerticalRotation',min:'minVerticalRotation'}
+            );
+        }
 
-        if (selector.values.limit) {
+        if (selector.values.x && selector.values.y && selector.values.z) {
+            queryOptions.location = this.#parsePosition(
+                [selector.values.x,selector.values.y,selector.values.z],sender,option
+            );
+        }
 
+        if (selector.values.dx && selector.values.dy && selector.values.dz) {
+            queryOptions.volume = new BlockAreaSize(
+                parseInt(selector.values.dx),parseInt(selector.values.dy),parseInt(selector.values.dz)
+            );
         }
         if (selector.values.sort) {
-
+            switch (selector.values.sort) {
+                case 'furthest':
+                    queryOptions.farthest = parseInt(selector.values.limit) ?? 99;
+                    break
+                case 'nearest':
+                    queryOptions.closest = parseInt(selector.values.limit) ?? 99;
+                    break
+                case 'random':
+                    randomize = true; //Prepares to randomize after getting all the entities from the query.
+                    break
+            }
         }
+        //!Don't forget adding scoreboard selectors 
         //Custom Options:
         //if (selector.values.dimension) parseListSelectorArg(selector.values.dimension,customOptions.dimension,customOptions.)
         const entities = world.get
@@ -520,14 +533,6 @@ class CommandParser {
     }
 }
 
-function filter(array,condition) {
-    const filterArray = [];
-    for (let index = 0;index < array.length;index++) {
-        if (condition(array[index],index,array)) filterArray.push(array[index]);
-    }
-    return filterArray
-}
-
 class CommandError extends Error {
     constructor(message) {
         super(`§c${message}`);
@@ -556,28 +561,34 @@ class CommandError extends Error {
     }
 }
 
-function parseRangeSelectorArg(selectorArg,minNumber,maxNumber) {
+function parseRangeSelectorArg(selectorArg,query,options) {
+    let min,max;
     const firstDotIndex = findCharIndex(selectorArg,'.');
     const lastDotIndex = findLastCharIndex(selectorArg,'.');
-    if (firstDotIndex) {
-        if (firstDotIndex === 0) {
-            maxNumber = findNumber(selectorArg,lastDotIndex+1);
-        } else if (lastDotIndex+1 === selectorArg.length) {
-            minNumber = findNumber(selectorArg);
-        } else {
-            maxNumber = findNumber(selectorArg,lastDotIndex+1);
-            minNumber = findNumber(selectorArg);
+    if (firstDotIndex != null) {
+        if (lastDotIndex < selectorArg.length-1) {
+            max = findNumber(selectorArg,lastDotIndex);
+        }
+        if (firstDotIndex > 0) {
+            min = findNumber(selectorArg);
         }
     } else {
-        minNumber = parseInt(selectorArg);
-        maxNumber = parseInt(selectorArg);
+        min = parseInt(selectorArg);
+        max = parseInt(selectorArg);
     }
+
+    query.options[query.max] = max;
+    query.options[query.min] = min;
 }
 
-function parseListSelectorArg(selectorArg,includeArray,excludeArray) {
-    includeArray = filter(selectorArg,element => element[0] !== '!');
-    excludeArray = filter(selectorArg,element => element[0] === '!')
-    .map((element) => element.slice(1));
+function parseListSelectorArg(selectorArg,query,options = {}) {
+    let include,exclude;
+    include = filter(selectorArg,element => element[0] !== '!');
+    if (options.includeSingleItem) include = include[0];
+    exclude = filter(selectorArg,element => element[0] === '!').map((element) => element.slice(1));
+
+    query.options[query.include] = include;
+    query.options[query.exclude] = exclude;
 }
 
 export {CommandParser,sendMessage}
