@@ -3,6 +3,7 @@ import { setVectorLength } from './../js_modules/vector';
 import { filter } from '../js_modules/array';
 import { randInt } from '../js_modules/random';
 import { DIMENSION_IDS } from './constants';
+import { logMessage } from '../plugins/debug/debug';
 import { findCharIndex, findLastCharIndex, findNumber } from '../js_modules/string';
 
 //Finish help command, add parameter preprocesser
@@ -233,14 +234,14 @@ class CommandParser {
                     throw new CommandError(`Incomplete array parameter '${option.id}'!`);
                 }
                 for (const arrayParameter of currentParameters.slice(index,index += option.array)) {
-                    const parsedArrayParameter = this.#parseParameterType(arrayParameter,option);
+                    const parsedArrayParameter = this.#parseParameterType(arrayParameter,sender,option);
                     parameterArray.push(parsedArrayParameter);
                 }
                 output[option.id] = parameterArray;
                 continue
             }
 
-            const parsedParameter = this.#parseParameterType(parameter,option);
+            const parsedParameter = this.#parseParameterType(parameter,sender,option);
             //Choice type
             if (option.choice) {
                 output[option.id] = parsedParameter;
@@ -261,7 +262,7 @@ class CommandParser {
         return output
     }   
 
-    #parseParameterType(parameter,option) {
+    #parseParameterType(parameter,sender,option) {
         let parsedParameter, value;
 
         switch (option.type) {
@@ -301,7 +302,7 @@ class CommandParser {
                 break
             case 'selector':
             case 'select':
-                value = this.#parseSelector(parameter,option);
+                value = this.#parseSelector(parameter,sender,option);
                 parsedParameter = value;
                 break
             default:
@@ -373,13 +374,16 @@ class CommandParser {
     }
 
     #parseSelector(string,sender,option) {
-        const selectedEntities = [];
+        try {
         const queryOptions = {};
         const selector = this.#getSelector(string,option);
+        let selectedEntities = [];
+        let entityLimit = parseInt(selector.values.limit?.[0]);
         let randomize = false;
         let allPlayersOnly = false;
         //Overridable entity queries from selector type:
-        if (selector.name = 'r') queryOptions.type = 'minecraft:player';
+        logMessage(selector.name)
+        if (selector.name === 'r') queryOptions.type = 'minecraft:player';
         //All entity queries from selector arguments:
         const idSelection = new Set(selector.values.id);
 
@@ -458,13 +462,13 @@ class CommandParser {
             );
         }
 
-        if (selector.values.sort[0]) {
+        if (selector.values.sort) {
             switch (selector.values.sort[0]) {
                 case 'furthest':
-                    queryOptions.farthest = parseInt(selector.values.limit[0]) ?? 99;//can set this by default to a real high value ?Infinity to make limit selectors work well with ID patch and other future possible patches
+                    queryOptions.farthest = isNaN(entityLimit) ? 99 : entityLimit;//can set this by default to a real high value ?Infinity to make limit selectors work well with ID patch and other future possible patches
                     break;
                 case 'nearest':
-                    queryOptions.closest = parseInt(selector.values.limit[0]) ?? 99;//same as above
+                    queryOptions.closest = isNaN(entityLimit) ? 99 : entityLimit;//same as above
                     break;
                 case 'random':
                     randomize = true; //Prepares to randomize after getting all the entities from the query.
@@ -474,50 +478,57 @@ class CommandParser {
         //Forced entity queries from selector type:
         switch (selector.name) {
             case 'e':
-                break;
+                break
             case 'a':
                 allPlayersOnly = true;
                 queryOptions.type = 'minecraft:player';
                 queryOptions.excludeTypes = [];
-                break;
+                break
             case 'p':
                 queryOptions.farthest = null;
-                queryOptions.closest = parseInt(selector.values.limit[0]) ?? 1;
+                queryOptions.closest = isNaN(entityLimit) ? 1 : entityLimit;
                 queryOptions.type = 'minecraft:player';
                 queryOptions.excludeTypes = [];
-                break;
+                break
             case 'r':
+                entityLimit = isNaN(entityLimit) ? 1 : entityLimit;
                 queryOptions.farthest = null;
                 queryOptions.closest = null;
                 randomize = true;
-                break;
+                break
             case 's':
+                entityLimit = 1;
                 idSelection = new Set();
                 idSelection.add(sender.id);
+                break
         }
         //Getting all entities from a chosen dimension:
         let entities;
-        if (!allPlayersOnly) {
+        if (allPlayersOnly) {
             entities = world.getPlayers(queryOptions);
         } else {
-            const dimension = world.getDimension(selector.values.dimension[0] ?? sender.dimension.id);
+            const dimension = world.getDimension(selector.values.dimension?.[0] ?? sender.dimension.id);
             entities = dimension.getEntities(queryOptions);
         }
         for (const entity of entities) {
-            if (!idSelection || idSelection.has(entity.id)) selectedEntities.push(entity);
-            if (!randomize && selectedEntities.length === selector.values.limit[0]) break;
+            if (idSelection.size === 0 || idSelection.has(entity.id)) selectedEntities.push(entity);
+            if (!randomize && selectedEntities.length === entityLimit) break;
         }
         if (randomize) {
-            randomizedEntities = [];
-            for (let randomStep = 0;randomStep < selector.values.limit[0];randomStep++) {
+            const randomizedEntities = [];
+            for (let randomStep = 0;randomStep < entityLimit;randomStep++) {
                 const randomIndex = randInt(0,selectedEntities.length-1);
                 randomizedEntities.push(selectedEntities[randomIndex]);
                 selectedEntities.splice(randomIndex,1);
             }
             selectedEntities = randomizedEntities;
         }
-        //!needs testing
+        
         return selectedEntities;
+        }
+        catch (error) {
+            logMessage(error);
+        }
     }
 
     #getSelector(string,option,options = {selectorChar: '@', escapeChar: '\\', quoteChar: '\"', separator: ','}) {
@@ -537,10 +548,10 @@ class CommandParser {
                 escaped = true;
                 continue;
             }
-            if (char == null && part >= 2) throw new CommandError(`Unexpected end of selector at parameter '${option.id}'!`);
+            if (char == null && part === 2) throw new CommandError(`Unexpected end of selector at parameter '${option.id}'!`);
     
             if (part === 0) {
-                if (char === '[') {
+                if (char === '[' || char == null) {
                     part = 1;
                     continue;
                 };
@@ -555,7 +566,7 @@ class CommandParser {
                     selector.values[currentName][nextItemIndex] = '';
                     continue;
                 };
-                if (char !== ' ') currentName += char;
+                if (char !== ' ') currentName += char ?? '';
             }
             
             if (part === 2) {
@@ -575,12 +586,12 @@ class CommandParser {
                     currentName = '';
                     continue;
                 }
-                if (quoted || (char !== ' ')) selector.values[currentName][itemIndex] += char ?? '';
+                if (quoted || (char !== ' ')) selector.values[currentName][itemIndex] += char;
             }
 
             if (escaped) escaped = false;
         }
-        return selector
+        return selector;
     }
 }
 

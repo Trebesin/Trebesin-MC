@@ -122,6 +122,14 @@ function main(){
   command_parser.registerCommand("getcoords", {
     aliases: ["vector"], parameters: [],senderCheck: isAdmin, run: (sender) => sendMessage(`${sender.location.x}, ${sender.location.y}, ${sender.location.z}`,'CMD',sender)
   });
+  command_parser.registerCommand('testSelector', {
+    parameters: [{type:'selector',id:'entities'}],aliases:[], run(sender,parameters) {
+      world.say(`${parameters.entities.length}`)
+      for (const entity of parameters.entities) {
+        world.say(`Entity: ${entity.typeId}, ${entity.nameTag}, ${entity.id}`);
+      }
+    }
+  });
 }
 
 export {main, command_parser, isAdmin};
