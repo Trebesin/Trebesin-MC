@@ -384,6 +384,7 @@ class CommandParser {
         //Overridable entity queries from selector type:
         logMessage(selector.name)
         if (selector.name === 'r') queryOptions.type = 'minecraft:player';
+        if (selector.name === 'a') allPlayersOnly = true;
         //All entity queries from selector arguments:
         const idSelection = new Set(selector.values.id);
 
@@ -451,12 +452,14 @@ class CommandParser {
         }
 
         if (selector.values.x && selector.values.y && selector.values.z) {
+            allPlayersOnly = false;
             queryOptions.location = this.#parsePosition(
                 [selector.values.x[0],selector.values.y[0],selector.values.z[0]],sender,option
             );
         }
 
         if (selector.values.dx && selector.values.dy && selector.values.dz) {
+            allPlayersOnly = false;
             queryOptions.volume = new BlockAreaSize(
                 parseInt(selector.values.dx[0]),parseInt(selector.values.dy[0]),parseInt(selector.values.dz[0])
             );
@@ -480,7 +483,6 @@ class CommandParser {
             case 'e':
                 break
             case 'a':
-                allPlayersOnly = true;
                 queryOptions.type = 'minecraft:player';
                 queryOptions.excludeTypes = [];
                 break
@@ -505,7 +507,7 @@ class CommandParser {
         //Getting all entities from a chosen dimension:
         let entities;
         if (allPlayersOnly) {
-            entities = world.getPlayers(queryOptions);
+            entities = world.getPlayers(queryOptions);//!doesnt work with location keep in mind
         } else {
             const dimension = world.getDimension(selector.values.dimension?.[0] ?? sender.dimension.id);
             entities = dimension.getEntities(queryOptions);
