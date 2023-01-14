@@ -382,12 +382,12 @@ class CommandParser {
         let randomize = false;
         let allPlayersOnly = false;
         //Overridable entity queries from selector type:
-        logMessage(selector.name)
         if (selector.name === 'r') queryOptions.type = 'minecraft:player';
         if (selector.name === 'a') allPlayersOnly = true;
         //All entity queries from selector arguments:
         const idSelection = new Set(selector.values.id);
 
+        //Entity property filtering:
         if (selector.values.name) {
             parseListSelectorArg(
                 selector.values.name,
@@ -427,12 +427,6 @@ class CommandParser {
                 {options:queryOptions,max:'maxLevel',min:'minLevel'}
             );
         };
-        if (selector.values.distance) {
-            parseRangeSelectorArg(
-                selector.values.distance[0],
-                {options:queryOptions,max:'maxDistance',min:'minDistance'}
-            );
-        }
         if (selector.values.x_rotation) {
             parseRangeSelectorArg(
                 selector.values.x_rotation[0],
@@ -446,18 +440,19 @@ class CommandParser {
             );
         }
 
-        if (selector.values.scores) {
-            queryOptions.scoreOptions = {};
-            parseScoresSelectorArg(selector.values.scores[0],{options:queryOptions,scores:'scoreOptions'});
+        //Entity location filtering:
+        if (selector.values.distance) {
+            parseRangeSelectorArg(
+                selector.values.distance[0],
+                {options:queryOptions,max:'maxDistance',min:'minDistance'}
+            );
         }
-
         if (selector.values.x && selector.values.y && selector.values.z) {
             allPlayersOnly = false;
             queryOptions.location = this.#parsePosition(
                 [selector.values.x[0],selector.values.y[0],selector.values.z[0]],sender,option
             );
         }
-
         if (selector.values.dx && selector.values.dy && selector.values.dz) {
             allPlayersOnly = false;
             queryOptions.volume = new BlockAreaSize(
@@ -465,6 +460,13 @@ class CommandParser {
             );
         }
 
+        //Entity score filtering:
+        if (selector.values.scores) {
+            queryOptions.scoreOptions = {};
+            parseScoresSelectorArg(selector.values.scores[0],{options:queryOptions,scores:'scoreOptions'});
+        }
+
+        //Sorts:
         if (selector.values.sort) {
             switch (selector.values.sort[0]) {
                 case 'furthest':
@@ -478,10 +480,10 @@ class CommandParser {
                     break;
             }
         }
+
         //Forced entity queries from selector type:
+        //@e omitted as everything can be as default
         switch (selector.name) {
-            case 'e':
-                break
             case 'a':
                 queryOptions.type = 'minecraft:player';
                 queryOptions.excludeTypes = [];
@@ -504,18 +506,20 @@ class CommandParser {
                 idSelection.add(sender.id);
                 break
         }
-        //Getting all entities from a chosen dimension:
+        //Getting all entities from a chosen/default dimension:
         let entities;
         if (allPlayersOnly) {
-            entities = world.getPlayers(queryOptions);//!doesnt work with location keep in mind
+            entities = world.getPlayers(queryOptions);
         } else {
             const dimension = world.getDimension(selector.values.dimension?.[0] ?? sender.dimension.id);
             entities = dimension.getEntities(queryOptions);
         }
+        //Custom entity filters & limit for unsorted entity queries:
         for (const entity of entities) {
             if (idSelection.size === 0 || idSelection.has(entity.id)) selectedEntities.push(entity);
             if (!randomize && selectedEntities.length === entityLimit) break;
         }
+        //Randomize if @r/sort=random:
         if (randomize) {
             const randomizedEntities = [];
             for (let randomStep = 0;randomStep < entityLimit;randomStep++) {
