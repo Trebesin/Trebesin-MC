@@ -5,9 +5,9 @@ import * as BlockHistoryPLugin from "../block_history";
 function main(){
     async function blockHistoryHandler(sender, parameter){
         if(/*isAdmin(sender) && */(parameter.command === "b" || parameter.command === "block")){
-            const x = parameter.paramOne ?? sender.location.x
-            const y = parameter.paramTwo ?? sender.location.y
-            const z = parameter.paramThree ?? sender.location.z
+            const x = parameter.paramOne
+            const y = parameter.paramTwo
+            const z = parameter.paramThree
             sendMessage(`${x}, ${y}, ${z}`,'CMD - BlockHistory',sender);
             const request = {
                 sql : `SELECT *, PlayerConnections.PlayerName 
