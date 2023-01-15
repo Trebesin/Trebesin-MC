@@ -11,6 +11,7 @@ const DB_UPDATE_INTERVAL = 1200;
 
 const blockUpdates = {};
 const fallingBlocksTracked = [];
+let DatabaseExport = null;
 
 async function main() {
     //# Workers:
@@ -18,7 +19,7 @@ async function main() {
     
     //# Database:
     const connection = DB;
-    
+    DatabaseExport = connection
     //## DB Save Schedule:
     system.runSchedule(async () => {
         let empty = true;
@@ -282,7 +283,7 @@ export {
     main,
     setBlockType,
     setBlockPermutation,
-    connection as database
+    DatabaseExport as database
 };
 
 
