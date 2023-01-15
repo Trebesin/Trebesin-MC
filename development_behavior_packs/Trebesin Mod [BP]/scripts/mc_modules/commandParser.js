@@ -531,10 +531,7 @@ class CommandParser {
         }
         
         return selectedEntities;
-        }
-        catch (error) {
-            logMessage(error);
-        }
+        } catch (error) {logMessage(error);}
     }
 
     #getSelector(string,option,options = {selectorChar: '@', escapeChar: '\\', quoteChar: '\"', separator: ','}) {
