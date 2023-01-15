@@ -65,6 +65,7 @@ class Server {
         for (const eventCallback in eventObject.callbacks) {
             this.events[eventCallback] = eventObject.callbacks[eventCallback];
         }
+        
     }
 
     setTimeout(callback, ticks) {
