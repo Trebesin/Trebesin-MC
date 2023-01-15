@@ -226,14 +226,16 @@ class CommandParser {
 
 
     #getParameterChain(parameters,options,sender) {
-        let output = {};
+        const output = {};
         let optional = false;
         let currentOptions = options;
         let currentParameters = parameters;
 
-        for (let index = 0;index < currentOptions.length;index++) { 
+        for (let index = 0;index < currentOptions.length;index++) {
             const option = currentOptions[index];
             const parameter = currentParameters[index];
+            logMessage(`Starting parameter ${index}: ${option.id} [${option.type}]`)
+            logMessage(parameter);
 
             if (option.optional) optional = true;
 
@@ -252,13 +254,17 @@ class CommandParser {
             //Array type
             if (option.array) {
                 let parameterArray = [];
-                if (currentParameters.length < index + option.array) {
+                let newIndex = index + option.array;
+                if (currentParameters.length < newIndex) {
                     throw new CommandError(`Incomplete array parameter '${option.id}'!`);
                 }
-                for (const arrayParameter of currentParameters.slice(index,index += option.array)) {
+
+                for (const arrayParameter of currentParameters.slice(index,newIndex)) {
                     const parsedArrayParameter = this.#parseParameterType(arrayParameter,sender,option);
                     parameterArray.push(parsedArrayParameter);
                 }
+
+                index = newIndex;
                 output[option.id] = parameterArray;
                 continue
             }
@@ -277,7 +283,6 @@ class CommandParser {
             //Default type
             } else {
                 output[option.id] = parsedParameter;
-                index++;
             }
         }
 

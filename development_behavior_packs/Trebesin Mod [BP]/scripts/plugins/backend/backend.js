@@ -94,7 +94,7 @@ async function PluginMain() {
         },
         execute() {},
         data: {}
-    })
+    });
 }
 
 export { server as Server, dbConnection as DB , PluginMain as main, PluginName as name }
