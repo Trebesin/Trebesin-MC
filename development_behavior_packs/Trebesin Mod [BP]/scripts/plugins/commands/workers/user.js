@@ -117,12 +117,19 @@ function main(){
     }
   });
     
-  command_parser.registerCommand("nv", {description: "switches night vision on/off", aliases: ["nightvision"], run: (sender) => {
-    if(sender.hasTag("nv"))sender.addTag("nv");
-    else {
-      sender.removeTag("nv");
-      sender.addEffect(MinecraftEffectTypes.nightVision, 1, 1, false);
-    };
+  command_parser.registerCommand("nv", {description: "switches night vision on/off", aliases: ["nightvision"], parameters: [], run: (sender) => {
+      try {
+        if(!sender.hasTag("nvoff")) {
+          sender.addTag("nvoff");
+          sendMessage("your §l§anightvision§r has been turned off - §c(you might need to wait 15s for it to run out)", "§aCMD§f", sender);
+        }
+        else {
+          sender.removeTag("nvoff");
+          sendMessage("your §l§anightvision§r has been turned on", "§aCMD§f", sender);
+        };
+      } catch (error) {
+        sendMessage(`Error! ${error}`,'CMD',sender);
+      }
   }})
 }
 export {main};
