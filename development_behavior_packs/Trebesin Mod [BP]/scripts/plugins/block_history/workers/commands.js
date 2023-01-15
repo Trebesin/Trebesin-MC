@@ -6,7 +6,8 @@ import { playerData } from "../../server/server";
 import * as BlockHistoryPLugin from "../block_history";
 let particlesPerPlayers = {}
 function addActiveParticles(particleLocation, sender){
-    particlesPerPlayers[sender].particleLocations.push(particleLocation)
+    if(!particlesPerPlayers[sender])particlesPerPlayers[sender] = [particleLocation];
+    else particlesPerPlayers[sender].particleLocations.push(particleLocation)
 }
 function removeActiveParticles(sender){
     delete particlesPerPlayers[sender];
