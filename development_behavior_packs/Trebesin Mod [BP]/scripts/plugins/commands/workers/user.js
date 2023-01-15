@@ -1,10 +1,12 @@
-import {CommandResult, Location, system, world, Vector, Player} from "@minecraft/server";
+import {CommandResult, Location, system, world, Vector, Player, MinecraftEffectTypes} from "@minecraft/server";
 import {CommandParser, sendMessage} from "../../../mc_modules/commandParser";
 import * as Debug from './../../debug/debug';
 import { playerData as serverPlayerData } from '../../server/server';
 import {command_parser} from "./admin";
 import * as vectorMath from "../../../js_modules/vector.js";
 function main(){
+
+
   async function gmsp(sender){
     await sender.runCommandAsync(`gamerule sendcommandfeedback false`)
     await sender.runCommandAsync(`gamemode spectator @s `)
@@ -16,6 +18,7 @@ function main(){
     aliases: ["gamemodespectator", "gamemodesp", "gm3", "gmspectator", "spectator"], parameters: [], run: gmsp
   })
 
+
   async function gma(sender){
     await sender.runCommandAsync(`gamerule sendcommandfeedback false`)
     await sender.runCommandAsync(`gamemode a @s `)
@@ -26,9 +29,12 @@ function main(){
     sendMessage("you are now in §ladventure§r§f mode", "§aCMD§f", sender)
     await sender.runCommandAsync(`gamerule sendcommandfeedback true`)
   }
+
   command_parser.registerCommand("gma", {
     aliases: ["gamemodeadventure", "gamemodea", "gm2", "gmadventure", "adventure"], parameters: [], run: gma
   })
+
+
   /**
    * 
    * @param {Player} sender 
@@ -47,6 +53,7 @@ function main(){
   command_parser.registerCommand("phase", {
     parameters: [{id: "distance", type: "int", optional: true}], aliases: ["p","phaser"], run: phase
   })
+
 
   async function fly(sender){
     const __parameter = !sender.hasTag("fly");
@@ -67,6 +74,7 @@ function main(){
     parameters: [], aliases: ["f"], run: fly
   });
 
+
   command_parser.registerCommand("summon", {
     parameters: [
       {id:'entity',type:'str'},
@@ -81,6 +89,7 @@ function main(){
     }
   });
 
+
   command_parser.registerCommand("instakill", {
     parameters: [], aliases: [], run: (sender) => {
       const instaKillStatus = serverPlayerData.instaKill[sender.id];
@@ -89,6 +98,7 @@ function main(){
       sendMessage(`Your new InstaKill status: ${serverPlayerData.instaKill[sender.id]}`,'CMD',sender);
     }
   });
+
 
   command_parser.registerCommand("dupe", {
     parameters: [], aliases: [], run: (sender,parameters) => {
@@ -107,5 +117,12 @@ function main(){
     }
   });
     
+  command_parser.registerCommand("nv", {description: "switches night vision on/off", aliases: ["nightvision"], run: (sender) => {
+    if(sender.hasTag("nv"))sender.addTag("nv");
+    else {
+      sender.removeTag("nv");
+      sender.addEffect(MinecraftEffectTypes.nightVision, 1, 1, false);
+    };
+  }})
 }
 export {main};
