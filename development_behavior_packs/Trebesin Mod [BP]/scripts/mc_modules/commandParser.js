@@ -2,10 +2,39 @@ import { world, Location, BlockAreaSize, Player } from '@minecraft/server';
 import { setVectorLength } from './../js_modules/vector';
 import { filter } from '../js_modules/array';
 import { randInt } from '../js_modules/random';
-import { DIMENSION_IDS } from './constants';
-import { logMessage } from '../plugins/debug/debug';
 import { findCharIndex, findLastCharIndex, findNumber } from '../js_modules/string';
+import { logMessage } from '../plugins/debug/debug';
 
+//# Type Definitions:
+/**
+* @callback CommandDefinitionRun
+* @param {Player} sender - Actor that has invoked the command.
+* @param {object} parameters - Object of parameters, keys are named after ids specified in command definition parameters and values are parsed user input.
+*/
+
+/**
+* @callback CommandDefinitionSenderCheck
+* @param {Player} sender - Actor that has invoked the command.
+*/
+
+/**
+* @typedef CommandDefinitionParameter
+* @property {string} id - ID of the parameter.
+* @property {('string'|'integer'|'float'|'boolean'|'position'|'selector')} type - Type of the parameter defining what the user input should look like.
+* @property {number} [array] - Number defining an array of parameters, the value corresponds to its length.
+*/
+
+/**
+* @typedef CommandDefinition
+* @property {string} description - Description of the command shown in the default help command.
+* @property {string[]} [aliases] - Aliases to invoke the command. Repeating the same aliases might have unexpected results.
+* @property {CommandDefinitionParameter[]} parameters - All parameters that the command takes.
+* @property {any[]} [arguments] - Array of any additional arguments that will be passed to the command function when it's ran.
+* @property {CommandDefinitionSenderCheck} [senderCheck] - Optional function that needs to return `true` in order to allow execution of the command.
+* @property {CommandDefinitionRun} run - Function that runs when the command is invoked.
+*/
+
+//#Main Command Parser Class:
 //Finish help command, add parameter preprocesser
 class CommandParser {
     /**
@@ -52,13 +81,7 @@ class CommandParser {
 
     /** 
      * @param {string} name - Identification of the command.
-     * @param {object} definition - Definitions for the behavior of the command.
-     * @param {string} description - Description of the command shown in the default help command.
-     * @param {string[]} [definition.aliases] - Aliases to invoke the command. Repeating the same aliases might have unexpected results.
-     * @param {object[]} definition.parameters - All parameters that the command takes.
-     * @param {any[]} definition.arguments - Array of any additional arguments that will be passed to the command function when it's ran.
-     * @param {Function} [definition.senderCheck] - Optional function that needs to return `true` in order to allow execution of the command, it gets passed a `sender{Player}` parameter.
-     * @param {Function} definition.run - Function that runs when the command is invoked, it gets passed 3 parameters: `sender{Player}`, `parameters{Object}` and `arguments{any[]}` which is the command invoker, all parsed parameters and defined arguments.
+     * @param {CommandDefinition} definition - Definitions of the command.
      **/
     registerCommand(name,definition) {
         if (!this.#options.caseSensitive) {
@@ -69,7 +92,6 @@ class CommandParser {
         }
         this.#commands[name] = definition;
     }
-
 
     /**
      * A function used to execute a command.
@@ -381,6 +403,8 @@ class CommandParser {
         let entityLimit = parseInt(selector.values.limit?.[0]);
         let randomize = false;
         let allPlayersOnly = false;
+        //Player only selector:
+        if (option.playerOnly && (selector.name !== 'a' || selector.name !== 'p')) throw new CommandError(`'${option.id}' is a player-only selector!`);
         //Overridable entity queries from selector type:
         if (selector.name === 'r') queryOptions.type = 'minecraft:player';
         if (selector.name === 'a') allPlayersOnly = true;
@@ -486,8 +510,13 @@ class CommandParser {
             case 'e':
                 break
             case 'a':
-                delete queryOptions.type;
-                delete queryOptions.excludeTypes;
+                if (allPlayersOnly) {
+                    delete queryOptions.type;
+                    delete queryOptions.excludeTypes;
+                } else {
+                    queryOptions.type = 'minecraft:player';
+                    queryOptions.excludeTypes = [];
+                }
                 break
             case 'p':
                 delete queryOptions.farthest;
@@ -506,6 +535,8 @@ class CommandParser {
                 idSelection = new Set();
                 idSelection.add(sender.id);
                 break
+            default:
+                throw new CommandError(`Invalid selector type at '${option.id}'!`);
         }
         //Getting all entities from a chosen/default dimension:
         let entities;
@@ -606,6 +637,7 @@ class CommandError extends Error {
     }
 }
 
+//# Helper Functions:
 /**
  * 
  * @param {string} message 
@@ -677,8 +709,6 @@ function parseScoresSelectorArg(selectorArg,query,options = {}) {
     query.options[query.scores] = scoreOptions;
 }
 
-export {CommandParser,sendMessage}
-
 function getScoreSelectors(string,options = {escapeChar: '\\', separator: ','}) {
     const selector = {};
     const {escapeChar,separator} = options;
@@ -716,3 +746,5 @@ function getScoreSelectors(string,options = {escapeChar: '\\', separator: ','}) 
     }
     return selector
 }
+
+export {CommandParser,sendMessage}
