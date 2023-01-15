@@ -246,7 +246,7 @@ class CommandParser {
 
             //Position type
             if (option.type === 'position' || option.type === 'pos') {
-                const coords = currentParameters.slice(index,index += 3);
+                const coords = currentParameters.slice(index,index += 2); //only 2 because the loop incremeant
                 const parsedPosition = this.#parsePosition(coords,sender,option);
                 output[option.id] = parsedPosition;
                 continue
