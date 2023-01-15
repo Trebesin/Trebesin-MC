@@ -5,14 +5,14 @@ import * as BlockHistoryPLugin from "../block_history";
 function main(){
     async function blockHistoryHandler(sender, parameter){
         if(/*isAdmin(sender) && */(parameter.command === "b" || parameter.command === "block")){
-            const x = Number(parameter.par1) ?? sender.location.x
-            const y = Number(parameter.par2) ?? sender.location.y
-            const z = Number(parameter.par3) ?? sender.location.z
+            const x = parameter.par1 ?? sender.location.x
+            const y = parameter.par2 ?? sender.location.y
+            const z = parameter.par3 ?? sender.location.z
             const request = {
                 sql : `SELECT *, PlayerConnections.PlayerName 
                        FROM \`block_history\` 
                        JOIN PlayerConnections ON block_history.actor_id = PlayerConnections.PlayerID 
-                       WHERE x = ${Math.floor(x)} AND y = ${Math.floor(y)} AND z = ${Math.floor(z)}`
+                       WHERE x = ${Math.floor(Number(x))} AND y = ${Math.floor(Number(y))} AND z = ${Math.floor(Number(z))}`
             }
             try {
                 const response = await BlockHistoryPLugin.database.query(request);
@@ -34,8 +34,9 @@ function main(){
             }
         }
         else {
-            sendMessage(`help:\n
-                        b x y z`)
+            sendMessage(
+                `help:
+                b x y z`)
         }
     }
   command_parser.registerCommand("bh", {
