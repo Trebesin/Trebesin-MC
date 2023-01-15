@@ -10,7 +10,7 @@ function addActiveParticles(particleLocation, sender){
 }
 function removeActiveParticles(sender){
     for(const particle of particlesPerPlayers){
-        if(particle.player === sender)particlesPerPlayers.pop(particle);
+        if(particle.player === sender)particle.pop();
     }
 }
 function spawnParticles(particleLocation, sender){
