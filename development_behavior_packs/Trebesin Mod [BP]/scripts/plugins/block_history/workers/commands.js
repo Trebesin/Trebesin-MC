@@ -8,8 +8,12 @@ let particlesPerPlayers = []
 function addActiveParticles(particleLocation, sender){
     particlesPerPlayers.push({player: sender, particle: particleLocation})
 }
+function removeActiveParticles(sender){
+    for(const particle of particlesPerPlayers){
+        if(particle.player === sender)particlesPerPlayers.pop(particle);
+    }
+}
 function spawnParticles(particleLocation, sender){
-    world.say("we got there!")
     let molang = new MolangVariableMap();
         molang.setColorRGB('variable.colour',new Color(255,0,0,1));
     const dimension = world.getDimension('overworld')
@@ -90,8 +94,16 @@ function main(){
             catch(error) {
                 sendMessage(`${error}`,'CMD - BlockHistory',sender);
             }
-            
-
+        }
+        else if(/*isAdmin(sender) && */(parameter.command === "c" || parameter.command === "clear")){
+            if(parameter.selector){
+                for(player of parameter.selector){
+                    removeActiveParticles(player)
+                }
+            }
+            else{
+                removeActiveParticles(sender)
+            }
         }
         else {
             sendMessage(
@@ -119,6 +131,12 @@ function main(){
                 ],
                 player: [
                     {type:'string',id:'player',optional:true}
+                ],
+                c: [
+                    {type: 'selector', id: 'players', optional:true}
+                ],
+                clear: [
+                    {type: 'selector', id: 'players', optional:true}
                 ]
             }
         }
