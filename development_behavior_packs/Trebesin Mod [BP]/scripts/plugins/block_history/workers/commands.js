@@ -12,7 +12,7 @@ function main(){
                 sql : `SELECT *, PlayerConnections.PlayerName 
                        FROM \`block_history\` 
                        JOIN PlayerConnections ON block_history.actor_id = PlayerConnections.PlayerID 
-                       WHERE x = ${Math.floor(Number(x))} AND y = ${Math.floor(Number(y))} AND z = ${Math.floor(Number(z))}`
+                       WHERE x = ${Math.floor(parseInt(x))} AND y = ${Math.floor(parseInt(y))} AND z = ${Math.floor(parseInt(z))}`
             }
             try {
                 const response = await BlockHistoryPLugin.database.query(request);
