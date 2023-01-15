@@ -75,7 +75,7 @@ function highlightBlockCoords(particle,coords,dimension,molang) {
     }
 }
 
-function getCornerLocations(coords,callback) {
+function getCornerLocations(coords,callback, sender) {
     const blocksSet = createLocationSet(coords);
     for (let blockIndex = 0;blockIndex < coords.length;blockIndex++) {
         const block = coords[blockIndex];
@@ -100,21 +100,21 @@ function getCornerLocations(coords,callback) {
                 const cornerBlock = blocksSet.has(`${cornerCoord.x},${cornerCoord.y},${cornerCoord.z}`);
 
                 if ((!cornerBlock && sideABlock && sideBBlock) || (!sideABlock && !sideBBlock)) {
-                    drawCorner(block,cornerLoc,callback);
+                    drawCorner(block,cornerLoc,callback, sender);
                 }
             }
         }
     }
 }
 
-function drawCorner(origin,corner,callback) {
+function drawCorner(origin,corner,callback, sender) {
     const otherAxis = getStaleAxis(corner);
     const particleCoord = getCornerOffset(origin,corner);
     for (let staleAxisStep = 0;staleAxisStep <= 1;staleAxisStep++) {
         const staleAxisOffset = {};
         staleAxisOffset[otherAxis] = staleAxisStep;
         const particleLocation = interfaceToLocation(sumLocations(particleCoord,staleAxisOffset));
-        callback(particleLocation);
+        callback(particleLocation, sender);
     }
 }
 
