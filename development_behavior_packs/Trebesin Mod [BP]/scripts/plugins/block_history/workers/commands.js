@@ -23,8 +23,7 @@ function removeAllActiveParticles(){
 function spawnParticles(particleLocation, sender){
     let molang = new MolangVariableMap();
         molang.setColorRGB('variable.colour',new Color(255,0,0,1));
-    const dimension = world.getDimension('overworld')
-    dimension.spawnParticle('trebesin:selection_dot',particleLocation,molang);
+    sender.dimension.spawnParticle('trebesin:selection_dot',particleLocation,molang);
 }
 function main(){
     system.runSchedule(() => {
