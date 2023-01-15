@@ -117,7 +117,7 @@ function main(){
     }
   });
     
-  command_parser.registerCommand("nv", {description: "switches night vision on/off", aliases: ["nightvision"], run: (sender) => {
+  command_parser.registerCommand("nv", {description: "switches night vision on/off", aliases: ["nightvision"], parameters: [], run: (sender) => {
       try {
         if(!sender.hasTag("nv")) {
           sender.addTag("nv");
