@@ -8,6 +8,7 @@ function main(){
             const x = parameter.par1 ?? sender.location.x
             const y = parameter.par2 ?? sender.location.y
             const z = parameter.par3 ?? sender.location.z
+            sendMessage(`${x}, ${y}, ${z}`,'CMD - BlockHistory',sender);
             const request = {
                 sql : `SELECT *, PlayerConnections.PlayerName 
                        FROM \`block_history\` 
