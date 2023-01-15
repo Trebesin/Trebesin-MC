@@ -1,4 +1,4 @@
-import { world, Location, BlockAreaSize } from '@minecraft/server';
+import { world, Location, BlockAreaSize, Player } from '@minecraft/server';
 import { setVectorLength } from './../js_modules/vector';
 import { filter } from '../js_modules/array';
 import { randInt } from '../js_modules/random';
@@ -482,22 +482,23 @@ class CommandParser {
         }
 
         //Forced entity queries from selector type:
-        //@e omitted as everything can be as default
         switch (selector.name) {
+            case 'e':
+                break
             case 'a':
-                queryOptions.type = 'minecraft:player';
-                queryOptions.excludeTypes = [];
+                delete queryOptions.type;
+                delete queryOptions.excludeTypes;
                 break
             case 'p':
-                queryOptions.farthest = null;
+                delete queryOptions.farthest;
                 queryOptions.closest = isNaN(entityLimit) ? 1 : entityLimit;
                 queryOptions.type = 'minecraft:player';
                 queryOptions.excludeTypes = [];
                 break
             case 'r':
                 entityLimit = isNaN(entityLimit) ? 1 : entityLimit;
-                queryOptions.farthest = null;
-                queryOptions.closest = null;
+                delete queryOptions.farthest;
+                delete queryOptions.closest;
                 randomize = true;
                 break
             case 's':
