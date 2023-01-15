@@ -1,4 +1,4 @@
-import {CommandResult, MinecraftEffectTypes , system, world, BlockLocation, TicksPerDay, TicksPerSecond, TicksperHour} from "@minecraft/server";
+import {CommandResult, MinecraftEffectTypes , system, world, BlockLocation, TicksPerDay, TicksPerSecondS} from "@minecraft/server";
 import {CommandParser, sendMessage} from "../../../mc_modules/commandParser";
 import { command_parser, isAdmin } from "../../commands/workers/admin";
 import * as BlockHistoryPLugin from "../block_history";
