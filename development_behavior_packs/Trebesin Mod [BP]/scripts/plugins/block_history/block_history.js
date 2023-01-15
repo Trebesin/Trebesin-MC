@@ -281,8 +281,7 @@ function setBlockPermutation(block,permutation,actorId) {
 export {
     main,
     setBlockType,
-    setBlockPermutation,
-    databaseExport as database
+    setBlockPermutation
 };
 
 
