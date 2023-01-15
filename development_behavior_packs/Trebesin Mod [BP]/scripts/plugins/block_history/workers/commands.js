@@ -1,4 +1,4 @@
-import {CommandResult, MinecraftEffectTypes , system, world, BlockLocation} from "@minecraft/server";
+import {CommandResult, MinecraftEffectTypes , system, world, BlockLocation, TicksPerDay, TicksPerSecond, TicksperHour} from "@minecraft/server";
 import {CommandParser, sendMessage} from "../../../mc_modules/commandParser";
 import { command_parser, isAdmin } from "../../commands/workers/admin";
 import * as BlockHistoryPLugin from "../block_history";
@@ -10,10 +10,10 @@ function main(){
             }
             try {
                 const response = await BlockHistoryPLugin.database.query(request);
-                const tickInADay = 4320000
-                const tickInAnHour = 72000
-                const tickInAMin = 1200
-                const tickInASec = 20
+                const tickInASec = TicksPerSecond
+                const tickInAMin = tickInASec*60
+                const tickInAnHour = tickInAMin*60
+                const tickInADay = tickInAnHour*24
                 for(const block_alteration of response.result){
                     let hey = true
                     const timeOfBlockAlteration = system.currentTick - parseInt(block_alteration.tick)

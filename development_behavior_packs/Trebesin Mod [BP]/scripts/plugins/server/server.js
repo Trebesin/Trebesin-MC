@@ -6,6 +6,7 @@ import * as Particles from './../../mc_modules/particles';
 //JS module imports
 import { randInt } from '../../js_modules/random';
 import { setVectorLength, sumVectors } from '../../js_modules/vector';
+import { DB } from '../backend/backend';
 
 const playerData = {
     instaKill: {}
@@ -63,8 +64,17 @@ async function main() {
         }
     })
 
-    world.events.playerJoin.subscribe((eventData) => {
-
+    world.events.playerJoin.subscribe(async (eventData) => {
+        const connection = DB;
+        const request = {
+            sql: 'INSERT INTO PlayerConnections (playerID,PlayerName,Tick) VALUES (?,?,?);',
+            values: [eventData.playerId, eventData.playerName, system.currentTick]
+        }
+        try {
+            await connection.query(request,true);
+        } catch (error) {
+            world.say(`${error}`);
+        }
     });
 
     //try {
