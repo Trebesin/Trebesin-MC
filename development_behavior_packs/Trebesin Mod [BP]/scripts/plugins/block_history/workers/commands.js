@@ -26,7 +26,7 @@ function main(){
                     sendMessage(`${block_alteration.PlayerName}: ${block_alteration.before_id} -> ${block_alteration.after_id} - before: ${Math.floor(timeOfBlockAlteration/tickInADay)}d${Math.floor(timeOfBlockAlteration%tickInADay/tickInAnHour)}h${Math.floor(timeOfBlockAlteration%tickInAnHour/tickInAMin)}m${Math.floor(timeOfBlockAlteration%tickInAMin/tickInASec)}s`,'CMD - BlockHistory',sender);
                 }
                 sendMessage(response.result + "hey",'CMD - BlockHistory',sender);
-                if(!response){//not working for some reason
+                if(response.result === ""){//not working for some reason
                     sendMessage(`No changes were made to this block (since porting it to bedrock)`,'CMD - BlockHistory',sender);
                 }
             }
