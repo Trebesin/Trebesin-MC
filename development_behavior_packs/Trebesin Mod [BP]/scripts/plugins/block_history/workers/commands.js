@@ -24,10 +24,6 @@ function main(){
                     const timeOfBlockAlteration = system.currentTick - parseInt(block_alteration.tick)
                     sendMessage(`${block_alteration.PlayerName}: ${block_alteration.before_id} -> ${block_alteration.after_id} - before: ${Math.floor(timeOfBlockAlteration/tickInADay)}d${Math.floor(timeOfBlockAlteration%tickInADay/tickInAnHour)}h${Math.floor(timeOfBlockAlteration%tickInAnHour/tickInAMin)}m${Math.floor(timeOfBlockAlteration%tickInAMin/tickInASec)}s`,'CMD - BlockHistory',sender);
                 }
-                if(response.result.stringify() === "{}"){
-                    sendMessage(`There have been found no changes made to this block (note: this is only from the time the server was ported to bedrock)`,'CMD - BlockHistory',sender);
-
-                }
             }
             catch(error) {
                 sendMessage(`${error}`,'CMD - BlockHistory',sender);
