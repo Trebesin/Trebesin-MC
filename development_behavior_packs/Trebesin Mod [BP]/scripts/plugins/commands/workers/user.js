@@ -121,7 +121,6 @@ function main(){
       try {
         if(!sender.hasTag("nvoff")) {
           sender.addTag("nvoff");
-          sender.addEffect(MinecraftEffectTypes.nightVision, 0, 1, false);
           sendMessage("your §l§anightvision§r has been turned off", "§aCMD§f", sender);
         }
         else {
