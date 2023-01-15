@@ -18,7 +18,7 @@ async function executePlugins() {
     //!Loaded Backend (2.):
     try {
         Debug.logMessage('Loading Backend...\n{');
-        Backend.main();
+        await Backend.main();
         Debug.logMessage('}\nLoaded Backend...');
     } catch (error) {
         Debug.logMessage(error);
