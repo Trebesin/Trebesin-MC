@@ -66,7 +66,7 @@ class Server {
             this.events[eventCallback] = eventObject.callbacks[eventCallback];
         }
         
-        Debug.logMessage(this.#eventsRegister[eventId]);
+        //Debug.logMessage(this.#eventsRegister[eventId]);
     }
 
     setTimeout(callback, ticks) {
