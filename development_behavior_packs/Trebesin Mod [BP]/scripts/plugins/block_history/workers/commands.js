@@ -20,11 +20,11 @@ function main(){
                 const tickInASec = TicksPerSecond
                 const tickInAMin = tickInASec*60
                 const tickInAnHour = tickInAMin*60
-                const tickInADay = tickInAnHour*24
+                const tickInADay = tickInAnHour*24/*
                 for(const block_alteration of response.result){
                     const timeOfBlockAlteration = system.currentTick - parseInt(block_alteration.tick)
                     sendMessage(`${block_alteration.PlayerName}: ${block_alteration.before_id} -> ${block_alteration.after_id} - before: ${Math.floor(timeOfBlockAlteration/tickInADay)}d${Math.floor(timeOfBlockAlteration%tickInADay/tickInAnHour)}h${Math.floor(timeOfBlockAlteration%tickInAnHour/tickInAMin)}m${Math.floor(timeOfBlockAlteration%tickInAMin/tickInASec)}s`,'CMD - BlockHistory',sender);
-                }
+                }*/
             }
             catch(error) {
                 sendMessage(`${error}`,'CMD - BlockHistory',sender);
