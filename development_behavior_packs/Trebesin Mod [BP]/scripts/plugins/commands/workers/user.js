@@ -119,10 +119,14 @@ function main(){
     
   command_parser.registerCommand("nv", {description: "switches night vision on/off", aliases: ["nightvision"], run: (sender) => {
       try {
-        if(!sender.hasTag("nv")) sender.addTag("nv");
+        if(!sender.hasTag("nv")) {
+          sender.addTag("nv");
+          sendMessage("your §l§anightvision§r has been turned on", "§aCMD§f", sender);
+        }
         else {
           sender.removeTag("nv");
           sender.addEffect(MinecraftEffectTypes.nightVision, 1, 1, false);
+          sendMessage("your §l§anightvision§r has been turned off", "§aCMD§f", sender);
         };
       } catch (error) {
         sendMessage(`Error! ${error}`,'CMD',sender);
