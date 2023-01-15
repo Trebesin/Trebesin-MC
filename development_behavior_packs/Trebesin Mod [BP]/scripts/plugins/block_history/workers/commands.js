@@ -14,11 +14,12 @@ function main(){
         if(/*isAdmin(sender) && */(parameter.command === "b" || parameter.command === "block")){
             const pos = parameter.coords ?? sender.location
             const request = {
-                sql : `SELECT *, PlayerConnections.PlayerName 
+                sql : `SELECT block_history.*, PlayerConnections.PlayerName 
                        FROM \`block_history\` 
-                       JOIN PlayerConnections ON block_history.actor_id = PlayerConnections.PlayerID 
-                       ORDER BY \'tick\'
-                       WHERE x = ${Math.floor(pos.x)} AND y = ${Math.floor(pos.y)} AND z = ${Math.floor(pos.z)}`
+                       JOIN PlayerConnections 
+                       ON block_history.actor_id = PlayerConnections.PlayerID 
+                       WHERE x = ${Math.floor(pos.x)} AND y = ${Math.floor(pos.y)} AND z = ${Math.floor(pos.z)}
+                       ORDER BY \`block_history\`.\`tick\` DESC`,
             }
             try {
                 const response = await BlockHistoryPLugin.database.query(request);
@@ -44,11 +45,12 @@ function main(){
         else if(/*isAdmin(sender) && */(parameter.command === "p" || parameter.command === "player")){
             const playerName = parameter.player ?? sender.name
             const request = {
-                sql : `SELECT *, PlayerConnections.PlayerName 
+                sql : `SELECT block_history.*, PlayerConnections.PlayerName 
                        FROM \`block_history\` 
-                       JOIN PlayerConnections ON block_history.actor_id = PlayerConnections.PlayerID 
-                       ORDER BY \'tick\'
-                       WHERE PlayerName = ?`,
+                       JOIN PlayerConnections 
+                       ON block_history.actor_id = PlayerConnections.PlayerID 
+                       WHERE PlayerName = '?'  
+                       ORDER BY \`block_history\`.\`tick\` DESC`,
                 values : [playerName]
             }
             try {
