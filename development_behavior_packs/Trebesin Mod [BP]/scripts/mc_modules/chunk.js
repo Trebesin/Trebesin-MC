@@ -52,7 +52,6 @@ function getSubchunksCoords(chunkCoord,realCoordinates = false) {
     }
     return coords;
 }
-
 class ChunkManager {
     constructor(options = {}) {
         Object.assign(options,{tickDistance:TICK_DISTANCE,dimensions:DIMENSIONS});

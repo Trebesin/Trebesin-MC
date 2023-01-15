@@ -1,15 +1,13 @@
-import { DatabaseConnection } from '../../mc_modules/network/database-api';
 import { world,system, Block, BlockType, BlockLocation, Entity, BlockPermutation} from '@minecraft/server';
-import * as serverAdmin from '@minecraft/server-admin';
 import { sendMessage } from '../../mc_modules/commandParser';
 import { copyBlock, compareBlocks, getPermutations, blockUpdateIteration } from '../../mc_modules/blocks';
 import { sumVectors, copyVector, subVectors } from '../../js_modules/vector';
 import { containsArray, filter, insertToArray, deleteFromArray } from '../../js_modules/array';
 import * as BlockHistoryCommandsWorker from './workers/commands';
 import * as Debug from '../debug/debug';
+import { DB } from '../backend/backend';
 import { DIMENSION_IDS , FACE_DIRECTIONS } from '../../mc_modules/constants';
 const DB_UPDATE_INTERVAL = 1200;
-let databaseExport = null;
 
 const blockUpdates = {};
 const fallingBlocksTracked = [];
@@ -19,29 +17,7 @@ async function main() {
     loadWorkers();
     
     //# Database:
-    //## Initial DB Connection:
-    const connection = new DatabaseConnection({
-        connection: {
-            host: 'db1.falix.cc',
-            user: serverAdmin.variables.get('db-connection-username'),
-            password: serverAdmin.variables.get('db-connection-password'),
-            multipleStatements: true,
-            database: 's835835_Trebesin-DB-Beta'
-        },
-        server: {
-            url: serverAdmin.variables.get('db-server-url'),
-            username: serverAdmin.variables.get('db-server-username'),
-            password: serverAdmin.variables.get('db-server-password')
-        }
-    });
-    databaseExport = connection;
-    try {
-        const response = await connection.connect();
-        if (response.status === 200) Debug.logMessage('Successfully connected to the database!');
-        else Debug.logMessage(`Couldn't connect to database! [${response.status}]\n${response.body}`);
-    } catch (error) {
-        Debug.logMessage(error);
-    }
+    const connection = DB;
     
     //## DB Save Schedule:
     system.runSchedule(async () => {
