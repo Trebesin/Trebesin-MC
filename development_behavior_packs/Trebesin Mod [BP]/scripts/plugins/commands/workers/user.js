@@ -121,7 +121,7 @@ function main(){
       try {
         if(!sender.hasTag("nvoff")) {
           sender.addTag("nvoff");
-          sendMessage("your §l§anightvision§r has been turned off", "§aCMD§f", sender);
+          sendMessage("your §l§anightvision§r has been turned off - §c(you might need to wait 15s for it to run out)", "§aCMD§f", sender);
         }
         else {
           sender.removeTag("nvoff");
