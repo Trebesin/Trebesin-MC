@@ -17,7 +17,7 @@ function main(){
                 sql : `SELECT *, PlayerConnections.PlayerName 
                        FROM \`block_history\` 
                        JOIN PlayerConnections ON block_history.actor_id = PlayerConnections.PlayerID 
-                       ORDER BY tick
+                       ORDER BY \'tick\'
                        WHERE x = ${Math.floor(pos.x)} AND y = ${Math.floor(pos.y)} AND z = ${Math.floor(pos.z)}`
             }
             try {
@@ -47,7 +47,7 @@ function main(){
                 sql : `SELECT *, PlayerConnections.PlayerName 
                        FROM \`block_history\` 
                        JOIN PlayerConnections ON block_history.actor_id = PlayerConnections.PlayerID 
-                       ORDER BY tick
+                       ORDER BY \'tick\'
                        WHERE PlayerName = ?`,
                 values : [playerName]
             }
