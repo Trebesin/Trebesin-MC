@@ -282,7 +282,7 @@ export {
     main,
     setBlockType,
     setBlockPermutation,
-    databaseExport as database
+    connection as database
 };
 
 
