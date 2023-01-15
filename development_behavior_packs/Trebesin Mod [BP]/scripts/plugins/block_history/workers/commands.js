@@ -37,7 +37,7 @@ function main(){
                 sendMessage(`${error}`,'CMD - BlockHistory',sender);
             }
         }
-        if(/*isAdmin(sender) && */(parameter.command === "p" || parameter.command === "player")){
+        else if(/*isAdmin(sender) && */(parameter.command === "p" || parameter.command === "player")){
             const playerName = parameter.player ?? sender.name
             const request = {
                 sql : `SELECT *, PlayerConnections.PlayerName 
@@ -52,7 +52,7 @@ function main(){
                 const tickInAMin = tickInASec*60
                 const tickInAnHour = tickInAMin*60
                 const tickInADay = tickInAnHour*24
-                let locations = {}
+                let locations = []
                 for(const block_alteration of response.result){
                     const timeOfBlockAlteration = system.currentTick - parseInt(block_alteration.tick)
                     sendMessage(`${block_alteration.PlayerName} - [${block_alteration.x}, ${block_alteration.y}, ${block_alteration.z}]: ${block_alteration.before_id} -> ${block_alteration.after_id} - before: ${Math.floor(timeOfBlockAlteration/tickInADay)}d${Math.floor(timeOfBlockAlteration%tickInADay/tickInAnHour)}h${Math.floor(timeOfBlockAlteration%tickInAnHour/tickInAMin)}m${Math.floor(timeOfBlockAlteration%tickInAMin/tickInASec)}s`,'CMD - BlockHistory',sender);
