@@ -49,7 +49,7 @@ function main(){
                        FROM \`block_history\` 
                        JOIN PlayerConnections 
                        ON block_history.actor_id = PlayerConnections.PlayerID 
-                       WHERE PlayerName = '?'  
+                       WHERE PlayerName = ?  
                        ORDER BY \`block_history\`.\`tick\` DESC`,
                 values : [playerName]
             }
