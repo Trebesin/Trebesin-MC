@@ -6,7 +6,10 @@ function main(){
     async function blockHistoryHandler(sender, parameter){
         if(isAdmin(sender) && (parameter.command === "inspect" || parameter.command === "i")){
             const request = {
-                sql : `Select block_history.* WHERE x = ${Math.floor(sender.location.x)} AND y = ${Math.floor(sender.location.y)} AND z = ${Math.floor(sender.location.z)}`
+                sql : `SELECT *, PlayerConnections.PlayerName 
+                       FROM \`block_history\` 
+                       JOIN PlayerConnections ON block_history.actor_id = PlayerConnections.PlayerID 
+                       WHERE x = ${Math.floor(sender.location.x)} AND y = ${Math.floor(sender.location.y)} AND z = ${Math.floor(sender.location.z)}`
             }
             try {
                 const response = await BlockHistoryPLugin.database.query(request);
@@ -15,18 +18,8 @@ function main(){
                 const tickInAnHour = tickInAMin*60
                 const tickInADay = tickInAnHour*24
                 for(const block_alteration of response.result){
-                    let hey = true
                     const timeOfBlockAlteration = system.currentTick - parseInt(block_alteration.tick)
-                    sendMessage(`${block_alteration.playername}: ${block_alteration.before_id} -> ${block_alteration.after_id} - before: ${Math.floor(timeOfBlockAlteration/tickInADay)}d${Math.floor(timeOfBlockAlteration%tickInADay/tickInAnHour)}h${Math.floor(timeOfBlockAlteration%tickInAnHour/tickInAMin)}m${Math.floor(timeOfBlockAlteration%tickInAMin/tickInASec)}s`,'BH',sender);
-                    for (const player of world.getPlayers()) {
-                        if (player.id === block_alteration.actor_id) {
-                            hey = false; //im sure this can be done better but i dont care at this point 
-                            break;
-                        }
-                    }
-                    if (hey) {
-                            sendMessage(`player with id[${block_alteration.actor_id}]: ${block_alteration.before_id} -> ${block_alteration.after_id} - before: ${Math.floor(timeOfBlockAlteration/tickInADay)}d${Math.floor(timeOfBlockAlteration%tickInADay/tickInAnHour)}h${Math.floor(timeOfBlockAlteration%tickInAnHour/tickInAMin)}m${Math.floor(timeOfBlockAlteration%tickInAMin/tickInASec)}s`,'BH',sender);
-                    }
+                    sendMessage(`${block_alteration.PlayerName}: ${block_alteration.before_id} -> ${block_alteration.after_id} - before: ${Math.floor(timeOfBlockAlteration/tickInADay)}d${Math.floor(timeOfBlockAlteration%tickInADay/tickInAnHour)}h${Math.floor(timeOfBlockAlteration%tickInAnHour/tickInAMin)}m${Math.floor(timeOfBlockAlteration%tickInAMin/tickInASec)}s`,'BH',sender);
                 }
             }
             catch(error) {
