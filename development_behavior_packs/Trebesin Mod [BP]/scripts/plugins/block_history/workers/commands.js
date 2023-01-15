@@ -5,15 +5,15 @@ import * as BlockHistoryPLugin from "../block_history";
 function main(){
     async function blockHistoryHandler(sender, parameter){
         if(/*isAdmin(sender) && */(parameter.command === "b" || parameter.command === "block")){
-            const x = parameter.par1 ?? sender.location.x
-            const y = parameter.par2 ?? sender.location.y
-            const z = parameter.par3 ?? sender.location.z
+            const x = parameter.paramOne ?? sender.location.x
+            const y = parameter.paramTwo ?? sender.location.y
+            const z = parameter.paramThree ?? sender.location.z
             sendMessage(`${x}, ${y}, ${z}`,'CMD - BlockHistory',sender);
             const request = {
                 sql : `SELECT *, PlayerConnections.PlayerName 
                        FROM \`block_history\` 
                        JOIN PlayerConnections ON block_history.actor_id = PlayerConnections.PlayerID 
-                       WHERE x = ${Math.floor(parseInt(x))} AND y = ${Math.floor(parseInt(y))} AND z = ${Math.floor(parseInt(z))}`
+                       WHERE x = ${Math.floor(x)} AND y = ${Math.floor(y)} AND z = ${Math.floor(z)}`
             }
             try {
                 const response = await BlockHistoryPLugin.database.query(request);
@@ -37,7 +37,7 @@ function main(){
         }
     }
   command_parser.registerCommand("bh", {
-    parameters: [{id: "command", type: "string", optional: true}, {id: "par1", type: "string", optional: true}, {id: "par2", type: "string", optional: true}, {id: "par3", type: "string", optional: true}], aliases: ["block_history", "co", "coreprotect"], run: blockHistoryHandler
+    parameters: [{id: "command", type: "string", optional: true}, {id: "paramOne", type: "string", optional: true}, {id: "paramTwo", type: "string", optional: true}, {id: "paramThree", type: "string", optional: true}], aliases: ["block_history", "co", "coreprotect"], run: blockHistoryHandler
   })
 }
 
