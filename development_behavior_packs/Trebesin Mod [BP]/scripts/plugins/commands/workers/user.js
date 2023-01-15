@@ -119,7 +119,7 @@ function main(){
     
   command_parser.registerCommand("nv", {description: "switches night vision on/off", aliases: ["nightvision"], run: (sender) => {
       try {
-        if(sender.hasTag("nv")) sender.addTag("nv");
+        if(!sender.hasTag("nv")) sender.addTag("nv");
         else {
           sender.removeTag("nv");
           sender.addEffect(MinecraftEffectTypes.nightVision, 1, 1, false);
