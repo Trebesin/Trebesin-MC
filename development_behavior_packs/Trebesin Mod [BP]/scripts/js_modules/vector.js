@@ -29,12 +29,23 @@ function setVectorLength(vector, length) {
 }
 
 /**
- * Copies a vector into a new object.
- * @param {object} vector Vector to copy.
- * @returns {object} New object of the same vector.
+ * Subs 2 vectors together.
+ * @param {object} vectorA First vector to sub.
+ * @param {object} vectorB Second vector to sub.
+ * @returns {object} New object with the result of the sub of the vector.
  */
-function copyVector(vector) {
-    return {x:vector.x,y:vector.y,z:vector.z}
+function subVectors(vectorA,vectorB) {
+    return {x:vectorA.x-vectorB.x,y:vectorA.y-vectorB.y,z:vectorA.z-vectorB.z};
+}
+
+/**
+ * Multiply vector.
+ * @param {object} vector Vector to multiply.
+ * @param {number} amount Multiplication.
+ * @returns {object} Result of the vector multiplication.
+ */
+function multiplyVector(vector,amount) {
+    return {x:vector.x*amount,y:vector.y*amount,z:vector.z*amount};
 }
 
 /**
@@ -42,8 +53,13 @@ function copyVector(vector) {
  * @param {object} vector Vector to copy.
  * @returns {object} New object of the same vector.
  */
-function compareVectors(vectorA,vectorB) {
-    return (vectorA.x === vectorB.x && vectorA.y === vectorB.y && vectorA.z === vectorB.z)
+function copyVector(vector) {
+    return {x:vector.x,y:vector.y,z:vector.z};
 }
 
-export {setVectorLength,getVectorLength,sumVectors,copyVector}
+
+function compareVectors(vectorA,vectorB) {
+    return (vectorA.x === vectorB.x && vectorA.y === vectorB.y && vectorA.z === vectorB.z);
+}
+
+export {setVectorLength,getVectorLength,sumVectors,subVectors,multiplyVector,copyVector,compareVectors}

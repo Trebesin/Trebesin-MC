@@ -1,45 +1,56 @@
-import * as blockHistory from './plugins/block_history/block_history';
-import * as blockyTools from './plugins/blocky_tools/blocky_tools';
-import * as server from './plugins/server/server';
-import * as commands from './plugins/commands/commands';
+import * as BlockHistoryPlugin from './plugins/block_history/block_history';
+import * as BlockyToolsPlugin from './plugins/blocky_tools/blocky_tools';
+import * as ServerPlugin from './plugins/server/server';
+import * as CommandsPlugin from './plugins/commands/commands';
+import * as Debug from './plugins/debug/debug';
+import * as Backend from './plugins/backend/backend';
 import { world } from '@minecraft/server';
-//test1
-console.warn('\n\nReloading Trebesin Mod...\n\n');
-world.say('\n\nReloading Trebesin Mod...\n\n');
-function executePlugins() {
+
+Debug.logMessage('\n\nReloading Trebesin Mod...\n\n',{api:false});
+async function executePlugins() {
+    //!Loading Debug (1.):
     try {
-        blockHistory.main();
-        console.warn('Loaded Block History');
-        world.say('Loaded Block History');
+        await Debug.main();
+        Debug.logMessage('Loaded debug!');
     } catch (error) {
-        console.warn(error);
-        world.say(`${error}`);
+        Debug.logMessage(error);
+    }
+    //!Loaded Backend (2.):
+    try {
+        Debug.logMessage('Loading Backend...\n{');
+        Backend.main();
+        Debug.logMessage('}\nLoaded Backend...');
+    } catch (error) {
+        Debug.logMessage(error);
     }
     try {
-        blockyTools.main();
-        console.warn('Loaded Blocky Tools (world edit)');
-        world.say('Loaded Blocky Tools (world edit)');
+        Debug.logMessage('Loading Server...\n{');
+        ServerPlugin.main();
+        Debug.logMessage('}\nLoaded Server...');
     } catch (error) {
-        console.warn(error);
-        world.say(`${error}`);
+        Debug.logMessage(error);
     }
     try {
-        server.main();
-        console.warn('Loaded Server');
-        world.say('Loaded Server');
+        Debug.logMessage('Loading Block History...\n{');
+        await BlockHistoryPlugin.main();
+        Debug.logMessage('}\nLoaded Block History...');
     } catch (error) {
-        console.warn(error);
-        world.say(`${error}`);
+        Debug.logMessage(error);
     }
     try {
-        commands.main();
-        console.warn('Loaded commands');
-        world.say('Loaded commands');
+        Debug.logMessage('Loading Blocky Tools...\n{');
+        BlockyToolsPlugin.main();
+        Debug.logMessage('}\nLoaded Blocky Tools...');
     } catch (error) {
-        console.warn(error);
-        world.say(`${error}`);
+        Debug.logMessage(error);
     }
-    
+    try {
+        Debug.logMessage('Loading Commands...\n{');
+        CommandsPlugin.main();
+        Debug.logMessage('}\nLoaded Commands...');
+    } catch (error) {
+        Debug.logMessage(error);
+    }
 }
 
 executePlugins();

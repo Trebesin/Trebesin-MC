@@ -1,5 +1,10 @@
-import {world,Location,EntityQueryOptions} from '@minecraft/server';
-import {setVectorLength} from './../js_modules/vector';
+import { world, Location, BlockAreaSize } from '@minecraft/server';
+import { setVectorLength } from './../js_modules/vector';
+import { filter } from '../js_modules/array';
+import { randInt } from '../js_modules/random';
+import { DIMENSION_IDS } from './constants';
+import { logMessage } from '../plugins/debug/debug';
+import { findCharIndex, findLastCharIndex, findNumber } from '../js_modules/string';
 
 //Finish help command, add parameter preprocesser
 class CommandParser {
@@ -21,7 +26,6 @@ class CommandParser {
                 if (!this.#options.caseSensitive) {
                     commandInput = commandInput.toLowerCase();
                 }
-
                 this.runCommand(commandInput,messageArray.slice(1).join(' '),sender);
             }
         });
@@ -198,25 +202,27 @@ class CommandParser {
         return items;
     }
 
-    #getParameterChain(parameters,options,sender,index = 0,optional = false) {
-        let output = {};
-        //let options = 
 
-        //for (let optionIndex = 0;optionIndex < ) { }
-        for (const option of options) {
-            //const option = options[optionIndex];
-            const parameter = parameters[index];
+    #getParameterChain(parameters,options,sender) {
+        let output = {};
+        let optional = false;
+        let currentOptions = options;
+        let currentParameters = parameters;
+
+        for (let index = 0;index < currentOptions.length;index++) { 
+            const option = currentOptions[index];
+            const parameter = currentParameters[index];
 
             if (option.optional) optional = true;
 
-            if (index >= parameters.length) {
+            if (index >= currentParameters.length) {
                 if (optional) return output;
                 throw new CommandError(`Missing parameter '${option.id}'!`);
             }
 
             //Position type
             if (option.type === 'position' || option.type === 'pos') {
-                const coords = parameters.slice(index,index += 3);
+                const coords = currentParameters.slice(index,index += 3);
                 const parsedPosition = this.#parsePosition(coords,sender,option);
                 output[option.id] = parsedPosition;
                 continue
@@ -224,26 +230,28 @@ class CommandParser {
             //Array type
             if (option.array) {
                 let parameterArray = [];
-                if (parameters.length < index + option.array) {
+                if (currentParameters.length < index + option.array) {
                     throw new CommandError(`Incomplete array parameter '${option.id}'!`);
                 }
-                for (const arrayParameter of parameters.slice(index,index += option.array)) {
-                    const parsedArrayParameter = this.#parseParameterType(arrayParameter,option);
+                for (const arrayParameter of currentParameters.slice(index,index += option.array)) {
+                    const parsedArrayParameter = this.#parseParameterType(arrayParameter,sender,option);
                     parameterArray.push(parsedArrayParameter);
                 }
                 output[option.id] = parameterArray;
                 continue
             }
 
-            const parsedParameter = this.#parseParameterType(parameter,option);
+            const parsedParameter = this.#parseParameterType(parameter,sender,option);
             //Choice type
             if (option.choice) {
                 output[option.id] = parsedParameter;
                 if (!(parameter in option.choice)) {
                     throw new CommandError(`Invalid choice of '${parameter}' at ${option.id}!`);
                 }
-                const choiceOutput = this.#getParameterChain(parameters.slice(index+1),option.choice[parameter],sender,0,optional);
-                Object.assign(output,choiceOutput);
+                //Restart with new options defined by the choice
+                index = 0;
+                currentOptions = option.choice[parameter];
+                currentParameters = currentParameters.slice(index+1)
             //Default type
             } else {
                 output[option.id] = parsedParameter;
@@ -252,9 +260,9 @@ class CommandParser {
         }
 
         return output
-    }
+    }   
 
-    #parseParameterType(parameter,option) {
+    #parseParameterType(parameter,sender,option) {
         let parsedParameter, value;
 
         switch (option.type) {
@@ -273,6 +281,7 @@ class CommandParser {
                 }
                 break
             case 'float':
+            case 'flt':
                 value = parseFloat(parameter);
                 if (!isNaN(value)) {
                     parsedParameter = value;
@@ -293,7 +302,7 @@ class CommandParser {
                 break
             case 'selector':
             case 'select':
-                value = this.#parseSelector(parameter,option);
+                value = this.#parseSelector(parameter,sender,option);
                 parsedParameter = value;
                 break
             default:
@@ -338,7 +347,7 @@ class CommandParser {
     
                     if (isNaN(number)) continue
                     let useVector;
-                    const vector = entity.viewVector;
+                    const vector = entity.viewDirection;
                     switch (index) {
                         case 0:
                             useVector = setVectorLength({x:vector.z,y:0,z:-vector.x},number);
@@ -364,48 +373,165 @@ class CommandParser {
         return new Location(...coord);
     }
 
-    #parseSelector(string,option) {
-        const selectorEntities = [];
-        /**
-         * @type {EntityQueryOptions}
-         */
+    #parseSelector(string,sender,option) {
+        try {
         const queryOptions = {};
         const selector = this.#getSelector(string,option);
-        if (selector.values.name) {
+        let selectedEntities = [];
+        let entityLimit = parseInt(selector.values.limit?.[0]);
+        let randomize = false;
+        let allPlayersOnly = false;
+        //Overridable entity queries from selector type:
+        if (selector.name === 'r') queryOptions.type = 'minecraft:player';
+        if (selector.name === 'a') allPlayersOnly = true;
+        //All entity queries from selector arguments:
+        const idSelection = new Set(selector.values.id);
 
+        //Entity property filtering:
+        if (selector.values.name) {
+            parseListSelectorArg(
+                selector.values.name,
+                {options:queryOptions,include:'name',exclude:'excludeNames'},
+                {includeSingleItem:true}
+            );
         }
         if (selector.values.type) {
-
+            parseListSelectorArg(
+                selector.values.type,
+                {options:queryOptions,include:'type',exclude:'excludeTypes'},
+                {includeSingleItem:true}
+            );
         }
         if (selector.values.tag) {
-            queryOptions.tags = filter(selector.values.tag,element => element[0] !== '!');
-            queryOptions.excludeTags = filter(selector.values.tag,element => element[0] === '!');
+            parseListSelectorArg(
+                selector.values.tag,
+                {options:queryOptions,include:'tags',exclude:'excludeTags'}
+            );
         }
         if (selector.values.family) {
-            queryOptions.families = filter(selector.values.family,element => element[0] !== '!');
-            queryOptions.excludeFamilies = filter(selector.values.family,element => element[0] === '!');
-        }
-        if (selector.values.level) {
-
-        }
-        if (selector.values.distance) {
-
-        }
-        if (selector.values.x_rotation) {
-
-        }
-        if (selector.values.y_rotation) {
-            
+            parseListSelectorArg(
+                selector.values.family,
+                {options:queryOptions,include:'families',exclude:'excludeFamilies'}
+            );
         }
         if (selector.values.gamemode) {
-
+            parseListSelectorArg(
+                selector.values.gamemode,
+                {options:queryOptions,include:'gameMode',exclude:'excludeGameModes'},
+                {includeSingleItem:true}
+            );
         }
-        if (selector.values.limit) {
-
+        if (selector.values.level) {
+            parseRangeSelectorArg(
+                selector.values.level[0],
+                {options:queryOptions,max:'maxLevel',min:'minLevel'}
+            );
+        };
+        if (selector.values.x_rotation) {
+            parseRangeSelectorArg(
+                selector.values.x_rotation[0],
+                {options:queryOptions,max:'maxHorizontalRotation',min:'minHorizontalRotation'}
+            );
         }
+        if (selector.values.y_rotation) {
+            parseRangeSelectorArg(
+                selector.values.y_rotation[0],
+                {options:queryOptions,max:'maxVerticalRotation',min:'minVerticalRotation'}
+            );
+        }
+
+        //Entity location filtering:
+        if (selector.values.distance) {
+            parseRangeSelectorArg(
+                selector.values.distance[0],
+                {options:queryOptions,max:'maxDistance',min:'minDistance'}
+            );
+        }
+        if (selector.values.x && selector.values.y && selector.values.z) {
+            allPlayersOnly = false;
+            queryOptions.location = this.#parsePosition(
+                [selector.values.x[0],selector.values.y[0],selector.values.z[0]],sender,option
+            );
+        }
+        if (selector.values.dx && selector.values.dy && selector.values.dz) {
+            allPlayersOnly = false;
+            queryOptions.volume = new BlockAreaSize(
+                parseInt(selector.values.dx[0]),parseInt(selector.values.dy[0]),parseInt(selector.values.dz[0])
+            );
+        }
+
+        //Entity score filtering:
+        if (selector.values.scores) {
+            queryOptions.scoreOptions = {};
+            parseScoresSelectorArg(selector.values.scores[0],{options:queryOptions,scores:'scoreOptions'});
+        }
+
+        //Sorts:
         if (selector.values.sort) {
-
+            switch (selector.values.sort[0]) {
+                case 'furthest':
+                    queryOptions.farthest = isNaN(entityLimit) ? 99 : entityLimit;//can set this by default to a real high value ?Infinity to make limit selectors work well with ID patch and other future possible patches
+                    break;
+                case 'nearest':
+                    queryOptions.closest = isNaN(entityLimit) ? 99 : entityLimit;//same as above
+                    break;
+                case 'random':
+                    randomize = true; //Prepares to randomize after getting all the entities from the query.
+                    break;
+            }
         }
+
+        //Forced entity queries from selector type:
+        //@e omitted as everything can be as default
+        switch (selector.name) {
+            case 'a':
+                queryOptions.type = 'minecraft:player';
+                queryOptions.excludeTypes = [];
+                break
+            case 'p':
+                queryOptions.farthest = null;
+                queryOptions.closest = isNaN(entityLimit) ? 1 : entityLimit;
+                queryOptions.type = 'minecraft:player';
+                queryOptions.excludeTypes = [];
+                break
+            case 'r':
+                entityLimit = isNaN(entityLimit) ? 1 : entityLimit;
+                queryOptions.farthest = null;
+                queryOptions.closest = null;
+                randomize = true;
+                break
+            case 's':
+                entityLimit = 1;
+                idSelection = new Set();
+                idSelection.add(sender.id);
+                break
+        }
+        //Getting all entities from a chosen/default dimension:
+        let entities;
+        if (allPlayersOnly) {
+            entities = world.getPlayers(queryOptions);
+        } else {
+            const dimension = world.getDimension(selector.values.dimension?.[0] ?? sender.dimension.id);
+            entities = dimension.getEntities(queryOptions);
+        }
+        //Custom entity filters & limit for unsorted entity queries:
+        for (const entity of entities) {
+            if (idSelection.size === 0 || idSelection.has(entity.id)) selectedEntities.push(entity);
+            if (!randomize && selectedEntities.length === entityLimit) break;
+        }
+        //Randomize if @r/sort=random:
+        if (randomize) {
+            const randomizedEntities = [];
+            for (let randomStep = 0;randomStep < entityLimit;randomStep++) {
+                const randomIndex = randInt(0,selectedEntities.length-1);
+                randomizedEntities.push(selectedEntities[randomIndex]);
+                selectedEntities.splice(randomIndex,1);
+            }
+            selectedEntities = randomizedEntities;
+        }
+        
+        return selectedEntities;
+        } catch (error) {logMessage(error);}
     }
 
     #getSelector(string,option,options = {selectorChar: '@', escapeChar: '\\', quoteChar: '\"', separator: ','}) {
@@ -425,10 +551,10 @@ class CommandParser {
                 escaped = true;
                 continue;
             }
-            if (char == null && part >= 2) throw new CommandError(`Unexpected end of selector at parameter '${option.id}'!`);
+            if (char == null && part === 2) throw new CommandError(`Unexpected end of selector at parameter '${option.id}'!`);
     
             if (part === 0) {
-                if (char === '[') {
+                if (char === '[' || char == null) {
                     part = 1;
                     continue;
                 };
@@ -443,7 +569,7 @@ class CommandParser {
                     selector.values[currentName][nextItemIndex] = '';
                     continue;
                 };
-                if (char !== ' ') currentName += char;
+                if (char !== ' ') currentName += char ?? '';
             }
             
             if (part === 2) {
@@ -468,16 +594,8 @@ class CommandParser {
 
             if (escaped) escaped = false;
         }
-        return selector
+        return selector;
     }
-}
-
-function filter(array,condition) {
-    const filterArray = [];
-    for (let index = 0;index < array.length;index++) {
-        if (condition(array[index],index,array)) filterArray.push(array[index]);
-    }
-    return filterArray
 }
 
 class CommandError extends Error {
@@ -508,4 +626,92 @@ class CommandError extends Error {
     }
 }
 
+function parseRangeSelectorArg(selectorArg,query,options = {}) {
+    let min,max;
+    const firstDotIndex = findCharIndex(selectorArg,'.');
+    const lastDotIndex = findLastCharIndex(selectorArg,'.');
+    if (firstDotIndex != null) {
+        if (lastDotIndex < selectorArg.length-1) {
+            max = findNumber(selectorArg,lastDotIndex);
+        }
+        if (firstDotIndex > 0) {
+            min = findNumber(selectorArg);
+        }
+    } else {
+        min = parseInt(selectorArg);
+        max = parseInt(selectorArg);
+    }
+
+    query.options[query.max] = max;
+    query.options[query.min] = min;
+}
+
+function parseListSelectorArg(selectorArg,query,options = {}) {
+    let include,exclude;
+    include = filter(selectorArg,element => element[0] !== '!');
+    if (options.includeSingleItem) include = include[0];
+    exclude = filter(selectorArg,element => element[0] === '!').map((element) => element.slice(1));
+
+    query.options[query.include] = include;
+    query.options[query.exclude] = exclude;
+}
+
+function parseScoresSelectorArg(selectorArg,query,options = {}) {
+    const scoreOptions = [];
+    if (selectorArg[0] === '{' && selectorArg[selectorArg.length-1] === '}') {
+        const scoreStrings = getScoreSelectors(selectorArg);
+        for (const objective in scoreStrings) {
+            let objectiveValue = scoreStrings[objective];
+            let exclude = false;
+            if (objectiveValue[0] === '!') {
+                exclude = true;
+                objectiveValue = objectiveValue.slice(1);
+            }
+            const scoreQuery = {objective,exclude};
+            parseRangeSelectorArg(objectiveValue,{options:scoreQuery,min:'scoreMin',max:'scoreMax'});
+            scoreOptions.push(scoreQuery);
+        }
+    }
+
+    query.options[query.scores] = scoreOptions;
+}
+
 export {CommandParser,sendMessage}
+
+function getScoreSelectors(string,options = {escapeChar: '\\', separator: ','}) {
+    const selector = {};
+    const {escapeChar,separator} = options;
+    let part = 0; //0: objective name; 1: objective value
+    let currentName = '';
+    let escaped;
+
+    for (let index = 1;index < string.length-1;index++) {
+        const char = string[index];
+        if (!escaped && char === escapeChar) {
+            escaped = true;
+            continue;
+        }
+
+        if (part === 0) {
+            if (!escaped && char === '=') {
+                if (selector[currentName] == null) selector[currentName] = '';
+                part = 1;
+                selector[currentName] = '';
+                continue;
+            };
+            if (char !== ' ') currentName += char ?? '';
+        }
+        
+        if (part === 1) {
+            if (!escaped && (char === separator || char === null)) {
+                part = 0;
+                currentName = '';
+                continue;
+            }
+            if (char !== ' ') selector[currentName] += char ?? '';
+        }
+
+        if (escaped) escaped = false;
+    }
+    return selector
+}

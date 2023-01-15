@@ -1,23 +1,15 @@
-import * as admin from "./workers/admin"
-import * as user from "./workers/user"
-import * as items from "./workers/items"
-import { world } from '@minecraft/server';
+import * as AdminWorker from "./workers/admin"
+import * as UserWorker from "./workers/user"
+import * as ItemsWorker from "./workers/items"
+import * as Debug from "../debug/debug"
 
-function main(){
-    console.warn('Loading Commands...\n{');
-    world.say('Loading Commands...\n{');
-    admin.main();
-    console.warn('   Admin commands set');
-    world.say('   Admin commands set');
-    user.main();
-    console.warn('   User commands set');
-    world.say('   User commands set');
-    items.main()
-    console.warn('   item links to commands set');
-    world.say('   item links to commands set');
-    console.warn('}');
-    world.say('}');
-
+async function main(){
+    AdminWorker.main();
+    Debug.logMessage('   Admin commands set');
+    UserWorker.main();
+    Debug.logMessage('   User commands set');
+    ItemsWorker.main()
+    Debug.logMessage('   item links to commands set');
 }
 
 export {main}

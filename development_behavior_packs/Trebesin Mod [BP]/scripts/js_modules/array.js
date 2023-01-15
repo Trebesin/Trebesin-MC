@@ -1,16 +1,53 @@
+import { logMessage } from '../plugins/debug/debug';
+
 /**
  * @description Inserts value at the first empty index in the array and returns the index.
- * @param {Array} array - Array to insert the value into.
+ * @param {any[]} array - Array to insert the value into.
  * @param {*} value - Value to insert into the array.
- * @returns {Number} Index that the value was inserted to.
+ * @returns {number} Index that the value was inserted to.
  **/
  function insertToArray(array, value) {
-    for (let index = 0;true;index++) {
+    if (!Array.isArray(array)) return null
+    for (let index = 0;index <= array.length;index++) {
         if (array[index] == null) {
             array[index] = value;
-            return index
+            return index;
         }
     }
+}
+
+/**
+ * @description Deletes item from an array at a given index and shortenes the array if possible.
+ * @param {any[]} array - Array to delete the item from.
+ * @param {number} index - Index of the item to delete.
+ * @returns {number} New length of the array.
+ **/
+function deleteFromArray(array, index) {
+    let newLength = 0;
+    delete array[index];
+    for (let index = 0;index < array.length;index++) {
+        if (array[index] != null) {
+            newLength = index + 1;
+        }
+    }
+    array.length = newLength;
+    return newLength;
+}
+
+/**
+ * @description Creates an object from an array. Values are each corresponding items of the array and keys are the return values of the callback.
+ * @param {any[]} array - Array to convert into an object.
+ * @param {callback} value - Callback that gets passed `value`,`index` and `array`. Its return value is the key inside of the new object.
+ * @returns {object} New generated object.
+ **/
+function arrayToObject(array, callback) {
+    const newObject = {};
+    for (let index = 0;index < array.length;index++) {
+        const value = array[index];
+        const key = callback(value,index,array);
+        newObject[key] = value;
+    }
+    return newObject;
 }
 
 /**
@@ -134,4 +171,4 @@ function mapArray(array,callback) {
     return mappedArray;
 }
 
-export {insertToArray, getMode, containsArray, mapArray, arrayDifference, includes, filter, range, find, findLast }
+export {insertToArray, deleteFromArray, getMode, containsArray, mapArray, arrayDifference, includes, filter, range, find, findLast, arrayToObject }

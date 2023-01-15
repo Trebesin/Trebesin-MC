@@ -1,25 +1,25 @@
-import { DatabaseConnection } from '../../mc_modules/network/database';
+import { DatabaseConnection } from '../../mc_modules/network/database-api';
 import { world,system, Block, BlockType, BlockLocation, Entity, BlockPermutation} from '@minecraft/server';
 import * as serverAdmin from '@minecraft/server-admin';
 import { sendMessage } from '../../mc_modules/commandParser';
-import { copyBlock, compareBlocks, getPermutations } from '../../mc_modules/block';
-import { sumVectors, copyVector } from '../../js_modules/vector';
-import { containsArray } from '../../js_modules/array';
-const FACE_DIRECTIONS = {
-    west: {x:-1,y:0,z:0},
-    east: {x:1,y:0,z:0},
-    down: {x:0,y:-1,z:0},
-    up: {x:0,y:1,z:0},
-    north: {x:0,y:0,z:-1},
-    south: {x:0,y:0,z:1}
-};
+import { copyBlock, compareBlocks, getPermutations, blockUpdateIteration } from '../../mc_modules/blocks';
+import { sumVectors, copyVector, subVectors } from '../../js_modules/vector';
+import { containsArray, filter, insertToArray, deleteFromArray } from '../../js_modules/array';
+import * as BlockHistoryCommandsWorker from './workers/commands';
+import * as Debug from '../debug/debug';
+import { DIMENSION_IDS , FACE_DIRECTIONS } from '../../mc_modules/constants';
 const DB_UPDATE_INTERVAL = 1200;
+let databaseExport = null;
 
-const exported = {};
 const blockUpdates = {};
+const fallingBlocksTracked = [];
 
 async function main() {
-    //Connect to the database:
+    //# Workers:
+    loadWorkers();
+    
+    //# Database:
+    //## Initial DB Connection:
     const connection = new DatabaseConnection({
         connection: {
             host: 'db1.falix.cc',
@@ -34,16 +34,16 @@ async function main() {
             password: serverAdmin.variables.get('db-server-password')
         }
     });
-    exported.connection = connection;
+    databaseExport = connection;
     try {
         const response = await connection.connect();
-        if (response.status === 200) world.say('successfully connected to the database');
-        else world.say(`couldn't connect to database: \n[${response.status}] ${response.body}`);
+        if (response.status === 200) Debug.logMessage('Successfully connected to the database!');
+        else Debug.logMessage(`Couldn't connect to database! [${response.status}]\n${response.body}`);
     } catch (error) {
-        world.say(`${error}`);
+        Debug.logMessage(error);
     }
     
-    //Saving to the permanent database:
+    //## DB Save Schedule:
     system.runSchedule(async () => {
         let empty = true;
         const request = {
@@ -83,9 +83,68 @@ async function main() {
         }
     },DB_UPDATE_INTERVAL)
 
-    //Block Updates:
-    world.events.blockBreak.subscribe((eventData) => {
-        world.say('§cBlock Break');
+    //# Block Updates:
+    //## Falling Block Patches:
+    world.events.entitySpawn.subscribe((eventData) => {
+        if (eventData.entity.typeId === 'minecraft:falling_block') {
+            const location = eventData.entity.location;
+            const blockLocation = new BlockLocation(Math.floor(location.x),Math.floor(location.y),Math.floor(location.z));
+            insertToArray(
+                fallingBlocksTracked,
+                {
+                    location: {
+                        start: blockLocation,
+                        current: blockLocation
+                    },
+                    tick: {
+                        start:  system.currentTick,
+                        current:  system.currentTick
+                    },
+                    id: eventData.entity.id,
+                    dimensionId: eventData.entity.dimension.id,
+                    playerId: null
+                }
+            );
+            Debug.logMessage(`§aBlock Starts Falling§r [${blockLocation.x},${blockLocation.y},${blockLocation.z}] @ ${system.currentTick}`);
+        }
+    });
+
+    system.runSchedule(() => {
+        for (let index = 0;index < fallingBlocksTracked.length;index++) {
+            const fallingBlockData = fallingBlocksTracked[index];
+            if (fallingBlockData == null) continue;
+            const fallingBlockEntity = getEntityById(
+                    fallingBlockData.id,
+                    { type: 'minecraft:falling_block' },
+                    [fallingBlockData.dimensionId]
+            );
+            if (fallingBlockEntity == null) {
+                const location = fallingBlockData.location;
+                const tick = fallingBlockData.tick;
+                const blocksTravelled = location.start.y - location.current.y;
+                const timeTravelled = tick.current - tick.start;
+                const speed = blocksTravelled/timeTravelled;
+                world.say(`§aBlock Ends Falling§r [${location.current.x},${location.current.y},${location.current.z}] @ ${tick.current} - ${getEntityById(
+                    fallingBlockData.playerId,
+                    {},
+                    [fallingBlockData.dimensionId]
+                )?.nameTag}`);
+                deleteFromArray(fallingBlocksTracked,index);
+            } else {
+                fallingBlockData.location.current = new BlockLocation(
+                    Math.floor(fallingBlockEntity.location.x),
+                    Math.floor(fallingBlockEntity.location.y),
+                    Math.floor(fallingBlockEntity.location.z)
+                );
+                fallingBlockData.tick.current = system.currentTick;
+            }
+        }
+    },1);
+
+    //## Block Breaking Detection:
+    world.events.blockBreak.subscribe(async (eventData) => {
+        world.say(`§cBlock Break§r - ${system.currentTick}`);
+        const playerId = eventData.player.id;
         const blockOld = {
             typeId: eventData.brokenBlockPermutation.type.id,
             isWaterlogged: eventData.block.isWaterlogged,
@@ -93,28 +152,24 @@ async function main() {
             location: eventData.block.location,
             permutation: eventData.brokenBlockPermutation
         }
-        saveBlockUpdate(blockOld,copyBlock(eventData.block),eventData.player.id);
+        //This Block:
+        saveBlockUpdate(blockOld,copyBlock(eventData.block),playerId);
 
-        //Future feature:
-        const dimension = eventData.dimension;
-        const blockAbove = dimension.getBlock(eventData.block.location.offset(0,1,0));
-        world.say(`Above Break Before: ${blockAbove.typeId}`);
-        system.run(() => {
-            world.say(`Above Break After: ${blockAbove.typeId}`);
-            const doubleBlockAbove = dimension.getBlock(blockAbove.location.offset(0,1,0));
-            world.say(`2xAbove Break Before: ${doubleBlockAbove.typeId}`);
-            system.run(() => {
-                world.say(`2xAbove Break After: ${doubleBlockAbove.typeId}`);
-            });
+        //Updated Blocks:
+        await blockUpdateIteration(blockOld.location,blockOld.dimension,(blockBefore,blockAfter,tick) => {
+            const vec = subVectors(blockBefore.location,blockOld.location);
+            world.say(`${blockBefore.typeId} -> ${blockAfter.typeId} @ ${vec.x},${vec.y},${vec.z}:${tick}`);
+            //Falling Blocks:
+            const fallObject = fallingBlocksTracked.find((block) => blockBefore.location.equals(block.location.start));
+            if (fallObject) fallObject.playerId = playerId;
         });
     });
 
     //!falling blocks will need a special treatment.
     //!also placing blocks can have chain effect too.
-    function chainCheck(block) {
-    }
     
-    world.events.itemStartUseOn.subscribe((eventData) => {
+    //## Block Placing Detection:
+    world.events.itemStartUseOn.subscribe(async(eventData) => {
         const player = eventData.source;
         const offset = FACE_DIRECTIONS[eventData.blockFace];
         const faceBlockLocation = eventData.blockLocation.offset(offset.x,offset.y,offset.z);
@@ -122,35 +177,29 @@ async function main() {
         const faceBlockOld = copyBlock(faceBlock);
         const block = player.dimension.getBlock(eventData.blockLocation);
         const blockOld = copyBlock(block);
-        system.run(() => {
-            //Debug:
-            //world.say(`§aBefore block§r - ${blockOld.typeId}`);
-            //world.say(`§dAfter block§r - ${block.typeId}`);
-            //if (compareBlocks(block,blockOld)) {
-            //    world.say('They are the same.');
-            //} else {
-            //    saveBlockUpdate(faceBlockOld,copyBlock(faceBlock),player);
-            //    world.say('They are NOT the same.');
-            //}
-            //world.say(`§aBefore face§r - ${faceBlockOld.typeId}`);
-            //world.say(`§dAfter face§r - ${faceBlock.typeId}`);
-            //if (compareBlocks(faceBlock,faceBlockOld)) {
-            //    world.say('They are the same.');
-            //} else {
-            //    saveBlockUpdate(blockOld,copyBlock(block),player);
-            //    world.say('They are NOT the same.');
-            //}
 
-            //Function:
+        //Those Blocks:
+        system.run(async () => {
             saveBlockUpdate(faceBlockOld,copyBlock(faceBlock),player.id);
             saveBlockUpdate(blockOld,copyBlock(block),player.id);
-        })
+            //Falling Blocks
+            system.run(() => {
+                const fallObject = fallingBlocksTracked.find((block) => faceBlock.location.equals(block.location.start));
+                if (fallObject) fallObject.playerId = player.id;
+            })
+        });
+
+        //Updated Blocks:
+        await blockUpdateIteration(faceBlockLocation,faceBlockOld.dimension,(blockBefore,blockAfter,tick) => {
+            const vec = subVectors(blockBefore.location,faceBlockOld.location);
+            world.say(`${blockBefore.typeId} -> ${blockAfter.typeId} @ ${vec.x},${vec.y},${vec.z}:${tick}`);
+            //Falling Blocks:
+            const fallObject = fallingBlocksTracked.find((block) => blockBefore.location.equals(block.location.start));
+            if (fallObject) fallObject.playerId = player.id;
+        });
     });  
 
-    world.events.blockPlace.subscribe(async (eventData) => {
-        world.say('§bBlock Place');
-    });
-
+    //Debug:
     world.events.itemUseOn.subscribe((eventData) => {
         if (eventData.item.typeId === 'minecraft:stick') {
             const block = eventData.source.dimension.getBlock(eventData.blockLocation);
@@ -169,7 +218,30 @@ async function main() {
     })
 }
 
-//*Functions:
+//# Functions:
+
+//## Internal Functions:
+function loadWorkers() {
+    BlockHistoryCommandsWorker.main();
+    Debug.logMessage('   Block History commands Loaded');
+}
+
+/**
+ * Function used to get entity with a specified ID from the world.
+ * @param {*} id Id of the entity to find.
+ * @param {EntityQueryOptions} [queryOptions] Optional query options to further specify the entity to look for.
+ * @param {string[]} [dimensionIds] IDs of dimensions to look for. Defaults to all dimensions of the world.
+ * @returns {Entity|undefined} Entity with the specified ID or undefined if no entity was found.
+ */
+function getEntityById(id,queryOptions = {},dimensionIds = DIMENSION_IDS) {
+    for (let index = 0;index < dimensionIds.length;index++) {
+        const dimension = world.getDimension(DIMENSION_IDS[index]);
+        const entities = [...dimension.getEntities(queryOptions)];
+        const entityWithId = filter(entities,(entity) => entity.id === id)[0]
+        if (entityWithId != null) return entityWithId;
+    }
+}
+
 /**
  * Function for saving block updates into the Block History memory database.
  * @param {object} blockBefore **Copy** of the `Block` class object saved as the block before the update.
@@ -203,7 +275,7 @@ function saveBlockUpdate(blockBefore,blockAfter,actorId) {
     }
 }
 
-//*Export Functions:
+//## Exported Functions:
 /**
  * Custom set block type function, does the same as `Block.setType()` method but also records the update to the block hisory database.
  * @param {Block} block `Block` class object to invoke `setType()` method on.
@@ -230,6 +302,11 @@ function setBlockPermutation(block,permutation,actorId) {
     saveBlockUpdate(blockBefore,blockAfter,actorId);
 }
 
-export {main,setBlockType,setBlockPermutation,exported};
+export {
+    main,
+    setBlockType,
+    setBlockPermutation,
+    databaseExport as database
+};
 
 

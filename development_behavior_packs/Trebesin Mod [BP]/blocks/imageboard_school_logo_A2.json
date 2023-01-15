@@ -1,0 +1,191 @@
+{
+        "format_version": "1.19.0",
+        "minecraft:block": {
+            "description": {
+                "identifier": "trebesin:imageboard_school_logo_A2",
+                "properties": {
+                    "trebesin:direction": [0, 1, 2, 3, 4, 5, 6],
+                    "trebesin:ground_rotation": [2, 3, 4, 5, 6]
+                },
+                "is_experimental": true,
+                "register_to_creative_menu": true,
+                "menu_category": {
+                    "category": "construction"
+                }
+            },
+            "components": {
+                "minecraft:geometry": "geometry.imageboard",
+                "minecraft:destroy_time": 0.0,
+                "minecraft:block_light_filter": 0,
+                "minecraft:collision_box": {
+                    "origin": [-8,0,-8],
+                    "size": [16,16,1]
+                },
+                "minecraft:selection_box": {
+                    "origin": [-8,0,-8],
+                    "size": [16,16,1]
+                },
+                "minecraft:material_instances": {
+                    "south": {
+                        "texture": "trebesin.image_school_logo_A2",
+                        "render_method": "alpha_test"
+                    },
+                    "north": {
+                        "texture": "trebesin.image_school_logo_A2",
+                        "render_method": "alpha_test"
+                    },
+                    "*": {
+                        "texture": "wood_oak",
+                        "render_method": "alpha_test"
+                    }
+                },
+                "minecraft:on_player_placing": {
+                    "event": "trebesin:set_rotation",
+                    "target": "self"
+                },
+                "minecraft:creative_category": {
+                    "category": "construction"
+                }
+            },
+            "events": {
+                "trebesin:set_rotation": {
+                    "set_block_property": {
+                        "trebesin:direction": "q.block_face",
+                        "trebesin:ground_rotation": "q.cardinal_facing_2d"
+                    }
+                }
+            },
+            "permutations": [
+                {
+                    "condition": "q.block_property('trebesin:direction') == 0.0 && (q.block_property('trebesin:ground_rotation') == 2.0 || q.block_property('trebesin:ground_rotation') == 6.0)",
+                    "components": {
+                        "minecraft:rotation": [
+                            90,
+                            0,
+                            0
+                        ]
+                    }
+                },
+                {
+                    "condition": "q.block_property('trebesin:direction') == 0.0 && q.block_property('trebesin:ground_rotation') == 3.0",
+                    "components": {
+                        "minecraft:rotation": [
+                            90,
+                            180,
+                            0
+                        ]
+                    }
+                },
+                {
+                    "condition": "q.block_property('trebesin:direction') == 0.0 && q.block_property('trebesin:ground_rotation') == 4.0",
+                    "components": {
+                        "minecraft:rotation": [
+                            90,
+                            90,
+                            0
+                        ]
+                    }
+                },
+                {
+                    "condition": "q.block_property('trebesin:direction') == 0.0 && q.block_property('trebesin:ground_rotation') == 5.0",
+                    "components": {
+                        "minecraft:rotation": [
+                            90,
+                            270,
+                            0
+                        ]
+                    }
+                },
+                {
+                    "condition": "q.block_property('trebesin:direction') == 1.0 && (q.block_property('trebesin:ground_rotation') == 2.0 || q.block_property('trebesin:ground_rotation') == 6.0)",
+                    "components": {
+                        "minecraft:rotation": [
+                            270,
+                            0,
+                            0
+                        ]
+                    }
+                },
+                {
+                    "condition": "q.block_property('trebesin:direction') == 1.0 && q.block_property('trebesin:ground_rotation') == 3.0",
+                    "components": {
+                        "minecraft:rotation": [
+                            270,
+                            180,
+                            0
+                        ]
+                    }
+                },
+                {
+                    "condition": "q.block_property('trebesin:direction') == 1.0 && q.block_property('trebesin:ground_rotation') == 4.0",
+                    "components": {
+                        "minecraft:rotation": [
+                            270,
+                            90,
+                            0
+                        ]
+                    }
+                },
+                {
+                    "condition": "q.block_property('trebesin:direction') == 1.0 && q.block_property('trebesin:ground_rotation') == 5.0",
+                    "components": {
+                        "minecraft:rotation": [
+                            270,
+                            270,
+                            0
+                        ]
+                    }
+                },
+                {
+                    "condition": "q.block_property('trebesin:direction') == 2.0 || q.block_property('trebesin:direction') == 6.0",
+                    "components": {
+                        "minecraft:rotation": [
+                            0,
+                            180,
+                            0
+                        ]
+                    }
+                },
+                {
+                    "condition": "q.block_property('trebesin:direction') == 3.0",
+                    "components": {
+                        "minecraft:rotation": [
+                            0,
+                            0,
+                            0
+                        ]
+                    }
+                },
+                {
+                    "condition": "q.block_property('trebesin:direction') == 4.0",
+                    "components": {
+                        "minecraft:rotation": [
+                            0,
+                            270,
+                            0
+                        ]
+                    }
+                },
+                {
+                    "condition": "q.block_property('trebesin:direction') == 5.0",
+                    "components": {
+                        "minecraft:rotation": [
+                            0,
+                            90,
+                            0
+                        ]
+                    }
+                },
+                {
+                    "condition": "q.block_property('trebesin:direction') == 6.0",
+                    "components": {
+                        "minecraft:rotation": [
+                            0,
+                            0,
+                            0
+                        ]
+                    }
+                }
+            ]
+        }
+    }
