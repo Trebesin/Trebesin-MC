@@ -5,9 +5,9 @@ import * as BlockHistoryPLugin from "../block_history";
 function main(){
     async function blockHistoryHandler(sender, parameter){
         if(/*isAdmin(sender) && */(parameter.command === "b" || parameter.command === "block")){
-            const x = parameter.paramOne
-            const y = parameter.paramTwo
-            const z = parameter.paramThree
+            const x = parameter.param1
+            const y = parameter.param2
+            const z = parameter.param3
             sendMessage(`${x}, ${y}, ${z}`,'CMD - BlockHistory',sender);
             const request = {
                 sql : `SELECT *, PlayerConnections.PlayerName 
@@ -37,7 +37,7 @@ function main(){
         }
     }
   command_parser.registerCommand("bh", {
-    parameters: [{id: "command", type: "string", optional: true}, {id: "paramOne", type: "string", optional: true}, {id: "paramTwo", type: "string", optional: true}, {id: "paramThree", type: "string", optional: true}], aliases: ["block_history", "co", "coreprotect"], run: blockHistoryHandler
+    parameters: [{id: "command", type: "string", optional: true}, {id: "param1", type: "string", optional: true}, {id: "param2", type: "string", optional: true}, {id: "param3", type: "string", optional: true}], aliases: ["block_history", "co", "coreprotect"], run: blockHistoryHandler
   })
 }
 
