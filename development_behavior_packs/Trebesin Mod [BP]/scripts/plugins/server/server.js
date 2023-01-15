@@ -15,7 +15,7 @@ async function main() {
     system.runSchedule(() => {
         for (const player of world.getPlayers()) {
             player.addEffect(MinecraftEffectTypes.saturation,9999,128,false);
-            if(!player.hasTag("nvoff")) player.addEffect(MinecraftEffectTypes.nightVision,100,128,false);
+            if(!player.hasTag("nvoff")) player.addEffect(MinecraftEffectTypes.nightVision,300,128,false);
         }
     },20);
 
