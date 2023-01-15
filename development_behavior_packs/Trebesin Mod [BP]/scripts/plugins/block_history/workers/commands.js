@@ -9,23 +9,22 @@ function main(){
             const x = parameter.param1 ?? sender.location.x
             const y = parameter.param2 ?? sender.location.y
             const z = parameter.param3 ?? sender.location.z
-            sendMessage(`${x}, ${y}, ${z}`,'CMD - BlockHistory',sender);
             const request = {
                 sql : `SELECT *, PlayerConnections.PlayerName 
                        FROM \`block_history\` 
                        JOIN PlayerConnections ON block_history.actor_id = PlayerConnections.PlayerID 
-                       WHERE x = ${Math.floor(x)} AND y = ${Math.floor(y)} AND z = ${Math.floor(z)}`
+                       WHERE x = ${Math.floor(parsetoInt(x))} AND y = ${Math.floor(parsetoInt(y))} AND z = ${Math.floor(parsetoInt(z))}`
             }
             try {
                 const response = await BlockHistoryPLugin.database.query(request);
                 const tickInASec = TicksPerSecond
                 const tickInAMin = tickInASec*60
                 const tickInAnHour = tickInAMin*60
-                const tickInADay = tickInAnHour*24/*
+                const tickInADay = tickInAnHour*24
                 for(const block_alteration of response.result){
                     const timeOfBlockAlteration = system.currentTick - parseInt(block_alteration.tick)
                     sendMessage(`${block_alteration.PlayerName}: ${block_alteration.before_id} -> ${block_alteration.after_id} - before: ${Math.floor(timeOfBlockAlteration/tickInADay)}d${Math.floor(timeOfBlockAlteration%tickInADay/tickInAnHour)}h${Math.floor(timeOfBlockAlteration%tickInAnHour/tickInAMin)}m${Math.floor(timeOfBlockAlteration%tickInAMin/tickInASec)}s`,'CMD - BlockHistory',sender);
-                }*/
+                }
             }
             catch(error) {
                 sendMessage(`${error}`,'CMD - BlockHistory',sender);
