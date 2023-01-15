@@ -4,13 +4,16 @@ import { getCornerLocations } from "../../../mc_modules/particles";
 import { command_parser, isAdmin } from "../../commands/workers/admin";
 import { playerData } from "../../server/server";
 import * as BlockHistoryPLugin from "../block_history";
-let particlesPerPlayers = []
+let particlesPerPlayers = {}
 function addActiveParticles(particleLocation, sender){
-    particlesPerPlayers.push({player: sender, particle: particleLocation})
+    particlesPerPlayers[sender].particleLocations.push(particleLocation)
 }
 function removeActiveParticles(sender){
-    for(const particle of particlesPerPlayers){
-        if(particle.player === sender)particle.pop();
+    delete particlesPerPlayers[sender];
+}
+function removeAllActiveParticles(){
+    for(const player in particlesPerPlayers){
+        delete particlesPerPlayers[player];
     }
 }
 function spawnParticles(particleLocation, sender){
@@ -21,8 +24,10 @@ function spawnParticles(particleLocation, sender){
 }
 function main(){
     system.runSchedule(() => {
-        for (const particle of particlesPerPlayers) {
-            spawnParticles(particle.particle, particle.sender)
+        for (const player in particlesPerPlayers) {
+            for(const particlelocation of particlesPerPlayers[player]){
+                spawnParticles(particlelocation, player)
+            }
         }
     },4);
     async function blockHistoryHandler(sender, parameter){
