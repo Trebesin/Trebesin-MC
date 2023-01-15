@@ -6,6 +6,7 @@ import { playerData } from "../../server/server";
 import * as BlockHistoryPLugin from "../block_history";
 let particlesPerPlayers = []
 function addActiveParticles(particleLocation, sender){
+    world.say("we got there!")
     particlesPerPlayers.push({player: sender, particle: particleLocation})
 }
 function spawnParticles(particleLocation, sender){
