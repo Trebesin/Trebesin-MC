@@ -229,44 +229,46 @@ class CommandParser {
         const output = {};
         let optional = false;
         let currentOptions = options;
-        let currentParameters = parameters;
+        //let optionIndex = 0;
+        let parameterIndex = 0;
 
-        for (let index = 0;index < currentOptions.length;index++) {
-            const option = currentOptions[index];
-            const parameter = currentParameters[index];
-            logMessage(`Starting parameter ${index}: ${option.id} [${option.type}]`)
+        for (let optionIndex = 0;optionIndex < currentOptions.length;optionIndex++) {
+            const option = currentOptions[optionIndex];
+            const parameter = parameters[parameterIndex];
+            logMessage(`Starting parameter ${optionIndex}: ${option.id} [${option.type}]`)
             logMessage(parameter);
 
             if (option.optional) optional = true;
 
-            if (index >= currentParameters.length) {
+            if (parameter == null) {
                 if (optional) return output;
                 throw new CommandError(`Missing parameter '${option.id}'!`);
             }
 
             //Position type
             if (option.type === 'position' || option.type === 'pos') {
-                const coords = currentParameters.slice(index,index += 2); //only 2 because the loop incremeant
+                const coords = parameters.slice(parameterIndex,parameterIndex + 3);
                 const parsedPosition = this.#parsePosition(coords,sender,option);
+                parameterIndex += 3;
                 output[option.id] = parsedPosition;
-                continue
+                continue;
             }
             //Array type
-            if (option.array) {
+            if (option.array > 0) {
                 let parameterArray = [];
-                let newIndex = index + option.array;
-                if (currentParameters.length < newIndex) {
+                const nextParameterIndex = parameterIndex + option.array;
+                if (parameters.length < nextParameterIndex) {
                     throw new CommandError(`Incomplete array parameter '${option.id}'!`);
                 }
 
-                for (const arrayParameter of currentParameters.slice(index,newIndex)) {
+                for (const arrayParameter of parameters.slice(parameterIndex,nextParameterIndex)) {
                     const parsedArrayParameter = this.#parseParameterType(arrayParameter,sender,option);
                     parameterArray.push(parsedArrayParameter);
                 }
 
-                index = newIndex;
                 output[option.id] = parameterArray;
-                continue
+                parameterIndex = nextParameterIndex;
+                continue;
             }
 
             const parsedParameter = this.#parseParameterType(parameter,sender,option);
@@ -277,12 +279,13 @@ class CommandParser {
                     throw new CommandError(`Invalid choice of '${parameter}' at ${option.id}!`);
                 }
                 //Restart with new options defined by the choice
-                index = 0;
                 currentOptions = option.choice[parameter];
-                currentParameters = currentParameters.slice(index+1)
+                optionIndex = -1;//increment will make it 0
+                parameterIndex++;
             //Default type
             } else {
                 output[option.id] = parsedParameter;
+                parameterIndex++;
             }
         }
 

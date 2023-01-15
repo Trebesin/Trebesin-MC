@@ -1,6 +1,7 @@
 import {CommandResult, MinecraftEffectTypes , system, world, BlockLocation} from "@minecraft/server";
 import {CommandParser, sendMessage} from "../../../mc_modules/commandParser";
 import * as Backend from "../../backend/backend"; 
+import { logMessage } from '../../debug/debug';
 const command_parser = new CommandParser({
   prefix: "!", caseSensitive: false
 })
@@ -130,6 +131,14 @@ function main(){
       }
     }
   });
+
+  command_parser.registerCommand('testArray', {aliases:[],parameters:[
+    {type:'pos',id:'location'},{type:'string',id:'strArray',array:3},{type:'string',id:'option',choice:{test:[],not:[]}}
+  ],run(sender,parameters) {
+    logMessage(`${parameters.location.x},${parameters.location.y},${parameters.location.z}`);
+    logMessage(`${parameters.strArray[0]},${parameters.strArray[1]},${parameters.strArray[2]}`);
+    logMessage(`${parameters.option}`)
+  }})
 }
 
 export {main, command_parser, isAdmin};
