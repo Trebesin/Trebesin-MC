@@ -385,7 +385,7 @@ class CommandParser {
         if (selector.name === 'r') queryOptions.type = 'minecraft:player';
         if (selector.name === 'a') allPlayersOnly = true;
         //All entity queries from selector arguments:
-        const idSelection = new Set(selector.values.id);
+        let idSelection = new Set(selector.values.id);
 
         //Entity property filtering:
         if (selector.values.name) {
