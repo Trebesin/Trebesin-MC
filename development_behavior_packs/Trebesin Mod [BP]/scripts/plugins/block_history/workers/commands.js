@@ -1,13 +1,14 @@
 import {CommandResult, MinecraftEffectTypes , system, world, BlockLocation, TicksPerDay, TicksPerSecond} from "@minecraft/server";
 import {CommandParser, sendMessage} from "../../../mc_modules/commandParser";
 import { command_parser, isAdmin } from "../../commands/workers/admin";
+import { playerData } from "../../server/server";
 import * as BlockHistoryPLugin from "../block_history";
 function main(){
     async function blockHistoryHandler(sender, parameter){
         if(/*isAdmin(sender) && */(parameter.command === "b" || parameter.command === "block")){
-            const x = parameter.param1
-            const y = parameter.param2
-            const z = parameter.param3
+            const x = parameter.param1 ?? sender.location.x
+            const y = parameter.param2 ?? sender.location.y
+            const z = parameter.param3 ?? sender.location.z
             sendMessage(`${x}, ${y}, ${z}`,'CMD - BlockHistory',sender);
             const request = {
                 sql : `SELECT *, PlayerConnections.PlayerName 
