@@ -6,11 +6,14 @@ import { playerData } from "../../server/server";
 import * as BlockHistoryPLugin from "../block_history";
 let particlesPerPlayers = {}
 function addActiveParticles(particleLocation, sender){
-    if(!particlesPerPlayers[sender])particlesPerPlayers[sender] = [particleLocation];
-    else particlesPerPlayers[sender].push(particleLocation)
+    if(!particlesPerPlayers[sender.id])particlesPerPlayers[sender.id] = {
+        player: sender,
+        particleLocations: [particleLocation]
+    };
+    else particlesPerPlayers[sender.id].particleLocations.push(particleLocation)
 }
 function removeActiveParticles(sender){
-    delete particlesPerPlayers[sender];
+    delete particlesPerPlayers[sender.id];
 }
 function removeAllActiveParticles(){
     for(const player in particlesPerPlayers){
@@ -26,8 +29,8 @@ function spawnParticles(particleLocation, sender){
 function main(){
     system.runSchedule(() => {
         for (const player in particlesPerPlayers) {
-            for(const particlelocation of particlesPerPlayers[player]){
-                spawnParticles(particlelocation, player)
+            for(const particlelocation of particlesPerPlayers[player].particleLocations){
+                spawnParticles(particlelocation, particlesPerPlayers[player].player)
             }
         }
     },4);
@@ -113,13 +116,13 @@ function main(){
                 removeActiveParticles(sender)
             }
         }
-        else if(/*isAdmin(sender) && */(parameter.command === "c" || parameter.command === "clear")){
+        else if(/*isAdmin(sender) && */(parameter.command === "ca" || parameter.command === "clearall")){
             removeAllActiveParticles();
         }
         else {
             sendMessage(
                 `help:
-                b/block - shows the changes made to block on [x], [y], [z] - parameters: location: x, location: y, location: z
+                b/block - shows the changes made to block on [x], [y], [z] - parameters: location: x, location: y, location: z, startingfrom: index
                 p/player - shows the changes made by a player - parameters: player
                 i/inspect - gets you into inspector mode - when you place blocks it doesn't place them and instead shows you the changes made to that block
                 r/reverse - reverses actions of a player in specific time frame - parameters: player, time (in ticks)
@@ -133,30 +136,30 @@ function main(){
     parameters: [
         {id: "command", type: "string", optional: true, choice: {
                 b: [
-                    {type:'pos',id:'coords',optional:true},
                     {type:'int',id:'count',optional:true},
-                    {type:'int',id:'startingFrom',optional:true}
+                    {type:'int',id:'startingFrom',optional:true},
+                    {type:'pos',id:'coords',optional:true}
                 ],
                 block: [
-                    {type:'pos',id:'coords',optional:true},
                     {type:'int',id:'count',optional:true},
-                    {type:'int',id:'startingFrom',optional:true}
+                    {type:'int',id:'startingFrom',optional:true},
+                    {type:'pos',id:'coords',optional:true}
                 ],
                 p: [
-                    {type:'string',id:'player',optional:true},
                     {type:'int',id:'count',optional:true},
-                    {type:'int',id:'startingFrom',optional:true}
+                    {type:'int',id:'startingFrom',optional:true},
+                    {type:'string',id:'player',optional:true}
                 ],
                 player: [
-                    {type:'string',id:'player',optional:true},
                     {type:'int',id:'count',optional:true},
-                    {type:'int',id:'startingFrom',optional:true}
+                    {type:'int',id:'startingFrom',optional:true},
+                    {type:'string',id:'player',optional:true}
                 ],
                 c: [
-                    {type: 'selector', id: 'players', optional:true}
+                    {type: 'selector', id: 'players', optional:true, playerOnly:true}
                 ],
                 clear: [
-                    {type: 'selector', id: 'players', optional:true}
+                    {type: 'selector', id: 'players', optional:true, playerOnly:true}
                 ],
                 ca: [
                     {}
