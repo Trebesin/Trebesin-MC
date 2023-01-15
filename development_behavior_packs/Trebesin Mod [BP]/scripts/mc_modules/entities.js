@@ -1,3 +1,4 @@
+import { DIMENSION_IDS } from '../mc_modules/constants';
 /**
  * Function used to get entity with a specified ID from the world.
  * @param {*} id Id of the entity to find.
@@ -13,3 +14,5 @@ function getEntityById(id,queryOptions = {},dimensionIds = DIMENSION_IDS) {
         if (entityWithId != null) return entityWithId;
     }
 }
+
+export {getEntityById}

@@ -94,3 +94,24 @@ function clearItem(entity, typeId, type, data, amount = { min: 1, max: 64 }) {
     }
     return clearAmount
 }
+
+/**
+ * 
+ * @param {string} message 
+ * @param {Player | Player[]} [actor]
+ * @param {string} [sender]
+ */
+function sendMessage(message,senderName,actor = null) {
+    const messageText = !senderName ? message : `[${senderName}§r] ${message}`;
+    if (!actor) {
+        world.say(messageText);
+    } else {
+        if (!Array.isArray(actor)) {
+            actor.tell(messageText);
+        } else {
+            for (let playerIndex = 0;playerIndex < actor.length;playerIndex++) {
+                actor[playerIndex].tell(messageText);
+            }
+        }
+    }
+}
