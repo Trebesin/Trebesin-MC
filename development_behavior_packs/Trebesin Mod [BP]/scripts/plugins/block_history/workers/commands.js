@@ -28,7 +28,7 @@ function main(){
         }
     }
   command_parser.registerCommand("bh", {
-    parameters: [{id: "command", type: "string", optional: true}], aliases: ["block_history"], run: blockHistoryHandler
+    parameters: [{id: "command", type: "string", optional: true}], aliases: ["block_history", "co", "coreprotect"], run: blockHistoryHandler
   })
 }
 
