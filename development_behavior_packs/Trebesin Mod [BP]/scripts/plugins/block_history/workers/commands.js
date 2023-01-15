@@ -5,9 +5,9 @@ import * as BlockHistoryPLugin from "../block_history";
 function main(){
     async function blockHistoryHandler(sender, parameter){
         if(/*isAdmin(sender) && */(parameter.command === "b" || parameter.command === "block")){
-            const x = parameter.par1 ?? sender.location.x
-            const y = parameter.par2 ?? sender.location.y
-            const z = parameter.par3 ?? sender.location.z
+            const x = Number(parameter.par1) ?? sender.location.x
+            const y = Number(parameter.par2) ?? sender.location.y
+            const z = Number(parameter.par3) ?? sender.location.z
             const request = {
                 sql : `SELECT *, PlayerConnections.PlayerName 
                        FROM \`block_history\` 
@@ -22,12 +22,20 @@ function main(){
                 const tickInADay = tickInAnHour*24
                 for(const block_alteration of response.result){
                     const timeOfBlockAlteration = system.currentTick - parseInt(block_alteration.tick)
-                    sendMessage(`${block_alteration.PlayerName}: ${block_alteration.before_id} -> ${block_alteration.after_id} - before: ${Math.floor(timeOfBlockAlteration/tickInADay)}d${Math.floor(timeOfBlockAlteration%tickInADay/tickInAnHour)}h${Math.floor(timeOfBlockAlteration%tickInAnHour/tickInAMin)}m${Math.floor(timeOfBlockAlteration%tickInAMin/tickInASec)}s`,'BH',sender);
+                    sendMessage(`${block_alteration.PlayerName}: ${block_alteration.before_id} -> ${block_alteration.after_id} - before: ${Math.floor(timeOfBlockAlteration/tickInADay)}d${Math.floor(timeOfBlockAlteration%tickInADay/tickInAnHour)}h${Math.floor(timeOfBlockAlteration%tickInAnHour/tickInAMin)}m${Math.floor(timeOfBlockAlteration%tickInAMin/tickInASec)}s`,'CMD - BlockHistory',sender);
+                }
+                if(response.isEmpty()){
+                    sendMessage(`There have been found no changes made to this block (note: this is only from the time the server was ported to bedrock)`,'CMD - BlockHistory',sender);
+
                 }
             }
             catch(error) {
-                sendMessage(`${error}`,'CMD',sender);
+                sendMessage(`${error}`,'CMD - BlockHistory',sender);
             }
+        }
+        else {
+            sendMessage(`help:\n
+                        b x y z`)
         }
     }
   command_parser.registerCommand("bh", {
