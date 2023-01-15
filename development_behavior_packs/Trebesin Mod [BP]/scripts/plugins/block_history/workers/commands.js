@@ -15,7 +15,7 @@ function main(){
         if(/*isAdmin(sender) && */(parameter.command === "b" || parameter.command === "block")){
             const pos = parameter.coords ?? sender.location
             const request = {
-                sql : `SELECT block_history.*, PlayerConnections.PlayerName 
+                sql : `SELECT DISTINCT block_history.*, PlayerConnections.PlayerName 
                        FROM \`block_history\` 
                        JOIN PlayerConnections 
                        ON block_history.actor_id = PlayerConnections.PlayerID 
@@ -46,7 +46,7 @@ function main(){
         else if(/*isAdmin(sender) && */(parameter.command === "p" || parameter.command === "player")){
             const playerName = parameter.player ?? sender.name
             const request = {
-                sql : `SELECT block_history.*, PlayerConnections.PlayerName 
+                sql : `SELECT DISTINCT block_history.*, PlayerConnections.PlayerName 
                        FROM \`block_history\` 
                        JOIN PlayerConnections 
                        ON block_history.actor_id = PlayerConnections.PlayerID 
