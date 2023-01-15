@@ -1,6 +1,6 @@
 import {CommandResult, MinecraftEffectTypes , system, world, BlockLocation} from "@minecraft/server";
 import {CommandParser, sendMessage} from "../../../mc_modules/commandParser";
-import * as BlockHistoryPlugin from "../../block_history/block_history"; 
+import * as Backend from "../../backend/backend"; 
 const command_parser = new CommandParser({
   prefix: "!", caseSensitive: false
 })
@@ -13,7 +13,7 @@ function main(){
 
   async function DBDisconnect(sender) {
     try {
-      await BlockHistoryPlugin.database.disconnect();
+      await Backend.DB.disconnect();
       sendMessage(`§aSuccesfully disconnected from the database.`,'CMD',sender);
     } catch(error) {
       sendMessage(`${error}`,'CMD',sender);
@@ -21,7 +21,7 @@ function main(){
   }
   async function DBConnect(sender) {
     try {
-      await BlockHistoryPlugin.database.connect();
+      await Backend.DB.connect();
       sendMessage(`§aSuccesfully connected to the database.`,'CMD',sender);
     } catch(error) {
       sendMessage(`${error}`,'CMD',sender);
