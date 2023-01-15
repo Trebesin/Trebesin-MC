@@ -1,16 +1,24 @@
-import {CommandResult, MinecraftEffectTypes , system, world, BlockLocation, TicksPerDay, TicksPerSecond, Vector, MolangVariableMap, Color} from "@minecraft/server";
+import {CommandResult, MinecraftEffectTypes , system, world, BlockLocation, TicksPerDay, TicksPerSecond, Vector, MolangVariableMap, Color, system} from "@minecraft/server";
 import {CommandParser, sendMessage} from "../../../mc_modules/commandParser";
 import { getCornerLocations } from "../../../mc_modules/particles";
 import { command_parser, isAdmin } from "../../commands/workers/admin";
 import { playerData } from "../../server/server";
 import * as BlockHistoryPLugin from "../block_history";
-function spawnParticles(particleLocation){
+let particlesPerPlayers = []
+function addActiveParticles(particleLocation, sender){
+    particlesPerPlayers.push({player: sender, particle: particleLocation})
+}
+function spawnParticles(particleLocation, sender){
     let molang = new MolangVariableMap();
         molang.setColorRGB('variable.colour',new Color(255,0,0,1));
-    const dimension = world.getDimension('overworld')
-    dimension.spawnParticle('trebesin:selection_dot',particleLocation,molang);
+    sender.dimension.spawnParticle('trebesin:selection_dot',particleLocation,molang);
 }
 function main(){
+    system.runSchedule(() => {
+        for (const particle of particlesPerPlayers) {
+            spawnParticles(particle.particle, particle.sender)
+        }
+    },4);
     async function blockHistoryHandler(sender, parameter){
         if(/*isAdmin(sender) && */(parameter.command === "b" || parameter.command === "block")){
             const pos = parameter.coords ?? sender.location
@@ -73,7 +81,7 @@ function main(){
                     sendMessage(`No changes were made to by player ${playerName}`,'CMD - BlockHistory',sender);
                 }
                 else{
-                    getCornerLocations(locations, spawnParticles)
+                    getCornerLocations(locations, addActiveParticles, sender)
                 }
 
             }
