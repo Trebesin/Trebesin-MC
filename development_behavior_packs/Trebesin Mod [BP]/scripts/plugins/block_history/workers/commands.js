@@ -36,7 +36,12 @@ function main(){
         else {
             sendMessage(
                 `help:
-                b x y z`)
+                b/block - shows the changes made to block on [x], [y], [z] - parameters: location: x, location: y, location: z
+                p/player - shows the changes made by a player - parameters: player
+                i/inspect - gets you into inspector mode - when you place blocks it doesn't place them and instead shows you the changes made to that block
+                r/reverse - reverses actions of a player in specific time frame - parameters: player, time (in ticks)
+                redo - reverses an action made by this plugin - parameters: ID
+                `)
         }
     }
   command_parser.registerCommand("bh", {
