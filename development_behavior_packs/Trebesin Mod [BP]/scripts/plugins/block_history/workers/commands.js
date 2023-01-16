@@ -17,6 +17,8 @@ function removeActiveParticles(sender){
 }
 function removeAllActiveParticles(){
     for(const player in particlesPerPlayers){
+        delete particlesPerPlayers[player].particleLocations;
+        delete particlesPerPlayers[player].player;
         delete particlesPerPlayers[player];
     }
 }
