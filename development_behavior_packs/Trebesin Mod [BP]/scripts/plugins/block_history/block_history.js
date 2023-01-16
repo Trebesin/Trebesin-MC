@@ -7,7 +7,7 @@ import * as BlockHistoryCommandsWorker from './workers/commands';
 import * as Debug from '../debug/debug';
 import { DB } from '../backend/backend';
 import { DIMENSION_IDS , FACE_DIRECTIONS } from '../../mc_modules/constants';
-const DB_UPDATE_INTERVAL = 1200;
+const DB_UPDATE_INTERVAL = 100;
 
 const blockUpdates = {};
 const fallingBlocksTracked = [];
