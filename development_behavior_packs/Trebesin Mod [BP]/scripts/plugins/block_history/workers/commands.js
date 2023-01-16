@@ -98,7 +98,7 @@ function main(){
                         break;
                     }
                     if(counter < (parameter.startingFrom ?? 1)){
-                        logMessage(`count: ${parameter.count}, startingFrom: ${parameter.startingFrom}, BREAK`)
+                        logMessage(`count: ${parameter.count}, startingFrom: ${parameter.startingFrom}, continue`)
                         continue;
                     }
                     const timeOfBlockAlteration = system.currentTick - parseInt(block_alteration.tick)
