@@ -54,7 +54,10 @@ function main(){
                 let counter = 0
                 for(const block_alteration of response.result){
                     if(counter > (parameter.startingFrom ?? 1) + (parameter.count ?? 10)-1)break;
-                    if(counter < (parameter.startingFrom ?? 1))continue;
+                    if(counter < (parameter.startingFrom ?? 1)){
+                        counter++;
+                        continue;
+                    }
                     const timeOfBlockAlteration = system.currentTick - parseInt(block_alteration.tick)
                     sendMessage(`${block_alteration.PlayerName}: ${block_alteration.before_id} -> ${block_alteration.after_id} - before: ${Math.floor(timeOfBlockAlteration/tickInADay)}d${Math.floor(timeOfBlockAlteration%tickInADay/tickInAnHour)}h${Math.floor(timeOfBlockAlteration%tickInAnHour/tickInAMin)}m${Math.floor(timeOfBlockAlteration%tickInAMin/tickInASec)}s`,'CMD - BlockHistory',sender);
                     counter++
@@ -63,7 +66,9 @@ function main(){
                     sendMessage(`No changes were made to block  ${Math.floor(pos.x)}, ${Math.floor(pos.y)}, ${Math.floor(pos.z)}`,'CMD - BlockHistory',sender);
                 }
                 else{
-                    getCornerLocations([pos], addActiveParticles, sender)
+                    getCornerLocations(locations, (location) => {
+                        addActiveParticles(location, sender);
+                    })
                 }
             }
             catch(error) {
