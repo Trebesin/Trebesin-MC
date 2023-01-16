@@ -89,16 +89,12 @@ function main(){
                 const tickInADay = tickInAnHour*24
                 let locations = []
                 let counter = 1
-                logMessage(parameter.count)
-                logMessage(parameter.startingFrom)
-                logMessage(response.result.length)
                 for(const block_alteration of response.result){
                     if(counter > (parameter.startingFrom ?? 1) + (parameter.count ?? 10)-1){
-                        logMessage(`count: ${parameter.count}, startingFrom: ${parameter.startingFrom}, BREAK`)
                         break;
                     }
                     if(counter < (parameter.startingFrom ?? 1)){
-                        logMessage(`count: ${parameter.count}, startingFrom: ${parameter.startingFrom}, continue`)
+                        counter++
                         continue;
                     }
                     const timeOfBlockAlteration = system.currentTick - parseInt(block_alteration.tick)
