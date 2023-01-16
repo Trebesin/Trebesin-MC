@@ -61,6 +61,9 @@ function main(){
                 if(response.result == ""){
                     sendMessage(`No changes were made to block  ${Math.floor(pos.x)}, ${Math.floor(pos.y)}, ${Math.floor(pos.z)}`,'CMD - BlockHistory',sender);
                 }
+                else{
+                    addActiveParticles(pos, sender)
+                }
             }
             catch(error) {
                 sendMessage(`${error}`,'CMD - BlockHistory',sender);
