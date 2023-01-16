@@ -66,7 +66,7 @@ function main(){
                     sendMessage(`No changes were made to block  ${Math.floor(pos.x)}, ${Math.floor(pos.y)}, ${Math.floor(pos.z)}`,'CMD - BlockHistory',sender);
                 }
                 else{
-                    getCornerLocations(locations, (location) => {
+                    getCornerLocations([pos], (location) => {
                         addActiveParticles(location, sender);
                     })
                 }
