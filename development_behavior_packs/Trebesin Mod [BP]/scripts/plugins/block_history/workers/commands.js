@@ -2,6 +2,7 @@ import {CommandResult, MinecraftEffectTypes , world, BlockLocation, TicksPerDay,
 import {CommandParser, sendMessage} from "../../../mc_modules/commandParser";
 import { getCornerLocations } from "../../../mc_modules/particles";
 import { command_parser, isAdmin } from "../../commands/workers/admin";
+import { logMessage } from "../../debug/debug";
 import { playerData } from "../../server/server";
 import * as BlockHistoryPLugin from "../block_history";
 let particlesPerPlayers = {}
@@ -17,8 +18,6 @@ function removeActiveParticles(sender){
 }
 function removeAllActiveParticles(){
     for(const player in particlesPerPlayers){
-        delete particlesPerPlayers[player].particleLocations;
-        delete particlesPerPlayers[player].player;
         delete particlesPerPlayers[player];
     }
 }
@@ -64,7 +63,7 @@ function main(){
                     sendMessage(`No changes were made to block  ${Math.floor(pos.x)}, ${Math.floor(pos.y)}, ${Math.floor(pos.z)}`,'CMD - BlockHistory',sender);
                 }
                 else{
-                    addActiveParticles(pos, sender)
+                    getCornerLocations([pos], addActiveParticles, sender)
                 }
             }
             catch(error) {
@@ -90,9 +89,16 @@ function main(){
                 const tickInADay = tickInAnHour*24
                 let locations = []
                 let counter = 1
+                logMessage(response.result.length)
                 for(const block_alteration of response.result){
-                    if(counter > (parameter.startingFrom ?? 1) + (parameter.count ?? 10)-1)break;
-                    if(counter < (parameter.startingFrom ?? 1))continue;
+                    if(counter > (parameter.startingFrom ?? 1) + (parameter.count ?? 10)-1){
+                        logMessage(`count: ${parameter.count}, startingFrom: ${parameter.startingFrom}, BREAK`)
+                        break;
+                    }
+                    if(counter < (parameter.startingFrom ?? 1)){
+                        logMessage(`count: ${parameter.count}, startingFrom: ${parameter.startingFrom}, BREAK`)
+                        continue;
+                    }
                     const timeOfBlockAlteration = system.currentTick - parseInt(block_alteration.tick)
                     sendMessage(`${block_alteration.PlayerName} - [${block_alteration.x}, ${block_alteration.y}, ${block_alteration.z}]: ${block_alteration.before_id} -> ${block_alteration.after_id} - before: ${Math.floor(timeOfBlockAlteration/tickInADay)}d${Math.floor(timeOfBlockAlteration%tickInADay/tickInAnHour)}h${Math.floor(timeOfBlockAlteration%tickInAnHour/tickInAMin)}m${Math.floor(timeOfBlockAlteration%tickInAMin/tickInASec)}s`,'CMD - BlockHistory',sender);
                     locations.push({x: block_alteration.x, y: block_alteration.y, z: block_alteration.z})
@@ -102,7 +108,9 @@ function main(){
                     sendMessage(`No changes were made by the player ${playerName}`,'CMD - BlockHistory',sender);
                 }
                 else{
-                    getCornerLocations(locations, addActiveParticles, sender)
+                    getCornerLocations(locations, (location) => {
+                        addActiveParticles(location, sender);
+                    })
                 }
 
             }
