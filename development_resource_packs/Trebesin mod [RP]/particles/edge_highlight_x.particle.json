@@ -28,13 +28,13 @@
 				},
 				"uv": {
 					"texture_width": 16,
-					"texture_height": 1,
+					"texture_height": 16,
 					"uv": [0, 0],
-					"uv_size": [16, 1]
+					"uv_size": [16, 16]
 				}
 			},
 			"minecraft:particle_appearance_tinting": {
-				"color": ["v.colour.r", "v.colour.g", "v.colour.b", 1]
+				"color": [1, 0, 0, 1]
 			}
 		}
 	}
