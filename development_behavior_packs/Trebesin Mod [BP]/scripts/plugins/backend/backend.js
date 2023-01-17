@@ -7,6 +7,7 @@ import * as Debug from '../debug/debug';
 
 //Initial Variables:
 const server = new Server(0);
+server.cancelTerminations = true;
 const dbConnection = new DatabaseConnection({
     connection: {
         host: 'db1.falix.cc',
