@@ -115,9 +115,7 @@ class CommandParser {
                 throw new CommandError(`§cYou do not meet requirements to use the command §r§l'${input}'§r§c!`);
             }
 
-            logMessage(`Parameter parser`);
             const parameterParser = new ParameterStringParser(parameterString,this.#options.parameterChars);
-            logMessage(`Parameter chain`);
             const parameters = this.#getParameterChain(parameterParser,command.parameters,sender);
             await command.run(sender, parameters, ...command.arguments);
         } catch (error) {
@@ -146,7 +144,6 @@ class CommandParser {
         const output = {};
         let optional = false;
         let currentOptions = options;
-        logMessage(`Starting parameter chain`);
         for (let optionIndex = 0;optionIndex < currentOptions.length;optionIndex++) {
             const option = currentOptions[optionIndex];
             logMessage(`Starting parameter ${optionIndex}: ${option.id} [${option.type}]`)
@@ -469,71 +466,6 @@ class CommandParser {
         return selectedEntities;
         } catch (error) {logMessage(error);}
     }
-
-    #getSelector(string,option,options = {selectorChar: '@', escapeChar: '\\', quoteChar: '\"', separator: ','}) {
-        const selector = {
-            name: '',
-            values: {}
-        };
-        const {quoteChar,escapeChar,selectorChar,separator} = options;
-        let part = 0; // 0: selector name; 1: parameter name; 2: parameter value
-        let currentName = '';
-        let quoted, escaped;
-    
-        if (string[0] != selectorChar) {
-
-        } //throw new CommandError(`Missing '@' symbol at parameter '${option.id}'!`);
-        for (let index = 1;index <= string.length;index++) {
-            const char = string[index];
-            if (!escaped && char === escapeChar) {
-                escaped = true;
-                continue;
-            }
-            if (char == null && part === 2) throw new CommandError(`Unexpected end of selector at parameter '${option.id}'!`);
-    
-            if (part === 0) {
-                if (char === '[' || char == null) {
-                    part = 1;
-                    continue;
-                };
-                if (char !== ' ') selector.name += char;
-            }
-
-            if (part === 1) {
-                if (!escaped && char === '=') {
-                    if (selector.values[currentName] == null) selector.values[currentName] = [];
-                    const nextItemIndex = selector.values[currentName].length;
-                    part = 2;
-                    selector.values[currentName][nextItemIndex] = '';
-                    continue;
-                };
-                if (char !== ' ') currentName += char ?? '';
-            }
-            
-            if (part === 2) {
-                const itemIndex = selector.values[currentName].length - 1;
-                if (!escaped && char === quoteChar) {
-                    if (!quoted && selector.values[currentName][itemIndex].length <= 1) {
-                        quoted = true;
-                        continue;
-                    }
-                    if (quoted === true) {
-                        quoted = false;
-                        continue;
-                    }
-                }
-                if (!escaped && (char === separator || char === ']') && !quoted) {
-                    part = 1;
-                    currentName = '';
-                    continue;
-                }
-                if (quoted || (char !== ' ')) selector.values[currentName][itemIndex] += char;
-            }
-
-            if (escaped) escaped = false;
-        }
-        return selector;
-    }
 }
 
 class CommandError extends Error {
@@ -616,7 +548,7 @@ class ParameterStringParser {
             }
 
             if (parsePhase === 1) {
-                if ((selector == null && char == null) || (selector === 2 && char === ']')) {
+                if ((char == null && (selector == null || selector <= 0)) || (selector > 0 && char === ']')) {
                     parsePhase = 2;
                 } else {
                     if (selector != null) {
@@ -648,13 +580,18 @@ class ParameterStringParser {
                             if (char !== separator) item.name += char;
                         }
                         if (selector === 1) {
+                            if (char == null) throw new CommandError(`Unexpected end of selector at parameter '${option.id}'!`);
+                            if (!escaped && char === selectorSeparator) {
+                                if (item.values[selectorName] == null) item.values[selectorName] = [];
+                                selectorName = '';
+                            }
                             if (!escaped && char === '=') {
                                 if (item.values[selectorName] == null) item.values[selectorName] = [];
                                 const nextItemIndex = item.values[selectorName].length;
                                 selector = 2;
                                 item.values[selectorName][nextItemIndex] = '';
                                 continue;
-                            };
+                            }
                             if (char !== separator) selectorName += char;
                         }
                         if (selector === 2) {
