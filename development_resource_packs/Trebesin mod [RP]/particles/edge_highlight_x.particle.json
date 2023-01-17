@@ -21,10 +21,12 @@
 			},
 			"minecraft:particle_appearance_billboard": {
 				"size": [2, 2],
-				"facing_camera_mode": "direction_x",
+				"facing_camera_mode": "lookat_direction",
 				"direction": {
-					"mode": "custom"
-				},
+					"mode": "custom_direction",
+					"custom_direction": [ 1, 0, 0 ], 
+				}
+				"uv": {
 				"uv": {
 					"texture_width": 16,
 					"texture_height": 1,
