@@ -115,7 +115,9 @@ class CommandParser {
                 throw new CommandError(`§cYou do not meet requirements to use the command §r§l'${input}'§r§c!`);
             }
 
+            logMessage(`Parameter parser`);
             const parameterParser = new ParameterStringParser(parameterString,this.#options.parameterChars);
+            logMessage(`Parameter chain`);
             const parameters = this.#getParameterChain(parameterParser,command.parameters,sender);
             await command.run(sender, parameters, ...command.arguments);
         } catch (error) {
@@ -144,12 +146,11 @@ class CommandParser {
         const output = {};
         let optional = false;
         let currentOptions = options;
-
+        logMessage(`Starting parameter chain`);
         for (let optionIndex = 0;optionIndex < currentOptions.length;optionIndex++) {
             const option = currentOptions[optionIndex];
-            const parameter = parameters.next(option);
             logMessage(`Starting parameter ${optionIndex}: ${option.id} [${option.type}]`)
-            logMessage(parameter);
+            const parameter = parameters.next(option);
 
             if (option.optional) optional = true;
 
