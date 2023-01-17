@@ -115,8 +115,8 @@ class CommandParser {
                 throw new CommandError(`§cYou do not meet requirements to use the command §r§l'${input}'§r§c!`);
             }
 
-            const parameterParser = new ParameterStringParser(parameterString,this.#options.parameterChars);
-            const parameters = this.#getParameterChain(parameterParser,command.parameters,sender);
+            const parameterArray = this.#getParameters(parameterString,this.#options.parameterChars);
+            const parameters = this.#getParameterChain(parameterArray,command.parameters,sender);
             await command.run(sender, parameters, ...command.arguments);
         } catch (error) {
             if (error instanceof CommandError) {
@@ -140,14 +140,100 @@ class CommandParser {
         adminCheck: () => false
     }
 
+    #getParameters(string,options) {
+        const {quote:quoteChar,escape:escapeChar,separator,selector:selectorChar} = options;
+        const items = [];
+        let itemIndex = -1;
+        let parsingItem, escaped, quoted, selector, selectorArg;
+    
+        for (let charIndex = -1;charIndex < string.length;charIndex++) {
+            const char = string[charIndex];
+            const nextChar = string[charIndex+1];
+    
+            if (!escaped && char === escapeChar) {
+                escaped = true;
+                continue;
+            }
+            if (parsingItem) {
+                if (selector) {
+                    items[itemIndex] += char;
+                    if (nextChar === '[') {
+                        selectorArg = true;
+                    }
+                    if (selectorArg) {
+                        if (!escaped && char === ']' && (nextChar === separator || nextChar == null)) {
+                            parsingItem = false;
+                            selector = false;
+                            selectorArg = false;
+                        } else if (nextChar == null) {
+                            throw new CommandError('Unfinished selector parameter!');
+                        }
+                    } else {
+                        if (escaped) { 
+                            throw new CommandError(`Can't escape inside of a selector name parameter!`)
+                        }
+                        if (nextChar === separator) {
+                            parsingItem = false;
+                            selector = false;
+                        }
+                    }
+                } else if (quoted) {
+                    if (!escaped && char === quoteChar) {
+                        if (nextChar === separator || nextChar == null) {
+                            parsingItem = false;
+                            quoted = false;
+                        } else {
+                            throw new CommandError('Unescaped quote inside the parameters!');
+                        }
+                    } else {
+                        if (nextChar == null) {
+                            throw new CommandError('Unfinished quoted parameter!');
+                        }
+                        items[itemIndex] += char;
+                    }
+                } else {
+                    items[itemIndex] += char;
+                    if (!escaped) {
+                        if (char === quoteChar) {
+                            throw new CommandError('Unescaped quote inside the parameters!')
+                        }
+                    }
+                    if (nextChar === separator) {
+                        parsingItem = false;
+                    }
+                }
+            } else {
+                if (nextChar !== separator && nextChar != null){
+                    parsingItem = true;
+                    items.push('');
+                    itemIndex++;
+                }
+                if (nextChar === quoteChar) {
+                    quoted = true;
+                    charIndex++;
+                }
+                if (nextChar === selectorChar) {
+                    selector = true;
+                }
+            }
+            if (escaped) {
+                escaped = false;
+            }
+        }
+        
+        return items;
+    }
+
+
     #getParameterChain(parameters,options,sender) {
         const output = {};
         let optional = false;
         let currentOptions = options;
+        let parameterIndex = 0;
 
         for (let optionIndex = 0;optionIndex < currentOptions.length;optionIndex++) {
             const option = currentOptions[optionIndex];
-            const parameter = parameters.next(option);
+            const parameter = parameters[parameterIndex];
             logMessage(`Starting parameter ${optionIndex}: ${option.id} [${option.type}]`)
             logMessage(parameter);
 
@@ -157,17 +243,34 @@ class CommandParser {
                 if (optional) return output;
                 throw new CommandError(`Missing parameter '${option.id}'!`);
             }
+
+            //Position type
+            if (option.type === 'position' || option.type === 'pos') {
+                const coords = parameters.slice(parameterIndex,parameterIndex + 3);
+                const parsedPosition = this.#parsePosition(coords,sender,option);
+                parameterIndex += 3;
+                output[option.id] = parsedPosition;
+                continue;
+            }
             //Array type
             if (option.array > 0) {
-                const parameterArray = parameter.map((value) => this.#parseParameterType(value,sender,option));
+                let parameterArray = [];
+                const nextParameterIndex = parameterIndex + option.array;
+                if (parameters.length < nextParameterIndex) {
+                    throw new CommandError(`Incomplete array parameter '${option.id}'!`);
+                }
+
+                for (const arrayParameter of parameters.slice(parameterIndex,nextParameterIndex)) {
+                    const parsedArrayParameter = this.#parseParameterType(arrayParameter,sender,option);
+                    parameterArray.push(parsedArrayParameter);
+                }
 
                 output[option.id] = parameterArray;
+                parameterIndex = nextParameterIndex;
                 continue;
             }
 
             const parsedParameter = this.#parseParameterType(parameter,sender,option);
-
-            output[option.id] = parsedParameter;
             //Choice type
             if (option.choice) {
                 output[option.id] = parsedParameter;
@@ -177,6 +280,11 @@ class CommandParser {
                 //Restart with new options defined by the choice
                 currentOptions = option.choice[parameter];
                 optionIndex = -1;//increment will make it 0
+                parameterIndex++;
+            //Default type
+            } else {
+                output[option.id] = parsedParameter;
+                parameterIndex++;
             }
         }
 
@@ -221,11 +329,6 @@ class CommandParser {
                     throw new CommandError(`Value of '${option.id}' couldn't be parsed as boolean value!`);
                 }
                 break
-            case 'pos':
-            case 'position':
-                value = this.#parsePosition(parameter,sender,option);
-                parsedParameter = value;
-                break;
             case 'selector':
             case 'select':
                 value = this.#parseSelector(parameter,sender,option);
@@ -299,9 +402,10 @@ class CommandParser {
         return new Location(...coord);
     }
 
-    #parseSelector(selector,sender,option) {
+    #parseSelector(string,sender,option) {
         try {
         const queryOptions = {};
+        const selector = this.#getSelector(string,option);
         let selectedEntities = [];
         let entityLimit = parseInt(selector.values.limit?.[0]);
         let randomize = false;
@@ -479,9 +583,6 @@ class CommandParser {
         let currentName = '';
         let quoted, escaped;
     
-        if (string[0] != selectorChar) {
-
-        } //throw new CommandError(`Missing '@' symbol at parameter '${option.id}'!`);
         for (let index = 1;index <= string.length;index++) {
             const char = string[index];
             if (!escaped && char === escapeChar) {
@@ -625,9 +726,9 @@ class ParameterStringParser {
                             if (quoted) {
                                 if (!escaped && char === quoteChar) {
                                     if (nextChar === separator || nextChar == null) parsePhase = 2;
-                                    else throw new CommandError('Unescaped quote inside the parameters!');
+                                    else throw new Error('Unescaped quote inside the parameters!');
                                 } else {
-                                    if (nextChar == null) throw new CommandError('Unfinished quoted parameter!');
+                                    if (nextChar == null) throw new Error('Unfinished quoted parameter!');
                                     item.values.name[0] += char;
                                 }
                             } else {
@@ -657,7 +758,7 @@ class ParameterStringParser {
                             if (char !== separator) selectorName += char;
                         }
                         if (selector === 2) {
-                            if (char == null) throw new CommandError(`Unexpected end of selector at parameter '${option.id}'!`);
+                            if (char == null) throw new Error(`Unexpected end of selector at parameter '${option.id}'!`);
                             const itemIndex = item.values[selectorName].length - 1;
                             if (!escaped && char === quoteChar) {
                                 if (!quoted && item.values[selectorName][itemIndex].length <= 1) {
@@ -680,9 +781,9 @@ class ParameterStringParser {
                         if (quoted) {
                             if (!escaped && char === quoteChar) {
                                 if (nextChar === separator || nextChar == null) parsePhase = 2;
-                                else throw new CommandError('Unescaped quote inside the parameters!');
+                                else throw new Error('Unescaped quote inside the parameters!');
                             } else {
-                                if (nextChar == null) throw new CommandError('Unfinished quoted parameter!');
+                                if (nextChar == null) throw new Error('Unfinished quoted parameter!');
                                 item += char;
                             }
                         } else {
