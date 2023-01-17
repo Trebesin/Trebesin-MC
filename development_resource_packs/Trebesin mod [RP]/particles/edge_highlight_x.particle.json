@@ -2,10 +2,10 @@
 	"format_version": "1.10.0",
 	"particle_effect": {
 		"description": {
-			"identifier": "trebesin:selection_dot",
+			"identifier": "trebesin:edge_highlight_x",
 			"basic_render_parameters": {
 				"material": "particles_alpha",
-				"texture": "textures/particles/particles"
+				"texture": "textures/particles/edge"
 			}
 		},
 		"components": {
@@ -20,13 +20,16 @@
 				"max_lifetime": 1
 			},
 			"minecraft:particle_appearance_billboard": {
-				"size": ["0.2-variable.particle_age/24", "0.2-variable.particle_age/24"],
-				"facing_camera_mode": "rotate_xyz",
+				"size": [2, 2],
+				"facing_camera_mode": "direction_x",
+				"direction": {
+					"mode": "custom"
+				},
 				"uv": {
-					"texture_width": 128,
-					"texture_height": 128,
-					"uv": [56, 88],
-					"uv_size": [8, 8]
+					"texture_width": 16,
+					"texture_height": 1,
+					"uv": [0, 0],
+					"uv_size": [16, 1]
 				}
 			},
 			"minecraft:particle_appearance_tinting": {
