@@ -20,17 +20,17 @@
 				"max_lifetime": 1
 			},
 			"minecraft:particle_appearance_billboard": {
-				"size": [2, 2],
+				"size": [1, 1],
 				"facing_camera_mode": "lookat_direction",
 				"direction": {
-					"mode": "custom_direction",
-					"custom_direction": [ 0, 1, 0 ], 
+					"mode": "custom",
+					"custom_direction": [0,1,0]
 				},
 				"uv": {
-					"texture_width": 16,
-					"texture_height": 1,
+					"texture_width": 32,
+					"texture_height": 32,
 					"uv": [0, 0],
-					"uv_size": [16, 1]
+					"uv_size": [32, 32]
 				}
 			},
 			"minecraft:particle_appearance_tinting": {

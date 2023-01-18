@@ -20,21 +20,21 @@
 				"max_lifetime": 1
 			},
 			"minecraft:particle_appearance_billboard": {
-				"size": [2, 2],
+				"size": [1, 1],
 				"facing_camera_mode": "lookat_direction",
 				"direction": {
-					"mode": "custom_direction",
-					"custom_direction": [ 1, 0, 0 ], 
+					"mode": "custom",
+					"custom_direction": [1,0,0]
 				},
 				"uv": {
-					"texture_width": 16,
-					"texture_height": 16,
+					"texture_width": 32,
+					"texture_height": 32,
 					"uv": [0, 0],
-					"uv_size": [16, 16]
+					"uv_size": [32, 32]
 				}
 			},
 			"minecraft:particle_appearance_tinting": {
-				"color": [1, 0, 0, 1]
+				"color": ["v.colour.r", "v.colour.g", "v.colour.b", 1]
 			}
 		}
 	}
