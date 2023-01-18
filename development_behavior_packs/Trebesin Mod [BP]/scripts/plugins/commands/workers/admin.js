@@ -1,4 +1,4 @@
-import {CommandResult, MinecraftEffectTypes , system, world, BlockLocation, MolangVariableMap, Color} from "@minecraft/server";
+import {CommandResult, MinecraftEffectTypes , system, world, BlockLocation, MolangVariableMap, Color, Location} from "@minecraft/server";
 import {CommandParser, sendMessage} from "../../../mc_modules/commandParser";
 import { getEdgeLocations } from '../../../mc_modules/particles';
 import * as Backend from "../../backend/backend"; 
@@ -144,11 +144,22 @@ function main(){
   command_parser.registerCommand('testedge', {
     parameters:[{type:'pos',id:'location'},{type:'int',id:'colour',array:3}],
     run(sender,parameters) {
-      getEdgeLocations([parameters.location],(loc,axis) => {
+      getEdgeLocations([{
+        x:Math.floor(parameters.location.x),
+        y:Math.floor(parameters.location.y),
+        z:Math.floor(parameters.location.z)
+      }],(loc,axis) => {
         const molang = new MolangVariableMap()
         .setColorRGBA('variable.colour',new Color(parameters.colour[0]/255,parameters.colour[1]/255,parameters.colour[2]/255,1));
-        sender.dimension.spawnParticle(`trebesin:edge_highlight_${axis}`,loc,molang)
+        sender.dimension.spawnParticle(`trebesin:edge_highlight_${axis}`,new Location(loc.x,loc.y,loc.z),molang)
       })
+    }
+  })
+
+  command_parser.registerCommand('testpos', {
+    parameters:[{type:'pos',id:'location'}],
+    run(sender,parameters) {
+      logMessage(`${parameters.location.x} ${parameters.location.y} ${parameters.location.z}`);
     }
   })
 }
