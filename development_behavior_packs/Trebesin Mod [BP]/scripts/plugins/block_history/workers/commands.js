@@ -1,16 +1,17 @@
-import {CommandResult, MinecraftEffectTypes , world, BlockLocation, TicksPerDay, TicksPerSecond, Vector, MolangVariableMap, Color, system} from "@minecraft/server";
+import {CommandResult, MinecraftEffectTypes , world, BlockLocation,Location, TicksPerDay, TicksPerSecond, Vector, MolangVariableMap, Color, system} from "@minecraft/server";
 import {CommandParser, sendMessage} from "../../../mc_modules/commandParser";
-import { getCornerLocations } from "../../../mc_modules/particles";
+import { getCornerLocations, getEdgeLocations } from "../../../mc_modules/particles";
 import { command_parser, isAdmin } from "../../commands/workers/admin";
+import { logMessage } from '../../debug/debug';
 import { playerData } from "../../server/server";
 import * as BlockHistoryPLugin from "../block_history";
 let particlesPerPlayers = {}
-function addActiveParticles(particleLocation, sender){
+function addActiveParticles(particleLocation, axis, sender){
     if(!particlesPerPlayers[sender.id])particlesPerPlayers[sender.id] = {
         player: sender,
-        particleLocations: [particleLocation]
+        particleLocations: [[particleLocation,axis]]
     };
-    else particlesPerPlayers[sender.id].particleLocations.push(particleLocation)
+    else particlesPerPlayers[sender.id].particleLocations.push([particleLocation,axis])
 }
 function removeActiveParticles(sender){
     delete particlesPerPlayers[sender.id];
@@ -20,17 +21,18 @@ function removeAllActiveParticles(){
         delete particlesPerPlayers[player];
     }
 }
-function spawnParticles(particleLocation, sender){
-    let molang = new MolangVariableMap();
-        molang.setColorRGB('variable.colour',new Color(1,0,0,1));
-    const dimension = world.getDimension('overworld')
-    dimension.spawnParticle('trebesin:selection_dot',particleLocation,molang);
+function spawnParticles(particleLocation,particleAxis, sender){
+    const location = new Location(particleLocation.x,particleLocation.y,particleLocation.z);
+    const molang = new MolangVariableMap()
+    .setColorRGB('variable.colour',new Color(1,0,0,1));
+    const dimension = world.getDimension('overworld');
+    dimension.spawnParticle(`trebesin:edge_highlight_${particleAxis}`,location,molang);
 }
 function main(){
     system.runSchedule(() => {
         for (const player in particlesPerPlayers) {
             for(const particlelocation of particlesPerPlayers[player].particleLocations){
-                spawnParticles(particlelocation, particlesPerPlayers[player].player)
+                spawnParticles(particlelocation[0],particlelocation[1], particlesPerPlayers[player].player)
             }
         }
     },4);
@@ -98,7 +100,9 @@ function main(){
                     sendMessage(`No changes were made to by player ${playerName}`,'CMD - BlockHistory',sender);
                 }
                 else{
-                    getCornerLocations(locations, addActiveParticles, sender)
+                    getEdgeLocations(locations, (loc,axis) => {
+                        addActiveParticles(loc,axis,sender);
+                    })
                 }
 
             }
