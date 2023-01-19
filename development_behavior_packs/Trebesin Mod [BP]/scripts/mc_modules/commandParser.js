@@ -20,7 +20,7 @@ import { logMessage } from '../plugins/debug/debug';
 /**
 * @typedef CommandDefinitionParameter
 * @property {string} id - ID of the parameter.
-* @property {('string'|'integer'|'float'|'boolean'|'position'|'selector','json')} type - Type of the parameter defining what the user input should look like.
+* @property {('string'|'integer'|'float'|'boolean'|'position'|'selector'|'json')} type - Type of the parameter defining what the user input should look like.
 * @property {number} [array] - Number defining an array of parameters, the value corresponds to its length.
 */
 
@@ -189,7 +189,7 @@ class CommandParser {
             case 'str':
                 value = parameter;
                 parsedParameter = value;
-                break
+                break;
             case 'integer':
             case 'int':
                 value = parseInt(parameter);
@@ -198,7 +198,7 @@ class CommandParser {
                 } else {
                     throw new CommandError(`Value of '${option.id}' couldn't be parsed as integer number!`);
                 }
-                break
+                break;
             case 'float':
             case 'flt':
                 value = parseFloat(parameter);
@@ -207,7 +207,7 @@ class CommandParser {
                 } else {
                     throw new CommandError(`Value of '${option.id}' couldn't be parsed as floating-point number!`);
                 }
-                break
+                break;
             case 'boolean':
             case 'bool':
                 value = parameter.toLowerCase();
@@ -218,7 +218,7 @@ class CommandParser {
                 } else {
                     throw new CommandError(`Value of '${option.id}' couldn't be parsed as boolean value!`);
                 }
-                break
+                break;
             case 'json':
                 try {
                     value = JSON.parse(parameter);
@@ -236,7 +236,7 @@ class CommandParser {
             case 'select':
                 value = this.#parseSelector(parameter,sender,option);
                 parsedParameter = value;
-                break
+                break;
             default:
                 throw new Error(`Unknown type of '${option.type}' found while parsing parameters!`);
         }
