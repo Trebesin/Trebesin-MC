@@ -20,7 +20,7 @@ import { logMessage } from '../plugins/debug/debug';
 /**
 * @typedef CommandDefinitionParameter
 * @property {string} id - ID of the parameter.
-* @property {('string'|'integer'|'float'|'boolean'|'position'|'selector')} type - Type of the parameter defining what the user input should look like.
+* @property {('string'|'integer'|'float'|'boolean'|'position'|'selector','json')} type - Type of the parameter defining what the user input should look like.
 * @property {number} [array] - Number defining an array of parameters, the value corresponds to its length.
 */
 
@@ -219,6 +219,14 @@ class CommandParser {
                     throw new CommandError(`Value of '${option.id}' couldn't be parsed as boolean value!`);
                 }
                 break
+            case 'json':
+                try {
+                    value = JSON.parse(parameter);
+                    parsedParameter = value;
+                } catch (error) {
+                    throw new CommandError(`Failed parsing of '${option.id}' as JSON! Error: ${error}`);
+                }
+                break;
             case 'pos':
             case 'position':
                 value = this.#parsePosition(parameter,sender,option);
@@ -500,6 +508,8 @@ class ParameterStringParser {
         let item = null;
         let escaped = false;
         let quoted = false;
+        //Json
+        let json = null;
         //Selector
         let selector = null
         let selectorName = '';
@@ -541,6 +551,11 @@ class ParameterStringParser {
                     item = '';
                 }
 
+                if (option.type === 'json') {
+                    if (char !== '{' || escaped) throw new CommandError('Unexpected start of JSON!');
+                    json = 0;
+                }
+
                 if (!escaped && char === quoteChar) {
                     quoted = true;
                     continue;
@@ -551,7 +566,16 @@ class ParameterStringParser {
                 if ((char == null && (selector == null || selector <= 0)) || (selector > 0 && char === ']')) {
                     parsePhase = 2;
                 } else {
-                    if (selector != null) {
+                    if (json != null) {
+                        if (!escaped && char === '{') json++;
+                        if (!escaped && char === '}') json--;
+                        if (nextChar == null && json > 0) throw new CommandError('Unexpected end of JSON!');
+                        item += char;
+                        if (json === 0) {
+                            if (nextChar !== separator) throw new CommandError('Unexpected end of JSON!');
+                            parsePhase = 2;
+                        }
+                    } else if (selector != null) {
                         if (char === ']' && selector === 2) parsePhase = 2;
                         //Name Selector:
                         if (selector === -1) {
