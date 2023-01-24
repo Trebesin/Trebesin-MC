@@ -43,7 +43,9 @@ function main(){
                        JOIN PlayerConnections 
                        ON block_history.actor_id = PlayerConnections.PlayerID 
                        WHERE x = ${Math.floor(pos.x)} AND y = ${Math.floor(pos.y)} AND z = ${Math.floor(pos.z)}
-                       ORDER BY \`block_history\`.\`tick\` DESC`,
+                       ORDER BY \`block_history\`.\`tick\` DESC
+                       LIMIT ? OFFSET ?`,
+                values : [parameter.count ?? 5, parameter.startingFrom ?? 0]
             }
             try {
                 const response = await BlockHistoryPLugin.database.query(request);
@@ -51,16 +53,9 @@ function main(){
                 const tickInAMin = tickInASec*60
                 const tickInAnHour = tickInAMin*60
                 const tickInADay = tickInAnHour*24
-                let counter = 0
                 for(const block_alteration of response.result){
-                    if(counter > (parameter.startingFrom ?? 1) + (parameter.count ?? 10)-1)break;
-                    if(counter < (parameter.startingFrom ?? 1)){
-                        counter++;
-                        continue;
-                    }
                     const timeOfBlockAlteration = system.currentTick - parseInt(block_alteration.tick)
                     sendMessage(`${block_alteration.PlayerName}: ${block_alteration.before_id} -> ${block_alteration.after_id} - before: ${Math.floor(timeOfBlockAlteration/tickInADay)}d${Math.floor(timeOfBlockAlteration%tickInADay/tickInAnHour)}h${Math.floor(timeOfBlockAlteration%tickInAnHour/tickInAMin)}m${Math.floor(timeOfBlockAlteration%tickInAMin/tickInASec)}s`,'CMD - BlockHistory',sender);
-                    counter++
                 }
                 if(response.result == ""){
                     sendMessage(`No changes were made to block  ${Math.floor(pos.x)}, ${Math.floor(pos.y)}, ${Math.floor(pos.z)}`,'CMD - BlockHistory',sender);
@@ -83,8 +78,9 @@ function main(){
                        JOIN PlayerConnections 
                        ON block_history.actor_id = PlayerConnections.PlayerID 
                        WHERE PlayerName = ?  
-                       ORDER BY \`block_history\`.\`tick\` DESC`,
-                values : [playerName]
+                       ORDER BY \`block_history\`.\`tick\` DESC
+                       LIMIT ? OFFSET ?`,
+                values : [playerName, parameter.count ?? 5, parameter.startingFrom ?? 0]
             }
             try {
                 const response = await BlockHistoryPLugin.database.query(request);
@@ -93,19 +89,10 @@ function main(){
                 const tickInAnHour = tickInAMin*60
                 const tickInADay = tickInAnHour*24
                 let locations = []
-                let counter = 1
                 for(const block_alteration of response.result){
-                    if(counter > (parameter.startingFrom ?? 1) + (parameter.count ?? 10)-1){
-                        break;
-                    }
-                    if(counter < (parameter.startingFrom ?? 1)){
-                        counter++
-                        continue;
-                    }
                     const timeOfBlockAlteration = system.currentTick - parseInt(block_alteration.tick)
                     sendMessage(`${block_alteration.PlayerName} - [${block_alteration.x}, ${block_alteration.y}, ${block_alteration.z}]: ${block_alteration.before_id} -> ${block_alteration.after_id} - before: ${Math.floor(timeOfBlockAlteration/tickInADay)}d${Math.floor(timeOfBlockAlteration%tickInADay/tickInAnHour)}h${Math.floor(timeOfBlockAlteration%tickInAnHour/tickInAMin)}m${Math.floor(timeOfBlockAlteration%tickInAMin/tickInASec)}s`,'CMD - BlockHistory',sender);
                     locations.push({x: block_alteration.x, y: block_alteration.y, z: block_alteration.z})
-                    counter++
                 }
                 if(response.result == ""){
                     sendMessage(`No changes were made by the player ${playerName}`,'CMD - BlockHistory',sender);
