@@ -2,7 +2,7 @@ import {CommandResult, MinecraftEffectTypes , world, BlockLocation,Location, Tic
 import {CommandParser, sendMessage} from "../../../mc_modules/commandParser";
 import { getCornerLocations, getEdgeLocations } from "../../../mc_modules/particles";
 import { command_parser, isAdmin } from "../../commands/workers/admin";
-import { logMessage } from '../../debug/debug';
+import { logMessage } from "../../debug/debug";
 import { playerData } from "../../server/server";
 import * as BlockHistoryPLugin from "../block_history";
 let particlesPerPlayers = {}
@@ -45,7 +45,9 @@ function main(){
                        JOIN PlayerConnections 
                        ON block_history.actor_id = PlayerConnections.PlayerID 
                        WHERE x = ${Math.floor(pos.x)} AND y = ${Math.floor(pos.y)} AND z = ${Math.floor(pos.z)}
-                       ORDER BY \`block_history\`.\`tick\` DESC`,
+                       ORDER BY \`block_history\`.\`tick\` DESC
+                       LIMIT ? OFFSET ?`,
+                values : [parameter.count ?? 5, parameter.startingFrom ?? 0]
             }
             try {
                 const response = await BlockHistoryPLugin.database.query(request);
@@ -53,16 +55,17 @@ function main(){
                 const tickInAMin = tickInASec*60
                 const tickInAnHour = tickInAMin*60
                 const tickInADay = tickInAnHour*24
-                let counter = 0
                 for(const block_alteration of response.result){
-                    if(counter > (parameter.startingFrom ?? 1) + (parameter.count ?? 10)-1)break;
-                    if(counter < (parameter.startingFrom ?? 1))continue;
                     const timeOfBlockAlteration = system.currentTick - parseInt(block_alteration.tick)
                     sendMessage(`${block_alteration.PlayerName}: ${block_alteration.before_id} -> ${block_alteration.after_id} - before: ${Math.floor(timeOfBlockAlteration/tickInADay)}d${Math.floor(timeOfBlockAlteration%tickInADay/tickInAnHour)}h${Math.floor(timeOfBlockAlteration%tickInAnHour/tickInAMin)}m${Math.floor(timeOfBlockAlteration%tickInAMin/tickInASec)}s`,'CMD - BlockHistory',sender);
-                    counter++
                 }
                 if(response.result == ""){
                     sendMessage(`No changes were made to block  ${Math.floor(pos.x)}, ${Math.floor(pos.y)}, ${Math.floor(pos.z)}`,'CMD - BlockHistory',sender);
+                }
+                else{
+                    getCornerLocations([pos], (location) => {
+                        addActiveParticles(location, sender);
+                    })
                 }
             }
             catch(error) {
@@ -77,8 +80,9 @@ function main(){
                        JOIN PlayerConnections 
                        ON block_history.actor_id = PlayerConnections.PlayerID 
                        WHERE PlayerName = ?  
-                       ORDER BY \`block_history\`.\`tick\` DESC`,
-                values : [playerName]
+                       ORDER BY \`block_history\`.\`tick\` DESC
+                       LIMIT ? OFFSET ?`,
+                values : [playerName, parameter.count ?? 5, parameter.startingFrom ?? 0]
             }
             try {
                 const response = await BlockHistoryPLugin.database.query(request);
@@ -87,17 +91,13 @@ function main(){
                 const tickInAnHour = tickInAMin*60
                 const tickInADay = tickInAnHour*24
                 let locations = []
-                let counter = 1
                 for(const block_alteration of response.result){
-                    if(counter > (parameter.startingFrom ?? 1) + (parameter.count ?? 10)-1)break;
-                    if(counter < (parameter.startingFrom ?? 1))continue;
                     const timeOfBlockAlteration = system.currentTick - parseInt(block_alteration.tick)
                     sendMessage(`${block_alteration.PlayerName} - [${block_alteration.x}, ${block_alteration.y}, ${block_alteration.z}]: ${block_alteration.before_id} -> ${block_alteration.after_id} - before: ${Math.floor(timeOfBlockAlteration/tickInADay)}d${Math.floor(timeOfBlockAlteration%tickInADay/tickInAnHour)}h${Math.floor(timeOfBlockAlteration%tickInAnHour/tickInAMin)}m${Math.floor(timeOfBlockAlteration%tickInAMin/tickInASec)}s`,'CMD - BlockHistory',sender);
                     locations.push({x: block_alteration.x, y: block_alteration.y, z: block_alteration.z})
-                    counter++
                 }
                 if(response.result == ""){
-                    sendMessage(`No changes were made to by player ${playerName}`,'CMD - BlockHistory',sender);
+                    sendMessage(`No changes were made by the player ${playerName}`,'CMD - BlockHistory',sender);
                 }
                 else{
                     getEdgeLocations(locations, (loc,axis) => {
@@ -126,10 +126,10 @@ function main(){
         else {
             sendMessage(
                 `help:
-                b/block - shows the changes made to block on [x], [y], [z] - parameters: location: x, location: y, location: z, startingfrom: index
-                p/player - shows the changes made by a player - parameters: player
+                b/block - shows the changes made to block on [x], [y], [z] - parameters:startingfrom: count, startingFrom, location: x, location: y, location: z
+                p/player - shows the changes made by a player - parameters: count, startingFrom, player
                 i/inspect - gets you into inspector mode - when you place blocks it doesn't place them and instead shows you the changes made to that block
-                r/reverse - reverses actions of a player in specific time frame - parameters: player, time (in ticks)
+                r/reverse - reverses actions of a player in specific time frame - parameters: player, operations
                 redo - reverses an action made by this plugin - parameters: ID
                 c/clear - clears all the particles generated by this plugin by a player
                 ca/clearall - clears all the particles generated by this plugin by everyone

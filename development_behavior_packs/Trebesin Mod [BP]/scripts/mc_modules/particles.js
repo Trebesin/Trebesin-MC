@@ -153,6 +153,7 @@ function drawCorner(origin,corner,callback) {
         staleAxisOffset[otherAxis] = staleAxisStep;
         const particleLocation = interfaceToLocation(sumLocations(particleCoord,staleAxisOffset));
         callback(particleLocation);
+        callback(particleLocation);
     }
 }
 
