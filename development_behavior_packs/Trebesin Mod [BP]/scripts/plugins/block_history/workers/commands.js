@@ -7,7 +7,7 @@ import { playerData } from "../../server/server";
 import * as BlockHistoryPLugin from "../block_history";
 let particlesPerPlayers = {}
 function addActiveParticles(particleLocation, axis, sender){
-    logMessage(`${x}, ${y}, ${z}`);
+    logMessage(`${particleLocation.x}, ${particleLocation.y}, ${particleLocation.z}`);
     if(!particlesPerPlayers[sender.id])particlesPerPlayers[sender.id] = {
         player: sender,
         particleLocations: [[particleLocation,axis]]
