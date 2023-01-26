@@ -7,7 +7,6 @@ import { playerData } from "../../server/server";
 import * as BlockHistoryPLugin from "../block_history";
 let particlesPerPlayers = {}
 function addActiveParticles(particleLocation, axis, sender){
-    logMessage(`${particleLocation.x}, ${particleLocation.y}, ${particleLocation.z}`);
     if(!particlesPerPlayers[sender.id])particlesPerPlayers[sender.id] = {
         player: sender,
         particleLocations: [[particleLocation,axis]]
@@ -40,7 +39,6 @@ function main(){
     async function blockHistoryHandler(sender, parameter){
         if(/*isAdmin(sender) && */(parameter.command === "b" || parameter.command === "block")){
             const pos = parameter.coords ?? sender.location
-            logMessage(`${pos.x}, ${pos.y}, ${pos.z}`);
             const request = {
                 sql : `SELECT DISTINCT block_history.*, PlayerConnections.PlayerName 
                        FROM \`block_history\` 
@@ -67,8 +65,8 @@ function main(){
                 else{
                     getEdgeLocations([{
                         x: Math.floor(pos.x) ,
-                        Y: Math.floor(pos.y),
-                        Z: Math.floor(pos.z)
+                        y: Math.floor(pos.y),
+                        z: Math.floor(pos.z)
                     }], (loc,axis) => {
                         addActiveParticles(loc,axis,sender);
                     })
