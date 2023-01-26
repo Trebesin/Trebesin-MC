@@ -153,7 +153,6 @@ function drawCorner(origin,corner,callback) {
         staleAxisOffset[otherAxis] = staleAxisStep;
         const particleLocation = interfaceToLocation(sumLocations(particleCoord,staleAxisOffset));
         callback(particleLocation);
-        callback(particleLocation);
     }
 }
 
@@ -165,6 +164,32 @@ function createLocationSet(locations) {
         locationSet.add(`${location.x},${location.y},${location.z}`);
     }
     return locationSet;
+}
+
+function createLocationSet2(locations) {
+    const locationSet = new Set();
+    for (let locationIndex = 0;locationIndex < locations.length;locationIndex++) {
+        const location = locations[locationIndex][0];
+        const axis = locations[locationIndex][1];
+        locationSet.add(`${location.x},${location.y},${location.z},${axis}`);
+    }
+    return locationSet;
+}
+
+function locationToString(location,axis) {
+    return `${location.x},${location.y},${location.z},${axis}`;
+}
+
+function stringToLocation(string) {
+    const positionArray = string.split(',');
+    return [
+        new Location(
+            parseInt(positionArray[0]),
+            parseInt(positionArray[1]),
+            parseInt(positionArray[2])
+        ),
+        positionArray[3]
+    ];
 }
 
 function sumLocations(locationA,locationB) {
@@ -193,4 +218,4 @@ function getCornerOffset(origin,corner) {
     }
 }
 
-export {spawnBlockSelection,spawnLine,highlightBlockCoords,getCornerLocations,getEdgeLocations}
+export {spawnBlockSelection,spawnLine,highlightBlockCoords,getCornerLocations,getEdgeLocations,createLocationSet2,locationToString,stringToLocation}

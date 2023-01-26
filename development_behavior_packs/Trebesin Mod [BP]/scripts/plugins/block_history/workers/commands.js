@@ -1,28 +1,30 @@
 import {CommandResult, MinecraftEffectTypes , world, BlockLocation,Location, TicksPerDay, TicksPerSecond, Vector, MolangVariableMap, Color, system} from "@minecraft/server";
 import {CommandParser, sendMessage} from "../../../mc_modules/commandParser";
-import { getCornerLocations, getEdgeLocations } from "../../../mc_modules/particles";
+import { getEdgeLocations, createLocationSet2, locationToString, stringToLocation } from "../../../mc_modules/particles";
 import { command_parser, isAdmin } from "../../commands/workers/admin";
 import { logMessage } from "../../debug/debug";
 import { playerData } from "../../server/server";
 import * as BlockHistoryPLugin from "../block_history";
 let particlesPerPlayers = {}
+
 function addActiveParticles(particleLocation, axis, sender){
-    if(!particlesPerPlayers[sender.id])particlesPerPlayers[sender.id] = {
+    particlesPerPlayers[sender.id] ??= { //that thing i've talked bout is with question marks instead
         player: sender,
-        particleLocations: [[particleLocation,axis]]
+        particleLocations: new Set()
     };
-    else particlesPerPlayers[sender.id].particleLocations.push([particleLocation,axis])
+    particlesPerPlayers[sender.id].particleLocations.add(locationToString(particleLocation,axis));
 }
+
 function removeActiveParticles(sender){
     delete particlesPerPlayers[sender.id];
 }
+
 function removeAllActiveParticles(){
     for(const player in particlesPerPlayers){
         delete particlesPerPlayers[player];
     }
 }
-function spawnParticles(particleLocation,particleAxis, sender){
-    const location = new Location(particleLocation.x,particleLocation.y,particleLocation.z);
+function spawnParticles(location,particleAxis, sender){
     const molang = new MolangVariableMap()
     .setColorRGB('variable.colour',new Color(1,0,0,1));
     const dimension = world.getDimension('overworld');
@@ -31,8 +33,10 @@ function spawnParticles(particleLocation,particleAxis, sender){
 function main(){
     system.runSchedule(() => {
         for (const player in particlesPerPlayers) {
-            for(const particlelocation of particlesPerPlayers[player].particleLocations){
-                spawnParticles(particlelocation[0],particlelocation[1], particlesPerPlayers[player].player)
+            const set = particlesPerPlayers[player].particleLocations;
+            for(const locationString of particlesPerPlayers[player].particleLocations){
+                const particleLocation = stringToLocation(locationString);
+                spawnParticles(particleLocation[0],particleLocation[1], particlesPerPlayers[player].player)
             }
         }
     },4);
@@ -64,7 +68,7 @@ function main(){
                 }
                 else{
                     getEdgeLocations([{
-                        x: Math.floor(pos.x) ,
+                        x: Math.floor(pos.x),
                         y: Math.floor(pos.y),
                         z: Math.floor(pos.z)
                     }], (loc,axis) => {
