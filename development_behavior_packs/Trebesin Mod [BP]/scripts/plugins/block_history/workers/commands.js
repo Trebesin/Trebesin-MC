@@ -63,7 +63,11 @@ function main(){
                     sendMessage(`No changes were made to block  ${Math.floor(pos.x)}, ${Math.floor(pos.y)}, ${Math.floor(pos.z)}`,'CMD - BlockHistory',sender);
                 }
                 else{
-                    getEdgeLocations([pos], (loc,axis) => {
+                    getEdgeLocations([{
+                        x: Math.floor(pos.x) ,
+                        Y: Math.floor(pos.y),
+                        Z: Math.floor(pos.z)
+                    }], (loc,axis) => {
                         addActiveParticles(loc,axis,sender);
                     })
                 }
