@@ -40,6 +40,7 @@ function main(){
     async function blockHistoryHandler(sender, parameter){
         if(/*isAdmin(sender) && */(parameter.command === "b" || parameter.command === "block")){
             const pos = parameter.coords ?? sender.location
+            logMessage(`${pos.x}, ${pos.y}, ${pos.z}`);
             const request = {
                 sql : `SELECT DISTINCT block_history.*, PlayerConnections.PlayerName 
                        FROM \`block_history\` 
