@@ -17,7 +17,7 @@ function findNumber(string,startIndex = 0) {
         } else if (numberPart === 0) {
             number = '';
             numberPart = -1;
-        } else if (numberPart > 0) break
+        } else if (numberPart > 0) break;
     }
     return parseFloat(number);
 }

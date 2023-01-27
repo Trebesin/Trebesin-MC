@@ -36,7 +36,8 @@ async function PluginMain() {
     //# Custom Events
     server.registerEvent('player',{
         callbacks: {
-            playerEquip: new ServerEventCallback()
+            playerEquip: new ServerEventCallback().saved,
+            playerSneak: new ServerEventCallback()
         },
         initialize() {},
         execute() {
@@ -47,12 +48,14 @@ async function PluginMain() {
                 //## playerEquip event:
                 const playerEquipCallbacks = callbacks.playerEquip.saved;
                 if (playerEquipCallbacks.length) {
-                    if (data.playerEquip[player.id] == null) data.playerEquip[player.id] = {};
+                    data.playerEquip[player.id] ??= {};
                     const itemBefore = data.playerEquip[player.id].item;
                     const slotBefore = data.playerEquip[player.id].slot;
                     const itemAfter = player.getComponent('inventory').container.getSlot(player.selectedSlot).getItem();
                     const slotAfter = player.selectedSlot;
                     if (!compareItems(itemAfter,itemBefore) || slotBefore != slotAfter) {
+                        data.playerEquip[player.id].item = itemAfter;//!needs testing
+                        data.playerEquip[player.id].slot = slotAfter;//could be more efficient
                         for (let callbackIndex = 0;callbackIndex < playerEquipCallbacks.length;callbackIndex++) {
                             try {
                                 playerEquipCallbacks[callbackIndex]({
@@ -65,13 +68,32 @@ async function PluginMain() {
                             } catch {}
                         }
                     }
-                    data.playerEquip[player.id].item = itemAfter;
-                    data.playerEquip[player.id].slot = slotAfter;
+                }
+                //## playerSneak event:
+                //!needs testing
+                const playerSneakCallbacks = callbacks.playerSneak.saved;
+                if (playerSneakCallbacks.length) {
+                    data.playerSneak[player.id] ??= player.isSneaking;
+                    const sneakingBefore = data.playerSneak[player.id];
+                    const sneakingAfter = player.isSneaking;
+                    if (sneakingBefore !== sneakingAfter) {
+                        data.playerSneak[player.id] = player.isSneaking;
+                        for (let callbackIndex = 0;callbackIndex < playerEquipCallbacks.length;callbackIndex++) {
+                            try {
+                                playerSneakCallbacks[callbackIndex]({
+                                    player,
+                                    sneaking: player.isSneaking
+                                });
+                            } catch {}
+                        }
+                    }
+                    
                 }
             }
         },
         data: {
-            playerEquip: {}
+            playerEquip: {},
+            playerSneak: {}
         }
     });
 
