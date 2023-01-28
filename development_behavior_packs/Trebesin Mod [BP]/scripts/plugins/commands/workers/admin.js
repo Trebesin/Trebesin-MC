@@ -44,11 +44,9 @@ function main(){
       const item = container.getItem(sender.selectedSlot);
       if (item != null) {
         const itemReceivers = parameter.whomTo ?? [sender]
-        logMessage(itemReceivers[0].name)
         for(let j = 0;j<itemReceivers.length;j++){
           const player = itemReceivers[j]
           const receiverContainer = player.getComponent('inventory').container
-          logMessage(player.name)
           for(let i = 0;i<(parameter.count ?? 1);i++){
             if (receiverContainer.emptySlotsCount > 0) {
               receiverContainer.addItem(item);
