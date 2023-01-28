@@ -49,7 +49,7 @@ function main(){
                        JOIN PlayerConnections 
                        ON block_history.actor_id = PlayerConnections.PlayerID 
                        WHERE x = ${Math.floor(pos.x)} AND y = ${Math.floor(pos.y)} AND z = ${Math.floor(pos.z)}
-                       ORDER BY \`block_history\`.\`tick\` ASC
+                       ORDER BY \`block_history\`.\`tick\` DESC
                        LIMIT ? OFFSET ?`,
                 values : [parameter.count ?? 5, parameter.startingFrom ?? 0]
             }
@@ -59,7 +59,8 @@ function main(){
                 const tickInAMin = tickInASec*60
                 const tickInAnHour = tickInAMin*60
                 const tickInADay = tickInAnHour*24
-                for(const block_alteration of response.result){
+                for(let i = response.result.length()-1; i+1; i--){
+                    const block_alteration = response.result[i]
                     const timeOfBlockAlteration = system.currentTick - parseInt(block_alteration.tick)
                     sendMessage(`${block_alteration.PlayerName}: ${block_alteration.before_id} -> ${block_alteration.after_id} - before: ${Math.floor(timeOfBlockAlteration/tickInADay)}d${Math.floor(timeOfBlockAlteration%tickInADay/tickInAnHour)}h${Math.floor(timeOfBlockAlteration%tickInAnHour/tickInAMin)}m${Math.floor(timeOfBlockAlteration%tickInAMin/tickInASec)}s`,'CMD - BlockHistory',sender);
                 }
@@ -88,7 +89,7 @@ function main(){
                        JOIN PlayerConnections 
                        ON block_history.actor_id = PlayerConnections.PlayerID 
                        WHERE PlayerName = ?  
-                       ORDER BY \`block_history\`.\`tick\` ASC
+                       ORDER BY \`block_history\`.\`tick\` DESC
                        LIMIT ? OFFSET ?`,
                 values : [playerName, parameter.count ?? 5, parameter.startingFrom ?? 0]
             }
@@ -99,7 +100,8 @@ function main(){
                 const tickInAnHour = tickInAMin*60
                 const tickInADay = tickInAnHour*24
                 let locations = []
-                for(const block_alteration of response.result){
+                for(let i = response.result.length()-1; i+1; i--){
+                    const block_alteration = response.result[i]
                     const timeOfBlockAlteration = system.currentTick - parseInt(block_alteration.tick)
                     sendMessage(`${block_alteration.PlayerName} - [${block_alteration.x}, ${block_alteration.y}, ${block_alteration.z}]: ${block_alteration.before_id} -> ${block_alteration.after_id} - before: ${Math.floor(timeOfBlockAlteration/tickInADay)}d${Math.floor(timeOfBlockAlteration%tickInADay/tickInAnHour)}h${Math.floor(timeOfBlockAlteration%tickInAnHour/tickInAMin)}m${Math.floor(timeOfBlockAlteration%tickInAMin/tickInASec)}s`,'CMD - BlockHistory',sender);
                     locations.push({x: block_alteration.x, y: block_alteration.y, z: block_alteration.z})
