@@ -22,6 +22,7 @@ import { logMessage } from '../plugins/debug/debug';
 * @property {string} id - ID of the parameter.
 * @property {('string'|'integer'|'float'|'boolean'|'position'|'selector'|'json')} type - Type of the parameter defining what the user input should look like.
 * @property {number} [array] - Number defining an array of parameters, the value corresponds to its length.
+* @property {boolean} [playersOnly] - Only for `'type': 'selector'`, sets the selector to only allow `@a`,`@p` and `@r(type: 'minecraft:player')`
 */
 
 /**
@@ -285,7 +286,7 @@ class CommandParser {
                             useVector = setVectorLength({x:vector.z,y:0,z:-vector.x},number);
                             break;
                         case 1:
-                            const total = Math.sqrt(Math.abs(vector.x**2)+Math.abs(vector.z**2));
+                            const total = Math.sqrt(vector.x**2+vector.z**2);
                             useVector = setVectorLength({x:(vector.x/total)*-vector.y,y:total,z:(vector.z/total)*-vector.y},number);
                             break;
                         case 2:
