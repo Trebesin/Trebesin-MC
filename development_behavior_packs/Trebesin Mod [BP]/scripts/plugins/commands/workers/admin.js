@@ -43,7 +43,7 @@ function main(){
       const item = container.getItem(sender.selectedSlot);
       if (item != null) {
         for(let j = 0;j<parameter.whomTo?.length ?? 1;j++){
-          const player = parameter.whomTo[j] ?? sender
+          const player = parameter.whomTo?.[j] ?? sender
           for(let i = 0;i<parameter.count ?? 1;i++){
             if (container.emptySlotsCount > 0) {
               container.addItem(item);
