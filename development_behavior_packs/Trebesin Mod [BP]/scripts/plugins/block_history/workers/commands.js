@@ -4,11 +4,11 @@ import { getEdgeLocations, createLocationSet2, locationToString, stringToLocatio
 import { command_parser, isAdmin } from "../../commands/workers/admin";
 import { logMessage } from "../../debug/debug";
 import { playerData } from "../../server/server";
-import * as BlockHistoryPLugin from "../block_history";
+import * as BlockHistoryPlugin from "../block_history";
 let particlesPerPlayers = {}
 
 function addActiveParticles(particleLocation, axis, sender) {
-    particlesPerPlayers[sender.id] ??= { //that thing i've talked bout is with question marks instead
+    particlesPerPlayers[sender.id] ??= {
         player: sender,
         particleLocations: new Set()
     };
@@ -20,22 +20,22 @@ function removeActiveParticles(sender) {
 }
 
 function removeAllActiveParticles() {
-    for(const player in particlesPerPlayers){
+    for (const player in particlesPerPlayers) {
         delete particlesPerPlayers[player];
     }
 }
-function spawnParticles(location,particleAxis, sender) {
+function spawnParticles(location, particleAxis, sender) {
     const molang = new MolangVariableMap()
     .setColorRGB('variable.colour',new Color(1,0,0,1));
     const dimension = world.getDimension('overworld');
-    dimension.spawnParticle(`trebesin:edge_highlight_${particleAxis}`,location,molang);
+    dimension.spawnParticle(`trebesin:edge_highlight_${particleAxis}`, location, molang);
 }
 function main() {
     system.runSchedule(() => {
         for (const player in particlesPerPlayers) {
             for (const locationString of particlesPerPlayers[player].particleLocations) {
                 const particleLocation = stringToLocation(locationString);
-                spawnParticles(particleLocation[0],particleLocation[1], particlesPerPlayers[player].player)
+                spawnParticles(particleLocation[0], particleLocation[1], particlesPerPlayers[player].player)
             }
         }
     },4);
@@ -53,15 +53,15 @@ function main() {
                 values : [parameter.count ?? 5, parameter.startingFrom ?? 0]
             }
             try {
-                const response = await BlockHistoryPLugin.database.query(request);
+                const response = await BlockHistoryPlugin.database.query(request);
                 const tickInASec = TicksPerSecond;
                 const tickInAMin = tickInASec*60;
                 const tickInAnHour = tickInAMin*60;
                 const tickInADay = tickInAnHour*24;
                 for (let responseIndex = response.result.length-1; responseIndex+1; responseIndex--) {
-                    const block_alteration = response.result[responseIndex]
-                    const timeOfBlockAlteration = system.currentTick - parseInt(block_alteration.tick)
-                    sendMessage(`${block_alteration.PlayerName}: ${block_alteration.before_id} -> ${block_alteration.after_id} - before: ${Math.floor(timeOfBlockAlteration/tickInADay)}d${Math.floor(timeOfBlockAlteration%tickInADay/tickInAnHour)}h${Math.floor(timeOfBlockAlteration%tickInAnHour/tickInAMin)}m${Math.floor(timeOfBlockAlteration%tickInAMin/tickInASec)}s`,'CMD - BlockHistory',sender);
+                    const blockAlteration = response.result[responseIndex];
+                    const timeOfBlockAlteration = system.currentTick - parseInt(blockAlteration.tick);
+                    sendMessage(`${blockAlteration.PlayerName}: ${blockAlteration.before_id} -> ${blockAlteration.after_id} - before: ${Math.floor(timeOfBlockAlteration/tickInADay)}d${Math.floor(timeOfBlockAlteration%tickInADay/tickInAnHour)}h${Math.floor(timeOfBlockAlteration%tickInAnHour/tickInAMin)}m${Math.floor(timeOfBlockAlteration%tickInAMin/tickInASec)}s`,'CMD - BlockHistory',sender);
                 }
                 if (response.result == '') {
                     sendMessage(`No changes were made to block  ${Math.floor(pos.x)}, ${Math.floor(pos.y)}, ${Math.floor(pos.z)}`,'CMD - BlockHistory',sender);
@@ -93,19 +93,19 @@ function main() {
                 values : [playerName, parameter.count ?? 5, parameter.startingFrom ?? 0]
             }
             try {
-                const response = await BlockHistoryPLugin.database.query(request);
+                const response = await BlockHistoryPlugin.database.query(request);
                 const tickInASec = TicksPerSecond
                 const tickInAMin = tickInASec*60
                 const tickInAnHour = tickInAMin*60
                 const tickInADay = tickInAnHour*24
                 let locations = []
-                for (let responseIndex = response.result.length-1; responseIndex+1; responseIndex--){
-                    const block_alteration = response.result[responseIndex]
-                    const timeOfBlockAlteration = system.currentTick - parseInt(block_alteration.tick)
-                    sendMessage(`${block_alteration.PlayerName} - [${block_alteration.x}, ${block_alteration.y}, ${block_alteration.z}]: ${block_alteration.before_id} -> ${block_alteration.after_id} - before: ${Math.floor(timeOfBlockAlteration/tickInADay)}d${Math.floor(timeOfBlockAlteration%tickInADay/tickInAnHour)}h${Math.floor(timeOfBlockAlteration%tickInAnHour/tickInAMin)}m${Math.floor(timeOfBlockAlteration%tickInAMin/tickInASec)}s`,'CMD - BlockHistory',sender);
-                    locations.push({x: block_alteration.x, y: block_alteration.y, z: block_alteration.z})
+                for (let responseIndex = response.result.length-1; responseIndex+1; responseIndex--) {
+                    const blockAlteration = response.result[responseIndex]
+                    const timeOfBlockAlteration = system.currentTick - parseInt(blockAlteration.tick)
+                    sendMessage(`${blockAlteration.PlayerName} - [${blockAlteration.x}, ${blockAlteration.y}, ${blockAlteration.z}]: ${blockAlteration.before_id} -> ${blockAlteration.after_id} - before: ${Math.floor(timeOfBlockAlteration/tickInADay)}d${Math.floor(timeOfBlockAlteration%tickInADay/tickInAnHour)}h${Math.floor(timeOfBlockAlteration%tickInAnHour/tickInAMin)}m${Math.floor(timeOfBlockAlteration%tickInAMin/tickInASec)}s`,'CMD - BlockHistory',sender);
+                    locations.push({x: blockAlteration.x, y: blockAlteration.y, z: blockAlteration.z})
                 }
-                if (response.result == ''){
+                if (response.result == '') {
                     sendMessage(`No changes were made by the player ${playerName}`,'CMD - BlockHistory',sender);
                 }
                 else {
@@ -121,16 +121,15 @@ function main() {
         }
         else if (/*isAdmin(sender) && */(parameter.command === "c" || parameter.command === "clear")) {
             if (parameter.players) {
-                for(let playerIndex = 0;playerIndex<parameter.players.length; playerIndex++){
-                    const player = parameter.players[playerIndex]
-                    removeActiveParticles(player)
+                for(let playerIndex = 0;playerIndex < parameter.players.length; playerIndex++) {
+                    const player = parameter.players[playerIndex];
+                    removeActiveParticles(player);
                 }
-            }
-            else{
-                removeActiveParticles(sender)
+            } else {
+                removeActiveParticles(sender);
             }
         }
-        else if (/*isAdmin(sender) && */(parameter.command === "ca" || parameter.command === "clearall")){
+        else if (/*isAdmin(sender) && */(parameter.command === "ca" || parameter.command === "clearall")) {
             removeAllActiveParticles();
         }
         else {
@@ -143,7 +142,7 @@ function main() {
                 redo - reverses an action made by this plugin - parameters: ID
                 c/clear - clears all the particles generated by this plugin by a player
                 ca/clearall - clears all the particles generated by this plugin by everyone
-                `)
+                `);
         }
     }
   command_parser.registerCommand("bh", {
