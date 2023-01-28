@@ -7,7 +7,7 @@ import { playerData } from "../../server/server";
 import * as BlockHistoryPLugin from "../block_history";
 let particlesPerPlayers = {}
 
-function addActiveParticles(particleLocation, axis, sender){
+function addActiveParticles(particleLocation, axis, sender) {
     particlesPerPlayers[sender.id] ??= { //that thing i've talked bout is with question marks instead
         player: sender,
         particleLocations: new Set()
@@ -15,16 +15,16 @@ function addActiveParticles(particleLocation, axis, sender){
     particlesPerPlayers[sender.id].particleLocations.add(locationToString(particleLocation,axis));
 }
 
-function removeActiveParticles(sender){
+function removeActiveParticles(sender) {
     delete particlesPerPlayers[sender.id];
 }
 
-function removeAllActiveParticles(){
+function removeAllActiveParticles() {
     for(const player in particlesPerPlayers){
         delete particlesPerPlayers[player];
     }
 }
-function spawnParticles(location,particleAxis, sender){
+function spawnParticles(location,particleAxis, sender) {
     const molang = new MolangVariableMap()
     .setColorRGB('variable.colour',new Color(1,0,0,1));
     const dimension = world.getDimension('overworld');
@@ -33,15 +33,14 @@ function spawnParticles(location,particleAxis, sender){
 function main(){
     system.runSchedule(() => {
         for (const player in particlesPerPlayers) {
-            const set = particlesPerPlayers[player].particleLocations;
-            for(const locationString of particlesPerPlayers[player].particleLocations){
+            for (const locationString of particlesPerPlayers[player].particleLocations) {
                 const particleLocation = stringToLocation(locationString);
                 spawnParticles(particleLocation[0],particleLocation[1], particlesPerPlayers[player].player)
             }
         }
     },4);
     async function blockHistoryHandler(sender, parameter){
-        if(/*isAdmin(sender) && */(parameter.command === "b" || parameter.command === "block")){
+        if (/*isAdmin(sender) && */(parameter.command === "b" || parameter.command === "block")) {
             const pos = parameter.coords ?? sender.location
             const request = {
                 sql : `SELECT DISTINCT block_history.*, PlayerConnections.PlayerName 
@@ -55,19 +54,19 @@ function main(){
             }
             try {
                 const response = await BlockHistoryPLugin.database.query(request);
-                const tickInASec = TicksPerSecond
-                const tickInAMin = tickInASec*60
-                const tickInAnHour = tickInAMin*60
-                const tickInADay = tickInAnHour*24
-                for(let i = response.result.length-1; i+1; i--){
-                    const block_alteration = response.result[i]
+                const tickInASec = TicksPerSecond;
+                const tickInAMin = tickInASec*60;
+                const tickInAnHour = tickInAMin*60;
+                const tickInADay = tickInAnHour*24;
+                for (let responseIndex = response.result.length-1; responseIndex+1; responseIndex--) {
+                    const block_alteration = response.result[responseIndex]
                     const timeOfBlockAlteration = system.currentTick - parseInt(block_alteration.tick)
                     sendMessage(`${block_alteration.PlayerName}: ${block_alteration.before_id} -> ${block_alteration.after_id} - before: ${Math.floor(timeOfBlockAlteration/tickInADay)}d${Math.floor(timeOfBlockAlteration%tickInADay/tickInAnHour)}h${Math.floor(timeOfBlockAlteration%tickInAnHour/tickInAMin)}m${Math.floor(timeOfBlockAlteration%tickInAMin/tickInASec)}s`,'CMD - BlockHistory',sender);
                 }
-                if(response.result == ""){
+                if (response.result == '') {
                     sendMessage(`No changes were made to block  ${Math.floor(pos.x)}, ${Math.floor(pos.y)}, ${Math.floor(pos.z)}`,'CMD - BlockHistory',sender);
                 }
-                else{
+                else {
                     getEdgeLocations([{
                         x: Math.floor(pos.x),
                         y: Math.floor(pos.y),
@@ -77,11 +76,11 @@ function main(){
                     })
                 }
             }
-            catch(error) {
+            catch (error) {
                 sendMessage(`${error}`,'CMD - BlockHistory',sender);
             }
         }
-        else if(/*isAdmin(sender) && */(parameter.command === "p" || parameter.command === "player")){
+        else if (/*isAdmin(sender) && */(parameter.command === "p" || parameter.command === "player")) {
             const playerName = parameter.player ?? sender.name
             const request = {
                 sql : `SELECT DISTINCT block_history.*, PlayerConnections.PlayerName 
@@ -100,30 +99,30 @@ function main(){
                 const tickInAnHour = tickInAMin*60
                 const tickInADay = tickInAnHour*24
                 let locations = []
-                for(let i = response.result.length-1; i+1; i--){
-                    const block_alteration = response.result[i]
+                for (let responseIndex = response.result.length-1; responseIndex+1; responseIndex--){
+                    const block_alteration = response.result[responseIndex]
                     const timeOfBlockAlteration = system.currentTick - parseInt(block_alteration.tick)
                     sendMessage(`${block_alteration.PlayerName} - [${block_alteration.x}, ${block_alteration.y}, ${block_alteration.z}]: ${block_alteration.before_id} -> ${block_alteration.after_id} - before: ${Math.floor(timeOfBlockAlteration/tickInADay)}d${Math.floor(timeOfBlockAlteration%tickInADay/tickInAnHour)}h${Math.floor(timeOfBlockAlteration%tickInAnHour/tickInAMin)}m${Math.floor(timeOfBlockAlteration%tickInAMin/tickInASec)}s`,'CMD - BlockHistory',sender);
                     locations.push({x: block_alteration.x, y: block_alteration.y, z: block_alteration.z})
                 }
-                if(response.result == ""){
+                if (response.result == ''){
                     sendMessage(`No changes were made by the player ${playerName}`,'CMD - BlockHistory',sender);
                 }
-                else{
+                else {
                     getEdgeLocations(locations, (loc,axis) => {
                         addActiveParticles(loc,axis,sender);
                     })
                 }
 
             }
-            catch(error) {
+            catch (error) {
                 sendMessage(`${error}`,'CMD - BlockHistory',sender);
             }
         }
-        else if(/*isAdmin(sender) && */(parameter.command === "c" || parameter.command === "clear")){
-            if(parameter.players){
-                for(let i = 0;i<parameter.players.length; i++){
-                    const player = parameter.players[i]
+        else if (/*isAdmin(sender) && */(parameter.command === "c" || parameter.command === "clear")) {
+            if (parameter.players) {
+                for(let playerIndex = 0;playerIndex<parameter.players.length; playerIndex++){
+                    const player = parameter.players[playerIndex]
                     removeActiveParticles(player)
                 }
             }
@@ -131,7 +130,7 @@ function main(){
                 removeActiveParticles(sender)
             }
         }
-        else if(/*isAdmin(sender) && */(parameter.command === "ca" || parameter.command === "clearall")){
+        else if (/*isAdmin(sender) && */(parameter.command === "ca" || parameter.command === "clearall")){
             removeAllActiveParticles();
         }
         else {
