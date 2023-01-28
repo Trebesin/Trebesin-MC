@@ -121,10 +121,8 @@ function main(){
             }
         }
         else if(/*isAdmin(sender) && */(parameter.command === "c" || parameter.command === "clear")){
-            if(parameter.selector){
-                logMessage(parameter.selector + "here")
-                for(player of parameter.selector){
-                    logMessage(player.name)
+            if(parameter.player){
+                for(player of parameter.player){
                     removeActiveParticles(player)
                 }
             }
