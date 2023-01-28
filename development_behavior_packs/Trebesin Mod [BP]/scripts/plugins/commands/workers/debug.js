@@ -3,7 +3,7 @@ import {CommandParser, sendMessage} from "../../../mc_modules/commandParser";
 import * as Debug from './../../debug/debug';
 import { playerData as serverPlayerData } from '../../server/server';
 import {command_parser, isAdmin} from "./admin";
-import * as Backend from "../../backend/backend"; 
+import * as backend from "../../backend/backend"; 
 import * as vectorMath from "../../../js_modules/vector.js";
 import { variables as ServerConfig } from '@minecraft/server-admin';
 function main(){
@@ -38,7 +38,7 @@ function main(){
   })
   command_parser.registerCommand("databasedisconnect", {aliases: ["dbdisconnect", "dbdis"], parameters: [], senderCheck: isAdmin, run: async (sender) =>  {
       try {
-        await backend.db.disconnect();
+        await backend.DB.disconnect();
         sendMessage(`§asuccesfully disconnected from the database.`,'cmd',sender);
       } catch(error) {
         sendMessage(`${error}`,'cmd',sender);
@@ -48,7 +48,7 @@ function main(){
 
   command_parser.registerCommand("databaseconnect", {aliases: ["dbconnect", "dbcon"], parameters: [], senderCheck: isAdmin, run: async (sender) => {
       try {
-        await backend.db.connect();
+        await backend.DB.connect();
         sendMessage(`§asuccesfully connected to the database.`,'cmd',sender);
       } catch(error) {
         sendMessage(`${error}`,'cmd',sender);
