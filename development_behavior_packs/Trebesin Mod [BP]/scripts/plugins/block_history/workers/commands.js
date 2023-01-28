@@ -32,7 +32,9 @@ function spawnParticles(location, particleAxis, sender) {
     const dimension = world.getDimension('overworld');
     dimension.spawnParticle(`trebesin:edge_highlight_${particleAxis}`, location, molang);
 }
-function reverseblocks(){}
+function reverseBlocks(blocks, sender) {
+//loops through all the blocks and replaces them with the old data
+}
 function main(){
     system.runSchedule(() => {
         for (const player in particlesPerPlayers) {
@@ -42,7 +44,18 @@ function main(){
                 const particleLocation = stringToLocation(locationString);
                 spawnParticles(particleLocation[0], particleLocation[1], particlesPerPlayers[player].player)
             }
-            //confirmations
+        }
+        for(const player in confirmationPerPlayer) {
+            if(!confirmationPerPlayer[player].confirmed && confirmationPerPlayer[player].countdown > 0) {
+                confirmationPerPlayer[player].countdown - 4;
+            }
+            else if(confirmationPerPlayer[player].confirmed) {
+                confirmationPerPlayer[player].callback()
+            }
+            else {
+                sendMessage('The confirmation has expired!', 'blockHistory manager', confirmationPerPlayer[player].player)
+                delete confirmationPerPlayer[player];
+            }
         }
     },4);
     async function blockHistoryHandler(sender, parameter){
@@ -158,9 +171,14 @@ function main(){
                         addActiveParticles(loc,axis,sender);
                     })
                     sendMessage(`are you sure you want to reverse these changes?\n - !bh confirm to confirm`,'CMD - BlockHistory',sender);
-                    confirmationPerPlayer[sender.id] ??= { //that thing i've talked bout is with question marks instead
+                    if(confirmationPerPlayer[sender.id]) delete confirmationPerPlayer[sender.id];
+                    confirmationPerPlayer[sender.id] = {
                         player: sender,
-                        confirmation: response.result
+                        confirmed: false,
+                        callback: () => {
+                            reverseBlocks(response.result, sender)
+                        },
+                        countdown: 1200
                     };
                 }
 
@@ -169,6 +187,14 @@ function main(){
                 sendMessage(`${error}`,'CMD - BlockHistory',sender);
             }
             
+        }
+        else if(isAdmin(sender) && parameter.command === "confirm") {
+            try {
+                confirmationPerPlayer[sender.id].confirmed = true
+            }
+            catch {
+                sendMessage('the confirmation has expired!', 'cmd - BlockHistory', sender)
+            }
         }
         else if(/*isAdmin(sender) && */(parameter.command === "c" || parameter.command === "clear")) {
             if(parameter.players){
