@@ -122,7 +122,8 @@ function main(){
         }
         else if(/*isAdmin(sender) && */(parameter.command === "c" || parameter.command === "clear")){
             if(parameter.players){
-                for(player of parameter.players){
+                for(let i = 0;i<parameter.players.length; i++){
+                    const player = parameter.players[i]
                     removeActiveParticles(player)
                 }
             }
