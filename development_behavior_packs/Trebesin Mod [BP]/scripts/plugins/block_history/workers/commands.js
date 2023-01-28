@@ -30,7 +30,7 @@ function spawnParticles(location,particleAxis, sender) {
     const dimension = world.getDimension('overworld');
     dimension.spawnParticle(`trebesin:edge_highlight_${particleAxis}`,location,molang);
 }
-function main(){
+function main() {
     system.runSchedule(() => {
         for (const player in particlesPerPlayers) {
             for (const locationString of particlesPerPlayers[player].particleLocations) {
