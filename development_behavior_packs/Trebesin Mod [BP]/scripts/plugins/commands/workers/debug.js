@@ -4,10 +4,10 @@ import * as Debug from './../../debug/debug';
 import { playerData as serverPlayerData } from '../../server/server';
 import {command_parser, isAdmin} from "./admin";
 import * as vectorMath from "../../../js_modules/vector.js";
-import { debugAllowed } from "../commands";
+import { variables as ServerConfig } from '@minecraft/server-admin';
 function main(){
   Debug.logMessage("hey");
-  if(!debugAllowed)return;
+  if(!ServerConfig.get('debug-enabled')) return;
 
   command_parser.registerCommand('testArray', { aliases:[], parameters:[
         {type:'pos',id:'location'},
