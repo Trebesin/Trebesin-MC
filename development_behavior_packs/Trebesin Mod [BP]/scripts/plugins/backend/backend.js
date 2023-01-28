@@ -36,7 +36,7 @@ async function PluginMain() {
     //# Custom Events
     server.registerEvent('player',{
         callbacks: {
-            playerEquip: new ServerEventCallback().saved,
+            playerEquip: new ServerEventCallback(),
             playerSneak: new ServerEventCallback()
         },
         initialize() {},
@@ -46,8 +46,8 @@ async function PluginMain() {
             for (let playerIndex = 0; playerIndex < players.length; playerIndex++) {
                 const player = players[playerIndex];
                 //## playerEquip event:
-                const playerEquipCallbacks = callbacks.playerEquip.saved;
-                if (playerEquipCallbacks.length) {
+                const playerEquipCallbacks = callbacks.playerEquip;
+                if (playerEquipCallbacks.saved.length) {
                     data.playerEquip[player.id] ??= {};
                     const itemBefore = data.playerEquip[player.id].item;
                     const slotBefore = data.playerEquip[player.id].slot;
@@ -55,7 +55,7 @@ async function PluginMain() {
                     const slotAfter = player.selectedSlot;
                     if (!compareItems(itemAfter,itemBefore) || slotBefore != slotAfter) {
                         data.playerEquip[player.id].item = itemAfter;//!needs testing
-                        data.playerEquip[player.id].slot = slotAfter;//could be more efficient
+                        data.playerEquip[player.id].slot = slotAfter;
                         playerEquipCallbacks.runCallbacks({
                             itemBefore,
                             itemAfter,
@@ -67,8 +67,8 @@ async function PluginMain() {
                 }
                 //## playerSneak event:
                 //!needs testing
-                const playerSneakCallbacks = callbacks.playerSneak.saved;
-                if (playerSneakCallbacks.length) {
+                const playerSneakCallbacks = callbacks.playerSneak;
+                if (playerSneakCallbacks.saved.length) {
                     data.playerSneak[player.id] ??= player.isSneaking;
                     const sneakingBefore = data.playerSneak[player.id];
                     const sneakingAfter = player.isSneaking;

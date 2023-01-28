@@ -313,7 +313,7 @@ class CommandParser {
         let randomize = false;
         let allPlayersOnly = false;
         //Player only selector:
-        if (option.playerOnly && !(selector.name == 'a' || selector.name == 'p' || selector.name == 'r')) throw new CommandError(`'${option.id}' is a player-only selector!`);
+        if (option.playerOnly && !(selector.name === 'a' || selector.name === 'p' || selector.name === 'r')) throw new CommandError(`'${option.id}' is a player-only selector!`);
         //Overridable entity queries from selector type:
         if (selector.name === 'r') queryOptions.type = 'minecraft:player';
         if (selector.name === 'a') allPlayersOnly = true;
@@ -434,6 +434,7 @@ class CommandParser {
                 queryOptions.excludeTypes = [];
                 break
             case 'r':
+                if (option.playerOnly) queryOptions.type = 'minecraft:player';
                 entityLimit = isNaN(entityLimit) ? 1 : entityLimit;
                 delete queryOptions.farthest;
                 delete queryOptions.closest;

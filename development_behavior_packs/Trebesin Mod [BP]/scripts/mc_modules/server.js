@@ -153,7 +153,7 @@ class ServerEventCallback {
     runCallbacks(eventData,errorHandle = null) {
         for (let callbackIndex = 0;callbackIndex < this.saved.length;callbackIndex++) {
             try {
-                this.saved.length[callbackIndex](eventData);
+                this.saved[callbackIndex](eventData);
             } catch (error) {
                 if (errorHandle) errorHandle(error);
             }
