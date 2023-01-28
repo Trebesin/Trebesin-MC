@@ -3,6 +3,7 @@ import {CommandParser, sendMessage} from "../../../mc_modules/commandParser";
 import * as Debug from './../../debug/debug';
 import { playerData as serverPlayerData } from '../../server/server';
 import {command_parser, isAdmin} from "./admin";
+import * as Backend from "../../backend/backend"; 
 import * as vectorMath from "../../../js_modules/vector.js";
 import { variables as ServerConfig } from '@minecraft/server-admin';
 function main(){
