@@ -123,7 +123,8 @@ function main(){
         else if(/*isAdmin(sender) && */(parameter.command === "c" || parameter.command === "clear")){
             logMessage(parameter.players[0].name)
             if(parameter.players){
-                for(player of parameter.players){
+                for(let i = 0;i<parameter.players.length; i++){
+                    const player = parameter.players[i]
                     logMessage(player.name)
                     removeActiveParticles(player)
                 }
