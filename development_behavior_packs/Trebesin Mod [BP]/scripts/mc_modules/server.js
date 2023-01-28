@@ -150,6 +150,15 @@ class ServerEventCallback {
     unsubscribe(index) {
         deleteFromArray(this.saved,index);
     }
+    runCallbacks(eventData,errorHandle = null) {
+        for (let callbackIndex = 0;callbackIndex < this.saved.length;callbackIndex++) {
+            try {
+                this.saved.length[callbackIndex](eventData);
+            } catch (error) {
+                if (errorHandle) errorHandle(error);
+            }
+        }   
+    }
     saved;
 }
 

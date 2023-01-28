@@ -56,17 +56,13 @@ async function PluginMain() {
                     if (!compareItems(itemAfter,itemBefore) || slotBefore != slotAfter) {
                         data.playerEquip[player.id].item = itemAfter;//!needs testing
                         data.playerEquip[player.id].slot = slotAfter;//could be more efficient
-                        for (let callbackIndex = 0;callbackIndex < playerEquipCallbacks.length;callbackIndex++) {
-                            try {
-                                playerEquipCallbacks[callbackIndex]({
-                                    itemBefore,
-                                    itemAfter,
-                                    slotBefore,
-                                    slotAfter,
-                                    player
-                                });
-                            } catch {}
-                        }
+                        playerEquipCallbacks.runCallbacks({
+                            itemBefore,
+                            itemAfter,
+                            slotBefore,
+                            slotAfter,
+                            player
+                        });
                     }
                 }
                 //## playerSneak event:
@@ -78,14 +74,10 @@ async function PluginMain() {
                     const sneakingAfter = player.isSneaking;
                     if (sneakingBefore !== sneakingAfter) {
                         data.playerSneak[player.id] = player.isSneaking;
-                        for (let callbackIndex = 0;callbackIndex < playerEquipCallbacks.length;callbackIndex++) {
-                            try {
-                                playerSneakCallbacks[callbackIndex]({
-                                    player,
-                                    sneaking: player.isSneaking
-                                });
-                            } catch {}
-                        }
+                        playerSneakCallbacks.runCallbacks({
+                            player,
+                            sneaking: player.isSneaking
+                        });
                     }
                     
                 }
