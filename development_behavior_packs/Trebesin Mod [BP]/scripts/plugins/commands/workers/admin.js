@@ -29,7 +29,7 @@ function main(){
 
 
   command_parser.registerCommand("instakill", {
-    parameters: [], aliases: [], senderCheck: isAdmin, run: (sender) => {
+    parameters: [], aliases: ["ik"], senderCheck: isAdmin, run: (sender) => {
       const instaKillStatus = serverPlayerData.instaKill[sender.id];
       if (instaKillStatus) serverPlayerData.instaKill[sender.id] = false;
       else serverPlayerData.instaKill[sender.id] = true;
