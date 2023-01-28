@@ -88,3 +88,5 @@ function main(){
   })
 
 }
+
+export {main}
