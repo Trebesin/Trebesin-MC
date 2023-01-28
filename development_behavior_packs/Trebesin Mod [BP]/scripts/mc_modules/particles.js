@@ -218,4 +218,4 @@ function getCornerOffset(origin,corner) {
     }
 }
 
-export {spawnBlockSelection,spawnLine,highlightBlockCoords,getCornerLocations,getEdgeLocations,createLocationSet2,locationToString,stringToLocation}
+export {spawnBlockSelection,spawnLine,highlightBlockCoords,getCornerLocations,getEdgeLocations,createLocationSet2,locationToString,stringToLocation, interfaceToLocation}

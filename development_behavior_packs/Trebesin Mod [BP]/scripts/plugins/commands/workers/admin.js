@@ -1,6 +1,6 @@
 import {CommandResult, MinecraftEffectTypes , system, world, BlockLocation, MolangVariableMap, Color, Location} from "@minecraft/server";
 import {CommandParser, sendMessage} from "../../../mc_modules/commandParser";
-import { getEdgeLocations } from '../../../mc_modules/particles';
+import { getEdgeLocations, interfaceToLocation } from '../../../mc_modules/particles';
 import * as Backend from "../../backend/backend"; 
 import { playerData as serverPlayerData } from '../../server/server';
 import { logMessage } from '../../debug/debug';
@@ -19,7 +19,7 @@ function main(){
       {id:'location',type:'pos', optional: true}
     ], aliases: ["spawn"], senderCheck: isAdmin, run: (sender,parameters) => {
       try {
-        sender.dimension.spawnEntity(parameters.entity,parameters.location ?? sender.location);
+        sender.dimension.spawnEntity(parameters.entity, parameters.location ?? interfaceToLocation(sender.location));
         sendMessage(`Summoned ${parameters.entity}!`,'CMD',sender);
       } catch (error) {
         sendMessage(`Error! ${error}`,'CMD',sender);
