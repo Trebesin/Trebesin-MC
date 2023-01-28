@@ -2,6 +2,7 @@ import {CommandResult, MinecraftEffectTypes , system, world, BlockLocation, Mola
 import {CommandParser, sendMessage} from "../../../mc_modules/commandParser";
 import { getEdgeLocations } from '../../../mc_modules/particles';
 import * as Backend from "../../backend/backend"; 
+import { playerData as serverPlayerData } from '../../server/server';
 import { logMessage } from '../../debug/debug';
 const command_parser = new CommandParser({
   prefix: "!", caseSensitive: false
