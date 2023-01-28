@@ -66,23 +66,96 @@ function highlightBlockCoords(particle,coords,dimension,molang) {
                 const cornerBlock = blocksSet.has(`${cornerCoord.x},${cornerCoord.y},${cornerCoord.z}`);
 
                 if ((!cornerBlock && sideABlock && sideBBlock) || (!sideABlock && !sideBBlock)) {
-                    drawCorner(block,cornerLoc,{name:particle,dimension,molang});
+                    drawCorner(block,cornerLoc,(location) => {
+                        dimension.spawnParticle(particle,location,molang);
+                    });
                 }
             }
         }
     }
 }
 
-function drawCorner(origin,corner,particleOptions) {
+function getCornerLocations(coords,callback) {
+    const blocksSet = createLocationSet(coords);
+    for (let blockIndex = 0;blockIndex < coords.length;blockIndex++) {
+        const block = coords[blockIndex];
+        for (let edgeAxisIndex = 0;edgeAxisIndex < EDGE_AXES.length;edgeAxisIndex++) {
+            const edgeAxis = EDGE_AXES[edgeAxisIndex];
+            for (let edgeCoordIndex = 0;edgeCoordIndex < EDGE_COORDS.length;edgeCoordIndex++) {
+                const edgeCoord = EDGE_COORDS[edgeCoordIndex];
+                const sideALoc = {};
+                sideALoc[edgeAxis[0]] = edgeCoord[0];
+                const sideACoord = sumLocations(block,sideALoc);
+                const sideABlock = blocksSet.has(`${sideACoord.x},${sideACoord.y},${sideACoord.z}`);
+
+                const sideBLoc = {};
+                sideBLoc[edgeAxis[1]] = edgeCoord[1];
+                const sideBCoord = sumLocations(block,sideBLoc);
+                const sideBBlock = blocksSet.has(`${sideBCoord.x},${sideBCoord.y},${sideBCoord.z}`);
+
+                const cornerLoc = {};
+                cornerLoc[edgeAxis[0]] = edgeCoord[0];
+                cornerLoc[edgeAxis[1]] = edgeCoord[1];
+                const cornerCoord = sumLocations(block,cornerLoc);
+                const cornerBlock = blocksSet.has(`${cornerCoord.x},${cornerCoord.y},${cornerCoord.z}`);
+
+                if ((!cornerBlock && sideABlock && sideBBlock) || (!sideABlock && !sideBBlock)) {
+                    drawCorner(block,cornerLoc,callback);
+                }
+            }
+        }
+    }
+}
+
+function getEdgeLocations(coords,callback) {
+    const blocksSet = createLocationSet(coords);
+    for (let blockIndex = 0;blockIndex < coords.length;blockIndex++) {
+        const block = coords[blockIndex];
+        for (let edgeAxisIndex = 0;edgeAxisIndex < EDGE_AXES.length;edgeAxisIndex++) {
+            const edgeAxis = EDGE_AXES[edgeAxisIndex];
+            for (let edgeCoordIndex = 0;edgeCoordIndex < EDGE_COORDS.length;edgeCoordIndex++) {
+                const edgeCoord = EDGE_COORDS[edgeCoordIndex];
+                const sideALoc = {};
+                sideALoc[edgeAxis[0]] = edgeCoord[0];
+                const sideACoord = sumLocations(block,sideALoc);
+                const sideABlock = blocksSet.has(`${sideACoord.x},${sideACoord.y},${sideACoord.z}`);
+
+                const sideBLoc = {};
+                sideBLoc[edgeAxis[1]] = edgeCoord[1];
+                const sideBCoord = sumLocations(block,sideBLoc);
+                const sideBBlock = blocksSet.has(`${sideBCoord.x},${sideBCoord.y},${sideBCoord.z}`);
+
+                const cornerLoc = {};
+                cornerLoc[edgeAxis[0]] = edgeCoord[0];
+                cornerLoc[edgeAxis[1]] = edgeCoord[1];
+                const cornerCoord = sumLocations(block,cornerLoc);
+                const cornerBlock = blocksSet.has(`${cornerCoord.x},${cornerCoord.y},${cornerCoord.z}`);
+
+                if ((!cornerBlock && sideABlock && sideBBlock) || (!sideABlock && !sideBBlock)) {
+                    drawEdge(block,cornerLoc,callback);
+                }
+            }
+        }
+    }
+}
+
+function drawEdge(origin,corner,callback) {
+    const otherAxis = getStaleAxis(corner);
+    const particleCoord = getCornerOffset(origin,corner);
+    callback(particleCoord,otherAxis);
+}
+
+function drawCorner(origin,corner,callback) {
     const otherAxis = getStaleAxis(corner);
     const particleCoord = getCornerOffset(origin,corner);
     for (let staleAxisStep = 0;staleAxisStep <= 1;staleAxisStep++) {
         const staleAxisOffset = {};
         staleAxisOffset[otherAxis] = staleAxisStep;
         const particleLocation = interfaceToLocation(sumLocations(particleCoord,staleAxisOffset));
-        particleOptions.dimension.spawnParticle(particleOptions.name,particleLocation,particleOptions.molang);
+        callback(particleLocation);
     }
 }
+
 
 function createLocationSet(locations) {
     const locationSet = new Set();
@@ -91,6 +164,32 @@ function createLocationSet(locations) {
         locationSet.add(`${location.x},${location.y},${location.z}`);
     }
     return locationSet;
+}
+
+function createLocationSet2(locations) {
+    const locationSet = new Set();
+    for (let locationIndex = 0;locationIndex < locations.length;locationIndex++) {
+        const location = locations[locationIndex][0];
+        const axis = locations[locationIndex][1];
+        locationSet.add(`${location.x},${location.y},${location.z},${axis}`);
+    }
+    return locationSet;
+}
+
+function locationToString(location,axis) {
+    return `${location.x},${location.y},${location.z},${axis}`;
+}
+
+function stringToLocation(string) {
+    const positionArray = string.split(',');
+    return [
+        new Location(
+            parseInt(positionArray[0]),
+            parseInt(positionArray[1]),
+            parseInt(positionArray[2])
+        ),
+        positionArray[3]
+    ];
 }
 
 function sumLocations(locationA,locationB) {
@@ -119,4 +218,4 @@ function getCornerOffset(origin,corner) {
     }
 }
 
-export {spawnBlockSelection,spawnLine,highlightBlockCoords}
+export {spawnBlockSelection,spawnLine,highlightBlockCoords,getCornerLocations,getEdgeLocations,createLocationSet2,locationToString,stringToLocation, interfaceToLocation}

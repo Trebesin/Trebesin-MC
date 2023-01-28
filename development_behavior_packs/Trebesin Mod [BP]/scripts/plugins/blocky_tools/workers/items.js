@@ -8,33 +8,14 @@ import * as Debug from './../../debug/debug';
 import { Server } from '../../backend/backend';
 
 function main() {
+    //## Debug Stick:
     const showChunkBorder = {};
     Server.events.playerEquip.subscribe((eventData) => {
         if (eventData.itemAfter.typeId === 'trebesin:bt_debug_stick') showChunkBorder[eventData.player.id] = 1;
         else showChunkBorder[eventData.player.id] = 0;
     });
-    system.runSchedule(() => {
-        const players = world.getAllPlayers();
-        for (let playerIndex = 0;playerIndex < players.length;playerIndex++) {
-            const player = players[playerIndex];
-            if (showChunkBorder[player.id] === 0 || showChunkBorder[player.id] == null) continue; 
-            const chunk = getOriginChunkCoord(player.location);
-            const molang = new MolangVariableMap()
-                .setColorRGBA('variable.colour',new Color(Math.random(),Math.random(),Math.random(),1));
-            spawnLine('trebesin:selection_dot',[{x:chunk.x,y:player.location.y-20,z:chunk.z},{x:chunk.x,y:player.location.y+20,z:chunk.z}],player.dimension,molang);
-            spawnLine('trebesin:selection_dot',[{x:chunk.x+8,y:player.location.y-20,z:chunk.z},{x:chunk.x+8,y:player.location.y+20,z:chunk.z}],player.dimension,molang);
-            spawnLine('trebesin:selection_dot',[{x:chunk.x+16,y:player.location.y-20,z:chunk.z+8},{x:chunk.x+16,y:player.location.y+20,z:chunk.z+8}],player.dimension,molang);
-            spawnLine('trebesin:selection_dot',[{x:chunk.x+8,y:player.location.y-20,z:chunk.z+16},{x:chunk.x+8,y:player.location.y+20,z:chunk.z+16}],player.dimension,molang);
-            spawnLine('trebesin:selection_dot',[{x:chunk.x,y:player.location.y-20,z:chunk.z+8},{x:chunk.x,y:player.location.y+20,z:chunk.z+8}],player.dimension,molang);
-
-            spawnLine('trebesin:selection_dot',[{x:chunk.x,y:player.location.y-20,z:chunk.z},{x:chunk.x,y:player.location.y+20,z:chunk.z}],player.dimension,molang);
-            spawnLine('trebesin:selection_dot',[{x:chunk.x+16,y:player.location.y-20,z:chunk.z},{x:chunk.x+16,y:player.location.y+20,z:chunk.z}],player.dimension,molang);
-            spawnLine('trebesin:selection_dot',[{x:chunk.x+16,y:player.location.y-20,z:chunk.z+16},{x:chunk.x+16,y:player.location.y+20,z:chunk.z+16}],player.dimension,molang);
-            spawnLine('trebesin:selection_dot',[{x:chunk.x,y:player.location.y-20,z:chunk.z+16},{x:chunk.x,y:player.location.y+20,z:chunk.z+16}],player.dimension,molang);
-        }
-    },20);
     
-    addItemStartUseOnListener(async (eventData) => {
+    Server.events.itemStartUseOn.subscribe(async (eventData) => {
         if (eventData.item.typeId === 'trebesin:bt_debug_stick') {
             const block = eventData.source.dimension.getBlock(eventData.blockLocation);
             const player = eventData.source;
@@ -92,27 +73,28 @@ function main() {
             setBlockPermutation(block,permutation,player.id);
         }
     });
-}
 
-//!Will be its own thing, this is temporary!
-const listeners = [];
-const dataMap = {};
-world.events.itemUseOn.subscribe(eventData => {
-    if (((dataMap[eventData.source.id] ?? 0) + 1) < system.currentTick) {
-        for (let index = 0; index < listeners.length; index++) {
-            listeners[index](eventData);
+    system.runSchedule(() => {
+        const players = world.getAllPlayers();
+        for (let playerIndex = 0;playerIndex < players.length;playerIndex++) {
+            const player = players[playerIndex];
+            if (showChunkBorder[player.id] === 0 || showChunkBorder[player.id] == null) continue; 
+            const chunk = getOriginChunkCoord(player.location);
+            const molang = new MolangVariableMap()
+                .setColorRGBA('variable.colour',new Color(Math.random(),Math.random(),Math.random(),1));
+            spawnLine('trebesin:selection_dot',[{x:chunk.x,y:player.location.y-20,z:chunk.z},{x:chunk.x,y:player.location.y+20,z:chunk.z}],player.dimension,molang);
+            spawnLine('trebesin:selection_dot',[{x:chunk.x+8,y:player.location.y-20,z:chunk.z},{x:chunk.x+8,y:player.location.y+20,z:chunk.z}],player.dimension,molang);
+            spawnLine('trebesin:selection_dot',[{x:chunk.x+16,y:player.location.y-20,z:chunk.z+8},{x:chunk.x+16,y:player.location.y+20,z:chunk.z+8}],player.dimension,molang);
+            spawnLine('trebesin:selection_dot',[{x:chunk.x+8,y:player.location.y-20,z:chunk.z+16},{x:chunk.x+8,y:player.location.y+20,z:chunk.z+16}],player.dimension,molang);
+            spawnLine('trebesin:selection_dot',[{x:chunk.x,y:player.location.y-20,z:chunk.z+8},{x:chunk.x,y:player.location.y+20,z:chunk.z+8}],player.dimension,molang);
+
+            spawnLine('trebesin:selection_dot',[{x:chunk.x,y:player.location.y-20,z:chunk.z},{x:chunk.x,y:player.location.y+20,z:chunk.z}],player.dimension,molang);
+            spawnLine('trebesin:selection_dot',[{x:chunk.x+16,y:player.location.y-20,z:chunk.z},{x:chunk.x+16,y:player.location.y+20,z:chunk.z}],player.dimension,molang);
+            spawnLine('trebesin:selection_dot',[{x:chunk.x+16,y:player.location.y-20,z:chunk.z+16},{x:chunk.x+16,y:player.location.y+20,z:chunk.z+16}],player.dimension,molang);
+            spawnLine('trebesin:selection_dot',[{x:chunk.x,y:player.location.y-20,z:chunk.z+16},{x:chunk.x,y:player.location.y+20,z:chunk.z+16}],player.dimension,molang);
         }
-    }
-    dataMap[eventData.source.id] = system.currentTick;
-});
-
-function addItemStartUseOnListener(callback) {
-    return insertToArray(listeners, callback)
+    },20);
+    //## -- --
 }
-
-function removeItemStartUseOnListener(index) {
-    delete listeners[index];
-}
-//! -- !
 
 export {main}

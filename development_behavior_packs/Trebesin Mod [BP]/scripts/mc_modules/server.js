@@ -66,7 +66,6 @@ class Server {
             this.events[eventCallback] = eventObject.callbacks[eventCallback];
         }
         
-        Debug.logMessage(this.#eventsRegister[eventId]);
     }
 
     setTimeout(callback, ticks) {
@@ -150,6 +149,15 @@ class ServerEventCallback {
     }
     unsubscribe(index) {
         deleteFromArray(this.saved,index);
+    }
+    runCallbacks(eventData,errorHandle = null) {
+        for (let callbackIndex = 0;callbackIndex < this.saved.length;callbackIndex++) {
+            try {
+                this.saved[callbackIndex](eventData);
+            } catch (error) {
+                if (errorHandle) errorHandle(error);
+            }
+        }   
     }
     saved;
 }

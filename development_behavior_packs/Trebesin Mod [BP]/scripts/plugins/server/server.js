@@ -6,6 +6,7 @@ import * as Particles from './../../mc_modules/particles';
 //JS module imports
 import { randInt } from '../../js_modules/random';
 import { setVectorLength, sumVectors } from '../../js_modules/vector';
+import { DB } from '../backend/backend';
 
 const playerData = {
     instaKill: {}
@@ -15,7 +16,7 @@ async function main() {
     system.runSchedule(() => {
         for (const player of world.getPlayers()) {
             player.addEffect(MinecraftEffectTypes.saturation,9999,128,false);
-            if(!player.hasTag("nv")) player.addEffect(MinecraftEffectTypes.nightVision,9999,128,false);
+            if(!player.hasTag("nvoff")) player.addEffect(MinecraftEffectTypes.nightVision,300,128,false);
         }
     },20);
 
@@ -63,8 +64,17 @@ async function main() {
         }
     })
 
-    world.events.playerJoin.subscribe((eventData) => {
-
+    world.events.playerJoin.subscribe(async (eventData) => {
+        const connection = DB;
+        const request = {
+            sql: 'INSERT INTO PlayerConnections (playerID,PlayerName,Tick) VALUES (?,?,?);',
+            values: [eventData.playerId, eventData.playerName, system.currentTick]
+        }
+        try {
+            await connection.query(request,true);
+        } catch (error) {
+            world.say(`${error}`);
+        }
     });
 
     //try {

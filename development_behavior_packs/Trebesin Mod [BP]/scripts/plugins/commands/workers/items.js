@@ -10,6 +10,7 @@ function main() {
         }
     }
     command_parser.registerCommand('commanditem',{
+        aliases: ["itemcommand", "customitem", "ci"],
         parameters: [
             {
                 type: 'str',

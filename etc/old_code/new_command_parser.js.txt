@@ -20,9 +20,8 @@ import { logMessage } from '../plugins/debug/debug';
 /**
 * @typedef CommandDefinitionParameter
 * @property {string} id - ID of the parameter.
-* @property {('string'|'integer'|'float'|'boolean'|'position'|'selector'|'json')} type - Type of the parameter defining what the user input should look like.
+* @property {('string'|'integer'|'float'|'boolean'|'position'|'selector')} type - Type of the parameter defining what the user input should look like.
 * @property {number} [array] - Number defining an array of parameters, the value corresponds to its length.
-* @property {boolean} [playersOnly] - Only for `'type': 'selector'`, sets the selector to only allow `@a`,`@p` and `@r(type: 'minecraft:player')`
 */
 
 /**
@@ -70,22 +69,11 @@ class CommandParser {
     #helpCommand(sender, parameters) {
         let helpMessage = '';
         if (parameters.command) {
-            const command = findRegisteredCommand(parameters.command);
-            const definition = command.definition;
-            const commandName = command.name;
-            helpMessage += `[CMD] §9${commandName}§r [${definition.aliases.join(',')}]\n`;
-            helpMessage += `[Description] ${definition.description}\n`;
-            helpMessage += `[Paramaters]:\n`;
-            const parameterHelp = parseParameterHelp(definition.parameters);
-            for (let parameterIndex = 0;parameterIndex < parameterHelp.length;parameterIndex++) {
-                helpMessage += parameterHelp[parameterIndex];
-            }
+            helpMessage = 'wip';
         } else {
             for (const commandName in this.#commands) {
                 const command = this.#commands[commandName];
-                const description = command.description.slice(0,64);
-                const ending = command.description.length >= 64 ? '...' : '';
-                helpMessage += `[CMD] §9${commandName}§r [${command.aliases.join(',')}] - ${description}${ending}\n`;
+                helpMessage += `§9${commandName}§r [${command.aliases.join(',')}] - ${command.description}\n`;
             }
         }
         sender.tell(helpMessage);
@@ -112,17 +100,23 @@ class CommandParser {
      * @param {Player} sender Player to use as the context of the command execution.
      */
      async runCommand(input,parameterString,sender) {
-        const command = findRegisteredCommand(input,this.#commands)?.definition;
+        let command;
+        for (const commandName in this.#commands) {
+            if (commandName === input || this.#commands[commandName].aliases?.includes(input)) {
+                command = this.#commands[commandName];
+            }
+        }
+
         try {
-            if (command == null) {
+            if (!command) {
                 throw new CommandError(`§cCommand §r§l'${input}'§r§c not found!`);
             }
             if (command.senderCheck && !this.#options.adminCheck(sender) && !command.senderCheck(sender)) {
                 throw new CommandError(`§cYou do not meet requirements to use the command §r§l'${input}'§r§c!`);
             }
 
-            const parameterParser = new ParameterStringParser(parameterString,this.#options.parameterChars);
-            const parameters = this.#getParameterChain(parameterParser,command.parameters,sender);
+            const parameterArray = this.#getParameters(parameterString,this.#options.parameterChars);
+            const parameters = this.#getParameterChain(parameterArray,command.parameters,sender);
             await command.run(sender, parameters, ...command.arguments);
         } catch (error) {
             if (error instanceof CommandError) {
@@ -146,14 +140,102 @@ class CommandParser {
         adminCheck: () => false
     }
 
+    #getParameters(string,options) {
+        const {quote:quoteChar,escape:escapeChar,separator,selector:selectorChar} = options;
+        const items = [];
+        let itemIndex = -1;
+        let parsingItem, escaped, quoted, selector, selectorArg;
+    
+        for (let charIndex = -1;charIndex < string.length;charIndex++) {
+            const char = string[charIndex];
+            const nextChar = string[charIndex+1];
+    
+            if (!escaped && char === escapeChar) {
+                escaped = true;
+                continue;
+            }
+            if (parsingItem) {
+                if (selector) {
+                    items[itemIndex] += char;
+                    if (nextChar === '[') {
+                        selectorArg = true;
+                    }
+                    if (selectorArg) {
+                        if (!escaped && char === ']' && (nextChar === separator || nextChar == null)) {
+                            parsingItem = false;
+                            selector = false;
+                            selectorArg = false;
+                        } else if (nextChar == null) {
+                            throw new CommandError('Unfinished selector parameter!');
+                        }
+                    } else {
+                        if (escaped) { 
+                            throw new CommandError(`Can't escape inside of a selector name parameter!`)
+                        }
+                        if (nextChar === separator) {
+                            parsingItem = false;
+                            selector = false;
+                        }
+                    }
+                } else if (quoted) {
+                    if (!escaped && char === quoteChar) {
+                        if (nextChar === separator || nextChar == null) {
+                            parsingItem = false;
+                            quoted = false;
+                        } else {
+                            throw new CommandError('Unescaped quote inside the parameters!');
+                        }
+                    } else {
+                        if (nextChar == null) {
+                            throw new CommandError('Unfinished quoted parameter!');
+                        }
+                        items[itemIndex] += char;
+                    }
+                } else {
+                    items[itemIndex] += char;
+                    if (!escaped) {
+                        if (char === quoteChar) {
+                            throw new CommandError('Unescaped quote inside the parameters!')
+                        }
+                    }
+                    if (nextChar === separator) {
+                        parsingItem = false;
+                    }
+                }
+            } else {
+                if (nextChar !== separator && nextChar != null){
+                    parsingItem = true;
+                    items.push('');
+                    itemIndex++;
+                }
+                if (nextChar === quoteChar) {
+                    quoted = true;
+                    charIndex++;
+                }
+                if (nextChar === selectorChar) {
+                    selector = true;
+                }
+            }
+            if (escaped) {
+                escaped = false;
+            }
+        }
+        
+        return items;
+    }
+
+
     #getParameterChain(parameters,options,sender) {
         const output = {};
         let optional = false;
         let currentOptions = options;
+        let parameterIndex = 0;
+
         for (let optionIndex = 0;optionIndex < currentOptions.length;optionIndex++) {
             const option = currentOptions[optionIndex];
+            const parameter = parameters[parameterIndex];
             logMessage(`Starting parameter ${optionIndex}: ${option.id} [${option.type}]`)
-            const parameter = parameters.next(option);
+            logMessage(parameter);
 
             if (option.optional) optional = true;
 
@@ -161,17 +243,34 @@ class CommandParser {
                 if (optional) return output;
                 throw new CommandError(`Missing parameter '${option.id}'!`);
             }
+
+            //Position type
+            if (option.type === 'position' || option.type === 'pos') {
+                const coords = parameters.slice(parameterIndex,parameterIndex + 3);
+                const parsedPosition = this.#parsePosition(coords,sender,option);
+                parameterIndex += 3;
+                output[option.id] = parsedPosition;
+                continue;
+            }
             //Array type
             if (option.array > 0) {
-                const parameterArray = parameter.map((value) => this.#parseParameterType(value,sender,option));
+                let parameterArray = [];
+                const nextParameterIndex = parameterIndex + option.array;
+                if (parameters.length < nextParameterIndex) {
+                    throw new CommandError(`Incomplete array parameter '${option.id}'!`);
+                }
+
+                for (const arrayParameter of parameters.slice(parameterIndex,nextParameterIndex)) {
+                    const parsedArrayParameter = this.#parseParameterType(arrayParameter,sender,option);
+                    parameterArray.push(parsedArrayParameter);
+                }
 
                 output[option.id] = parameterArray;
+                parameterIndex = nextParameterIndex;
                 continue;
             }
 
             const parsedParameter = this.#parseParameterType(parameter,sender,option);
-
-            output[option.id] = parsedParameter;
             //Choice type
             if (option.choice) {
                 output[option.id] = parsedParameter;
@@ -181,6 +280,11 @@ class CommandParser {
                 //Restart with new options defined by the choice
                 currentOptions = option.choice[parameter];
                 optionIndex = -1;//increment will make it 0
+                parameterIndex++;
+            //Default type
+            } else {
+                output[option.id] = parsedParameter;
+                parameterIndex++;
             }
         }
 
@@ -195,7 +299,7 @@ class CommandParser {
             case 'str':
                 value = parameter;
                 parsedParameter = value;
-                break;
+                break
             case 'integer':
             case 'int':
                 value = parseInt(parameter);
@@ -204,7 +308,7 @@ class CommandParser {
                 } else {
                     throw new CommandError(`Value of '${option.id}' couldn't be parsed as integer number!`);
                 }
-                break;
+                break
             case 'float':
             case 'flt':
                 value = parseFloat(parameter);
@@ -213,7 +317,7 @@ class CommandParser {
                 } else {
                     throw new CommandError(`Value of '${option.id}' couldn't be parsed as floating-point number!`);
                 }
-                break;
+                break
             case 'boolean':
             case 'bool':
                 value = parameter.toLowerCase();
@@ -224,25 +328,12 @@ class CommandParser {
                 } else {
                     throw new CommandError(`Value of '${option.id}' couldn't be parsed as boolean value!`);
                 }
-                break;
-            case 'json':
-                try {
-                    value = JSON.parse(parameter);
-                    parsedParameter = value;
-                } catch (error) {
-                    throw new CommandError(`Failed parsing of '${option.id}' as JSON! Error: ${error}`);
-                }
-                break;
-            case 'pos':
-            case 'position':
-                value = this.#parsePosition(parameter,sender,option);
-                parsedParameter = value;
-                break;
+                break
             case 'selector':
             case 'select':
                 value = this.#parseSelector(parameter,sender,option);
                 parsedParameter = value;
-                break;
+                break
             default:
                 throw new Error(`Unknown type of '${option.type}' found while parsing parameters!`);
         }
@@ -291,7 +382,7 @@ class CommandParser {
                             useVector = setVectorLength({x:vector.z,y:0,z:-vector.x},number);
                             break;
                         case 1:
-                            const total = Math.sqrt(vector.x**2+vector.z**2);
+                            const total = Math.sqrt(Math.abs(vector.x**2)+Math.abs(vector.z**2));
                             useVector = setVectorLength({x:(vector.x/total)*-vector.y,y:total,z:(vector.z/total)*-vector.y},number);
                             break;
                         case 2:
@@ -311,15 +402,16 @@ class CommandParser {
         return new Location(...coord);
     }
 
-    #parseSelector(selector,sender,option) {
+    #parseSelector(string,sender,option) {
         try {
         const queryOptions = {};
+        const selector = this.#getSelector(string,option);
         let selectedEntities = [];
         let entityLimit = parseInt(selector.values.limit?.[0]);
         let randomize = false;
         let allPlayersOnly = false;
         //Player only selector:
-        if (option.playerOnly && !(selector.name === 'a' || selector.name === 'p' || selector.name === 'r')) throw new CommandError(`'${option.id}' is a player-only selector!`);
+        if (option.playerOnly && (selector.name !== 'a' || selector.name !== 'p')) throw new CommandError(`'${option.id}' is a player-only selector!`);
         //Overridable entity queries from selector type:
         if (selector.name === 'r') queryOptions.type = 'minecraft:player';
         if (selector.name === 'a') allPlayersOnly = true;
@@ -440,7 +532,6 @@ class CommandParser {
                 queryOptions.excludeTypes = [];
                 break
             case 'r':
-                if (option.playerOnly) queryOptions.type = 'minecraft:player';
                 entityLimit = isNaN(entityLimit) ? 1 : entityLimit;
                 delete queryOptions.farthest;
                 delete queryOptions.closest;
@@ -481,6 +572,68 @@ class CommandParser {
         return selectedEntities;
         } catch (error) {logMessage(error);}
     }
+
+    #getSelector(string,option,options = {selectorChar: '@', escapeChar: '\\', quoteChar: '\"', separator: ','}) {
+        const selector = {
+            name: '',
+            values: {}
+        };
+        const {quoteChar,escapeChar,selectorChar,separator} = options;
+        let part = 0; // 0: selector name; 1: parameter name; 2: parameter value
+        let currentName = '';
+        let quoted, escaped;
+    
+        for (let index = 1;index <= string.length;index++) {
+            const char = string[index];
+            if (!escaped && char === escapeChar) {
+                escaped = true;
+                continue;
+            }
+            if (char == null && part === 2) throw new CommandError(`Unexpected end of selector at parameter '${option.id}'!`);
+    
+            if (part === 0) {
+                if (char === '[' || char == null) {
+                    part = 1;
+                    continue;
+                };
+                if (char !== ' ') selector.name += char;
+            }
+
+            if (part === 1) {
+                if (!escaped && char === '=') {
+                    if (selector.values[currentName] == null) selector.values[currentName] = [];
+                    const nextItemIndex = selector.values[currentName].length;
+                    part = 2;
+                    selector.values[currentName][nextItemIndex] = '';
+                    continue;
+                };
+                if (char !== ' ') currentName += char ?? '';
+            }
+            
+            if (part === 2) {
+                const itemIndex = selector.values[currentName].length - 1;
+                if (!escaped && char === quoteChar) {
+                    if (!quoted && selector.values[currentName][itemIndex].length <= 1) {
+                        quoted = true;
+                        continue;
+                    }
+                    if (quoted === true) {
+                        quoted = false;
+                        continue;
+                    }
+                }
+                if (!escaped && (char === separator || char === ']') && !quoted) {
+                    part = 1;
+                    currentName = '';
+                    continue;
+                }
+                if (quoted || (char !== ' ')) selector.values[currentName][itemIndex] += char;
+            }
+
+            if (escaped) escaped = false;
+        }
+        return selector;
+    }
 }
 
 class CommandError extends Error {
@@ -515,8 +668,6 @@ class ParameterStringParser {
         let item = null;
         let escaped = false;
         let quoted = false;
-        //Json
-        let json = null;
         //Selector
         let selector = null
         let selectorName = '';
@@ -558,11 +709,6 @@ class ParameterStringParser {
                     item = '';
                 }
 
-                if (option.type === 'json') {
-                    if (char !== '{' || escaped) throw new CommandError('Unexpected start of JSON!');
-                    json = 0;
-                }
-
                 if (!escaped && char === quoteChar) {
                     quoted = true;
                     continue;
@@ -570,28 +716,19 @@ class ParameterStringParser {
             }
 
             if (parsePhase === 1) {
-                if ((char == null && (selector == null || selector <= 0)) || (selector > 0 && char === ']')) {
+                if ((selector == null && char == null) || (selector === 2 && char === ']')) {
                     parsePhase = 2;
                 } else {
-                    if (json != null) {
-                        if (!escaped && char === '{') json++;
-                        if (!escaped && char === '}') json--;
-                        if (nextChar == null && json > 0) throw new CommandError('Unexpected end of JSON!');
-                        item += char;
-                        if (json === 0) {
-                            if (nextChar !== separator) throw new CommandError('Unexpected end of JSON!');
-                            parsePhase = 2;
-                        }
-                    } else if (selector != null) {
+                    if (selector != null) {
                         if (char === ']' && selector === 2) parsePhase = 2;
                         //Name Selector:
                         if (selector === -1) {
                             if (quoted) {
                                 if (!escaped && char === quoteChar) {
                                     if (nextChar === separator || nextChar == null) parsePhase = 2;
-                                    else throw new CommandError('Unescaped quote inside the parameters!');
+                                    else throw new Error('Unescaped quote inside the parameters!');
                                 } else {
-                                    if (nextChar == null) throw new CommandError('Unfinished quoted parameter!');
+                                    if (nextChar == null) throw new Error('Unfinished quoted parameter!');
                                     item.values.name[0] += char;
                                 }
                             } else {
@@ -611,22 +748,17 @@ class ParameterStringParser {
                             if (char !== separator) item.name += char;
                         }
                         if (selector === 1) {
-                            if (char == null) throw new CommandError(`Unexpected end of selector at parameter '${option.id}'!`);
-                            if (!escaped && char === selectorSeparator) {
-                                if (item.values[selectorName] == null) item.values[selectorName] = [];
-                                selectorName = '';
-                            }
                             if (!escaped && char === '=') {
                                 if (item.values[selectorName] == null) item.values[selectorName] = [];
                                 const nextItemIndex = item.values[selectorName].length;
                                 selector = 2;
                                 item.values[selectorName][nextItemIndex] = '';
                                 continue;
-                            }
+                            };
                             if (char !== separator) selectorName += char;
                         }
                         if (selector === 2) {
-                            if (char == null) throw new CommandError(`Unexpected end of selector at parameter '${option.id}'!`);
+                            if (char == null) throw new Error(`Unexpected end of selector at parameter '${option.id}'!`);
                             const itemIndex = item.values[selectorName].length - 1;
                             if (!escaped && char === quoteChar) {
                                 if (!quoted && item.values[selectorName][itemIndex].length <= 1) {
@@ -649,9 +781,9 @@ class ParameterStringParser {
                         if (quoted) {
                             if (!escaped && char === quoteChar) {
                                 if (nextChar === separator || nextChar == null) parsePhase = 2;
-                                else throw new CommandError('Unescaped quote inside the parameters!');
+                                else throw new Error('Unescaped quote inside the parameters!');
                             } else {
-                                if (nextChar == null) throw new CommandError('Unfinished quoted parameter!');
+                                if (nextChar == null) throw new Error('Unfinished quoted parameter!');
                                 item += char;
                             }
                         } else {
@@ -794,73 +926,6 @@ function getScoreSelectors(string,options = {escapeChar: '\\', separator: ','}) 
         if (escaped) escaped = false;
     }
     return selector
-}
-
-function findRegisteredCommand(input,commands) {
-    for (const commandName in commands) {
-        if (commandName === input || commands[commandName].aliases?.includes(input)) {
-            return {name: commandName,definition: commands[commandName]};
-        }
-    }
-}
-
-function parseParameterHelp(paremeters) {
-    const messages = [];
-    let helpMessage = '';
-    let optional = false;
-    for (let paramaterIndex = 0;paramaterIndex < paremeters.length;paramaterIndex++) {
-        const definition = paremeters[paramaterIndex];
-        const type = normalizeParameterType(definition.type);
-        if (definition.optional) optional = true;
-        if (definition.choice) {
-            for (const choice in definition.choice) {
-                const choiceParameters = parseParameterHelp(definition.choice[choice]);
-                for (let choiceIndex = 0;choiceIndex < choiceParameters.length;choiceIndex++) {
-                    messages.push(helpMessage+`${choice}`+' '+choiceParameters[choiceIndex]);
-                }
-            }
-        } else {
-            const optionalString = optional ? `?` : '';
-            const arrayString = definition.array ? `(${definition.array})` : '';
-            helpMessage += `${definition.id}${optionalString}[${type}${arrayString}] `;
-        }
-    }
-    if (messages.length === 0) messages.push(helpMessage);
-    return messages;
-}
-
-function normalizeParameterType(type) {
-    let normalizedType = 'unknown';
-    switch (type) {
-        case 'string':
-        case 'str':
-            normalizedType = 'str';
-            break;
-        case 'integer':
-        case 'int':
-            normalizedType = 'int';
-            break;
-        case 'float':
-        case 'flt':
-            normalizedType = 'float';
-            break;
-        case 'boolean':
-        case 'bool':
-            normalizedType = 'bool';
-            break;
-        case 'json':
-            normalizedType = 'json';
-            break;
-        case 'pos':
-        case 'position':
-            normalizedType = 'position';
-            break;
-        case 'selector':
-        case 'select':
-            normalizedType = 'selector';
-            break;
-    }
-    return normalizedType;
 }
 
 export {CommandParser,sendMessage}
