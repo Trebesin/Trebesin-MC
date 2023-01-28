@@ -59,7 +59,7 @@ function main(){
                 const tickInAMin = tickInASec*60
                 const tickInAnHour = tickInAMin*60
                 const tickInADay = tickInAnHour*24
-                for(let i = response.result.length()-1; i+1; i--){
+                for(let i = response.result.length-1; i+1; i--){
                     const block_alteration = response.result[i]
                     const timeOfBlockAlteration = system.currentTick - parseInt(block_alteration.tick)
                     sendMessage(`${block_alteration.PlayerName}: ${block_alteration.before_id} -> ${block_alteration.after_id} - before: ${Math.floor(timeOfBlockAlteration/tickInADay)}d${Math.floor(timeOfBlockAlteration%tickInADay/tickInAnHour)}h${Math.floor(timeOfBlockAlteration%tickInAnHour/tickInAMin)}m${Math.floor(timeOfBlockAlteration%tickInAMin/tickInASec)}s`,'CMD - BlockHistory',sender);
@@ -100,7 +100,7 @@ function main(){
                 const tickInAnHour = tickInAMin*60
                 const tickInADay = tickInAnHour*24
                 let locations = []
-                for(let i = response.result.length()-1; i+1; i--){
+                for(let i = response.result.length-1; i+1; i--){
                     const block_alteration = response.result[i]
                     const timeOfBlockAlteration = system.currentTick - parseInt(block_alteration.tick)
                     sendMessage(`${block_alteration.PlayerName} - [${block_alteration.x}, ${block_alteration.y}, ${block_alteration.z}]: ${block_alteration.before_id} -> ${block_alteration.after_id} - before: ${Math.floor(timeOfBlockAlteration/tickInADay)}d${Math.floor(timeOfBlockAlteration%tickInADay/tickInAnHour)}h${Math.floor(timeOfBlockAlteration%tickInAnHour/tickInAMin)}m${Math.floor(timeOfBlockAlteration%tickInAMin/tickInASec)}s`,'CMD - BlockHistory',sender);
