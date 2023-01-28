@@ -6,9 +6,7 @@ import {command_parser, isAdmin} from "./admin";
 import * as vectorMath from "../../../js_modules/vector.js";
 import { variables as ServerConfig } from '@minecraft/server-admin';
 function main(){
-  Debug.logMessage("hey");
   if(!ServerConfig.get('debug-enabled')) return;
-
   command_parser.registerCommand('testArray', { aliases:[], parameters:[
         {type:'pos',id:'location'},
         {type:'string',id:'strArray',array:3},
@@ -36,7 +34,7 @@ function main(){
       })
     }
   })
-  command_parser.registercommand("databasedisconnect", {aliases: ["dbdisconnect", "dbdis"], parameters: [], senderCheck: isAdmin, run: async (sender) =>  {
+  command_parser.registerCommand("databasedisconnect", {aliases: ["dbdisconnect", "dbdis"], parameters: [], senderCheck: isAdmin, run: async (sender) =>  {
       try {
         await backend.db.disconnect();
         sendMessage(`§asuccesfully disconnected from the database.`,'cmd',sender);
@@ -46,7 +44,7 @@ function main(){
     }
   })
 
-  command_parser.registercommand("databaseconnect", {aliases: ["dbconnect", "dbcon"], parameters: [], senderCheck: isAdmin, run: async (sender) => {
+  command_parser.registerCommand("databaseconnect", {aliases: ["dbconnect", "dbcon"], parameters: [], senderCheck: isAdmin, run: async (sender) => {
       try {
         await backend.db.connect();
         sendMessage(`§asuccesfully connected to the database.`,'cmd',sender);
