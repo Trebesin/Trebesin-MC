@@ -55,8 +55,8 @@ function main(){
             } else {
               player.dimension.spawnItem(item,new Location(player.location.x,player.location.y,player.location.z));
             }
+          sendMessage(`Added copy of ${item.typeId} to your inventory by ${sender.name}`,'CMD',player);
           }
-        sendMessage(`Added copy of ${item.typeId} to your inventory by ${sender.name}`,'CMD',sender);
         }
       } else {
         sendMessage(`No item equipped!`,'CMD',sender);
