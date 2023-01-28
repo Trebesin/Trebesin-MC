@@ -47,14 +47,14 @@ function main(){
         for(let j = 0;j<itemReceivers.length;j++){
           const player = itemReceivers[j]
           logMessage(player.name)
-          for(let i = 0;i<parameter.count ?? 1;i++){
+          for(let i = 0;i<(parameter.count ?? 1);i++){
             if (container.emptySlotsCount > 0) {
               container.addItem(item);
             } else {
               sender.dimension.spawnItem(item,new Location(sender.location.x,sender.location.y,sender.location.z));
             }
           }
-        sendMessage(`Added copy of ${item.typeId} to your inventory by ${sender}`,'CMD',sender);
+        sendMessage(`Added copy of ${item.typeId} to your inventory by ${sender.name}`,'CMD',sender);
         }
       } else {
         sendMessage(`No item equipped!`,'CMD',sender);
