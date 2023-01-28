@@ -3,6 +3,8 @@ import * as UserWorker from "./workers/user"
 import * as ItemsWorker from "./workers/items"
 import * as Debug from "../debug/debug"
 
+const debugAllowed = true
+
 async function main(){
     AdminWorker.main();
     Debug.logMessage('   Admin commands set');
@@ -12,4 +14,4 @@ async function main(){
     Debug.logMessage('   item links to commands set');
 }
 
-export {main}
+export {main, debugAllowed}
