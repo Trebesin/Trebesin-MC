@@ -15,7 +15,7 @@ function main(){
   command_parser.registerCommand("summon", {
     parameters: [
       {id:'entity',type:'str'},
-      {id:'location',type:'pos'}
+      {id:'location',type:'pos', optional: true}
     ], aliases: ["spawn"], senderCheck: isAdmin, run: (sender,parameters) => {
       try {
         sender.dimension.spawnEntity(parameters.entity,parameters.location);
@@ -38,14 +38,16 @@ function main(){
 
 
   command_parser.registerCommand("dupe", {
-    parameters: [], aliases: [], senderCheck: isAdmin, run: (sender,parameters) => {
+    parameters: [{id: 'count', type: 'integer', optional: true}], aliases: [], senderCheck: isAdmin, run: (sender,parameter) => {
       const container = sender.getComponent('inventory').container
       const item = container.getItem(sender.selectedSlot);
       if (item != null) {
-        if (container.emptySlotsCount > 0) {
-          container.addItem(item);
-        } else {
-          sender.dimension.spawnItem(item,new Location(sender.location.x,sender.location.y,sender.location.z));
+        for(let i = 0;i<parameter.count ?? 1;i++){
+          if (container.emptySlotsCount > 0) {
+            container.addItem(item);
+          } else {
+            sender.dimension.spawnItem(item,new Location(sender.location.x,sender.location.y,sender.location.z));
+          }
         }
         sendMessage(`Added copy of ${item.typeId} to your inventory!`,'CMD',sender);
       } else {
