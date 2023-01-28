@@ -42,7 +42,7 @@ function main(){
       const container = sender.getComponent('inventory').container
       const item = container.getItem(sender.selectedSlot);
       if (item != null) {
-        for(let i = 0;i<parameter.count ?? 1;i++){
+        for(let i = 0;i<parameter.count ?? 0;i++){
           if (container.emptySlotsCount > 0) {
             container.addItem(item);
           } else {
