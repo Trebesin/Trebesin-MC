@@ -6,6 +6,7 @@ import {command_parser, isAdmin} from "./admin";
 import * as vectorMath from "../../../js_modules/vector.js";
 import { debugAllowed } from "../commands";
 function main(){
+  Debug.logMessage("hey");
   if(!debugAllowed)return;
 
   command_parser.registerCommand('testArray', { aliases:[], parameters:[
