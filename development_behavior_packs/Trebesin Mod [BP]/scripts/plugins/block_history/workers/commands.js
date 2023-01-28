@@ -124,6 +124,7 @@ function main(){
             logMessage(parameter.players[0].name)
             if(parameter.players){
                 for(player of parameter.players){
+                    logMessage(player.name)
                     removeActiveParticles(player)
                 }
             }
