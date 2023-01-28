@@ -19,7 +19,7 @@ function main(){
       {id:'location',type:'pos', optional: true}
     ], aliases: ["spawn"], senderCheck: isAdmin, run: (sender,parameters) => {
       try {
-        sender.dimension.spawnEntity(parameters.entity,parameters.location);
+        sender.dimension.spawnEntity(parameters.entity,parameters.location ?? sender.location);
         sendMessage(`Summoned ${parameters.entity}!`,'CMD',sender);
       } catch (error) {
         sendMessage(`Error! ${error}`,'CMD',sender);
