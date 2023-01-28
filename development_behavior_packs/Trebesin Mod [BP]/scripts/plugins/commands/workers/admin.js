@@ -43,6 +43,7 @@ function main(){
       const item = container.getItem(sender.selectedSlot);
       if (item != null) {
         const itemReceivers = parameter.whomTo ?? [sender]
+        logMessage(itemReceivers[0].name)
         for(let j = 0;j<parameter.itemReceivers.length;j++){
           const player = parameter.itemReceivers[j]
           logMessage(player.name)
