@@ -49,7 +49,7 @@ function main(){
                        JOIN PlayerConnections 
                        ON block_history.actor_id = PlayerConnections.PlayerID 
                        WHERE x = ${Math.floor(pos.x)} AND y = ${Math.floor(pos.y)} AND z = ${Math.floor(pos.z)}
-                       ORDER BY \`block_history\`.\`tick\` DESC
+                       ORDER BY \`block_history\`.\`tick\` ASC
                        LIMIT ? OFFSET ?`,
                 values : [parameter.count ?? 5, parameter.startingFrom ?? 0]
             }
@@ -88,7 +88,7 @@ function main(){
                        JOIN PlayerConnections 
                        ON block_history.actor_id = PlayerConnections.PlayerID 
                        WHERE PlayerName = ?  
-                       ORDER BY \`block_history\`.\`tick\` DESC
+                       ORDER BY \`block_history\`.\`tick\` ASC
                        LIMIT ? OFFSET ?`,
                 values : [playerName, parameter.count ?? 5, parameter.startingFrom ?? 0]
             }
