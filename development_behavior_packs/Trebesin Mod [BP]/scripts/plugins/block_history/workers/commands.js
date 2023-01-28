@@ -136,7 +136,7 @@ function main(){
         else {
             sendMessage(
                 `help:
-                b/block - shows the changes made to block on [x], [y], [z] - parameters:startingfrom: count, startingFrom, location: x, location: y, location: z
+                b/block - shows the changes made to block on [x], [y], [z] - parameters: count, startingFrom, location: x, location: y, location: z
                 p/player - shows the changes made by a player - parameters: count, startingFrom, player
                 i/inspect - gets you into inspector mode - when you place blocks it doesn't place them and instead shows you the changes made to that block
                 r/reverse - reverses actions of a player in specific time frame - parameters: player, operations
@@ -184,7 +184,7 @@ function main(){
                 
             }
         }
-    ], aliases: ["block_history", "co", "coreprotect"], run: blockHistoryHandler
+    ], aliases: ["blockhistory", "co", "coreprotect"], run: blockHistoryHandler
   })
 }
 
