@@ -121,8 +121,8 @@ function main(){
             }
         }
         else if(/*isAdmin(sender) && */(parameter.command === "c" || parameter.command === "clear")){
-            if(parameter.player){
-                for(player of parameter.player){
+            if(parameter.players){
+                for(player of parameter.players){
                     removeActiveParticles(player)
                 }
             }
