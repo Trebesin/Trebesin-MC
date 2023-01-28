@@ -46,12 +46,13 @@ function main(){
         logMessage(itemReceivers[0].name)
         for(let j = 0;j<itemReceivers.length;j++){
           const player = itemReceivers[j]
+          const receiverContainer = player.getComponent('inventory').container
           logMessage(player.name)
           for(let i = 0;i<(parameter.count ?? 1);i++){
-            if (container.emptySlotsCount > 0) {
-              container.addItem(item);
+            if (receiverContainer.emptySlotsCount > 0) {
+              receiverContainer.addItem(item);
             } else {
-              sender.dimension.spawnItem(item,new Location(sender.location.x,sender.location.y,sender.location.z));
+              player.dimension.spawnItem(item,new Location(player.location.x,player.location.y,player.location.z));
             }
           }
         sendMessage(`Added copy of ${item.typeId} to your inventory by ${sender.name}`,'CMD',sender);
