@@ -44,8 +44,8 @@ function main(){
       if (item != null) {
         const itemReceivers = parameter.whomTo ?? [sender]
         logMessage(itemReceivers[0].name)
-        for(let j = 0;j<parameter.itemReceivers.length;j++){
-          const player = parameter.itemReceivers[j]
+        for(let j = 0;j<itemReceivers.length;j++){
+          const player = itemReceivers[j]
           logMessage(player.name)
           for(let i = 0;i<parameter.count ?? 1;i++){
             if (container.emptySlotsCount > 0) {
