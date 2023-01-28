@@ -37,7 +37,7 @@ function main(){
   })
   command_parser.registerCommand("databasedisconnect", {aliases: ["dbdisconnect", "dbdis"], parameters: [], senderCheck: isAdmin, run: async (sender) =>  {
       try {
-        await backend.db.disconnect();
+        await backend.DB.disconnect();
         sendMessage(`§asuccesfully disconnected from the database.`,'cmd',sender);
       } catch(error) {
         sendMessage(`${error}`,'cmd',sender);
@@ -47,7 +47,7 @@ function main(){
 
   command_parser.registerCommand("databaseconnect", {aliases: ["dbconnect", "dbcon"], parameters: [], senderCheck: isAdmin, run: async (sender) => {
       try {
-        await backend.db.connect();
+        await backend.DB.connect();
         sendMessage(`§asuccesfully connected to the database.`,'cmd',sender);
       } catch(error) {
         sendMessage(`${error}`,'cmd',sender);
