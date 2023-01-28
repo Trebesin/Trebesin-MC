@@ -42,8 +42,9 @@ function main(){
       const container = sender.getComponent('inventory').container
       const item = container.getItem(sender.selectedSlot);
       if (item != null) {
-        for(let j = 0;j<parameter.whomTo?.length ?? 1;j++){
-          const player = parameter.whomTo?.[j] ?? sender
+        const itemReceivers = parameter.whomTo ?? [sender]
+        for(let j = 0;j<parameter.itemReceivers.length;j++){
+          const player = parameter.itemReceivers[j]
           logMessage(player.name)
           for(let i = 0;i<parameter.count ?? 1;i++){
             if (container.emptySlotsCount > 0) {
