@@ -70,11 +70,22 @@ class CommandParser {
     #helpCommand(sender, parameters) {
         let helpMessage = '';
         if (parameters.command) {
-            helpMessage = 'wip';
+            const command = findRegisteredCommand(parameters.command);
+            const definition = command.definition;
+            const commandName = command.name;
+            helpMessage += `[CMD] §9${commandName}§r [${definition.aliases.join(',')}]\n`;
+            helpMessage += `[Description] ${definition.description}\n`;
+            helpMessage += `[Paramaters]:\n`;
+            const parameterHelp = parseParameterHelp(definition.parameters);
+            for (let parameterIndex = 0;parameterIndex < parameterHelp.length;parameterIndex++) {
+                helpMessage += parameterHelp[parameterIndex];
+            }
         } else {
             for (const commandName in this.#commands) {
                 const command = this.#commands[commandName];
-                helpMessage += `§9${commandName}§r [${command.aliases.join(',')}] - ${command.description}\n`;
+                const description = command.description.slice(0,64);
+                const ending = command.description.length >= 64 ? '...' : '';
+                helpMessage += `[CMD] §9${commandName}§r [${command.aliases.join(',')}] - ${description}${ending}\n`;
             }
         }
         sender.tell(helpMessage);
@@ -101,15 +112,9 @@ class CommandParser {
      * @param {Player} sender Player to use as the context of the command execution.
      */
      async runCommand(input,parameterString,sender) {
-        let command;
-        for (const commandName in this.#commands) {
-            if (commandName === input || this.#commands[commandName].aliases?.includes(input)) {
-                command = this.#commands[commandName];
-            }
-        }
-
+        const command = findRegisteredCommand(input,this.#commands)?.definition;
         try {
-            if (!command) {
+            if (command == null) {
                 throw new CommandError(`§cCommand §r§l'${input}'§r§c not found!`);
             }
             if (command.senderCheck && !this.#options.adminCheck(sender) && !command.senderCheck(sender)) {
@@ -789,6 +794,73 @@ function getScoreSelectors(string,options = {escapeChar: '\\', separator: ','}) 
         if (escaped) escaped = false;
     }
     return selector
+}
+
+function findRegisteredCommand(input,commands) {
+    for (const commandName in commands) {
+        if (commandName === input || commands[commandName].aliases?.includes(input)) {
+            return {name: commandName,definition: commands[commandName]};
+        }
+    }
+}
+
+function parseParameterHelp(paremeters) {
+    const messages = [];
+    let helpMessage = '';
+    let optional = false;
+    for (let paramaterIndex = 0;paramaterIndex < paremeters.length;paramaterIndex++) {
+        const definition = paremeters[paramaterIndex];
+        const type = normalizeParameterType(definition.type);
+        if (definition.optional) optional = true;
+        if (definition.choice) {
+            for (const choice in definition.choice) {
+                const choiceParameters = parseParameterHelp(definition.choice[choice]);
+                for (let choiceIndex = 0;choiceIndex < choiceParameters.length;choiceIndex++) {
+                    messages.push(helpMessage+`${choice}`+' '+choiceParameters[choiceIndex]);
+                }
+            }
+        } else {
+            const optionalString = optional ? `?` : '';
+            const arrayString = definition.array ? `(${definition.array})` : '';
+            helpMessage += `${definition.id}${optionalString}[${type}${arrayString}] `;
+        }
+    }
+    if (messages.length === 0) messages.push(helpMessage);
+    return messages;
+}
+
+function normalizeParameterType(type) {
+    let normalizedType = 'unknown';
+    switch (type) {
+        case 'string':
+        case 'str':
+            normalizedType = 'str';
+            break;
+        case 'integer':
+        case 'int':
+            normalizedType = 'int';
+            break;
+        case 'float':
+        case 'flt':
+            normalizedType = 'float';
+            break;
+        case 'boolean':
+        case 'bool':
+            normalizedType = 'bool';
+            break;
+        case 'json':
+            normalizedType = 'json';
+            break;
+        case 'pos':
+        case 'position':
+            normalizedType = 'position';
+            break;
+        case 'selector':
+        case 'select':
+            normalizedType = 'selector';
+            break;
+    }
+    return normalizedType;
 }
 
 export {CommandParser,sendMessage}
