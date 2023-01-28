@@ -313,7 +313,7 @@ class CommandParser {
         let randomize = false;
         let allPlayersOnly = false;
         //Player only selector:
-        logMessage(selector.name)
+        logMessage('\''+ selector.name + '\'')
         
         if (option.playerOnly && (selector.name !== 'a' || selector.name !== 'p')) throw new CommandError(`'${option.id}' is a player-only selector!`);
         //Overridable entity queries from selector type:
