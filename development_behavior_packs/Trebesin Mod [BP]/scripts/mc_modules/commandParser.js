@@ -62,30 +62,39 @@ class CommandParser {
 
         this.registerCommand('help',{
             aliases: ['?'],
+            description: '123456789012345678901234567890120',
             parameters: [{id:'command',type:'string',optional: true}],
+            arguments: [this.#commands,this.#options],
             run: this.#helpCommand
         });
     }
 
-    #helpCommand(sender, parameters) {
+    #helpCommand(sender, parameters,commandRegister,commandOptions) {
         let helpMessage = '';
         if (parameters.command) {
-            const command = findRegisteredCommand(parameters.command,this.#commands);
+            const command = findRegisteredCommand(parameters.command,commandRegister);
+            if (command == null) {
+                throw new CommandError(`§cCommand §r§l'${parameters.command}'§r§c not found!`);
+            }
             const definition = command.definition;
             const commandName = command.name;
-            helpMessage += `[CMD] §9${commandName}§r [${definition.aliases.join(',')}]\n`;
-            helpMessage += `[Description] ${definition.description}\n`;
+            if (definition.senderCheck && !commandOptions.adminCheck(sender) && !definition.senderCheck(sender)) {
+                throw new CommandError(`§cYou do not meet requirements to use the command §r§l'${commandName}'§r§c!`);
+            }
+            const aliases = definition.aliases?.length ? `[${definition.aliases.join(',')}]` : '';
+            helpMessage += `[CMD] §9${commandName}§r ${aliases}\n`;
+            helpMessage += `[Description] ${definition.description ?? 'None'}\n`;
             helpMessage += `[Paramaters]:\n`;
             const parameterHelp = parseParameterHelp(definition.parameters);
-            for (let parameterIndex = 0;parameterIndex < parameterHelp.length;parameterIndex++) {
-                helpMessage += parameterHelp[parameterIndex];
-            }
+            helpMessage += parameterHelp.join('\n');
         } else {
-            for (const commandName in this.#commands) {
-                const command = this.#commands[commandName];
-                const description = command.description.slice(0,64);
-                const ending = command.description.length >= 64 ? '...' : '';
-                helpMessage += `[CMD] §9${commandName}§r [${command.aliases.join(',')}] - ${description}${ending}\n`;
+            for (const commandName in commandRegister) {
+                const command = commandRegister[commandName];
+                if (command.senderCheck && !commandOptions.adminCheck(sender) && !command.senderCheck(sender)) continue;
+                const description = command.description ? command.description.slice(0,32) : '';
+                const ending = command.description?.length > 32 ? '...' : '';
+                const aliases = command.aliases?.length ? `[${command.aliases.join(',')}]` : '';
+                helpMessage += `[CMD] §9${commandName}§r ${aliases} - ${description}${ending}\n`;
             }
         }
         sender.tell(helpMessage);
@@ -820,9 +829,9 @@ function parseParameterHelp(paremeters) {
                 }
             }
         } else {
-            const optionalString = optional ? `?` : '';
-            const arrayString = definition.array ? `(${definition.array})` : '';
-            helpMessage += `${definition.id}${optionalString}[${type}${arrayString}] `;
+            const optionalString = optional ? `§b?§r` : '';
+            const arrayString = definition.array ? `(§d${definition.array}§r)` : '';
+            helpMessage += `${definition.id}${optionalString}[§c${type}§r${arrayString}] `;
         }
     }
     if (messages.length === 0) messages.push(helpMessage);
