@@ -70,7 +70,7 @@ class CommandParser {
     }
 
     #helpCommand(sender, parameters,commandRegister,commandOptions) {
-        let helpMessage = '';
+        let helpMessage = '\n';
         if (parameters.command) {
             const command = findRegisteredCommand(parameters.command,commandRegister);
             if (command == null) {
