@@ -62,7 +62,7 @@ class CommandParser {
 
         this.registerCommand('help',{
             aliases: ['?'],
-            description: '123456789012345678901234567890120',
+            description: 'Lists all commands or explains specific command in more detail.',
             parameters: [{id:'command',type:'string',optional: true}],
             arguments: [this.#commands,this.#options],
             run: this.#helpCommand
@@ -805,6 +805,18 @@ function getScoreSelectors(string,options = {escapeChar: '\\', separator: ','}) 
     return selector
 }
 
+/**
+* @typedef CommandRegisterEntry
+* @property {string} name - Name of the command.
+* @property {CommandDefinition} [definition] - Definition of the command.
+*/
+
+/**
+ * 
+ * @param {string} input 
+ * @param {object} commands 
+ * @returns {CommandRegisterEntry}
+ */
 function findRegisteredCommand(input,commands) {
     for (const commandName in commands) {
         if (commandName === input || commands[commandName].aliases?.includes(input)) {
