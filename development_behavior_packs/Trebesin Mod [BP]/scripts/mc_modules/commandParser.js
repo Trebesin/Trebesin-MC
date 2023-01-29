@@ -70,7 +70,7 @@ class CommandParser {
     #helpCommand(sender, parameters) {
         let helpMessage = '';
         if (parameters.command) {
-            const command = findRegisteredCommand(parameters.command);
+            const command = findRegisteredCommand(parameters.command,this.#commands);
             const definition = command.definition;
             const commandName = command.name;
             helpMessage += `[CMD] §9${commandName}§r [${definition.aliases.join(',')}]\n`;
