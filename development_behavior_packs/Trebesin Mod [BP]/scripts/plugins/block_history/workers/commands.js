@@ -33,6 +33,7 @@ function spawnParticles(location, particleAxis, sender) {
     dimension.spawnParticle(`trebesin:edge_highlight_${particleAxis}`, location, molang);
 }
 function reverseBlocks(blocks, sender) {
+    logMessage("confirmed!")
 //loops through all the blocks and replaces them with the old data
 }
 function main(){
