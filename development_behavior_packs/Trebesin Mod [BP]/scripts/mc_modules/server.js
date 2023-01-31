@@ -202,4 +202,4 @@ function executeRandomTick(callbackArray,loadedChunks,tickSpeed) {
     }
 }
 
-export { Server , ServerEventCallback, waitForEvent}
+export { Server , ServerEventCallback}
