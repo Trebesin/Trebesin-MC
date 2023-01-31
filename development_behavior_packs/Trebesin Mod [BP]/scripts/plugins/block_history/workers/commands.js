@@ -260,6 +260,12 @@ function main(){
                 clearall: [
                     {}
                 ],
+                r: [
+                    {}
+                ],
+                reverse: [
+                    {}
+                ]
                 
             }
         }
