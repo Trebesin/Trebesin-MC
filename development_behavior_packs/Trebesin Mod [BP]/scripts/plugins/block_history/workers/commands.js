@@ -52,6 +52,7 @@ function main(){
             }
             else if(confirmationPerPlayer[player].confirmed) {
                 confirmationPerPlayer[player].callback()
+                delete confirmationPerPlayer[player];
             }
             else {
                 sendMessage('The confirmation has expired!', 'blockHistory manager', confirmationPerPlayer[player].player)
