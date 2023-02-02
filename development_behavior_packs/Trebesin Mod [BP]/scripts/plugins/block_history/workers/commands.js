@@ -265,6 +265,9 @@ function main(){
                 ],
                 reverse: [
                     {}
+                ],
+                confirm: [
+                    {}
                 ]
                 
             }
