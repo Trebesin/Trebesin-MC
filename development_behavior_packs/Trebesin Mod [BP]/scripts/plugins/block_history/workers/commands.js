@@ -152,7 +152,7 @@ function main(){
                 values : [playerName, parameter.count ?? 5, parameter.startingFrom ?? 0]
             }
             try {
-                const response = await BlockHistoryPLugin.database.query(request);
+                const response = await BlockHistoryPlugin.database.query(request);
                 const tickInASec = TicksPerSecond
                 const tickInAMin = tickInASec*60
                 const tickInAnHour = tickInAMin*60
