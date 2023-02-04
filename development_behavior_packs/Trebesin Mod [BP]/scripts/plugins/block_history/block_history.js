@@ -24,16 +24,15 @@ async function main() {
     system.runSchedule(async () => {
         let empty = true;
         const request = {
-            sql: 'INSERT INTO block_history (actor_id,tick,dimension_id,x,y,z,before_id,after_id,before_waterlogged,after_waterlogged,before_permutations,after_permutations) VALUES ',
+            sql: 'INSERT INTO block_history (actor_id,tick,dimension_id,x,y,z,before_id,after_id,before_waterlogged,after_waterlogged,before_permutations,after_permutations,blockPlaceType,blockPlaceTypeID) VALUES ',
             values: []
         };
         for (const actorId in blockUpdates) {
             const actorRecords = blockUpdates[actorId];
             for (let index = 0;index < actorRecords.length;index++) {
                 const record = actorRecords[index];
-                request.sql += '(?,?,?,?,?,?,?,?,?,?,?,?)';
+                request.sql += '(?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
                 request.sql += (index+1 === actorRecords.length) ? ';' : ',';
-
                 request.values.push(
                     actorId,
                     record.tick,
@@ -46,7 +45,9 @@ async function main() {
                     record.before.isWaterlogged,
                     record.after.isWaterlogged,
                     JSON.stringify(getPermutations(record.before.permutation)),
-                    JSON.stringify(getPermutations(record.after.permutation))
+                    JSON.stringify(getPermutations(record.after.permutation)),
+                    record.blockPlaceType,
+                    record.blockPlaceID
                 );
                 empty = false;
             }
@@ -130,7 +131,17 @@ async function main() {
             permutation: eventData.brokenBlockPermutation
         }
         //This Block:
-        saveBlockUpdate(blockOld,copyBlock(eventData.block),playerId);
+        if(eventData.player.hasTag('inspector')){
+            try{
+                await BlockHistoryCommandsWorker.inspector(blockOld, copyBlock(eventData.block), eventData.player) 
+            }
+            catch(error){
+                Debug.logMessage(error)
+            }
+        }
+        else{
+            saveBlockUpdate(blockOld,copyBlock(eventData.block),playerId);
+        }
 
         //Updated Blocks:
         await blockUpdateIteration(blockOld.location,blockOld.dimension,(blockBefore,blockAfter,tick) => {
@@ -141,9 +152,6 @@ async function main() {
             if (fallObject) fallObject.playerId = playerId;
         });
     });
-
-    //!falling blocks will need a special treatment.
-    //!also placing blocks can have chain effect too.
     
     //## Block Placing Detection:
     world.events.itemStartUseOn.subscribe(async(eventData) => {
@@ -157,8 +165,19 @@ async function main() {
 
         //Those Blocks:
         system.run(async () => {
-            saveBlockUpdate(faceBlockOld,copyBlock(faceBlock),player.id);
-            saveBlockUpdate(blockOld,copyBlock(block),player.id);
+            if(player.hasTag('inspector')){
+                try{
+                    await BlockHistoryCommandsWorker.inspector(faceBlockOld, copyBlock(faceBlock), player) 
+                    BlockHistoryCommandsWorker.revertBlockChange(blockOld, copyBlock(block), player)
+                }
+                catch(error){
+                    Debug.logMessage(error)
+                }
+            }
+            else{
+                saveBlockUpdate(faceBlockOld,copyBlock(faceBlock),player.id);
+                saveBlockUpdate(blockOld,copyBlock(block),player.id);
+            }
             //Falling Blocks
             system.run(() => {
                 const fallObject = fallingBlocksTracked.find((block) => faceBlock.location.equals(block.location.start));
@@ -226,12 +245,14 @@ function getEntityById(id,queryOptions = {},dimensionIds = DIMENSION_IDS) {
  * @param {object} actorId ID that is used to identify the cause of the block update, usually an entity ID.
  * @returns {number} Returns a number indicating change to the memory database.
  */
-function saveBlockUpdate(blockBefore,blockAfter,actorId) {
+function saveBlockUpdate(blockBefore,blockAfter,actorId,blockPlaceType = "playerPlace",blockPlaceID = null) {
     if (blockUpdates[actorId] == null) blockUpdates[actorId] = [];
     const updateRecord = {
         before: blockBefore,
         after: blockAfter,
-        tick: system.currentTick
+        tick: system.currentTick,
+        blockPlaceType: blockPlaceType,
+        blockPlaceID: blockPlaceID
     };
     if (compareBlocks(updateRecord.before,updateRecord.after)) return 0;
     
@@ -283,6 +304,7 @@ export {
     main,
     setBlockType,
     setBlockPermutation,
+    saveBlockUpdate,
     DatabaseExport as database
 };
 
