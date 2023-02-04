@@ -22,6 +22,7 @@ async function main() {
     DatabaseExport = connection
     //## DB Save Schedule:
     system.runSchedule(async () => {
+        Debug.logMessage("saving to DB")
         let empty = true;
         const request = {
             sql: 'INSERT INTO block_history (actor_id,tick,dimension_id,x,y,z,before_id,after_id,before_waterlogged,after_waterlogged,before_permutations,after_permutations,blockPlaceType) VALUES ',
@@ -50,6 +51,7 @@ async function main() {
                     record.blockPlaceType,
                     record.blockPlaceID
                 );
+                Debug.logMessage(JSON.stringify(request.values))
                 empty = false;
             }
             actorRecords.length = 0;
