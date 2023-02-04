@@ -283,10 +283,14 @@ function main(){
                     {}
                 ],
                 r: [
-                    {}
+                    {type:'int',id:'count',optional:true},
+                    {type:'int',id:'startingFrom',optional:true},
+                    {type:'string',id:'player',optional:true}
                 ],
                 reverse: [
-                    {}
+                    {type:'int',id:'count',optional:true},
+                    {type:'int',id:'startingFrom',optional:true},
+                    {type:'string',id:'player',optional:true}
                 ],
                 confirm: [
                     {}
