@@ -63,12 +63,6 @@ function getPermutations(permutation) {
 function setPermutationFromObject(permutation,object) {
     for (const property in object) {
         const value = object[property];
-        logMessage(`[${property}] - ${value}`);
-        let mess = 'Existing props:\n';
-        for (const test of permutation.getAllProperties()) {
-            mess+=`${test.name},`;
-        }
-        logMessage(mess);
         permutation.getProperty(property).value = value;
     }
     return permutation;
