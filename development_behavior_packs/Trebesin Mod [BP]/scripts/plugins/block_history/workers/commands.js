@@ -35,7 +35,7 @@ function spawnParticles(location, particleAxis, sender) {
 }
 function reverseBlocks(blocks, sender) {
     logMessage("confirmed!")
-    for(let i = 0;i<blocks.size;i++){
+    for(let i = 0;i<blocks.length;i++){
         logMessage("working!")
         const block = world.getDimension(blocks[i].dimension_id).getBlock(new BlockLocation(blocks[i].x, blocks[i].y, blocks[i].z))
         block.setType(MinecraftBlockTypes.get(blocks[i].before_id))
