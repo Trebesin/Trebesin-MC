@@ -1,5 +1,5 @@
 import {CommandResult, MinecraftEffectTypes , world, BlockLocation,Location, TicksPerDay, TicksPerSecond, Vector, MolangVariableMap, Color, system, MinecraftBlockTypes, BlockPermutation} from "@minecraft/server";
-import { setPermutationFromObject } from "../../../mc_modules/blocks";
+import { copyBlock, setPermutationFromObject } from "../../../mc_modules/blocks";
 import {CommandParser, sendMessage} from "../../../mc_modules/commandParser";
 import { getEdgeLocations, createLocationSet2, locationToString, stringToLocation } from "../../../mc_modules/particles";
 import * as Backend from "../../../mc_modules/server" ;
@@ -35,9 +35,14 @@ function spawnParticles(location, particleAxis, sender) {
 }
 function reverseBlocks(blocks, sender) {
     for(let i = 0;i<blocks.length;i++){
+        world.say(`§cBlock reverse§r - ${system.currentTick}`);
+        const playerId = sender.id;
+        //This Block:
         const block = world.getDimension(blocks[i].dimension_id).getBlock(new BlockLocation(blocks[i].x, blocks[i].y, blocks[i].z))
+        const blockOld = copyBlock(block)
         block.setType(MinecraftBlockTypes.get(blocks[i].before_id))
         block.setPermutation(setPermutationFromObject(block.permutation, JSON.parse(blocks[i].before_permutations)))
+        saveBlockUpdate(blockOld,copyBlock(block),playerId);
     }
 }
 function main(){
