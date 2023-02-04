@@ -39,7 +39,7 @@ function reverseBlocks(blocks, sender) {
     const block = world.getDimension(blockChange.dimension_id).getBlock(new BlockLocation(blockChange.x, blockChange.y, blockChange.z))
     block.setType(MinecraftBlockTypes.get(blockChange.before_id))
     
-    block.setPermutation(setPermutationFromObject(block.permutation, blockChange.before_permutations))
+    block.setPermutation(setPermutationFromObject(block.permutation, JSON.parse(blockChange.before_permutations)))
     }
 //loops through all the blocks and replaces them with the old data
 }
