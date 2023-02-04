@@ -141,9 +141,6 @@ async function main() {
             if (fallObject) fallObject.playerId = playerId;
         });
     });
-
-    //!falling blocks will need a special treatment.
-    //!also placing blocks can have chain effect too.
     
     //## Block Placing Detection:
     world.events.itemStartUseOn.subscribe(async(eventData) => {
