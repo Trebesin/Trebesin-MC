@@ -40,6 +40,56 @@ function main(){
         }
     },4);
     async function blockHistoryHandler(sender, parameter){
+        if (/*isAdmin(sender) && */(parameter.command === "rb" || parameter.command === "reverseblock")) {
+            const pos = parameter.coords ?? sender.location
+            const request = {
+                sql : `SELECT DISTINCT block_history.*, PlayerConnections.PlayerName 
+                       FROM \`block_history\` 
+                       JOIN PlayerConnections 
+                       ON block_history.actor_id = PlayerConnections.PlayerID 
+                       WHERE x = ${Math.floor(pos.x)} AND y = ${Math.floor(pos.y)} AND z = ${Math.floor(pos.z)}
+                       ORDER BY \`block_history\`.\`tick\` DESC
+                       LIMIT ? OFFSET ?`,
+                values : [parameter.count ?? 5, parameter.startingFrom ?? 0]
+            }
+            try {
+                const response = await BlockHistoryPlugin.database.query(request);
+                const tickInASec = TicksPerSecond;
+                const tickInAMin = tickInASec*60;
+                const tickInAnHour = tickInAMin*60;
+                const tickInADay = tickInAnHour*24;
+                for (let responseIndex = response.result.length-1; responseIndex+1; responseIndex--) {
+                    const blockAlteration = response.result[responseIndex];
+                    const timeOfBlockAlteration = system.currentTick - parseInt(blockAlteration.tick);
+                    sendMessage(`${blockAlteration.PlayerName}${blockAlteration.blockPlaceType === "playerPlace"? "" : ` (${blockAlteration.blockPlaceType})`}: ${blockAlteration.before_id} -> ${blockAlteration.after_id} - before: ${Math.floor(timeOfBlockAlteration/tickInADay)}d${Math.floor(timeOfBlockAlteration%tickInADay/tickInAnHour)}h${Math.floor(timeOfBlockAlteration%tickInAnHour/tickInAMin)}m${Math.floor(timeOfBlockAlteration%tickInAMin/tickInASec)}s`,'CMD - BlockHistory',sender);
+                }
+                if (response.result == '') {
+                    sendMessage(`No changes were made to block  ${Math.floor(pos.x)}, ${Math.floor(pos.y)}, ${Math.floor(pos.z)}`,'CMD - BlockHistory',sender);
+                }
+                else {
+                    getEdgeLocations([{
+                        x: Math.floor(pos.x),
+                        y: Math.floor(pos.y),
+                        z: Math.floor(pos.z)
+                    }], (loc,axis) => {
+                        addActiveParticles(loc,axis,sender);
+                    })
+                    sendMessage(`are you sure you want to reverse these changes?\n - !bh confirm to confirm or !bh cancel to cancel`,'CMD - BlockHistory',sender);
+                    if(confirmationPerPlayer[sender.id]) delete confirmationPerPlayer[sender.id];
+                    confirmationPerPlayer[sender.id] = {
+                        player: sender,
+                        confirmed: false,
+                        callback: () => {
+                            reverseBlocks(response.result, sender)
+                        },
+                        countdown: 1200
+                    };
+                }
+            }
+            catch (error) {
+                sendMessage(`${error}`,'CMD - BlockHistory',sender);
+            }
+        }
         if (/*isAdmin(sender) && */(parameter.command === "b" || parameter.command === "block")) {
             const pos = parameter.coords ?? sender.location
             const request = {
@@ -150,7 +200,7 @@ function main(){
                     getEdgeLocations(locations, (loc,axis) => {
                         addActiveParticles(loc,axis,sender);
                     })
-                    sendMessage(`are you sure you want to reverse these changes?\n - !bh confirm to confirm`,'CMD - BlockHistory',sender);
+                    sendMessage(`are you sure you want to reverse these changes?\n - !bh confirm to confirm or !bh cancel to cancel`,'CMD - BlockHistory',sender);
                     if(confirmationPerPlayer[sender.id]) delete confirmationPerPlayer[sender.id];
                     confirmationPerPlayer[sender.id] = {
                         player: sender,
@@ -200,7 +250,7 @@ function main(){
                     getEdgeLocations(locations, (loc,axis) => {
                         addActiveParticles(loc,axis,sender);
                     })
-                    sendMessage(`are you sure you want to reverse these changes?\n - !bh confirm to confirm`,'CMD - BlockHistory',sender);
+                    sendMessage(`are you sure you want to reverse these changes?\n - !bh confirm to confirm or !bh cancel to cancel`,'CMD - BlockHistory',sender);
                     if(confirmationPerPlayer[sender.id]) delete confirmationPerPlayer[sender.id];
                     confirmationPerPlayer[sender.id] = {
                         player: sender,
@@ -256,6 +306,7 @@ function main(){
                 p/player - shows the changes made by a player - parameters: count, startingFrom, player
                 i/inspect - gets you into inspector mode - when you place blocks it doesn't place them and instead shows you the changes made to that block
                 r/reverse - reverses actions of a player in specific time frame - parameters: count, startingFrom, player
+                rb/reverseblock - reverses a block to it's older state - parameters: count, startingFrom, location: x, location: y, location: z
                 bt/blockytools - show history of blockytools edits - parameters: count, startingFrom, player -- not ready yet
                 rbt/reversebt/reverseblockytools - reverses a blockytools edit using its id - parameters: count, startingFrom, player -- not ready yet
                 redo - reverses an action made by this plugin - parameters: ID
@@ -318,6 +369,16 @@ function main(){
                     {type:'int',id:'count',optional:true},
                     {type:'int',id:'startingFrom',optional:true},
                     {type:'string',id:'player',optional:true}
+                ],
+                rb: [
+                    {type:'int',id:'count',optional:true},
+                    {type:'int',id:'startingFrom',optional:true},
+                    {type:'pos',id:'coords',optional:true}
+                ],
+                reverseblock: [
+                    {type:'int',id:'count',optional:true},
+                    {type:'int',id:'startingFrom',optional:true},
+                    {type:'pos',id:'coords',optional:true}
                 ],
                 confirm: [
                     {}
