@@ -24,14 +24,14 @@ async function main() {
     system.runSchedule(async () => {
         let empty = true;
         const request = {
-            sql: 'INSERT INTO block_history (actor_id,tick,dimension_id,x,y,z,before_id,after_id,before_waterlogged,after_waterlogged,before_permutations,after_permutations) VALUES ',
+            sql: 'INSERT INTO block_history (actor_id,tick,dimension_id,x,y,z,before_id,after_id,before_waterlogged,after_waterlogged,before_permutations,after_permutations,blockPlaceType) VALUES ',
             values: []
         };
         for (const actorId in blockUpdates) {
             const actorRecords = blockUpdates[actorId];
             for (let index = 0;index < actorRecords.length;index++) {
                 const record = actorRecords[index];
-                request.sql += '(?,?,?,?,?,?,?,?,?,?,?,?)';
+                request.sql += '(?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
                 request.sql += (index+1 === actorRecords.length) ? ';' : ',';
 
                 request.values.push(
@@ -46,7 +46,9 @@ async function main() {
                     record.before.isWaterlogged,
                     record.after.isWaterlogged,
                     JSON.stringify(getPermutations(record.before.permutation)),
-                    JSON.stringify(getPermutations(record.after.permutation))
+                    JSON.stringify(getPermutations(record.after.permutation)),
+                    record.blockPlaceType,
+                    record.blockPlaceID
                 );
                 empty = false;
             }
@@ -226,12 +228,14 @@ function getEntityById(id,queryOptions = {},dimensionIds = DIMENSION_IDS) {
  * @param {object} actorId ID that is used to identify the cause of the block update, usually an entity ID.
  * @returns {number} Returns a number indicating change to the memory database.
  */
-function saveBlockUpdate(blockBefore,blockAfter,actorId) {
+function saveBlockUpdate(blockBefore,blockAfter,actorId,blockPlaceType = "playerPlace",blockPlaceID = null) {
     if (blockUpdates[actorId] == null) blockUpdates[actorId] = [];
     const updateRecord = {
         before: blockBefore,
         after: blockAfter,
-        tick: system.currentTick
+        tick: system.currentTick,
+        blockPlaceType: blockPlaceType,
+        blockPlaceID: blockPlaceID
     };
     if (compareBlocks(updateRecord.before,updateRecord.after)) return 0;
     

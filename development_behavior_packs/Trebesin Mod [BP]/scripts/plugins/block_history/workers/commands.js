@@ -33,17 +33,27 @@ function spawnParticles(location, particleAxis, sender) {
     const dimension = world.getDimension('overworld');
     dimension.spawnParticle(`trebesin:edge_highlight_${particleAxis}`, location, molang);
 }
-function reverseBlocks(blocks, sender) {
+async function getMaxIDPerPlayer(blockPlaceType, player){
+    return await BlockHistoryPlugin.database.query({
+        sql: `SELECT actor_id, MAX(blockPlaceTypeID) AS id
+                FROM block_history
+                WHERE actor_id = '?' AND blockPlaceType = '?' AND blockPlaceTypeID NOT NULL
+                GROUP BY actor_id;
+                `,
+        values: [player.id, blockPlaceType]
+    })[0]?.id
+}
+async function reverseBlocks(blocks, sender) {
+    const callID = (await getMaxIDPerPlayer("blockHistory: reverse", sender) ?? -1)+1
     for(let i = 0;i<blocks.length;i++){
-        world.say(`§cBlock reverse§r - ${system.currentTick}`);
         const playerId = sender.id;
-        //This Block:
         const block = world.getDimension(blocks[i].dimension_id).getBlock(new BlockLocation(blocks[i].x, blocks[i].y, blocks[i].z))
         const blockOld = copyBlock(block)
         block.setType(MinecraftBlockTypes.get(blocks[i].before_id))
         block.setPermutation(setPermutationFromObject(block.permutation, JSON.parse(blocks[i].before_permutations)))
-        BlockHistoryPlugin.saveBlockUpdate(blockOld,copyBlock(block),playerId);
+        BlockHistoryPlugin.saveBlockUpdate(blockOld,copyBlock(block),playerId, "blockHistory: reverse", callID);
     }
+    sendMessage(`succesfully reversed blocks - callID: ${callID}`)
 }
 function main(){
     system.runSchedule(() => {
