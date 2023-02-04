@@ -25,7 +25,7 @@ async function main() {
         Debug.logMessage("saving to DB")
         let empty = true;
         const request = {
-            sql: 'INSERT INTO block_history (actor_id,tick,dimension_id,x,y,z,before_id,after_id,before_waterlogged,after_waterlogged,before_permutations,after_permutations,blockPlaceType) VALUES ',
+            sql: 'INSERT INTO block_history (actor_id,tick,dimension_id,x,y,z,before_id,after_id,before_waterlogged,after_waterlogged,before_permutations,after_permutations,blockPlaceType,blockPlaceTypeID) VALUES ',
             values: []
         };
         for (const actorId in blockUpdates) {
