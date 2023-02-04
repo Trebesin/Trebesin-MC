@@ -358,11 +358,14 @@ async function getMaxIDPerPlayer(blockPlaceType, player){
         logMessage(error)
     }
 }
-async function inspector(blockOld, blockNew, sender){
+function revertBlockChange(blockOld, blockNew, sender){
     const block = sender.dimension.getBlock(new BlockLocation(blockNew.location.x, blockNew.location.y, blockNew.location.z))
-    const pos = block.location 
     block.setType(MinecraftBlockTypes.get(blockOld.typeId))
     //block.setPermutation(setPermutationFromObject(block.permutation, getPermutations(record.before.permutation)))
+}
+async function inspector(blockOld, blockNew, sender){
+    revertBlockChange(blockOld,blockNew,sender)
+    const pos = blockNew.location 
     const request = {
         sql : `SELECT DISTINCT block_history.*, PlayerConnections.PlayerName 
                 FROM \`block_history\` 
@@ -404,4 +407,4 @@ async function reverseBlocks(blocks, sender) {
     sendMessage(`succesfully reversed blocks - callID: ${callID}`)
 }
 
-export {main, inspector}
+export {main, inspector, revertBlockChange}

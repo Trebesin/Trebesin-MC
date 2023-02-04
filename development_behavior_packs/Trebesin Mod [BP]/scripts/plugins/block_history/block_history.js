@@ -171,6 +171,7 @@ async function main() {
             if(player.hasTag('inspector')){
                 try{
                     await BlockHistoryCommandsWorker.inspector(blockOld, copyBlock(block), player) 
+                    BlockHistoryCommandsWorker.revertBlockChange(faceBlockOld, copyBlock(faceBlock), player)
                 }
                 catch(error){
                     Debug.logMessage(error)
