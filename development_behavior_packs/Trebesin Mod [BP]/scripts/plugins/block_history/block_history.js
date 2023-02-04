@@ -165,22 +165,21 @@ async function main() {
         const faceBlockOld = copyBlock(faceBlock);
         const block = player.dimension.getBlock(eventData.blockLocation);
         const blockOld = copyBlock(block);
-
+        if(player.hasTag('inspector')){
+            try{
+                await BlockHistoryCommandsWorker.inspector(faceBlockOld, copyBlock(faceBlock), player) 
+                BlockHistoryCommandsWorker.revertBlockChange(blockOld, copyBlock(block), player)
+            }
+            catch(error){
+                Debug.logMessage(error)
+            }
+        }
+        else{
+            saveBlockUpdate(faceBlockOld,copyBlock(faceBlock),player.id);
+            saveBlockUpdate(blockOld,copyBlock(block),player.id);
+        }
         //Those Blocks:
         system.run(async () => {
-            if(player.hasTag('inspector')){
-                try{
-                    await BlockHistoryCommandsWorker.inspector(blockOld, copyBlock(block), player) 
-                    BlockHistoryCommandsWorker.revertBlockChange(faceBlockOld, copyBlock(faceBlock), player)
-                }
-                catch(error){
-                    Debug.logMessage(error)
-                }
-            }
-            else{
-                saveBlockUpdate(faceBlockOld,copyBlock(faceBlock),player.id);
-                saveBlockUpdate(blockOld,copyBlock(block),player.id);
-            }
             //Falling Blocks
             system.run(() => {
                 const fallObject = fallingBlocksTracked.find((block) => faceBlock.location.equals(block.location.start));
