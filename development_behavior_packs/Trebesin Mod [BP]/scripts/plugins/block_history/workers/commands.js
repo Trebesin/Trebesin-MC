@@ -1,4 +1,4 @@
-import {CommandResult, MinecraftEffectTypes , world, BlockLocation,Location, TicksPerDay, TicksPerSecond, Vector, MolangVariableMap, Color, system} from "@minecraft/server";
+import {CommandResult, MinecraftEffectTypes , world, BlockLocation,Location, TicksPerDay, TicksPerSecond, Vector, MolangVariableMap, Color, system, MinecraftBlockTypes, BlockPermutation} from "@minecraft/server";
 import {CommandParser, sendMessage} from "../../../mc_modules/commandParser";
 import { getEdgeLocations, createLocationSet2, locationToString, stringToLocation } from "../../../mc_modules/particles";
 import * as Backend from "../../../mc_modules/server" ;
@@ -33,6 +33,21 @@ function spawnParticles(location, particleAxis, sender) {
     dimension.spawnParticle(`trebesin:edge_highlight_${particleAxis}`, location, molang);
 }
 function reverseBlocks(blocks, sender) {
+    logMessage("confirmed!")
+    for (const block of blocks){
+        
+    world.getDimension(
+        block.dimension_id
+    ).getBlock(
+        new BlockLocation(block.x, block.y, block.z)
+    ).setType(MinecraftBlockTypes.get(block.before_id))
+    
+    world.getDimension(
+        block.dimension_id
+    ).getBlock(
+        new BlockLocation(block.x, block.y, block.z)
+    ).setPermutation(new BlockPermutation())
+    }
 //loops through all the blocks and replaces them with the old data
 }
 function main(){
@@ -50,7 +65,13 @@ function main(){
                 confirmationPerPlayer[player].countdown - 4;
             }
             else if(confirmationPerPlayer[player].confirmed) {
-                confirmationPerPlayer[player].callback()
+                try {
+                    confirmationPerPlayer[player].callback()
+                }
+                catch(error){
+                    logMessage(error)
+                }
+                delete confirmationPerPlayer[player];
             }
             else {
                 sendMessage('The confirmation has expired!', 'blockHistory manager', confirmationPerPlayer[player].player)
@@ -151,7 +172,7 @@ function main(){
                 values : [playerName, parameter.count ?? 5, parameter.startingFrom ?? 0]
             }
             try {
-                const response = await BlockHistoryPLugin.database.query(request);
+                const response = await BlockHistoryPlugin.database.query(request);
                 const tickInASec = TicksPerSecond
                 const tickInAMin = tickInASec*60
                 const tickInAnHour = tickInAMin*60
@@ -259,6 +280,19 @@ function main(){
                 clearall: [
                     {}
                 ],
+                r: [
+                    {type:'int',id:'count',optional:true},
+                    {type:'int',id:'startingFrom',optional:true},
+                    {type:'string',id:'player',optional:true}
+                ],
+                reverse: [
+                    {type:'int',id:'count',optional:true},
+                    {type:'int',id:'startingFrom',optional:true},
+                    {type:'string',id:'player',optional:true}
+                ],
+                confirm: [
+                    {}
+                ]
                 
             }
         }
