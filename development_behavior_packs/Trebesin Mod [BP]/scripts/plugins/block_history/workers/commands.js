@@ -43,7 +43,7 @@ async function getMaxIDPerPlayer(blockPlaceType, player){
                     `,
             values: [player.id, blockPlaceType]
         })
-        logMessage(JSON.stringify(request.result[0]))
+        logMessage(JSON.stringify(request.result))
         return request.result[0].id
     }
     catch(error){
