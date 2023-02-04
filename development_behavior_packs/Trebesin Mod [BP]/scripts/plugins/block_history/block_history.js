@@ -132,7 +132,12 @@ async function main() {
         }
         //This Block:
         if(eventData.player.hasTag('inspector')){
-            BlockHistoryCommandsWorker.inspector(blockOld, copyBlock(eventData.block), eventData.player) 
+            try{
+                BlockHistoryCommandsWorker.inspector(blockOld, copyBlock(eventData.block), eventData.player) 
+            }
+            catch(error){
+                Debug.logMessage(error)
+            }
         }
         else{
             saveBlockUpdate(blockOld,copyBlock(eventData.block),playerId);
