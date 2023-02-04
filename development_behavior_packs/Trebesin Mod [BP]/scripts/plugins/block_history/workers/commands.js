@@ -452,6 +452,9 @@ async function inspector(blockOld, blockNew, sender){
         const tickInAMin = tickInASec*60;
         const tickInAnHour = tickInAMin*60;
         const tickInADay = tickInAnHour*24;
+        if (response.result != ''){
+            sendMessage(`showing listing of block  ${Math.floor(pos.x)}, ${Math.floor(pos.y)}, ${Math.floor(pos.z)}`,'CMD - BlockHistory',sender);
+        }
         for (let responseIndex = response.result.length-1; responseIndex+1; responseIndex--) {
             const blockAlteration = response.result[responseIndex];
             const timeOfBlockAlteration = system.currentTick - parseInt(blockAlteration.tick);
