@@ -283,6 +283,7 @@ export {
     main,
     setBlockType,
     setBlockPermutation,
+    saveBlockUpdate,
     DatabaseExport as database
 };
 

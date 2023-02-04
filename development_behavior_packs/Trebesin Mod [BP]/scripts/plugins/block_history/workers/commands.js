@@ -42,7 +42,7 @@ function reverseBlocks(blocks, sender) {
         const blockOld = copyBlock(block)
         block.setType(MinecraftBlockTypes.get(blocks[i].before_id))
         block.setPermutation(setPermutationFromObject(block.permutation, JSON.parse(blocks[i].before_permutations)))
-        saveBlockUpdate(blockOld,copyBlock(block),playerId);
+        BlockHistoryPlugin.saveBlockUpdate(blockOld,copyBlock(block),playerId);
     }
 }
 function main(){
