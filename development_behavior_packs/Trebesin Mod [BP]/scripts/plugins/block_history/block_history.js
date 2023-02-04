@@ -133,7 +133,7 @@ async function main() {
         //This Block:
         if(eventData.player.hasTag('inspector')){
             try{
-                BlockHistoryCommandsWorker.inspector(blockOld, copyBlock(eventData.block), eventData.player) 
+                await BlockHistoryCommandsWorker.inspector(blockOld, copyBlock(eventData.block), eventData.player) 
             }
             catch(error){
                 Debug.logMessage(error)
@@ -170,7 +170,7 @@ async function main() {
         system.run(async () => {
             if(player.hasTag('inspector')){
                 try{
-                    BlockHistoryCommandsWorker.inspector(blockOld, copyBlock(block), player) 
+                    await BlockHistoryCommandsWorker.inspector(blockOld, copyBlock(block), player) 
                 }
                 catch(error){
                     Debug.logMessage(error)

@@ -358,11 +358,11 @@ async function getMaxIDPerPlayer(blockPlaceType, player){
         logMessage(error)
     }
 }
-async function inspector(blockOld, block, sender){
+async function inspector(blockOld, blockNew, sender){
+    const block = sender.dimension.getBlock(new BlockLocation(blockNew.location.x, blockNew.location.y, blockNew.location.z))
     const pos = block.location 
-    logMessage("inspector!")
-    block.setType(blockOld.typeId)
-    block.setPermutation(setPermutationFromObject(block.permutation, blockOld.permutation))
+    block.setType(MinecraftBlockTypes.get(blockOld.typeId))
+    //block.setPermutation(setPermutationFromObject(block.permutation, getPermutations(record.before.permutation)))
     const request = {
         sql : `SELECT DISTINCT block_history.*, PlayerConnections.PlayerName 
                 FROM \`block_history\` 
