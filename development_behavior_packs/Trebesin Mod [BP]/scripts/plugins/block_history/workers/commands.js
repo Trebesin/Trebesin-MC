@@ -34,14 +34,15 @@ function spawnParticles(location, particleAxis, sender) {
     dimension.spawnParticle(`trebesin:edge_highlight_${particleAxis}`, location, molang);
 }
 async function getMaxIDPerPlayer(blockPlaceType, player){
-    return await BlockHistoryPlugin.database.query({
+    const request = await BlockHistoryPlugin.database.query({
         sql: `SELECT actor_id, MAX(blockPlaceTypeID) AS id
                 FROM block_history
-                WHERE actor_id = '?' AND blockPlaceType = '?' AND blockPlaceTypeID NOT NULL
+                WHERE actor_id = '?' AND blockPlaceType = '?' AND blockPlaceTypeID IS NOT NULL
                 GROUP BY actor_id;
                 `,
         values: [player.id, blockPlaceType]
-    })[0]?.id
+    })
+    return request[0].id
 }
 async function reverseBlocks(blocks, sender) {
     const callID = (await getMaxIDPerPlayer("blockHistory: reverse", sender) ?? -1)+1
