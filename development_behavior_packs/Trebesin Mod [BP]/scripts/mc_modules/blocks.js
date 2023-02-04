@@ -1,6 +1,7 @@
 import {Block, BlockPermutation, world, system, BlockLocation} from '@minecraft/server';
 import { arrayDifference, find } from '../js_modules/array';
 import { sumVectors, compareVectors } from '../js_modules/vector';
+import { logMessage } from '../plugins/debug/debug';
 import { DIRECTIONS, TREBESIN_PERMUTATIONS } from './constants';
 
 /**
@@ -62,6 +63,12 @@ function getPermutations(permutation) {
 function setPermutationFromObject(permutation,object) {
     for (const property in object) {
         const value = object[property];
+        logMessage(`[${property}] - ${value}`);
+        let mess = 'Existing props:\n';
+        for (const test of permutation.getAllProperties()) {
+            mess+=`${test.name},`;
+        }
+        logMessage(mess);
         permutation.getProperty(property).value = value;
     }
     return permutation;
