@@ -285,4 +285,4 @@ function generateBlockArea(coord,steps = 10,callback = null) {
     return coords;
 }
 
-export {compareBlocks, compareBlockLocations, copyBlock, getPermutations, getAdjecentBlocks, getAdjecentBlockCopies, blockUpdateIteration, generateBlockArea}
+export {compareBlocks, compareBlockLocations, setPermutationFromObject, copyBlock, getPermutations, getAdjecentBlocks, getAdjecentBlockCopies, blockUpdateIteration, generateBlockArea}
