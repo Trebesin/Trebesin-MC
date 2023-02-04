@@ -1,4 +1,4 @@
-import {CommandResult, MinecraftEffectTypes , world, BlockLocation,Location, TicksPerDay, TicksPerSecond, Vector, MolangVariableMap, Color, system} from "@minecraft/server";
+import {CommandResult, MinecraftEffectTypes , world, BlockLocation,Location, TicksPerDay, TicksPerSecond, Vector, MolangVariableMap, Color, system, MinecraftBlockTypes, BlockPermutation} from "@minecraft/server";
 import {CommandParser, sendMessage} from "../../../mc_modules/commandParser";
 import { getEdgeLocations, createLocationSet2, locationToString, stringToLocation } from "../../../mc_modules/particles";
 import * as Backend from "../../../mc_modules/server" ;
@@ -34,6 +34,20 @@ function spawnParticles(location, particleAxis, sender) {
 }
 function reverseBlocks(blocks, sender) {
     logMessage("confirmed!")
+    for (const block of blocks){
+        
+    world.getDimension(
+        block.dimension_id
+    ).getBlock(
+        new BlockLocation(block.x, block.y, block.z)
+    ).setType(MinecraftBlockTypes.get(block.before_id))
+
+    world.getDimension(
+        block.dimension_id
+    ).getBlock(
+        new BlockLocation(block.x, block.y, block.z)
+    ).setPermutation(new BlockPermutation(block.before_permutations))
+    }
 //loops through all the blocks and replaces them with the old data
 }
 function main(){
