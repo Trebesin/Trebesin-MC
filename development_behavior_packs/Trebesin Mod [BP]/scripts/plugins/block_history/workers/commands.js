@@ -42,13 +42,11 @@ function reverseBlocks(blocks, sender) {
         new BlockLocation(block.x, block.y, block.z)
     ).setType(MinecraftBlockTypes.get(block.before_id))
     
-    logMessage("inside loop")
-
     world.getDimension(
         block.dimension_id
     ).getBlock(
         new BlockLocation(block.x, block.y, block.z)
-    ).setPermutation(new BlockPermutation(block.before_permutations))
+    ).setPermutation(new BlockPermutation())
     }
 //loops through all the blocks and replaces them with the old data
 }
