@@ -38,7 +38,7 @@ async function getMaxIDPerPlayer(blockPlaceType, player){
         const request = await BlockHistoryPlugin.database.query({
             sql: `SELECT actor_id, MAX(blockPlaceTypeID) AS id
                     FROM block_history
-                    WHERE actor_id = '?' AND blockPlaceType = '?' AND blockPlaceTypeID IS NOT NULL
+                    WHERE actor_id = ? AND blockPlaceType = ? AND blockPlaceTypeID IS NOT NULL
                     GROUP BY actor_id;
                     `,
             values: [player.id, blockPlaceType]
