@@ -34,7 +34,9 @@ function spawnParticles(location, particleAxis, sender) {
     dimension.spawnParticle(`trebesin:edge_highlight_${particleAxis}`, location, molang);
 }
 function reverseBlocks(blocks, sender) {
+    logMessage("confirmed!")
     for(let i = 0;i<blocks.size;i++){
+        logMessage("working!")
         const block = world.getDimension(blocks[i].dimension_id).getBlock(new BlockLocation(blocks[i].x, blocks[i].y, blocks[i].z))
         block.setType(MinecraftBlockTypes.get(blocks[i].before_id))
         block.setPermutation(setPermutationFromObject(block.permutation, JSON.parse(blocks[i].before_permutations)))
