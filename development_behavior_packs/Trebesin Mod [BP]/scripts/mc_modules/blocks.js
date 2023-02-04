@@ -55,6 +55,19 @@ function getPermutations(permutation) {
 }
 
 /**
+ * 
+ * @param {BlockPermutation} permutation 
+ * @param {object} object 
+ */
+function setPermutationFromObject(permutation,object) {
+    for (const property in object) {
+        const value = object[property];
+        permutation.getProperty(property).value = value;
+    }
+    return permutation;
+}
+
+/**
  * Function for comparing location of 2 `Block` class objects.
  * @param {Block} blockA 1st block to compare the other with.
  * @param {Block} blockB The other block to compare with.
