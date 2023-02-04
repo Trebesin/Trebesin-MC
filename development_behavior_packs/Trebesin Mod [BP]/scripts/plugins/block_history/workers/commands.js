@@ -135,10 +135,8 @@ function main(){
             const request = {
                 sql : `SELECT DISTINCT block_history.*, PlayerConnections.PlayerName 
                        FROM \`block_history\` 
-                       JOIN (SELECT PlayerID, PlayerName, MAX(tick) AS max_tick 
-                        FROM PlayerConnections 
-                        GROUP BY PlayerID) PlayerConnections
-                        ON block_history.actor_id = PlayerConnections.PlayerID  
+                       JOIN PlayerConnections 
+                       ON block_history.actor_id = PlayerConnections.PlayerID 
                        WHERE PlayerName = ?  
                        ORDER BY \`block_history\`.\`tick\` DESC
                        LIMIT ? OFFSET ?`,
