@@ -286,6 +286,10 @@ function main(){
                 sendMessage("inspector is now turned off", "CMD - BlockHistory", sender);
             };
         }
+        else if(parameter.command === "cancel"){
+            delete confirmationPerPlayer[sender.id]
+            sendMessage("The call is now aborted", "CMD - BlockHistory", sender)
+        }
         else if(/*isAdmin(sender) && */(parameter.command === "c" || parameter.command === "clear")) {
             if(parameter.players){
                 for(let i = 0;i<parameter.players.length; i++){
