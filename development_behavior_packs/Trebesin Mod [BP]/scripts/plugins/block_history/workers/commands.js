@@ -361,7 +361,7 @@ async function getMaxIDPerPlayer(blockPlaceType, player){
 function revertBlockChange(blockOld, blockNew, sender){
     const block = sender.dimension.getBlock(new BlockLocation(blockNew.location.x, blockNew.location.y, blockNew.location.z))
     block.setType(MinecraftBlockTypes.get(blockOld.typeId))
-    //block.setPermutation(setPermutationFromObject(block.permutation, getPermutations(record.before.permutation)))
+    block.setPermutation(setPermutationFromObject(block.permutation, getPermutations(blockOld.permutation)))
 }
 async function inspector(blockOld, blockNew, sender){
     revertBlockChange(blockOld,blockNew,sender)
