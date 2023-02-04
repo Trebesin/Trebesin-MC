@@ -41,6 +41,8 @@ function reverseBlocks(blocks, sender) {
     ).getBlock(
         new BlockLocation(block.x, block.y, block.z)
     ).setType(MinecraftBlockTypes.get(block.before_id))
+    
+    logMessage("inside loop")
 
     world.getDimension(
         block.dimension_id
@@ -65,7 +67,12 @@ function main(){
                 confirmationPerPlayer[player].countdown - 4;
             }
             else if(confirmationPerPlayer[player].confirmed) {
-                confirmationPerPlayer[player].callback()
+                try {
+                    confirmationPerPlayer[player].callback()
+                }
+                catch(error){
+                    logMessage(error)
+                }
                 delete confirmationPerPlayer[player];
             }
             else {
