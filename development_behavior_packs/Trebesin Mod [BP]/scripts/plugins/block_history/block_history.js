@@ -34,6 +34,7 @@ async function main() {
                 const record = actorRecords[index];
                 request.sql += '(?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
                 request.sql += (index+1 === actorRecords.length) ? ';' : ',';
+                Debug.logMessage("saving to DB2")
 
                 request.values.push(
                     actorId,
