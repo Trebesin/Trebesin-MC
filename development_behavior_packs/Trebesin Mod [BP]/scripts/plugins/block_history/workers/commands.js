@@ -177,9 +177,9 @@ function main(){
                        FROM \`block_history\` 
                        JOIN PlayerConnections 
                        ON block_history.actor_id = PlayerConnections.PlayerID 
-                       WHERE PlayerName = ? AND blockPlaceType = 'blockHistory: reverse' 
+                       WHERE PlayerName = ? AND blockPlaceType = 'blockHistory: reverse' AND blockPlaceTypeID = ?
                        ORDER BY \`block_history\`.\`tick\` DESC`,
-                values : [playerName]
+                values : [playerName, parameter.id]
             }
             try {
                 const response = await BlockHistoryPlugin.database.query(request);
