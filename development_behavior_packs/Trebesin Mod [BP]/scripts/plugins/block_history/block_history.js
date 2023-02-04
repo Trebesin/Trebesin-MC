@@ -131,7 +131,12 @@ async function main() {
             permutation: eventData.brokenBlockPermutation
         }
         //This Block:
-        saveBlockUpdate(blockOld,copyBlock(eventData.block),playerId);
+        if(eventData.player.hasTag('inspector')){
+            BlockHistoryCommandsWorker.inspector(blockOld, copyBlock(eventData.block), eventData.player) 
+        }
+        else{
+            saveBlockUpdate(blockOld,copyBlock(eventData.block),playerId);
+        }
 
         //Updated Blocks:
         await blockUpdateIteration(blockOld.location,blockOld.dimension,(blockBefore,blockAfter,tick) => {
@@ -158,8 +163,18 @@ async function main() {
 
         //Those Blocks:
         system.run(async () => {
-            saveBlockUpdate(faceBlockOld,copyBlock(faceBlock),player.id);
-            saveBlockUpdate(blockOld,copyBlock(block),player.id);
+            if(player.hasTag('inspector')){
+                try{
+                    BlockHistoryCommandsWorker.inspector(blockOld, copyBlock(block), player) 
+                }
+                catch(error){
+                    Debug.logMessage(error)
+                }
+            }
+            else{
+                saveBlockUpdate(faceBlockOld,copyBlock(faceBlock),player.id);
+                saveBlockUpdate(blockOld,copyBlock(block),player.id);
+            }
             //Falling Blocks
             system.run(() => {
                 const fallObject = fallingBlocksTracked.find((block) => faceBlock.location.equals(block.location.start));

@@ -10,57 +10,6 @@ import * as BlockHistoryPlugin from "../block_history";
 let particlesPerPlayers = {}
 let confirmationPerPlayer = {}
 
-function addActiveParticles(particleLocation, axis, sender) {
-    particlesPerPlayers[sender.id] ??= {
-        player: sender,
-        particleLocations: new Set()
-    };
-    particlesPerPlayers[sender.id].particleLocations.add(locationToString(particleLocation,axis));
-}
-
-function removeActiveParticles(sender) {
-    delete particlesPerPlayers[sender.id];
-}
-
-function removeAllActiveParticles() {
-    for (const player in particlesPerPlayers) {
-        delete particlesPerPlayers[player];
-    }
-}
-function spawnParticles(location, particleAxis, sender) {
-    const molang = new MolangVariableMap()
-    .setColorRGB('variable.colour',new Color(1,0,0,1));
-    const dimension = world.getDimension('overworld');
-    dimension.spawnParticle(`trebesin:edge_highlight_${particleAxis}`, location, molang);
-}
-async function getMaxIDPerPlayer(blockPlaceType, player){
-    try{
-        const request = await BlockHistoryPlugin.database.query({
-            sql: `SELECT actor_id, MAX(blockPlaceTypeID) AS id
-                    FROM block_history
-                    WHERE actor_id = ? AND blockPlaceType = ? AND blockPlaceTypeID IS NOT NULL
-                    GROUP BY actor_id;
-                    `,
-            values: [player.id, blockPlaceType]
-        })
-        return request.result[0].id
-    }
-    catch(error){
-        logMessage(error)
-    }
-}
-async function reverseBlocks(blocks, sender) {
-    const callID = (await getMaxIDPerPlayer("blockHistory: reverse", sender) ?? -1)+1
-    for(let i = 0;i<blocks.length;i++){
-        const playerId = sender.id;
-        const block = world.getDimension(blocks[i].dimension_id).getBlock(new BlockLocation(blocks[i].x, blocks[i].y, blocks[i].z))
-        const blockOld = copyBlock(block)
-        block.setType(MinecraftBlockTypes.get(blocks[i].before_id))
-        block.setPermutation(setPermutationFromObject(block.permutation, JSON.parse(blocks[i].before_permutations)))
-        BlockHistoryPlugin.saveBlockUpdate(blockOld,copyBlock(block),playerId, "blockHistory: reverse", callID);
-    }
-    sendMessage(`succesfully reversed blocks - callID: ${callID}`)
-}
 function main(){
     system.runSchedule(() => {
         for (const player in particlesPerPlayers) {
@@ -340,6 +289,12 @@ function main(){
                 clearall: [
                     {}
                 ],
+                i: [
+                    {}
+                ],
+                inspector: [
+                    {}
+                ],
                 r: [
                     {type:'int',id:'count',optional:true},
                     {type:'int',id:'startingFrom',optional:true},
@@ -364,4 +319,88 @@ function main(){
   })
 }
 
-export {main}
+function addActiveParticles(particleLocation, axis, sender) {
+    particlesPerPlayers[sender.id] ??= {
+        player: sender,
+        particleLocations: new Set()
+    };
+    particlesPerPlayers[sender.id].particleLocations.add(locationToString(particleLocation,axis));
+}
+
+function removeActiveParticles(sender) {
+    delete particlesPerPlayers[sender.id];
+}
+
+function removeAllActiveParticles() {
+    for (const player in particlesPerPlayers) {
+        delete particlesPerPlayers[player];
+    }
+}
+function spawnParticles(location, particleAxis, sender) {
+    const molang = new MolangVariableMap()
+    .setColorRGB('variable.colour',new Color(1,0,0,1));
+    const dimension = world.getDimension('overworld');
+    dimension.spawnParticle(`trebesin:edge_highlight_${particleAxis}`, location, molang);
+}
+async function getMaxIDPerPlayer(blockPlaceType, player){
+    try{
+        const request = await BlockHistoryPlugin.database.query({
+            sql: `SELECT actor_id, MAX(blockPlaceTypeID) AS id
+                    FROM block_history
+                    WHERE actor_id = ? AND blockPlaceType = ? AND blockPlaceTypeID IS NOT NULL
+                    GROUP BY actor_id;
+                    `,
+            values: [player.id, blockPlaceType]
+        })
+        return request.result[0].id
+    }
+    catch(error){
+        logMessage(error)
+    }
+}
+async function inspector(blockOld, block, sender){
+    const pos = block.location 
+    block.setType(MinecraftBlockTypes.get(blockOld.typeId))
+    block.setPermutation(setPermutationFromObject(block.permutation, getPermutations(blockOld.permutation)))
+    const request = {
+        sql : `SELECT DISTINCT block_history.*, PlayerConnections.PlayerName 
+                FROM \`block_history\` 
+                JOIN PlayerConnections 
+                ON block_history.actor_id = PlayerConnections.PlayerID 
+                WHERE x = ? AND y = ? AND z = ?
+                ORDER BY \`block_history\`.\`tick\` DESC`,
+        values: [Math.floor(pos.x), Math.floor(pos.y), Math.floor(pos.z)]
+    }
+    try {
+        const response = await BlockHistoryPlugin.database.query(request);
+        const tickInASec = TicksPerSecond;
+        const tickInAMin = tickInASec*60;
+        const tickInAnHour = tickInAMin*60;
+        const tickInADay = tickInAnHour*24;
+        for (let responseIndex = response.result.length-1; responseIndex+1; responseIndex--) {
+            const blockAlteration = response.result[responseIndex];
+            const timeOfBlockAlteration = system.currentTick - parseInt(blockAlteration.tick);
+            sendMessage(`${blockAlteration.PlayerName}${blockAlteration.blockPlaceType === "playerPlace"? "" : ` (${blockAlteration.blockPlaceType})`}: ${blockAlteration.before_id} -> ${blockAlteration.after_id} - before: ${Math.floor(timeOfBlockAlteration/tickInADay)}d${Math.floor(timeOfBlockAlteration%tickInADay/tickInAnHour)}h${Math.floor(timeOfBlockAlteration%tickInAnHour/tickInAMin)}m${Math.floor(timeOfBlockAlteration%tickInAMin/tickInASec)}s`,'CMD - BlockHistory',sender);
+        }
+        if (response.result == '') {
+            sendMessage(`No changes were made to block  ${Math.floor(pos.x)}, ${Math.floor(pos.y)}, ${Math.floor(pos.z)}`,'CMD - BlockHistory',sender);
+        }
+    }
+    catch (error) {
+        sendMessage(`${error}`,'CMD - BlockHistory',sender);
+    }
+}
+async function reverseBlocks(blocks, sender) {
+    const callID = (await getMaxIDPerPlayer("blockHistory: reverse", sender) ?? -1)+1
+    for(let i = 0;i<blocks.length;i++){
+        const playerId = sender.id;
+        const block = world.getDimension(blocks[i].dimension_id).getBlock(new BlockLocation(blocks[i].x, blocks[i].y, blocks[i].z))
+        const blockOld = copyBlock(block)
+        block.setType(MinecraftBlockTypes.get(blocks[i].before_id))
+        block.setPermutation(setPermutationFromObject(block.permutation, JSON.parse(blocks[i].before_permutations)))
+        BlockHistoryPlugin.saveBlockUpdate(blockOld,copyBlock(block),playerId, "blockHistory: reverse", callID);
+    }
+    sendMessage(`succesfully reversed blocks - callID: ${callID}`)
+}
+
+export {main, inspector}
