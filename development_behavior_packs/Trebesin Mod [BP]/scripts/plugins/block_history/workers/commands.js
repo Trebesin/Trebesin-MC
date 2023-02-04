@@ -226,6 +226,16 @@ function main(){
                 sendMessage('the confirmation has expired!', 'cmd - BlockHistory', sender)
             }
         }
+        else if(isAdmin(sender) && (parameter.command === "i" || parameter.command === "inspector")){
+            if(!sender.hasTag("inspector")) {
+            sender.addTag("inspector");
+            sendMessage("inspector is now turned off", "CMD - BlockHistory", sender);
+            }
+            else {
+            sender.removeTag("inspector");
+            sendMessage("inspector is now turned on, break any blocks to see it's history\nWARNING! Do not break blocks with additional data like signs or chests", "CMD - BlockHistory", sender);
+            };
+        }
         else if(/*isAdmin(sender) && */(parameter.command === "c" || parameter.command === "clear")) {
             if(parameter.players){
                 for(let i = 0;i<parameter.players.length; i++){
