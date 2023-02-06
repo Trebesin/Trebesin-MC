@@ -420,7 +420,7 @@ function main(){
                 
             }
         }
-    ], aliases: ["blockhistory", "co", "coreprotect"], run: blockHistoryHandler, senderCheck: isMod()
+    ], aliases: ["blockhistory", "co", "coreprotect"], run: blockHistoryHandler, senderCheck: isMod
   })
 }
 
