@@ -27,39 +27,40 @@ const dbConnection = new DatabaseConnection({
     }
 });
 
+    messages = {}
 
-
-/*
-
-
-        this.registerCommand('more',{
-            aliases: [],
-            description: ["manages sent messages to player so that chat doesn't become a mess"],
-            parameters: [{id:'page', type:'int', optional: false}],
-            arguments: [this.#messages],
-            run: this.#more
-        })
-
-    #more(sender, parameters, messages){
-        if(!parameters.page || parameters.page < 1 || parameters.page > messages.pages){
-            sendMessage(`invalid page number '${parameters.page}'`, "CMD - error", sender)
-            return;
+    commandParser.registerCommand('more',{
+        aliases: [],
+        description: ["manages sent messages to player so that chat doesn't become a mess"],
+        parameters: [{id:'page', type:'int', optional: false}],
+        arguments: [messages],
+        run: (sender, parameters, messages) => {
+            if(!messages[sender.id]){
+                sendMessage(`there is nothing to be shown`, "CMD", sender)
+                return
+            }
+            if(!parameters.page || parameters.page < 1 || parameters.page > Math.ceil(messages[sender.id].content.length/5)){
+                sendMessage(`invalid page number '${parameters.page}'`, "CMD - error", sender)
+                return;
+            }
+            let message = `showing page ${parameters.page} of ${Math.ceil(messages[sender.id].content.length/5)} for ${messages[sender.id].title}: \n`
+            for(let i = (parameters.page-1)*5;i<messages[sender.id].content.length && i<parameters.page*5;i++){
+                message += `${messages[sender.id].content[i]}\n`
+            }
+            sender.tell(message)
         }
-        let message = `showing page ${parameters.page} of ${messages.pages} for ${messages.title}: \n`
-        for(let i = (parameters.page-1)*5;i<messages.content.length && i<parameters.page*5;i++){
-            message += `${messages.content[i]}\n`
+    })
+
+    function sendLongMessage(title, content, sender){
+        if(messages[sender.id]?.title && messages[sender.id]?.title !== title){
+            delete messages[sender.id]
         }
-        sender.tell(message)
+        if(!messages[sender.id]){
+            messages[sender.id] = {title: title, content: content.split(`\n`)}
+            return
+        }
+        messages[sender.id].content.push(content.split('\n'))
     }
-
-
-    #messages = {}
-
-
-
-
-
-*/
 
 const PluginName = 'Backend';
 async function PluginMain() {
@@ -150,4 +151,4 @@ async function PluginMain() {
     });
 }
 
-export { server as Server, commandParser as Commands, dbConnection as DB , PluginMain as main, PluginName as name }
+export { server as Server, commandParser as Commands, dbConnection as DB , PluginMain as main, PluginName as name, sendLongMessage }

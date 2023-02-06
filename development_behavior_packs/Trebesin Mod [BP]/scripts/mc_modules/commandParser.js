@@ -5,6 +5,7 @@ import { randInt } from '../js_modules/random';
 import { findCharIndex, findLastCharIndex, findNumber } from '../js_modules/string';
 import { sendMessage } from './players';
 import { logMessage } from '../plugins/debug/debug';
+import { sendLongMessage } from '../plugins/backend/backend';
 
 //# Type Definitions:
 /**
@@ -100,7 +101,7 @@ class CommandParser {
                 helpMessage += `[CMD] §9${commandName}§r ${aliases} - ${description}${ending}\n`;
             }
         }
-        sender.tell(helpMessage);
+        sendLongMessage("help", helpMessage, sender);
     }
 
     /** 
