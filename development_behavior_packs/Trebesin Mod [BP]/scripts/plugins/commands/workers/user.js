@@ -15,6 +15,15 @@ function main(){
     description: "sets your gamemode to spectator"
   })
 
+  Commands.registerCommand("cls", {
+    aliases: ["clear", "clearchat", "clschat"],
+    parameters: [],
+    description: "spams your chat with newlines therefore clearing chat",
+    run: (sender) => {
+      sender.tell("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n")
+    }
+  })
+
   Commands.registerCommand("gma", {
     aliases: ["gamemodeadventure", "gamemodea", "gm2", "gmadventure", "adventure"], parameters: [], run: async (sender) => {
       await sender.runCommandAsync(`gamerule sendcommandfeedback false`)

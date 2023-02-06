@@ -36,12 +36,12 @@ const dbConnection = new DatabaseConnection({
             return
         }
         messages.viewedFirst = true
-        if(!parameters.page || parameters.page < 1 || parameters.page > Math.ceil(messages[sender.id].content.length/5)){
+        if(!parameters.page || parameters.page < 1 || parameters.page > Math.ceil(messages[sender.id].content.length/7)){
             sendMessage(`invalid page number '${parameters.page}'`, "CMD - error", sender)
             return;
         }
-        let message = `§2showing page ${parameters.page} of ${Math.ceil(messages[sender.id].content.length/5)} for ${messages[sender.id].title}:§r \n`
-        for(let i = (parameters.page-1)*5;i<messages[sender.id].content.length && i<parameters.page*5;i++){
+        let message = `§2showing page ${parameters.page} of ${Math.ceil(messages[sender.id].content.length/7)} for ${messages[sender.id].title}:§r \n`
+        for(let i = (parameters.page-1)*7;i<messages[sender.id].content.length && i<parameters.page*7;i++){
             message += `${messages[sender.id].content[i]}\n`
         }
         message += `§2use !more [pageNumber] for other pages`

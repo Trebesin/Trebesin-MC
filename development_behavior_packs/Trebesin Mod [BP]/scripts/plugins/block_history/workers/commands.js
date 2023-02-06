@@ -50,7 +50,7 @@ function main(){
                        WHERE x = ${Math.floor(pos.x)} AND y = ${Math.floor(pos.y)} AND z = ${Math.floor(pos.z)}
                        ORDER BY \`block_history\`.\`tick\` DESC
                        LIMIT ? OFFSET ?`,
-                values : [parameter.count ?? 5, parameter.startingFrom ?? 0]
+                values : [parameter.count ?? 7, parameter.startingFrom ?? 0]
             }
             try {
                 const response = await BlockHistoryPlugin.database.query(request);
@@ -71,13 +71,15 @@ function main(){
                     sendMessage(`No changes were made to block ${Math.floor(pos.x)}, ${Math.floor(pos.y)}, ${Math.floor(pos.z)}`,'CMD - BlockHistory',sender);
                 }
                 else {
-                    getEdgeLocations([{
-                        x: Math.floor(pos.x),
-                        y: Math.floor(pos.y),
-                        z: Math.floor(pos.z)
-                    }], (loc,axis) => {
-                        addActiveParticles(loc,axis,sender);
-                    })
+                    if(!parameter.particles || parameter.particles === false){
+                        getEdgeLocations([{
+                            x: Math.floor(pos.x),
+                            y: Math.floor(pos.y),
+                            z: Math.floor(pos.z)
+                        }], (loc,axis) => {
+                            addActiveParticles(loc,axis,sender);
+                        })
+                    }
                     sendMessage(`are you sure you want to reverse these changes?\n - !bh confirm to confirm or !bh cancel to cancel`,'CMD - BlockHistory',sender);
                     if(confirmationPerPlayer[sender.id]) delete confirmationPerPlayer[sender.id];
                     confirmationPerPlayer[sender.id] = {
@@ -104,7 +106,7 @@ function main(){
                        WHERE x = ${Math.floor(pos.x)} AND y = ${Math.floor(pos.y)} AND z = ${Math.floor(pos.z)}
                        ORDER BY \`block_history\`.\`tick\` DESC
                        LIMIT ? OFFSET ?`,
-                values : [parameter.count ?? 5, parameter.startingFrom ?? 0]
+                values : [parameter.count ?? 7, parameter.startingFrom ?? 0]
             }
             try {
                 const response = await BlockHistoryPlugin.database.query(request);
@@ -122,14 +124,14 @@ function main(){
                 if (response.result == '') {
                     sendMessage(`No changes were made to block  ${Math.floor(pos.x)}, ${Math.floor(pos.y)}, ${Math.floor(pos.z)}`,'CMD - BlockHistory',sender);
                 }
-                else {
-                    getEdgeLocations([{
-                        x: Math.floor(pos.x),
-                        y: Math.floor(pos.y),
-                        z: Math.floor(pos.z)
-                    }], (loc,axis) => {
-                        addActiveParticles(loc,axis,sender);
-                    })
+                else if(!parameter.particles || parameter.particles === false){
+                        getEdgeLocations([{
+                            x: Math.floor(pos.x),
+                            y: Math.floor(pos.y),
+                            z: Math.floor(pos.z)
+                        }], (loc,axis) => {
+                            addActiveParticles(loc,axis,sender);
+                        })
                 }
             }
             catch (error) {
@@ -146,7 +148,7 @@ function main(){
                        WHERE PlayerName = ?  
                        ORDER BY \`block_history\`.\`tick\` DESC
                        LIMIT ? OFFSET ?`,
-                values : [playerName, parameter.count ?? 5, parameter.startingFrom ?? 0]
+                values : [playerName, parameter.count ?? 7, parameter.startingFrom ?? 0]
             }
             try {
                 const response = await BlockHistoryPlugin.database.query(request);
@@ -167,7 +169,7 @@ function main(){
                 if (response.result == '') {
                     sendMessage(`No changes were made by the player ${playerName}`,'CMD - BlockHistory',sender);
                 }
-                else {
+                else if(!parameter.particles || parameter.particles === false){
                     getEdgeLocations(locations, (loc,axis) => {
                         addActiveParticles(loc,axis,sender);
                     })
@@ -208,9 +210,11 @@ function main(){
                     sendMessage(`No changes were made by the player ${playerName}`,'CMD - BlockHistory',sender);
                 }
                 else{
-                    getEdgeLocations(locations, (loc,axis) => {
-                        addActiveParticles(loc,axis,sender);
-                    })
+                    if(!parameter.particles || parameter.particles === false){
+                        getEdgeLocations(locations, (loc,axis) => {
+                            addActiveParticles(loc,axis,sender);
+                        })
+                    }
                     sendMessage(`are you sure you want to reverse these changes?\n - !bh confirm to confirm or !bh cancel to cancel`,'CMD - BlockHistory',sender);
                     if(confirmationPerPlayer[sender.id]) delete confirmationPerPlayer[sender.id];
                     confirmationPerPlayer[sender.id] = {
@@ -239,7 +243,7 @@ function main(){
                        WHERE PlayerName = ?  
                        ORDER BY \`block_history\`.\`tick\` DESC
                        LIMIT ? OFFSET ?`,
-                values : [playerName, parameter.count ?? 5, parameter.startingFrom ?? 0]
+                values : [playerName, parameter.count ?? 7, parameter.startingFrom ?? 0]
             }
             try {
                 const response = await BlockHistoryPlugin.database.query(request);
@@ -260,9 +264,11 @@ function main(){
                     sendMessage(`No changes were made by the player ${playerName}`,'CMD - BlockHistory',sender);
                 }
                 else{
-                    getEdgeLocations(locations, (loc,axis) => {
-                        addActiveParticles(loc,axis,sender);
-                    })
+                    if(!parameter.particles || parameter.particles === false){
+                        getEdgeLocations(locations, (loc,axis) => {
+                            addActiveParticles(loc,axis,sender);
+                        })
+                    }
                     sendMessage(`are you sure you want to reverse these changes?\n - !bh confirm to confirm or !bh cancel to cancel`,'CMD - BlockHistory',sender);
                     if(confirmationPerPlayer[sender.id]) delete confirmationPerPlayer[sender.id];
                     confirmationPerPlayer[sender.id] = {
@@ -359,22 +365,26 @@ function main(){
                 b: [
                     {type:'int',id:'count',optional:true},
                     {type:'int',id:'startingFrom',optional:true},
-                    {type:'pos',id:'coords',optional:true}
+                    {type:'pos',id:'coords',optional:true},
+                    {type:'bool',id:'particles', optional:true}
                 ],
                 block: [
                     {type:'int',id:'count',optional:true},
                     {type:'int',id:'startingFrom',optional:true},
-                    {type:'pos',id:'coords',optional:true}
+                    {type:'pos',id:'coords',optional:true},
+                    {type:'bool',id:'particles', optional:true}
                 ],
                 p: [
                     {type:'int',id:'count',optional:true},
                     {type:'int',id:'startingFrom',optional:true},
-                    {type:'string',id:'player',optional:true}
+                    {type:'string',id:'player',optional:true},
+                    {type:'bool',id:'particles', optional:true}
                 ],
                 player: [
                     {type:'int',id:'count',optional:true},
                     {type:'int',id:'startingFrom',optional:true},
-                    {type:'string',id:'player',optional:true}
+                    {type:'string',id:'player',optional:true},
+                    {type:'bool',id:'particles', optional:true}
                 ],
                 c: [
                     {type: 'selector', id: 'players', optional:true, playerOnly:true}
@@ -397,26 +407,31 @@ function main(){
                 r: [
                     {type:'int',id:'count',optional:true},
                     {type:'int',id:'startingFrom',optional:true},
-                    {type:'string',id:'player',optional:true}
+                    {type:'string',id:'player',optional:true},
+                    {type:'bool',id:'particles', optional:true}
                 ],
                 redo: [
                     {type:'int',id:'id'},
-                    {type:'string',id:'player',optional:true}
+                    {type:'string',id:'player',optional:true},
+                    {type:'bool',id:'particles', optional:true}
                 ],
                 reverse: [
                     {type:'int',id:'count',optional:true},
                     {type:'int',id:'startingFrom',optional:true},
-                    {type:'string',id:'player',optional:true}
+                    {type:'string',id:'player',optional:true},
+                    {type:'bool',id:'particles', optional:true}
                 ],
                 rb: [
                     {type:'int',id:'count',optional:true},
                     {type:'int',id:'startingFrom',optional:true},
-                    {type:'pos',id:'coords',optional:true}
+                    {type:'pos',id:'coords',optional:true},
+                    {type:'bool',id:'particles', optional:true}
                 ],
                 reverseblock: [
                     {type:'int',id:'count',optional:true},
                     {type:'int',id:'startingFrom',optional:true},
-                    {type:'pos',id:'coords',optional:true}
+                    {type:'pos',id:'coords',optional:true},
+                    {type:'bool',id:'particles', optional:true}
                 ],
                 confirm: [
                     {}
