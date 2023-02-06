@@ -71,7 +71,7 @@ function main(){
                     sendMessage(`No changes were made to block ${Math.floor(pos.x)}, ${Math.floor(pos.y)}, ${Math.floor(pos.z)}`,'CMD - BlockHistory',sender);
                 }
                 else {
-                    if(!parameter.particles || parameter.particles === false){
+                    if(parameter.particles ?? true){
                         getEdgeLocations([{
                             x: Math.floor(pos.x),
                             y: Math.floor(pos.y),
@@ -124,7 +124,7 @@ function main(){
                 if (response.result == '') {
                     sendMessage(`No changes were made to block  ${Math.floor(pos.x)}, ${Math.floor(pos.y)}, ${Math.floor(pos.z)}`,'CMD - BlockHistory',sender);
                 }
-                else if(!parameter.particles || parameter.particles === false){
+                else if(parameter.particles ?? true){
                         getEdgeLocations([{
                             x: Math.floor(pos.x),
                             y: Math.floor(pos.y),
@@ -169,7 +169,7 @@ function main(){
                 if (response.result == '') {
                     sendMessage(`No changes were made by the player ${playerName}`,'CMD - BlockHistory',sender);
                 }
-                else if(!parameter.particles || parameter.particles === false){
+                else if(parameter.particles ?? true){
                     getEdgeLocations(locations, (loc,axis) => {
                         addActiveParticles(loc,axis,sender);
                     })
@@ -210,7 +210,7 @@ function main(){
                     sendMessage(`No changes were made by the player ${playerName}`,'CMD - BlockHistory',sender);
                 }
                 else{
-                    if(!parameter.particles || parameter.particles === false){
+                    if(parameter.particles ?? true){
                         getEdgeLocations(locations, (loc,axis) => {
                             addActiveParticles(loc,axis,sender);
                         })
@@ -264,7 +264,7 @@ function main(){
                     sendMessage(`No changes were made by the player ${playerName}`,'CMD - BlockHistory',sender);
                 }
                 else{
-                    if(!parameter.particles || parameter.particles === false){
+                    if(parameter.particles ?? true){
                         getEdgeLocations(locations, (loc,axis) => {
                             addActiveParticles(loc,axis,sender);
                         })
