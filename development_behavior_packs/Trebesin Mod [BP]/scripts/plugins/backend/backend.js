@@ -27,7 +27,7 @@ const dbConnection = new DatabaseConnection({
     }
 });
 
-    messages = {}
+    let messages = {}
 
     commandParser.registerCommand('more',{
         aliases: [],
