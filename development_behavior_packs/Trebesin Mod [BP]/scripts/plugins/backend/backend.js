@@ -72,11 +72,11 @@ const dbConnection = new DatabaseConnection({
             }
         }
         Debug.logMessage(`before runinterval`)
-        system.runTimeout(() => {Debug.logMessage(`runinterval`);
+        system.run(() => {Debug.logMessage(`runinterval`);
             if(!messages.viewedFirst){
             more(sender, {page: 1});
         }
-        }, 2)
+        })
     }
 
 const PluginName = 'Backend';
