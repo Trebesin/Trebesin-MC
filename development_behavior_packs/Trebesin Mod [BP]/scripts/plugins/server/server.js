@@ -8,6 +8,7 @@ import { sendMessage } from '../../mc_modules/players';
 import { randInt } from '../../js_modules/random';
 import { setVectorLength, sumVectors } from '../../js_modules/vector';
 import { DB } from '../backend/backend';
+import { isAdmin } from '../commands/workers/admin';
 
 const playerData = {
     instaKill: {}
@@ -76,6 +77,19 @@ async function main() {
         } catch (error) {
             world.say(`${error}`);
         }
+    });
+
+    //## Block Ban
+    world.events.beforeItemUseOn.subscribe((eventData) => {
+        if (isAdmin(eventData.source)) return;
+        const offset = FACE_DIRECTIONS[eventData.blockFace];
+        const faceBlockLocation = eventData.blockLocation.offset(offset.x,offset.y,offset.z);
+        system.run(() => {
+            const blockTypeId = eventData.source.dimension.getBlock(faceBlockLocation).typeId;
+            if (blockTypeId === 'minecraft:lava' || blockTypeId === 'minecraft:flowing_lava' || blockTypeId === 'minecraft:dragon_egg') {
+                eventData.cancel = true;
+            }
+        })
     });
 
     //try {
