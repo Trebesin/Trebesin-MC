@@ -20,7 +20,11 @@ function main(){
     parameters: [],
     description: "spams your chat with newlines therefore clearing chat",
     run: (sender) => {
-      sender.tell("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n")
+      let message = ''
+      for(let i = 0;i<1000;i++){
+        message += '\n'
+      }
+      sender.tell(message)
     }
   })
 
