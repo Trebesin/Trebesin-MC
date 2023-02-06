@@ -60,6 +60,14 @@ class CommandParser {
                 this.runCommand(commandInput,messageArray.slice(1).join(' '),sender);
             }
         });
+        
+        this.registerCommand('more',{
+            aliases: [],
+            description: ["manages sent messages to player so that chat doesn't become a mess"],
+            parameters: [{id:'page', type:'int', optional: false}],
+            arguments: [this.#messages],
+            run: this.#more
+        })
 
         this.registerCommand('help',{
             aliases: ['?'],
@@ -68,6 +76,18 @@ class CommandParser {
             arguments: [this.#commands,this.#options],
             run: this.#helpCommand
         });
+    }
+
+    #more(sender, parameters, messages){
+        if(!parameters.page || parameters.page < 1 || parameters.page > messages.pages){
+            sendMessage(`invalid page number '${parameters.page}'`, "CMD - error", sender)
+            return;
+        }
+        let message = `showing page ${parameters.page} of ${messages.pages} for ${messages.title}: \n`
+        for(let i = (parameters.page-1)*5;i<messages.content.length && i<parameters.page*5;i++){
+            message += `${messages.content[i]}\n`
+        }
+        sender.tell(message)
     }
 
     #helpCommand(sender, parameters,commandRegister,commandOptions) {
@@ -155,6 +175,7 @@ class CommandParser {
         },
         adminCheck: () => false
     }
+    #messages = {}
 
     #getParameterChain(parameters,options,sender) {
         const output = {};
@@ -695,6 +716,7 @@ class ParameterStringParser {
         }
     }
 }
+
 
 //# Helper Functions:
 /**

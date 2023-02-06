@@ -160,6 +160,7 @@ async function main() {
         const player = eventData.source;
         const offset = FACE_DIRECTIONS[eventData.blockFace];
         const faceBlockLocation = eventData.blockLocation.offset(offset.x,offset.y,offset.z);
+        
         if(player.hasTag('inspector')){
             try{
                 eventData.cancel = true;
