@@ -92,7 +92,7 @@ class CommandParser {
             const parameterHelp = parseParameterHelp(definition.parameters);
             helpMessage += parameterHelp.join('\n');
         } else {
-            helpMessage += `§l§btip:§r use !help command for detailed command description`
+            helpMessage += `§l§btip:§r use help [command] for detailed command description\n`
             for (const commandName in commandRegister) {
                 const command = commandRegister[commandName];
                 if (command.senderCheck && !commandOptions.adminCheck(sender) && !command.senderCheck(sender)) continue;
