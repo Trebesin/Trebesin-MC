@@ -85,10 +85,10 @@ class CommandParser {
             if (definition.senderCheck && !commandOptions.adminCheck(sender) && !definition.senderCheck(sender)) {
                 throw new CommandError(`§cYou do not meet requirements to use the command §r§l'${commandName}'§r§c!`);
             }
-            const aliases = definition.aliases?.length ? `[${definition.aliases.join(',')}]` : '';
+            const aliases = definition.aliases?.length ? `[§7§o${definition.aliases.join(',')}§r]` : '';
             helpMessage += `§a§l${commandName}§r ${aliases}\n`;
-            helpMessage += `[Description] ${definition.description ?? 'None'}\n`;
-            helpMessage += `[Paramaters]:\n`;
+            helpMessage += `§l§bDescription§r: ${definition.description ?? 'None'}\n`;
+            helpMessage += `§l§bParamaters§r:\n`;
             const parameterHelp = parseParameterHelp(definition.parameters);
             helpMessage += parameterHelp.join('\n');
         } else {
@@ -98,7 +98,7 @@ class CommandParser {
                 if (command.senderCheck && !commandOptions.adminCheck(sender) && !command.senderCheck(sender)) continue;
                 const description = command.description ? command.description.slice(0,32) : '';
                 const ending = command.description?.length > 32 ? '...' : '';
-                const aliases = command.aliases?.length ? `[${command.aliases.join(',')}]` : '';
+                const aliases = command.aliases?.length ? `[§7§o${command.aliases.join(',')}§r]` : '';
                 helpMessage += `§l§a${commandName}§r${aliases == ''?'':` ${aliases}`}${(description + ending) == ''? `` : ` - ${description + ending}`}\n`;
             }
         }
@@ -166,7 +166,6 @@ class CommandParser {
         let currentOptions = options;
         for (let optionIndex = 0;optionIndex < currentOptions.length;optionIndex++) {
             const option = currentOptions[optionIndex];
-            logMessage(`Starting parameter ${optionIndex}: ${option.id} [${option.type}]`)
             const parameter = parameters.next(option);
 
             if (option.optional) optional = true;
