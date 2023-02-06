@@ -58,7 +58,7 @@ function main(){
 
   Commands.registerCommand("block", {parameters: [], senderCheck: isAdmin, run: (sender,parameters) => {
       const location = new BlockLocation(Math.round(sender.location.x),Math.round(sender.location.y),Math.round(sender.location.z));
-      world.say(`${sender.dimension.getBlock(location).typeId}`);
+      sendMessage(`${sender.dimension.getBlock(location).typeId}`, 'cmd - debug', sender);
     }
   })
   //movement commands
@@ -73,9 +73,9 @@ function main(){
 
   Commands.registerCommand('testSelector', {
     parameters: [{type:'selector',id:'entities'}],aliases:[], senderCheck: isAdmin, run(sender,parameters) {
-      world.say(`${parameters.entities.length}`)
+      sendMessage(`${parameters.entities.length}`, 'cmd - debug', sender)
       for (const entity of parameters.entities) {
-        world.say(`Entity: ${entity.typeId}, ${entity.nameTag}, ${entity.id}`);
+        sendMessage(`Entity: ${entity.typeId}, ${entity.nameTag}, ${entity.id}`, 'cmd - debug', sender);
       }
     }
   });

@@ -76,7 +76,7 @@ async function main() {
         try {
             await connection.query(request,true);
         } catch (error) {
-            world.say(`${error}`);
+            Debug.logMessage(`${error}`);
         }
     });
 
@@ -94,25 +94,6 @@ async function main() {
             eventData.cancel = true;
         }
     });
-
-    //try {
-    //    const index = server.playerEquipSubscribe((eventData) => {
-    //        world.say(`Before: ${eventData.itemBefore.typeId} - ${eventData.slotBefore}`);
-    //        world.say(`After: ${eventData.itemAfter.typeId} - ${eventData.slotAfter}`);
-    //    })
-    //    world.say(`${index} subscribed`);
-    //} catch (error) {
-    //    world.say(`${error}`);
-    //}
-    //try {
-    //    const index = server.randomTickSubscribe((block) => {
-    //        if (block.typeId === 'minecraft:red_flower') world.say('Found a flower.');
-    //    });
-    //    world.say(`${index} subscribed`);
-    //} catch (error) {
-    //    world.say(`${error}`)
-    //}
-    
 }
 
 export {main,playerData};
