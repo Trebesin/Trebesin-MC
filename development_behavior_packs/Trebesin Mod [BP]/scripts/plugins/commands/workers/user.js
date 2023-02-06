@@ -21,7 +21,7 @@ function main(){
     description: "spams your chat with newlines therefore clearing chat",
     run: (sender) => {
       let message = ''
-      for(let i = 0;i<1000;i++){
+      for(let i = 0;i<10000;i++){
         message += '\n'
       }
       sender.tell(message)
