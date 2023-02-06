@@ -840,9 +840,9 @@ function parseParameterHelp(paremeters) {
                 }
             }
         } else {
-            const optionalString = optional ? `?` : '';
-            const arrayString = definition.array ? `(${definition.array})` : '';
-            helpMessage += `${definition.id}${optionalString}[${type}${arrayString}] `;
+            const optionalString = optional ? `§b?§r` : '';
+            const arrayString = definition.array ? `(§d${definition.array}§r)` : '';
+            helpMessage += `${definition.id}${optionalString}[§c${type}§r${arrayString}] `;
         }
     }
     if (messages.length === 0) messages.push(helpMessage);
