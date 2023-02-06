@@ -2,11 +2,11 @@ import {CommandResult, MinecraftEffectTypes , system, world, Player, MinecraftBl
 import {CommandParser, sendMessage} from "../../../mc_modules/commandParser";
 import { copyVector, sumVectors } from '../../../js_modules/vector';
 import { setBlockType } from '../../block_history/block_history';
-const commands = new CommandParser({
+const Commands = new CommandParser({
   prefix: ".", caseSensitive: false
 })
 async function main() {
-  commands.registerCommand('idk',{
+  Commands.registerCommand('idk',{
     parameters: [
       {
         type: 'pos',

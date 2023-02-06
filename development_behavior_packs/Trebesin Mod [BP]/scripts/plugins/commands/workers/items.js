@@ -1,4 +1,5 @@
-import { command_parser, isAdmin, isBuilder } from './admin';
+import { isAdmin, isBuilder } from './admin';
+import { Commands } from '../../backend/backend';
 import {world,ItemTypes, ItemStack} from '@minecraft/server';
 import { sendMessage } from '../../../mc_modules/commandParser';
 
@@ -9,7 +10,7 @@ function main() {
             parameter: '2'
         }
     }
-    command_parser.registerCommand('commanditem',{
+    Commands.registerCommand('commanditem',{
         aliases: ["itemcommand", "customitem", "ci"], senderCheck: isBuilder,
         parameters: [
             {
@@ -46,12 +47,12 @@ function main() {
             const itemLore = eventData.item.getLore();
             const command = itemLore[0];
             const parameters = itemLore[1];
-            command_parser.runCommand(command,parameters,eventData.source);
+            Commands.runCommand(command,parameters,eventData.source);
         }
         //## Hardcoded items:
         const itemCommand = itemCommands[eventData.item.typeId];
         if (itemCommand) {
-            command_parser.runCommand(itemCommand.input,itemCommand.parameter,eventData.source);
+            Commands.runCommand(itemCommand.input,itemCommand.parameter,eventData.source);
         }
     })
 }

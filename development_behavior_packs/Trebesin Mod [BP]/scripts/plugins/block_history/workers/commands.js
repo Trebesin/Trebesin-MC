@@ -1,9 +1,9 @@
 import {CommandResult, MinecraftEffectTypes , world, BlockLocation,Location, TicksPerDay, TicksPerSecond, Vector, MolangVariableMap, Color, system, MinecraftBlockTypes, BlockPermutation} from "@minecraft/server";
 import { copyBlock, getPermutations, setPermutationFromObject } from "../../../mc_modules/blocks";
-import {CommandParser, sendMessage} from "../../../mc_modules/commandParser";
+import { sendMessage} from "../../../mc_modules/commandParser";
 import { getEdgeLocations, createLocationSet2, locationToString, stringToLocation } from "../../../mc_modules/particles";
-import * as Backend from "../../../mc_modules/server" ;
-import { command_parser, isAdmin, isMod } from "../../commands/workers/admin";
+import { Commands } from '../../backend/backend';
+import { isAdmin, isMod } from "../../commands/workers/admin";
 import { logMessage } from "../../debug/debug";
 import { playerData } from "../../server/server";
 import * as BlockHistoryPlugin from "../block_history";
@@ -340,7 +340,7 @@ function main(){
             )
         }
     }
-  command_parser.registerCommand("bh", {
+  Commands.registerCommand("bh", {
     parameters: [
         {id: "command", type: "string", optional: true, choice: {
                 b: [

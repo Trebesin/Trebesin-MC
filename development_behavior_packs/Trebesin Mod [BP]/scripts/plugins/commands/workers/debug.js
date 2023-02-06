@@ -2,13 +2,14 @@ import {CommandResult, Location, system, world, Vector, Player, MinecraftEffectT
 import {CommandParser, sendMessage} from "../../../mc_modules/commandParser";
 import * as Debug from './../../debug/debug';
 import { playerData as serverPlayerData } from '../../server/server';
-import {command_parser, isAdmin} from "./admin";
+import { Commands } from '../../backend/backend';
+import {isAdmin} from "./admin";
 import * as backend from "../../backend/backend"; 
 import * as vectorMath from "../../../js_modules/vector.js";
 import { variables as ServerConfig } from '@minecraft/server-admin';
 function main(){
   if(!ServerConfig.get('debug-enabled')) return;
-  command_parser.registerCommand('testArray', { aliases:[], parameters:[
+  Commands.registerCommand('testArray', { aliases:[], parameters:[
         {type:'pos',id:'location'},
         {type:'string',id:'strArray',array:3},
         {type:'string',id:'option',choice:{test:[],not:[]}}
@@ -20,7 +21,7 @@ function main(){
     logMessage(`${parameters.option}`)
   }})
 
-  command_parser.registerCommand('testedge', {
+  Commands.registerCommand('testedge', {
     parameters:[{type:'pos',id:'location'},{type:'int',id:'colour',array:3}],
     senderCheck: isAdmin,
     run(sender,parameters) {
@@ -35,7 +36,7 @@ function main(){
       })
     }
   })
-  command_parser.registerCommand("databasedisconnect", {aliases: ["dbdisconnect", "dbdis"], parameters: [], senderCheck: isAdmin, run: async (sender) =>  {
+  Commands.registerCommand("databasedisconnect", {aliases: ["dbdisconnect", "dbdis"], parameters: [], senderCheck: isAdmin, run: async (sender) =>  {
       try {
         await backend.DB.disconnect();
         sendMessage(`§asuccesfully disconnected from the database.`,'cmd',sender);
@@ -45,7 +46,7 @@ function main(){
     }
   })
 
-  command_parser.registerCommand("databaseconnect", {aliases: ["dbconnect", "dbcon"], parameters: [], senderCheck: isAdmin, run: async (sender) => {
+  Commands.registerCommand("databaseconnect", {aliases: ["dbconnect", "dbcon"], parameters: [], senderCheck: isAdmin, run: async (sender) => {
       try {
         await backend.DB.connect();
         sendMessage(`§asuccesfully connected to the database.`,'cmd',sender);
@@ -55,22 +56,22 @@ function main(){
     }
   })
 
-  command_parser.registerCommand("block", {parameters: [], senderCheck: isAdmin, run: (sender,parameters) => {
+  Commands.registerCommand("block", {parameters: [], senderCheck: isAdmin, run: (sender,parameters) => {
       const location = new BlockLocation(Math.round(sender.location.x),Math.round(sender.location.y),Math.round(sender.location.z));
       world.say(`${sender.dimension.getBlock(location).typeId}`);
     }
   })
   //movement commands
 
-  command_parser.registerCommand("getvector", {
+  Commands.registerCommand("getvector", {
     aliases: ["vector"], parameters: [],senderCheck: isAdmin, run: (sender) => sendMessage(`${sender.viewVector.x}, ${sender.viewVector.y}, ${sender.viewVector.z}`,'CMD',sender)
   });
 
-  command_parser.registerCommand("getcoords", {
+  Commands.registerCommand("getcoords", {
     aliases: ["vector"], parameters: [],senderCheck: isAdmin, run: (sender) => sendMessage(`${sender.location.x}, ${sender.location.y}, ${sender.location.z}`,'CMD',sender)
   });
 
-  command_parser.registerCommand('testSelector', {
+  Commands.registerCommand('testSelector', {
     parameters: [{type:'selector',id:'entities'}],aliases:[], senderCheck: isAdmin, run(sender,parameters) {
       world.say(`${parameters.entities.length}`)
       for (const entity of parameters.entities) {
@@ -79,7 +80,7 @@ function main(){
     }
   });
 
-  command_parser.registerCommand('testpos', {
+  Commands.registerCommand('testpos', {
     parameters:[{type:'pos',id:'location'}],
     senderCheck: isAdmin,
     run(sender,parameters) {

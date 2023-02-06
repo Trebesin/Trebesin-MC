@@ -2,10 +2,10 @@ import {CommandResult, Location, system, world, Vector, Player, MinecraftEffectT
 import {CommandParser, sendMessage} from "../../../mc_modules/commandParser";
 import * as Debug from './../../debug/debug';
 import { playerData as serverPlayerData } from '../../server/server';
-import {command_parser} from "./admin";
+import { Commands } from '../../backend/backend';
 import * as vectorMath from "../../../js_modules/vector.js";
 function main(){
-  command_parser.registerCommand("gmsp", {
+  Commands.registerCommand("gmsp", {
     aliases: ["gamemodespectator", "gamemodesp", "gm3", "gmspectator", "spectator"], parameters: [], run: async (sender) => {
       await sender.runCommandAsync(`gamerule sendcommandfeedback false`)
       await sender.runCommandAsync(`gamemode spectator @s `)
@@ -15,7 +15,7 @@ function main(){
     description: "sets your gamemode to spectator"
   })
 
-  command_parser.registerCommand("gma", {
+  Commands.registerCommand("gma", {
     aliases: ["gamemodeadventure", "gamemodea", "gm2", "gmadventure", "adventure"], parameters: [], run: async (sender) => {
       await sender.runCommandAsync(`gamerule sendcommandfeedback false`)
       await sender.runCommandAsync(`gamemode a @s `)
@@ -29,7 +29,7 @@ function main(){
     description: "sets your gamemode to adventure"
   })
 
-  command_parser.registerCommand("phase", {
+  Commands.registerCommand("phase", {
     parameters: [{id: "distance", type: "int", optional: true}], aliases: ["p","phaser"], run: (sender, parameter) => {
       try {
         const newLocation = Vector.add(sender.location, vectorMath.setVectorLength(sender.viewDirection, parameter.distance ?? 2));
@@ -42,7 +42,7 @@ function main(){
     description: "teleports you in front by [distance] blocks"
   })
 
-  command_parser.registerCommand("fly", {
+  Commands.registerCommand("fly", {
     parameters: [], aliases: ["f"], run: async (sender) => {
       const __parameter = !sender.hasTag("fly");
       await sender.runCommandAsync(`gamerule sendcommandfeedback false`)
@@ -62,7 +62,7 @@ function main(){
 
 
     
-  command_parser.registerCommand("nv", {description: "switches night vision on/off", aliases: ["nightvision"], parameters: [], run: (sender) => {
+  Commands.registerCommand("nv", {description: "switches night vision on/off", aliases: ["nightvision"], parameters: [], run: (sender) => {
       try {
         if(!sender.hasTag("nvoff")) {
           sender.addTag("nvoff");
