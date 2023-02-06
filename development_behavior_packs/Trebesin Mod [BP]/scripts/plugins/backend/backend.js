@@ -4,8 +4,12 @@ import { DatabaseConnection } from '../../mc_modules/network/database-api';
 import { Server, ServerEventCallback } from '../../mc_modules/server';
 import { compareItems } from '../../mc_modules/items';
 import * as Debug from '../debug/debug';
+import { CommandParser } from '../../mc_modules/commandParser';
 
 //Initial Variables:
+const commandParser = new CommandParser({
+    prefix: "!", caseSensitive: false
+  })
 const server = new Server(0);
 server.cancelTerminations = true;
 const dbConnection = new DatabaseConnection({
@@ -112,4 +116,4 @@ async function PluginMain() {
     });
 }
 
-export { server as Server, dbConnection as DB , PluginMain as main, PluginName as name }
+export { server as Server, commandParser as Commands, dbConnection as DB , PluginMain as main, PluginName as name }
