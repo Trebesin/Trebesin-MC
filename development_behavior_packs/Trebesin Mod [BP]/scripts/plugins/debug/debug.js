@@ -18,7 +18,7 @@ async function main() {
 function sendLogMessage(message){
     for (const player of world.getPlayers()) {
         if (player?.hasTag('log')) {
-            sendMessage(`§o§7${message}§r`, '§o§7[log]', player)
+            sendMessage(`§o§7${message}§r`, '§o§7log', player)
         }
     }
 }
