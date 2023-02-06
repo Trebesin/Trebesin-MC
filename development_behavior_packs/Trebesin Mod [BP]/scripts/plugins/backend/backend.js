@@ -71,7 +71,10 @@ const dbConnection = new DatabaseConnection({
                 messages[sender.id].content.push(newContent[i])
             }
         }
-        system.runInterval(() => {if(!messages.viewedFirst)more(sender, {page: 1})}, 2)
+        system.runInterval(() => {if(!messages.viewedFirst){
+            more(sender, {page: 1});
+        }
+        }, 2)
     }
 
 const PluginName = 'Backend';
