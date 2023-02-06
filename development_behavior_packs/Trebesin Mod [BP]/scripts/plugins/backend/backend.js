@@ -57,13 +57,14 @@ const dbConnection = new DatabaseConnection({
         }
         if(!messages[sender.id]){
             messages[sender.id] = {title: title, content: content.split(`\n`), viewedFirst: false}
-            return
         }
-        let newContent = content.split('\n')
-        for(let i = 0;i<newContent.length;i++){
-            messages[sender.id].content.push(newContent[i])
+        else{
+            let newContent = content.split('\n')
+            for(let i = 0;i<newContent.length;i++){
+                messages[sender.id].content.push(newContent[i])
+            }
         }
-        system.runInterval(more(sender, {page: 1}), 2)
+        system.runInterval(() => {if(!messages.viewedFirst)more(sender, {page: 1})}, 2)
     }
 
 const PluginName = 'Backend';
