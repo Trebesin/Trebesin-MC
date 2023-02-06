@@ -1,7 +1,7 @@
 import { isAdmin, isBuilder } from './admin';
 import { Commands } from '../../backend/backend';
 import {world,ItemTypes, ItemStack} from '@minecraft/server';
-import { sendMessage } from '../../../mc_modules/commandParser';
+import { sendMessage } from '../../../mc_modules/players';
 
 function main() {
     const itemCommands = {

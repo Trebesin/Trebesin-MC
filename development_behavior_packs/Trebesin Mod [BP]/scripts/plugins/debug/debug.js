@@ -1,6 +1,6 @@
 import { world, system } from '@minecraft/server';
 import * as serverAdmin from '@minecraft/server-admin';
-import { sendMessage } from '../../mc_modules/commandParser';
+import { sendMessage } from '../../mc_modules/players';
 import { LoggingConnection } from '../../mc_modules/network/logging-api';
 
 

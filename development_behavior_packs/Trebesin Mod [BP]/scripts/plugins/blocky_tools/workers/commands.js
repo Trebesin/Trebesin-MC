@@ -1,5 +1,6 @@
 import {CommandResult, MinecraftEffectTypes , system, world, Player, MinecraftBlockTypes, BlockLocation} from "@minecraft/server";
-import {CommandParser, sendMessage} from "../../../mc_modules/commandParser";
+import {CommandParser} from "../../../mc_modules/commandParser";
+import { sendMessage } from '../../../mc_modules/players';
 import { copyVector, sumVectors } from '../../../js_modules/vector';
 import { setBlockType } from '../../block_history/block_history';
 const Commands = new CommandParser({

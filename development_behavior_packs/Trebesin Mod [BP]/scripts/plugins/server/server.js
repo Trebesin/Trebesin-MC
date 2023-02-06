@@ -3,6 +3,7 @@ import {world,system,MinecraftEffectTypes,MolangVariableMap,Color,Location} from
 import * as Debug from './../debug/debug';
 //MC module imports
 import * as Particles from './../../mc_modules/particles';
+import { sendMessage } from '../../mc_modules/players';
 //JS module imports
 import { randInt } from '../../js_modules/random';
 import { setVectorLength, sumVectors } from '../../js_modules/vector';

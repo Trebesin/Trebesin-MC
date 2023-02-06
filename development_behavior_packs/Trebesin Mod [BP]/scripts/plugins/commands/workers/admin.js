@@ -1,5 +1,5 @@
 import {CommandResult, MinecraftEffectTypes , system, world, BlockLocation, MolangVariableMap, Color, Location} from "@minecraft/server";
-import {CommandParser, sendMessage} from "../../../mc_modules/commandParser";
+import { sendMessage } from '../../../mc_modules/players';
 import { getEdgeLocations, interfaceToLocation } from '../../../mc_modules/particles';
 import { Commands } from "../../backend/backend"; 
 import { playerData as serverPlayerData } from '../../server/server';

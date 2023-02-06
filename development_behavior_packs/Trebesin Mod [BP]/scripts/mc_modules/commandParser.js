@@ -3,6 +3,7 @@ import { setVectorLength } from './../js_modules/vector';
 import { filter } from '../js_modules/array';
 import { randInt } from '../js_modules/random';
 import { findCharIndex, findLastCharIndex, findNumber } from '../js_modules/string';
+import { sendMessage } from './players';
 import { logMessage } from '../plugins/debug/debug';
 
 //# Type Definitions:
@@ -719,26 +720,6 @@ class ParameterStringParser {
 
 
 //# Helper Functions:
-/**
- * 
- * @param {string} message 
- * @param {Player | Player[]} [actor]
- * @param {string} [sender]
- */
- function sendMessage(message,senderName,actor = null) {
-    const messageText = !senderName ? message : `[${senderName}§r] ${message}`;
-    if (!actor) {
-        world.say(messageText);
-    } else {
-        if (!Array.isArray(actor)) {
-            actor.tell(messageText);
-        } else {
-            for (let playerIndex = 0;playerIndex < actor.length;playerIndex++) {
-                actor[playerIndex].tell(messageText);
-            }
-        }
-    }
-}
 
 function parseRangeSelectorArg(selectorArg,query,options = {}) {
     let min,max;
@@ -907,4 +888,4 @@ function normalizeParameterType(type) {
     return normalizedType;
 }
 
-export {CommandParser,sendMessage}
+export {CommandParser}

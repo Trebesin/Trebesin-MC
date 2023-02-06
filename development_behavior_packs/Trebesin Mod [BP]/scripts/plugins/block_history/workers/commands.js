@@ -1,6 +1,6 @@
 import {CommandResult, MinecraftEffectTypes , world, BlockLocation,Location, TicksPerDay, TicksPerSecond, Vector, MolangVariableMap, Color, system, MinecraftBlockTypes, BlockPermutation} from "@minecraft/server";
 import { copyBlock, getPermutations, setPermutationFromObject } from "../../../mc_modules/blocks";
-import { sendMessage} from "../../../mc_modules/commandParser";
+import { sendMessage} from "../../../mc_modules/players";
 import { getEdgeLocations, createLocationSet2, locationToString, stringToLocation } from "../../../mc_modules/particles";
 import { Commands } from '../../backend/backend';
 import { isAdmin, isMod } from "../../commands/workers/admin";

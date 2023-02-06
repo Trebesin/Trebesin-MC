@@ -1,5 +1,5 @@
 import {CommandResult, Location, system, world, Vector, Player, MinecraftEffectTypes} from "@minecraft/server";
-import {CommandParser, sendMessage} from "../../../mc_modules/commandParser";
+import { sendMessage } from '../../../mc_modules/players';
 import * as Debug from './../../debug/debug';
 import { playerData as serverPlayerData } from '../../server/server';
 import { Commands } from '../../backend/backend';
