@@ -149,7 +149,7 @@ async function blockUpdateIteration(location,dimension,callback) {
             return newBlockUpdates;
         });
     }
-    world.say(`ending block update iteration [${system.currentTick}]`);
+    logMessage(`ending block update iteration [${system.currentTick}]`);
 }
 
 async function blockUpdateIterationObject(location,dimension,callback) {
