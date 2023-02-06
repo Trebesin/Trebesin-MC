@@ -82,7 +82,7 @@ async function main() {
 
     //## Block Ban
     world.events.beforeItemUseOn.subscribe((eventData) => {
-        if (isAdmin(eventData.source)) return;
+        if (isAdmin(eventData.source) || eventData.source.hasTag('certified_builder')) return;
         const itemId = eventData.item.typeId;
         if (
             itemId === 'minecraft:lava_bucket' ||

@@ -124,7 +124,22 @@ function main(){
     description: "sets your gamemode to creative"
   })
 
-  Commands.registerCommand("log", {description: "turns chat log broadcast on/off per player", aliases: ["logs", "logmessages", "seelogs", "seelogmessages"], parameters: [], run: (sender) => {
+  Commands.registerCommand("allowbuild", {description: "allows lava placing for players", aliases: ["allowlava", "lavaplace", "allowwater", "waterplace"], senderCheck: isAdmin, parameters: [{id: "player", type: 'selector', optional: false, playersOnly: true}], run: (sender) => {
+    player = parameter.player[0] ?? sender
+    if(sender.hasTag("certified_builder")) {
+      sender.removeTag("certified_builder");
+      sendMessage("you have been rewoked the permision to place lava", "§aCMD§f", player);
+      sendMessage(`${player.name} been rewoked the permision to place lava`, "§aCMD§f", sender);
+    }
+    else {
+      sender.addTag("certified_builder");
+      sendMessage("you are now able to place lava", "§aCMD§f", player);
+      sendMessage(`${player.name} is now able to place lava`, "§aCMD§f", sender);
+    };
+  },
+})
+
+  Commands.registerCommand("log", {description: "turns chat log broadcast on/off per player", aliases: ["logs", "logmessages", "seelogs", "seelogmessages"], senderCheck: isAdmin, parameters: [], run: (sender) => {
       try {
         if(sender.hasTag("log")) {
           sender.removeTag("log");
