@@ -134,7 +134,7 @@ async function main() {
         if(eventData.player.hasTag('inspector')){
             try{
                 BlockHistoryCommandsWorker.revertBlockChange(blockOld, copyBlock(eventData.block), eventData.player)
-                await BlockHistoryCommandsWorker.inspector(eventData.block, eventData.player) 
+                await BlockHistoryCommandsWorker.inspector(eventData.block.location, eventData.player) 
 
             }
             catch(error){
@@ -160,11 +160,10 @@ async function main() {
         const player = eventData.source;
         const offset = FACE_DIRECTIONS[eventData.blockFace];
         const faceBlockLocation = eventData.blockLocation.offset(offset.x,offset.y,offset.z);
-        const faceBlock = player.dimension.getBlock(faceBlockLocation);
         if(player.hasTag('inspector')){
             try{
                 eventData.cancel = true;
-                await BlockHistoryCommandsWorker.inspector(faceBlock, player) 
+                await BlockHistoryCommandsWorker.inspector(faceBlockLocation, player) 
             }
             catch(error){
                 Debug.logMessage(error)
