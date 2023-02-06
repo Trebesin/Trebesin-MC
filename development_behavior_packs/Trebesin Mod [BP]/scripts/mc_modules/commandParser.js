@@ -98,7 +98,7 @@ class CommandParser {
                 const description = command.description ? command.description.slice(0,32) : '';
                 const ending = command.description?.length > 32 ? '...' : '';
                 const aliases = command.aliases?.length ? `[${command.aliases.join(',')}]` : '';
-                helpMessage += `§l§a${commandName}§r ${aliases}${(description + ending) == ''? `` : ` - ${description + ending}`}\n`.trim();
+                helpMessage += `§l§a${commandName}§r ${aliases}${(description + ending) == ''? `` : ` - ${description + ending}`}\n`;
             }
         }
         sendLongMessage("help", helpMessage, sender);
