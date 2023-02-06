@@ -81,7 +81,7 @@ async function main() {
 
     //## Block Ban
     world.events.beforeItemUseOn.subscribe((eventData) => {
-        if (isAdmin(eventData.source)) return;
+        //if (isAdmin(eventData.source)) return;
         const offset = FACE_DIRECTIONS[eventData.blockFace];
         const faceBlockLocation = eventData.blockLocation.offset(offset.x,offset.y,offset.z);
         system.run(() => {
