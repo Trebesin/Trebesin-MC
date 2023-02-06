@@ -71,9 +71,8 @@ const dbConnection = new DatabaseConnection({
                 messages[sender.id].content.push(newContent[i])
             }
         }
-        Debug.logMessage(`before runinterval`)
-        system.run(() => {Debug.logMessage(`runinterval`);
-            if(!messages.viewedFirst){
+        system.run(() => {
+            if(!messages[sender.id].viewedFirst){
             more(sender, {page: 1});
         }
         })
