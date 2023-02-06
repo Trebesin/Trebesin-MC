@@ -4,6 +4,7 @@ import * as Debug from './../debug/debug';
 //MC module imports
 import * as Particles from './../../mc_modules/particles';
 import { sendMessage } from '../../mc_modules/players';
+import { FACE_DIRECTIONS } from '../../mc_modules/constants';
 //JS module imports
 import { randInt } from '../../js_modules/random';
 import { setVectorLength, sumVectors } from '../../js_modules/vector';
@@ -81,15 +82,16 @@ async function main() {
 
     //## Block Ban
     world.events.beforeItemUseOn.subscribe((eventData) => {
-        //if (isAdmin(eventData.source)) return;
-        const offset = FACE_DIRECTIONS[eventData.blockFace];
-        const faceBlockLocation = eventData.blockLocation.offset(offset.x,offset.y,offset.z);
-        system.run(() => {
-            const blockTypeId = eventData.source.dimension.getBlock(faceBlockLocation).typeId;
-            if (blockTypeId === 'minecraft:lava' || blockTypeId === 'minecraft:flowing_lava' || blockTypeId === 'minecraft:dragon_egg') {
-                eventData.cancel = true;
-            }
-        })
+        if (isAdmin(eventData.source)) return;
+        const itemId = eventData.item.typeId;
+        if (
+            itemId === 'minecraft:lava_bucket' ||
+            itemId === 'minecraft:lava' ||
+            itemId === 'minecraft:flowing_lava' || 
+            itemId === 'minecraft:dragon_egg'
+        ) {
+            eventData.cancel = true;
+        }
     });
 
     //try {
