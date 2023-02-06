@@ -92,13 +92,14 @@ class CommandParser {
             const parameterHelp = parseParameterHelp(definition.parameters);
             helpMessage += parameterHelp.join('\n');
         } else {
+            helpMessage += `§l§btip:§r use !help command for detailed command description`
             for (const commandName in commandRegister) {
                 const command = commandRegister[commandName];
                 if (command.senderCheck && !commandOptions.adminCheck(sender) && !command.senderCheck(sender)) continue;
                 const description = command.description ? command.description.slice(0,32) : '';
                 const ending = command.description?.length > 32 ? '...' : '';
                 const aliases = command.aliases?.length ? `[${command.aliases.join(',')}]` : '';
-                helpMessage += `§l§a${commandName}§r ${aliases}${(description + ending) == ''? `` : ` - ${description + ending}`}\n`;
+                helpMessage += `§l§a${commandName}§r${aliases == ''?'':` ${aliases}`}${(description + ending) == ''? `` : ` - ${description + ending}`}\n`;
             }
         }
         sendLongMessage("help", helpMessage, sender);
