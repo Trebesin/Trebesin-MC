@@ -63,7 +63,9 @@ class CommandParser {
 
         this.registerCommand('help',{
             aliases: ['?'],
+            description: 'Lists all commands or explains specific command in more detail.',
             parameters: [{id:'command',type:'string',optional: true}],
+            arguments: [this.#commands,this.#options],
             run: this.#helpCommand
         });
     }
@@ -281,7 +283,7 @@ class CommandParser {
                     coord[index] = Math.round(entity.location[axis]) + (isNaN(number) ? 0 : number);
                 } else if (string[1] === '[' && string[string.length - 1] === ']') {
                     const number = parseFloat(string.slice(2,string.length-1));
-                    coord[index] = parseInt(entity.location[axis]) + (isNaN(number) ? 0 : number);
+                    coord[index] = Math.floor(entity.location[axis]) + (isNaN(number) ? 0 : number);
                 } else {
                     const number = parseFloat(string.slice(1));
                     coord[index] = entity.location[axis] + (isNaN(number) ? 0 : number);

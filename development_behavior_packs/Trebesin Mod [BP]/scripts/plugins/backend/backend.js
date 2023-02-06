@@ -54,7 +54,7 @@ async function PluginMain() {
                     const itemAfter = player.getComponent('inventory').container.getSlot(player.selectedSlot).getItem();
                     const slotAfter = player.selectedSlot;
                     if (!compareItems(itemAfter,itemBefore) || slotBefore != slotAfter) {
-                        data.playerEquip[player.id].item = itemAfter;//!needs testing
+                        data.playerEquip[player.id].item = itemAfter;
                         data.playerEquip[player.id].slot = slotAfter;
                         playerEquipCallbacks.runCallbacks({
                             itemBefore,
