@@ -31,26 +31,21 @@ const dbConnection = new DatabaseConnection({
     let messages = {}
 
     function more(sender, parameters){
-        try{
-            if(!messages[sender.id]){
-                sendMessage(`there is nothing to be shown`, "CMD", sender)
-                return
-            }
-            messages.viewedFirst = true
-            if(!parameters.page || parameters.page < 1 || parameters.page > Math.ceil(messages[sender.id].content.length/5)){
-                sendMessage(`invalid page number '${parameters.page}'`, "CMD - error", sender)
-                return;
-            }
-            let message = `§2showing page ${parameters.page} of ${Math.ceil(messages[sender.id].content.length/5)} for ${messages[sender.id].title}:§r \n`
-            for(let i = (parameters.page-1)*5;i<messages[sender.id].content.length && i<parameters.page*5;i++){
-                message += `${messages[sender.id].content[i]}\n`
-            }
-            message += `§2use !more [pageNumber] for other pages`
-            sender.tell(message)
+        if(!messages[sender.id]){
+            sendMessage(`there is nothing to be shown`, "CMD", sender)
+            return
         }
-        catch(error){
-            sendMessage(`${error}`, "CMD - error", sender)
+        messages.viewedFirst = true
+        if(!parameters.page || parameters.page < 1 || parameters.page > Math.ceil(messages[sender.id].content.length/5)){
+            sendMessage(`invalid page number '${parameters.page}'`, "CMD - error", sender)
+            return;
         }
+        let message = `§2showing page ${parameters.page} of ${Math.ceil(messages[sender.id].content.length/5)} for ${messages[sender.id].title}:§r \n`
+        for(let i = (parameters.page-1)*5;i<messages[sender.id].content.length && i<parameters.page*5;i++){
+            message += `${messages[sender.id].content[i]}\n`
+        }
+        message += `§2use !more [pageNumber] for other pages`
+        sender.tell(message)
     }
 
     commandParser.registerCommand('more',{
@@ -59,8 +54,8 @@ const dbConnection = new DatabaseConnection({
         parameters: [{id:'page', type:'int', optional: false}],
         run: more})
 
-    function sendLongMessage(title, content, sender){
-        if(messages[sender.id]?.title && messages[sender.id]?.title !== title){
+    function sendLongMessage(title, content, sender, rewriteOld = true){
+        if(rewriteOld && messages[sender.id]){
             delete messages[sender.id]
         }
         if(!messages[sender.id]){
