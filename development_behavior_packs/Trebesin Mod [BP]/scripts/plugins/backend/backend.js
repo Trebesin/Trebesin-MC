@@ -34,6 +34,7 @@ const dbConnection = new DatabaseConnection({
             sendMessage(`there is nothing to be shown`, "CMD", sender)
             return
         }
+        messages.viewedFirst = true
         if(!parameters.page || parameters.page < 1 || parameters.page > Math.ceil(messages[sender.id].content.length/5)){
             sendMessage(`invalid page number '${parameters.page}'`, "CMD - error", sender)
             return;
