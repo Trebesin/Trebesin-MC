@@ -90,6 +90,7 @@ async function main() {
             itemId === 'minecraft:flowing_lava' || 
             itemId === 'minecraft:dragon_egg'
         ) {
+            sendMessage(`§cYou are not permitted to use the item ${itemId}!§r`,'SERVER',eventData.source);
             eventData.cancel = true;
         }
     });
