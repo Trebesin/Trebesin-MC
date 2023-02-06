@@ -41,10 +41,11 @@ const dbConnection = new DatabaseConnection({
                 sendMessage(`invalid page number '${parameters.page}'`, "CMD - error", sender)
                 return;
             }
-            let message = `showing page ${parameters.page} of ${Math.ceil(messages[sender.id].content.length/5)} for ${messages[sender.id].title}: \n`
+            let message = `§2showing page ${parameters.page} of ${Math.ceil(messages[sender.id].content.length/5)} for ${messages[sender.id].title}:§r \n`
             for(let i = (parameters.page-1)*5;i<messages[sender.id].content.length && i<parameters.page*5;i++){
                 message += `${messages[sender.id].content[i]}\n`
             }
+            message += `§2use !more [pageNumber] for other pages`
             sender.tell(message)
         }
         catch(error){

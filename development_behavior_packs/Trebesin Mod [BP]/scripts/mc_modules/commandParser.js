@@ -86,7 +86,7 @@ class CommandParser {
                 throw new CommandError(`§cYou do not meet requirements to use the command §r§l'${commandName}'§r§c!`);
             }
             const aliases = definition.aliases?.length ? `[${definition.aliases.join(',')}]` : '';
-            helpMessage += `[CMD] §9${commandName}§r ${aliases}\n`;
+            helpMessage += `§a§l${commandName}§r ${aliases}\n`;
             helpMessage += `[Description] ${definition.description ?? 'None'}\n`;
             helpMessage += `[Paramaters]:\n`;
             const parameterHelp = parseParameterHelp(definition.parameters);
@@ -98,7 +98,7 @@ class CommandParser {
                 const description = command.description ? command.description.slice(0,32) : '';
                 const ending = command.description?.length > 32 ? '...' : '';
                 const aliases = command.aliases?.length ? `[${command.aliases.join(',')}]` : '';
-                helpMessage += `[CMD] §9${commandName}§r ${aliases} - ${description}${ending}\n`;
+                helpMessage += `§l§a${commandName}§r ${aliases}${(description + ending) == ''? `` : ` - ${description + ending}`}\n`.trim();
             }
         }
         sendLongMessage("help", helpMessage, sender);
