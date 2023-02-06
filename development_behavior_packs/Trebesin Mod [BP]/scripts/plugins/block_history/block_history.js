@@ -133,7 +133,9 @@ async function main() {
         //This Block:
         if(eventData.player.hasTag('inspector')){
             try{
-                await BlockHistoryCommandsWorker.inspector(blockOld, copyBlock(eventData.block), eventData.player) 
+                BlockHistoryCommandsWorker.revertBlockChange(blockOld, copyBlock(eventData.block), eventData.player)
+                await BlockHistoryCommandsWorker.inspector(eventData.block, eventData.player) 
+
             }
             catch(error){
                 Debug.logMessage(error)
@@ -153,6 +155,24 @@ async function main() {
         });
     });
     
+    // inspector place
+    world.events.beforeItemUseOn.subscribe(async(eventData) => {
+        const player = eventData.source;
+        const offset = FACE_DIRECTIONS[eventData.blockFace];
+        const faceBlockLocation = eventData.blockLocation.offset(offset.x,offset.y,offset.z);
+        const faceBlock = player.dimension.getBlock(faceBlockLocation);
+        if(player.hasTag('inspector')){
+            try{
+                eventData.cancel = true;
+                await BlockHistoryCommandsWorker.inspector(faceBlock, player) 
+            }
+            catch(error){
+                Debug.logMessage(error)
+            }
+        }
+
+
+    })
     //## Block Placing Detection:
     world.events.itemStartUseOn.subscribe(async(eventData) => {
         const player = eventData.source;
@@ -165,19 +185,8 @@ async function main() {
 
         //Those Blocks:
         system.run(async () => {
-            if(player.hasTag('inspector')){
-                try{
-                    await BlockHistoryCommandsWorker.inspector(faceBlockOld, copyBlock(faceBlock), player) 
-                    BlockHistoryCommandsWorker.revertBlockChange(blockOld, copyBlock(block), player)
-                }
-                catch(error){
-                    Debug.logMessage(error)
-                }
-            }
-            else{
                 saveBlockUpdate(faceBlockOld,copyBlock(faceBlock),player.id);
                 saveBlockUpdate(blockOld,copyBlock(block),player.id);
-            }
             //Falling Blocks
             system.run(() => {
                 const fallObject = fallingBlocksTracked.find((block) => faceBlock.location.equals(block.location.start));

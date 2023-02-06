@@ -468,8 +468,7 @@ function revertBlockChange(blockOld, blockNew, sender){
     block.setType(MinecraftBlockTypes.get(blockOld.typeId))
     block.setPermutation(setPermutationFromObject(block.permutation, getPermutations(blockOld.permutation)))
 }
-async function inspector(blockOld, blockNew, sender){
-    revertBlockChange(blockOld,blockNew,sender)
+async function inspector(blockNew, sender){
     const pos = blockNew.location 
     const request = {
         sql : `SELECT DISTINCT block_history.*, PlayerConnections.PlayerName 
