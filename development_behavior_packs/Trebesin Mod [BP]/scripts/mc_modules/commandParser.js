@@ -804,6 +804,18 @@ function getScoreSelectors(string,options = {escapeChar: '\\', separator: ','}) 
     return selector
 }
 
+/**
+* @typedef CommandRegisterEntry
+* @property {string} name - Name of the command.
+* @property {CommandDefinition} [definition] - Definition of the command.
+*/
+
+/**
+ * 
+ * @param {string} input 
+ * @param {object} commands 
+ * @returns {CommandRegisterEntry}
+ */
 function findRegisteredCommand(input,commands) {
     for (const commandName in commands) {
         if (commandName === input || commands[commandName].aliases?.includes(input)) {
