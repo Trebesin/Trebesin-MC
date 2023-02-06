@@ -129,7 +129,7 @@ function main(){
 
   command_parser.registerCommand("log", {description: "turns chat log broadcast on/off per player", aliases: ["logs", "logmessages", "seelogs", "seelogmessages"], parameters: [], run: (sender) => {
       try {
-        if(!sender.hasTag("log")) {
+        if(sender.hasTag("log")) {
           sender.removeTag("log");
           sendMessage("logmessages will no longer show", "§aCMD§f", sender);
         }
