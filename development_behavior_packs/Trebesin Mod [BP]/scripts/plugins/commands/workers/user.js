@@ -11,7 +11,8 @@ function main(){
       await sender.runCommandAsync(`gamemode spectator @s `)
       sendMessage("you are now in §lspectator§r§f Mode", "§aCMD§f", sender)
       await sender.runCommandAsync(`gamerule sendcommandfeedback true`)
-    }
+    },
+    description: "sets your gamemode to spectator"
   })
 
   command_parser.registerCommand("gma", {
@@ -24,7 +25,8 @@ function main(){
       }
       sendMessage("you are now in §ladventure§r§f mode", "§aCMD§f", sender)
       await sender.runCommandAsync(`gamerule sendcommandfeedback true`)
-    }
+    },
+    description: "sets your gamemode to adventure"
   })
 
   command_parser.registerCommand("phase", {
@@ -36,7 +38,8 @@ function main(){
       } catch (error) {
         world.say(`${error}`)
       }
-    }
+    },
+    description: "teleports you in front by [distance] blocks"
   })
 
   command_parser.registerCommand("fly", {
@@ -53,7 +56,8 @@ function main(){
         sendMessage("you have disabled §lflying§r", "§aCMD§f", sender)
       }
       await sender.runCommandAsync(`gamerule sendcommandfeedback true`)
-    }
+    },
+    description: "switches flying"
   });
 
 

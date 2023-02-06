@@ -1,4 +1,4 @@
-import { command_parser } from './admin';
+import { command_parser, isAdmin, isBuilder } from './admin';
 import {world,ItemTypes, ItemStack} from '@minecraft/server';
 import { sendMessage } from '../../../mc_modules/commandParser';
 
@@ -10,7 +10,7 @@ function main() {
         }
     }
     command_parser.registerCommand('commanditem',{
-        aliases: ["itemcommand", "customitem", "ci"],
+        aliases: ["itemcommand", "customitem", "ci"], senderCheck: isBuilder,
         parameters: [
             {
                 type: 'str',

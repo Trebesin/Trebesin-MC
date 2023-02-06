@@ -51,6 +51,7 @@ class CommandParser {
 
             if (message.startsWith(this.#options.prefix)) {
                 eventData.cancel = true;
+                logMessage(`player ${sender.name} executed command: ${message}`)
                 const messageArray = message.split(' ');
                 let commandInput = messageArray[0].slice(this.#options.prefix.length);
                 if (!this.#options.caseSensitive) {
