@@ -5,6 +5,7 @@ import { Server, ServerEventCallback } from '../../mc_modules/server';
 import { compareItems } from '../../mc_modules/items';
 import * as Debug from '../debug/debug';
 import { CommandParser } from '../../mc_modules/commandParser';
+import { sendMessage } from '../../mc_modules/players';
 
 //Initial Variables:
 const commandParser = new CommandParser({
@@ -30,20 +31,25 @@ const dbConnection = new DatabaseConnection({
     let messages = {}
 
     function more(sender, parameters){
-        if(!messages[sender.id]){
-            sendMessage(`there is nothing to be shown`, "CMD", sender)
-            return
+        try{
+            if(!messages[sender.id]){
+                sendMessage(`there is nothing to be shown`, "CMD", sender)
+                return
+            }
+            messages.viewedFirst = true
+            if(!parameters.page || parameters.page < 1 || parameters.page > Math.ceil(messages[sender.id].content.length/5)){
+                sendMessage(`invalid page number '${parameters.page}'`, "CMD - error", sender)
+                return;
+            }
+            let message = `showing page ${parameters.page} of ${Math.ceil(messages[sender.id].content.length/5)} for ${messages[sender.id].title}: \n`
+            for(let i = (parameters.page-1)*5;i<messages[sender.id].content.length && i<parameters.page*5;i++){
+                message += `${messages[sender.id].content[i]}\n`
+            }
+            sender.tell(message)
         }
-        messages.viewedFirst = true
-        if(!parameters.page || parameters.page < 1 || parameters.page > Math.ceil(messages[sender.id].content.length/5)){
-            sendMessage(`invalid page number '${parameters.page}'`, "CMD - error", sender)
-            return;
+        catch(error){
+            sendMessage(`${error}`, "CMD - error", sender)
         }
-        let message = `showing page ${parameters.page} of ${Math.ceil(messages[sender.id].content.length/5)} for ${messages[sender.id].title}: \n`
-        for(let i = (parameters.page-1)*5;i<messages[sender.id].content.length && i<parameters.page*5;i++){
-            message += `${messages[sender.id].content[i]}\n`
-        }
-        sender.tell(message)
     }
 
     commandParser.registerCommand('more',{
