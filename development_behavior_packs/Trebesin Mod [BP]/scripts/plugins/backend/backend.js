@@ -72,7 +72,7 @@ const dbConnection = new DatabaseConnection({
             }
         }
         Debug.logMessage(`before runinterval`)
-        system.runInterval(() => {Debug.logMessage(`runinterval`);
+        system.runTimeout(() => {Debug.logMessage(`runinterval`);
             if(!messages.viewedFirst){
             more(sender, {page: 1});
         }
