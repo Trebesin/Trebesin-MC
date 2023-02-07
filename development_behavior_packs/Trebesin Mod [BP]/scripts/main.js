@@ -6,50 +6,50 @@ import * as Debug from './plugins/debug/debug';
 import * as Backend from './plugins/backend/backend';
 import { world } from '@minecraft/server';
 
-Debug.logMessage('\n\nReloading Trebesin Mod...\n\n',{api:false});
+Debug.sendLogMessage('\n\nReloading Trebesin Mod...\n\n',{api:false});
 async function executePlugins() {
     //!Loading Debug (1.):
     try {
         await Debug.main();
-        Debug.logMessage('Loaded debug!');
+        Debug.sendLogMessage('Loaded debug!');
     } catch (error) {
-        Debug.logMessage(error);
+        Debug.sendLogMessage(error);
     }
     //!Loaded Backend (2.):
     try {
-        Debug.logMessage('Loading Backend...\n{');
+        Debug.sendLogMessage('Loading Backend...\n{');
         await Backend.main();
-        Debug.logMessage('}\nLoaded Backend...');
+        Debug.sendLogMessage('}\nLoaded Backend...');
     } catch (error) {
-        Debug.logMessage(error);
+        Debug.sendLogMessage(error);
     }
     try {
-        Debug.logMessage('Loading Server...\n{');
+        Debug.sendLogMessage('Loading Server...\n{');
         ServerPlugin.main();
-        Debug.logMessage('}\nLoaded Server...');
+        Debug.sendLogMessage('}\nLoaded Server...');
     } catch (error) {
-        Debug.logMessage(error);
+        Debug.sendLogMessage(error);
     }
     try {
-        Debug.logMessage('Loading Block History...\n{');
+        Debug.sendLogMessage('Loading Block History...\n{');
         await BlockHistoryPlugin.main();
-        Debug.logMessage('}\nLoaded Block History...');
+        Debug.sendLogMessage('}\nLoaded Block History...');
     } catch (error) {
-        Debug.logMessage(error);
+        Debug.sendLogMessage(error);
     }
     try {
-        Debug.logMessage('Loading Blocky Tools...\n{');
+        Debug.sendLogMessage('Loading Blocky Tools...\n{');
         BlockyToolsPlugin.main();
-        Debug.logMessage('}\nLoaded Blocky Tools...');
+        Debug.sendLogMessage('}\nLoaded Blocky Tools...');
     } catch (error) {
-        Debug.logMessage(error);
+        Debug.sendLogMessage(error);
     }
     try {
-        Debug.logMessage('Loading Commands...\n{');
+        Debug.sendLogMessage('Loading Commands...\n{');
         CommandsPlugin.main();
-        Debug.logMessage('}\nLoaded Commands...');
+        Debug.sendLogMessage('}\nLoaded Commands...');
     } catch (error) {
-        Debug.logMessage(error);
+        Debug.sendLogMessage(error);
     }
 }
 

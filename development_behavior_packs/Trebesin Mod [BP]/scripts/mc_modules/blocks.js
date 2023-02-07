@@ -1,7 +1,7 @@
 import {Block, BlockPermutation, world, system, BlockLocation} from '@minecraft/server';
 import { arrayDifference, find } from '../js_modules/array';
 import { sumVectors, compareVectors } from '../js_modules/vector';
-import { logMessage } from '../plugins/debug/debug';
+import { logMessage, sendLogMessage } from '../plugins/debug/debug';
 import { DIRECTIONS, TREBESIN_PERMUTATIONS } from './constants';
 
 /**
@@ -125,7 +125,7 @@ function getAdjecentBlockCoords(coord) {
 }
 
 async function blockUpdateIteration(location,dimension,callback) {
-    world.say(`starting block update iteration @ ${location.x},${location.y},${location.z} [${system.currentTick}]`);
+    sendLogMessage(`starting block update iteration @ ${location.x},${location.y},${location.z} [${system.currentTick}]`);
     let blockUpdateSignal = [];
     blockUpdateSignal.push(...getAdjecentBlockCopies(location,dimension));
     while (blockUpdateSignal.length !== 0) {
@@ -149,7 +149,7 @@ async function blockUpdateIteration(location,dimension,callback) {
             return newBlockUpdates;
         });
     }
-    world.say(`ending block update iteration [${system.currentTick}]`);
+    logMessage(`ending block update iteration [${system.currentTick}]`);
 }
 
 async function blockUpdateIterationObject(location,dimension,callback) {

@@ -1,5 +1,5 @@
 import { world,system, Block, BlockType, BlockLocation, Entity, BlockPermutation} from '@minecraft/server';
-import { sendMessage } from '../../mc_modules/commandParser';
+import { sendMessage } from '../../mc_modules/players';
 import { copyBlock, compareBlocks, getPermutations, blockUpdateIteration } from '../../mc_modules/blocks';
 import { sumVectors, copyVector, subVectors } from '../../js_modules/vector';
 import { containsArray, filter, insertToArray, deleteFromArray } from '../../js_modules/array';
@@ -57,7 +57,7 @@ async function main() {
         try {
             await connection.query(request,true);
         } catch (error) {
-            world.say(`${error}`);
+            Debug.sendLogMessage(`${error}`);
         }
     },DB_UPDATE_INTERVAL)
 
@@ -83,7 +83,7 @@ async function main() {
                     playerId: null
                 }
             );
-            Debug.logMessage(`§aBlock Starts Falling§r [${blockLocation.x},${blockLocation.y},${blockLocation.z}] @ ${system.currentTick}`);
+            Debug.sendLogMessage(`§aBlock Starts Falling§r [${blockLocation.x},${blockLocation.y},${blockLocation.z}] @ ${system.currentTick}`);
         }
     });
 
@@ -102,7 +102,7 @@ async function main() {
                 const blocksTravelled = location.start.y - location.current.y;
                 const timeTravelled = tick.current - tick.start;
                 const speed = blocksTravelled/timeTravelled;
-                world.say(`§aBlock Ends Falling§r [${location.current.x},${location.current.y},${location.current.z}] @ ${tick.current} - ${getEntityById(
+                Debug.sendLogMessage(`§aBlock Ends Falling§r [${location.current.x},${location.current.y},${location.current.z}] @ ${tick.current} - ${getEntityById(
                     fallingBlockData.playerId,
                     {},
                     [fallingBlockData.dimensionId]
@@ -121,7 +121,7 @@ async function main() {
 
     //## Block Breaking Detection:
     world.events.blockBreak.subscribe(async (eventData) => {
-        world.say(`§cBlock Break§r - ${system.currentTick}`);
+        Debug.sendLogMessage(`§cBlock Break§r - ${system.currentTick}`);
         const playerId = eventData.player.id;
         const blockOld = {
             typeId: eventData.brokenBlockPermutation.type.id,
@@ -133,10 +133,12 @@ async function main() {
         //This Block:
         if(eventData.player.hasTag('inspector')){
             try{
-                await BlockHistoryCommandsWorker.inspector(blockOld, copyBlock(eventData.block), eventData.player) 
+                BlockHistoryCommandsWorker.revertBlockChange(blockOld, copyBlock(eventData.block), eventData.player)
+                await BlockHistoryCommandsWorker.inspector(eventData.block.location, eventData.player) 
+
             }
             catch(error){
-                Debug.logMessage(error)
+                Debug.sendLogMessage(error)
             }
         }
         else{
@@ -146,13 +148,31 @@ async function main() {
         //Updated Blocks:
         await blockUpdateIteration(blockOld.location,blockOld.dimension,(blockBefore,blockAfter,tick) => {
             const vec = subVectors(blockBefore.location,blockOld.location);
-            world.say(`${blockBefore.typeId} -> ${blockAfter.typeId} @ ${vec.x},${vec.y},${vec.z}:${tick}`);
+            Debug.sendLogMessage(`${blockBefore.typeId} -> ${blockAfter.typeId} @ ${vec.x},${vec.y},${vec.z}:${tick}`);
             //Falling Blocks:
             const fallObject = fallingBlocksTracked.find((block) => blockBefore.location.equals(block.location.start));
             if (fallObject) fallObject.playerId = playerId;
         });
     });
     
+    // inspector place
+    world.events.beforeItemUseOn.subscribe(async(eventData) => {
+        const player = eventData.source;
+        const offset = FACE_DIRECTIONS[eventData.blockFace];
+        const faceBlockLocation = eventData.blockLocation.offset(offset.x,offset.y,offset.z);
+        
+        if(player.hasTag('inspector')){
+            try{
+                eventData.cancel = true;
+                await BlockHistoryCommandsWorker.inspector(faceBlockLocation, player) 
+            }
+            catch(error){
+                Debug.sendLogMessage(error)
+            }
+        }
+
+
+    })
     //## Block Placing Detection:
     world.events.itemStartUseOn.subscribe(async(eventData) => {
         const player = eventData.source;
@@ -165,19 +185,8 @@ async function main() {
 
         //Those Blocks:
         system.run(async () => {
-            if(player.hasTag('inspector')){
-                try{
-                    await BlockHistoryCommandsWorker.inspector(faceBlockOld, copyBlock(faceBlock), player) 
-                    BlockHistoryCommandsWorker.revertBlockChange(blockOld, copyBlock(block), player)
-                }
-                catch(error){
-                    Debug.logMessage(error)
-                }
-            }
-            else{
                 saveBlockUpdate(faceBlockOld,copyBlock(faceBlock),player.id);
                 saveBlockUpdate(blockOld,copyBlock(block),player.id);
-            }
             //Falling Blocks
             system.run(() => {
                 const fallObject = fallingBlocksTracked.find((block) => faceBlock.location.equals(block.location.start));
@@ -188,7 +197,7 @@ async function main() {
         //Updated Blocks:
         await blockUpdateIteration(faceBlockLocation,faceBlockOld.dimension,(blockBefore,blockAfter,tick) => {
             const vec = subVectors(blockBefore.location,faceBlockOld.location);
-            world.say(`${blockBefore.typeId} -> ${blockAfter.typeId} @ ${vec.x},${vec.y},${vec.z}:${tick}`);
+            Debug.sendLogMessage(`${blockBefore.typeId} -> ${blockAfter.typeId} @ ${vec.x},${vec.y},${vec.z}:${tick}`);
             //Falling Blocks:
             const fallObject = fallingBlocksTracked.find((block) => blockBefore.location.equals(block.location.start));
             if (fallObject) fallObject.playerId = player.id;
@@ -200,16 +209,16 @@ async function main() {
         if (eventData.item.typeId === 'minecraft:stick') {
             const block = eventData.source.dimension.getBlock(eventData.blockLocation);
             if (block.typeId.startsWith('trebesin')) {
-                world.say(`[trebesin:rotation] - ${block.permutation.getProperty('trebesin:rotation')?.value}`);
-                world.say(`[trebesin:horizontal_rotation] - ${block.permutation.getProperty('trebesin:horizontal_rotation')?.value}`);
-                world.say(`[trebesin:vertical_rotation] - ${block.permutation.getProperty('trebesin:vertical_rotation')?.value}`);    
+                Debug.sendLogMessage(`[trebesin:rotation] - ${block.permutation.getProperty('trebesin:rotation')?.value}`);
+                Debug.sendLogMessage(`[trebesin:horizontal_rotation] - ${block.permutation.getProperty('trebesin:horizontal_rotation')?.value}`);
+                Debug.sendLogMessage(`[trebesin:vertical_rotation] - ${block.permutation.getProperty('trebesin:vertical_rotation')?.value}`);    
             } else {
                 for (const permutation of block.permutation.getAllProperties()) {
-                    world.say(`[${permutation.name}] - ${permutation.value}`);
+                    Debug.sendLogMessage(`[${permutation.name}] - ${permutation.value}`);
                 }
             }
         } else if (eventData.item.typeId === 'minecraft:diamond_sword') {
-            world.say(`${JSON.stringify(blockUpdates,null,1)}`);
+            Debug.sendLogMessage(`${JSON.stringify(blockUpdates,null,1)}`);
         }
     })
 }
@@ -219,7 +228,7 @@ async function main() {
 //## Internal Functions:
 function loadWorkers() {
     BlockHistoryCommandsWorker.main();
-    Debug.logMessage('   Block History commands Loaded');
+    Debug.sendLogMessage('   Block History commands Loaded');
 }
 
 /**
@@ -264,11 +273,11 @@ function saveBlockUpdate(blockBefore,blockAfter,actorId,blockPlaceType = "player
         compareBlocks(lastRecord.after,updateRecord.before,true)
     ) {
         records.pop();
-        world.say('garbage collected!');
+        Debug.sendLogMessage('garbage collected!');
         return -1;
     } else {
         records.push(updateRecord);
-        world.say('saved the record');
+        Debug.sendLogMessage('saved the record');
         return 1;
     }
 }

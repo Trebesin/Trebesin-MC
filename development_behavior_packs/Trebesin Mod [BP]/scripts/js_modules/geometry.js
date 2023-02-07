@@ -10,10 +10,9 @@ import {mapArray} from './array';
  * @param {number} options.stepBy Increament of the loop generating the line. It will be automatically rounded to ensure it's dividable by the amount of steps. Negative values define the amount of steps instead.
  * @param {boolean} options.round Whether to round the calculated value added to the starting coordinate.
  * @param {Function} [callback] Callback that gets each step as an input, it will make the return `undefined`.
- * @param {Object} [thisArg] This value used within the callback.
  * @returns {Object[]|undefined} Array containing X,Y,Z coordinates the line is composed of.
  */
-function getGridLine(coords,options = {},callback = null,thisArg = null) {
+function getGridLine(coords,options = {},callback = null) {
     let {stepBy, round} = Object.assign({stepBy:1,round:true},options);
     const resultCoords = !callback ? [] : undefined;
     let differences = [
@@ -41,11 +40,7 @@ function getGridLine(coords,options = {},callback = null,thisArg = null) {
         const y = coords[0].y + (round ? Math.round(portions[1] * step) : portions[1] * step);
         const z = coords[0].z + (round ? Math.round(portions[2] * step) : portions[2] * step);
         if (callback) {
-            if (thisArg) {
-                callback.call(thisArg,{x,y,z})
-            } else {
-                callback({x,y,z});
-            }
+            callback({x,y,z});
         } else {
             resultCoords.push({x,y,z});
         }
@@ -54,7 +49,7 @@ function getGridLine(coords,options = {},callback = null,thisArg = null) {
 }
 
 
-function getGridBlock(coords,options = {},callback = null,thisArg = null) {
+function getGridBlock(coords,options = {},callback = null) {
     const {stepBy,hollow,width} = Object.assign({stepBy:{x:1,y:1,z:1},hollow:false,width:1},options);
     const resultCoords = !callback ? [] : undefined;
     const maxCorner = {
@@ -91,14 +86,10 @@ function getGridBlock(coords,options = {},callback = null,thisArg = null) {
                     x < minCorner.x + width ||
                     y < minCorner.y + width ||
                     z < minCorner.z + width 
-                )) continue
+                )) continue;
 
                 if (callback) {
-                    if (thisArg) {
-                        callback.call(thisArg,{x,y,z})
-                    } else {
-                        callback({x,y,z});
-                    }
+                    callback({x,y,z});
                 } else {
                     resultCoords.push({x,y,z});
                 }
@@ -107,6 +98,10 @@ function getGridBlock(coords,options = {},callback = null,thisArg = null) {
     }
 
     return resultCoords;
+}
+
+function getGridTriangle(verticies,options = {},callback = null) {
+
 }
 
 function withinBounds(coords,coord) {

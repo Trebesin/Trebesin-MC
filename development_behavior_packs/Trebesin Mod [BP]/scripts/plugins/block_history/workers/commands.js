@@ -1,9 +1,9 @@
 import {CommandResult, MinecraftEffectTypes , world, BlockLocation,Location, TicksPerDay, TicksPerSecond, Vector, MolangVariableMap, Color, system, MinecraftBlockTypes, BlockPermutation} from "@minecraft/server";
 import { copyBlock, getPermutations, setPermutationFromObject } from "../../../mc_modules/blocks";
-import {CommandParser, sendMessage} from "../../../mc_modules/commandParser";
+import { sendMessage} from "../../../mc_modules/players";
 import { getEdgeLocations, createLocationSet2, locationToString, stringToLocation } from "../../../mc_modules/particles";
-import * as Backend from "../../../mc_modules/server" ;
-import { command_parser, isAdmin } from "../../commands/workers/admin";
+import { Commands, sendLongMessage } from '../../backend/backend';
+import { isAdmin, isMod } from "../../commands/workers/admin";
 import { logMessage } from "../../debug/debug";
 import { playerData } from "../../server/server";
 import * as BlockHistoryPlugin from "../block_history";
@@ -40,7 +40,7 @@ function main(){
         }
     },4);
     async function blockHistoryHandler(sender, parameter){
-        if (/*isAdmin(sender) && */(parameter.command === "rb" || parameter.command === "reverseblock")) {
+        if (isMod(sender) && (parameter.command === "rb" || parameter.command === "reverseblock")) {
             const pos = parameter.coords ?? sender.location
             const request = {
                 sql : `SELECT DISTINCT block_history.*, PlayerConnections.PlayerName 
@@ -50,7 +50,7 @@ function main(){
                        WHERE x = ${Math.floor(pos.x)} AND y = ${Math.floor(pos.y)} AND z = ${Math.floor(pos.z)}
                        ORDER BY \`block_history\`.\`tick\` DESC
                        LIMIT ? OFFSET ?`,
-                values : [parameter.count ?? 5, parameter.startingFrom ?? 0]
+                values : [parameter.count ?? 7, parameter.startingFrom ?? 0]
             }
             try {
                 const response = await BlockHistoryPlugin.database.query(request);
@@ -58,22 +58,28 @@ function main(){
                 const tickInAMin = tickInASec*60;
                 const tickInAnHour = tickInAMin*60;
                 const tickInADay = tickInAnHour*24;
+                let message = '' 
                 for (let responseIndex = response.result.length-1; responseIndex+1; responseIndex--) {
                     const blockAlteration = response.result[responseIndex];
                     const timeOfBlockAlteration = system.currentTick - parseInt(blockAlteration.tick);
-                    sendMessage(`${blockAlteration.PlayerName}${blockAlteration.blockPlaceType === "playerPlace"? "" : ` (${blockAlteration.blockPlaceType})`}: ${blockAlteration.before_id} -> ${blockAlteration.after_id} - before: ${Math.floor(timeOfBlockAlteration/tickInADay)}d${Math.floor(timeOfBlockAlteration%tickInADay/tickInAnHour)}h${Math.floor(timeOfBlockAlteration%tickInAnHour/tickInAMin)}m${Math.floor(timeOfBlockAlteration%tickInAMin/tickInASec)}s`,'CMD - BlockHistory',sender);
+                    message += `${blockAlteration.PlayerName}${blockAlteration.blockPlaceType === "playerPlace"? "" : ` (${blockAlteration.blockPlaceType})`}: ${blockAlteration.before_id} -> ${blockAlteration.after_id} - before: ${Math.floor(timeOfBlockAlteration/tickInADay)}d${Math.floor(timeOfBlockAlteration%tickInADay/tickInAnHour)}h${Math.floor(timeOfBlockAlteration%tickInAnHour/tickInAMin)}m${Math.floor(timeOfBlockAlteration%tickInAMin/tickInASec)}s\n`;
                 }
+
+                sendLongMessage(`block history of block ${Math.floor(pos.x)}, ${Math.floor(pos.y)}, ${Math.floor(pos.z)}`, message.trim(), sender)
+
                 if (response.result == '') {
-                    sendMessage(`No changes were made to block  ${Math.floor(pos.x)}, ${Math.floor(pos.y)}, ${Math.floor(pos.z)}`,'CMD - BlockHistory',sender);
+                    sendMessage(`No changes were made to block ${Math.floor(pos.x)}, ${Math.floor(pos.y)}, ${Math.floor(pos.z)}`,'CMD - BlockHistory',sender);
                 }
                 else {
-                    getEdgeLocations([{
-                        x: Math.floor(pos.x),
-                        y: Math.floor(pos.y),
-                        z: Math.floor(pos.z)
-                    }], (loc,axis) => {
-                        addActiveParticles(loc,axis,sender);
-                    })
+                    if(parameter.particles ?? true){
+                        getEdgeLocations([{
+                            x: Math.floor(pos.x),
+                            y: Math.floor(pos.y),
+                            z: Math.floor(pos.z)
+                        }], (loc,axis) => {
+                            addActiveParticles(loc,axis,sender);
+                        })
+                    }
                     sendMessage(`are you sure you want to reverse these changes?\n - !bh confirm to confirm or !bh cancel to cancel`,'CMD - BlockHistory',sender);
                     if(confirmationPerPlayer[sender.id]) delete confirmationPerPlayer[sender.id];
                     confirmationPerPlayer[sender.id] = {
@@ -90,7 +96,7 @@ function main(){
                 sendMessage(`${error}`,'CMD - BlockHistory',sender);
             }
         }
-        if (/*isAdmin(sender) && */(parameter.command === "b" || parameter.command === "block")) {
+        if (isMod(sender) && (parameter.command === "b" || parameter.command === "block")) {
             const pos = parameter.coords ?? sender.location
             const request = {
                 sql : `SELECT DISTINCT block_history.*, PlayerConnections.PlayerName 
@@ -100,7 +106,7 @@ function main(){
                        WHERE x = ${Math.floor(pos.x)} AND y = ${Math.floor(pos.y)} AND z = ${Math.floor(pos.z)}
                        ORDER BY \`block_history\`.\`tick\` DESC
                        LIMIT ? OFFSET ?`,
-                values : [parameter.count ?? 5, parameter.startingFrom ?? 0]
+                values : [parameter.count ?? 7, parameter.startingFrom ?? 0]
             }
             try {
                 const response = await BlockHistoryPlugin.database.query(request);
@@ -108,29 +114,31 @@ function main(){
                 const tickInAMin = tickInASec*60;
                 const tickInAnHour = tickInAMin*60;
                 const tickInADay = tickInAnHour*24;
+                let message = ''
                 for (let responseIndex = response.result.length-1; responseIndex+1; responseIndex--) {
                     const blockAlteration = response.result[responseIndex];
                     const timeOfBlockAlteration = system.currentTick - parseInt(blockAlteration.tick);
-                    sendMessage(`${blockAlteration.PlayerName}${blockAlteration.blockPlaceType === "playerPlace"? "" : ` (${blockAlteration.blockPlaceType})`}: ${blockAlteration.before_id} -> ${blockAlteration.after_id} - before: ${Math.floor(timeOfBlockAlteration/tickInADay)}d${Math.floor(timeOfBlockAlteration%tickInADay/tickInAnHour)}h${Math.floor(timeOfBlockAlteration%tickInAnHour/tickInAMin)}m${Math.floor(timeOfBlockAlteration%tickInAMin/tickInASec)}s`,'CMD - BlockHistory',sender);
+                    message += `${blockAlteration.PlayerName}${blockAlteration.blockPlaceType === "playerPlace"? "" : ` (${blockAlteration.blockPlaceType})`}: ${blockAlteration.before_id} -> ${blockAlteration.after_id} - before: ${Math.floor(timeOfBlockAlteration/tickInADay)}d${Math.floor(timeOfBlockAlteration%tickInADay/tickInAnHour)}h${Math.floor(timeOfBlockAlteration%tickInAnHour/tickInAMin)}m${Math.floor(timeOfBlockAlteration%tickInAMin/tickInASec)}s\n`;
                 }
+                sendLongMessage(`block history of block ${Math.floor(pos.x)}, ${Math.floor(pos.y)}, ${Math.floor(pos.z)}`, message.trim(), sender)
                 if (response.result == '') {
                     sendMessage(`No changes were made to block  ${Math.floor(pos.x)}, ${Math.floor(pos.y)}, ${Math.floor(pos.z)}`,'CMD - BlockHistory',sender);
                 }
-                else {
-                    getEdgeLocations([{
-                        x: Math.floor(pos.x),
-                        y: Math.floor(pos.y),
-                        z: Math.floor(pos.z)
-                    }], (loc,axis) => {
-                        addActiveParticles(loc,axis,sender);
-                    })
+                else if(parameter.particles ?? true){
+                        getEdgeLocations([{
+                            x: Math.floor(pos.x),
+                            y: Math.floor(pos.y),
+                            z: Math.floor(pos.z)
+                        }], (loc,axis) => {
+                            addActiveParticles(loc,axis,sender);
+                        })
                 }
             }
             catch (error) {
                 sendMessage(`${error}`,'CMD - BlockHistory',sender);
             }
         }
-        else if (/*isAdmin(sender) && */(parameter.command === "p" || parameter.command === "player")) {
+        else if (isMod(sender) && (parameter.command === "p" || parameter.command === "player")) {
             const playerName = parameter.player ?? sender.name
             const request = {
                 sql : `SELECT DISTINCT block_history.*, PlayerConnections.PlayerName 
@@ -140,7 +148,7 @@ function main(){
                        WHERE PlayerName = ?  
                        ORDER BY \`block_history\`.\`tick\` DESC
                        LIMIT ? OFFSET ?`,
-                values : [playerName, parameter.count ?? 5, parameter.startingFrom ?? 0]
+                values : [playerName, parameter.count ?? 7, parameter.startingFrom ?? 0]
             }
             try {
                 const response = await BlockHistoryPlugin.database.query(request);
@@ -148,17 +156,20 @@ function main(){
                 const tickInAMin = tickInASec*60
                 const tickInAnHour = tickInAMin*60
                 const tickInADay = tickInAnHour*24
+                let message = ''
                 let locations = []
                 for (let responseIndex = response.result.length-1; responseIndex+1; responseIndex--) {
                     const blockAlteration = response.result[responseIndex]
                     const timeOfBlockAlteration = system.currentTick - parseInt(blockAlteration.tick)
-                    sendMessage(`${blockAlteration.PlayerName}${blockAlteration.blockPlaceType === "playerPlace"? "" : ` (${blockAlteration.blockPlaceType})`} - [${blockAlteration.x}, ${blockAlteration.y}, ${blockAlteration.z}]: ${blockAlteration.before_id} -> ${blockAlteration.after_id} - before: ${Math.floor(timeOfBlockAlteration/tickInADay)}d${Math.floor(timeOfBlockAlteration%tickInADay/tickInAnHour)}h${Math.floor(timeOfBlockAlteration%tickInAnHour/tickInAMin)}m${Math.floor(timeOfBlockAlteration%tickInAMin/tickInASec)}s`,'CMD - BlockHistory',sender);
+                    message += `${blockAlteration.blockPlaceType === "playerPlace"? "" : ` (${blockAlteration.blockPlaceType}) - `}[${blockAlteration.x}, ${blockAlteration.y}, ${blockAlteration.z}]: ${blockAlteration.before_id} -> ${blockAlteration.after_id} - before: ${Math.floor(timeOfBlockAlteration/tickInADay)}d${Math.floor(timeOfBlockAlteration%tickInADay/tickInAnHour)}h${Math.floor(timeOfBlockAlteration%tickInAnHour/tickInAMin)}m${Math.floor(timeOfBlockAlteration%tickInAMin/tickInASec)}s\n`;
                     locations.push({x: blockAlteration.x, y: blockAlteration.y, z: blockAlteration.z})
                 }
+                sendLongMessage(`block history of ${playerName}`, message.trim(), sender)
+                
                 if (response.result == '') {
                     sendMessage(`No changes were made by the player ${playerName}`,'CMD - BlockHistory',sender);
                 }
-                else {
+                else if(parameter.particles ?? true){
                     getEdgeLocations(locations, (loc,axis) => {
                         addActiveParticles(loc,axis,sender);
                     })
@@ -169,7 +180,7 @@ function main(){
                 sendMessage(`${error}`,'CMD - BlockHistory',sender);
             }
         }
-        else if(isAdmin(sender) && (parameter.command === "redo")) {
+        else if(isMod(sender) && (parameter.command === "redo")) {
             const playerName = parameter.player ?? sender.name
             const request = {
                 sql : `SELECT DISTINCT block_history.*, PlayerConnections.PlayerName 
@@ -186,20 +197,24 @@ function main(){
                 const tickInAMin = tickInASec*60
                 const tickInAnHour = tickInAMin*60
                 const tickInADay = tickInAnHour*24
+                let message = ''
                 let locations = []
                 for(let i = response.result.length-1; i+1; i--){
                     const blockAlteration = response.result[i]
                     const timeOfBlockAlteration = system.currentTick - parseInt(blockAlteration.tick)
-                    sendMessage(`${blockAlteration.PlayerName}${blockAlteration.blockPlaceType === "playerPlace"? "" : ` (${blockAlteration.blockPlaceType})`} - [${blockAlteration.x}, ${blockAlteration.y}, ${blockAlteration.z}]: ${blockAlteration.before_id} -> ${blockAlteration.after_id} - before: ${Math.floor(timeOfBlockAlteration/tickInADay)}d${Math.floor(timeOfBlockAlteration%tickInADay/tickInAnHour)}h${Math.floor(timeOfBlockAlteration%tickInAnHour/tickInAMin)}m${Math.floor(timeOfBlockAlteration%tickInAMin/tickInASec)}s`,'CMD - BlockHistory',sender);
+                    message += `${blockAlteration.blockPlaceType === "playerPlace"? "" : ` (${blockAlteration.blockPlaceType}) - `}[${blockAlteration.x}, ${blockAlteration.y}, ${blockAlteration.z}]: ${blockAlteration.before_id} -> ${blockAlteration.after_id} - before: ${Math.floor(timeOfBlockAlteration/tickInADay)}d${Math.floor(timeOfBlockAlteration%tickInADay/tickInAnHour)}h${Math.floor(timeOfBlockAlteration%tickInAnHour/tickInAMin)}m${Math.floor(timeOfBlockAlteration%tickInAMin/tickInASec)}s\n`;
                     locations.push({x: blockAlteration.x, y: blockAlteration.y, z: blockAlteration.z})
                 }
+                sendLongMessage(`BH reverses of ${playerName}`, message.trim(), sender)
                 if(response.result == ""){
                     sendMessage(`No changes were made by the player ${playerName}`,'CMD - BlockHistory',sender);
                 }
                 else{
-                    getEdgeLocations(locations, (loc,axis) => {
-                        addActiveParticles(loc,axis,sender);
-                    })
+                    if(parameter.particles ?? true){
+                        getEdgeLocations(locations, (loc,axis) => {
+                            addActiveParticles(loc,axis,sender);
+                        })
+                    }
                     sendMessage(`are you sure you want to reverse these changes?\n - !bh confirm to confirm or !bh cancel to cancel`,'CMD - BlockHistory',sender);
                     if(confirmationPerPlayer[sender.id]) delete confirmationPerPlayer[sender.id];
                     confirmationPerPlayer[sender.id] = {
@@ -218,7 +233,7 @@ function main(){
             }
             
         }
-        else if(isAdmin(sender) && (parameter.command === "r" || parameter.command === "reverse")) {
+        else if(isMod(sender) && (parameter.command === "r" || parameter.command === "reverse")) {
             const playerName = parameter.player ?? sender.name
             const request = {
                 sql : `SELECT DISTINCT block_history.*, PlayerConnections.PlayerName 
@@ -228,7 +243,7 @@ function main(){
                        WHERE PlayerName = ?  
                        ORDER BY \`block_history\`.\`tick\` DESC
                        LIMIT ? OFFSET ?`,
-                values : [playerName, parameter.count ?? 5, parameter.startingFrom ?? 0]
+                values : [playerName, parameter.count ?? 7, parameter.startingFrom ?? 0]
             }
             try {
                 const response = await BlockHistoryPlugin.database.query(request);
@@ -237,19 +252,23 @@ function main(){
                 const tickInAnHour = tickInAMin*60
                 const tickInADay = tickInAnHour*24
                 let locations = []
+                let message = ''
                 for(let i = response.result.length-1; i+1; i--){
                     const blockAlteration = response.result[i]
                     const timeOfBlockAlteration = system.currentTick - parseInt(blockAlteration.tick)
-                    sendMessage(`${blockAlteration.PlayerName}${blockAlteration.blockPlaceType === "playerPlace"? "" : ` (${blockAlteration.blockPlaceType})`} - [${blockAlteration.x}, ${blockAlteration.y}, ${blockAlteration.z}]: ${blockAlteration.before_id} -> ${blockAlteration.after_id} - before: ${Math.floor(timeOfBlockAlteration/tickInADay)}d${Math.floor(timeOfBlockAlteration%tickInADay/tickInAnHour)}h${Math.floor(timeOfBlockAlteration%tickInAnHour/tickInAMin)}m${Math.floor(timeOfBlockAlteration%tickInAMin/tickInASec)}s`,'CMD - BlockHistory',sender);
+                    message += `${blockAlteration.blockPlaceType === "playerPlace"? "" : ` (${blockAlteration.blockPlaceType}) - `}[${blockAlteration.x}, ${blockAlteration.y}, ${blockAlteration.z}]: ${blockAlteration.before_id} -> ${blockAlteration.after_id} - before: ${Math.floor(timeOfBlockAlteration/tickInADay)}d${Math.floor(timeOfBlockAlteration%tickInADay/tickInAnHour)}h${Math.floor(timeOfBlockAlteration%tickInAnHour/tickInAMin)}m${Math.floor(timeOfBlockAlteration%tickInAMin/tickInASec)}s\n`;
                     locations.push({x: blockAlteration.x, y: blockAlteration.y, z: blockAlteration.z})
                 }
+                sendLongMessage(`Block History of ${playerName}`, message.trim(), sender)
                 if(response.result == ""){
                     sendMessage(`No changes were made by the player ${playerName}`,'CMD - BlockHistory',sender);
                 }
                 else{
-                    getEdgeLocations(locations, (loc,axis) => {
-                        addActiveParticles(loc,axis,sender);
-                    })
+                    if(parameter.particles ?? true){
+                        getEdgeLocations(locations, (loc,axis) => {
+                            addActiveParticles(loc,axis,sender);
+                        })
+                    }
                     sendMessage(`are you sure you want to reverse these changes?\n - !bh confirm to confirm or !bh cancel to cancel`,'CMD - BlockHistory',sender);
                     if(confirmationPerPlayer[sender.id]) delete confirmationPerPlayer[sender.id];
                     confirmationPerPlayer[sender.id] = {
@@ -268,7 +287,7 @@ function main(){
             }
             
         }
-        else if(isAdmin(sender) && parameter.command === "confirm") {
+        else if(isMod(sender) && parameter.command === "confirm") {
             try {
                 confirmationPerPlayer[sender.id].confirmed = true
             }
@@ -290,7 +309,7 @@ function main(){
             delete confirmationPerPlayer[sender.id]
             sendMessage("The call is now aborted", "CMD - BlockHistory", sender)
         }
-        else if(/*isAdmin(sender) && */(parameter.command === "c" || parameter.command === "clear")) {
+        else if(isMod(sender) &&(parameter.command === "c" || parameter.command === "clear")) {
             if(parameter.players){
                 for(let i = 0;i<parameter.players.length; i++){
                     const player = parameter.players[i]
@@ -300,10 +319,10 @@ function main(){
                 removeActiveParticles(sender);
             }
         }
-        else if(/*isAdmin(sender) && */(parameter.command === "ca" || parameter.command === "clearall")) {
+        else if(isMod(sender) && (parameter.command === "ca" || parameter.command === "clearall")) {
             removeAllActiveParticles();
         }
-        else {
+        else if(isAdmin(sender)){
             sendMessage(
                 `help:
                 b/block - shows the changes made to block on [x], [y], [z] - parameters: count, startingFrom, location: x, location: y, location: z
@@ -316,31 +335,56 @@ function main(){
                 redo - reverses an action made by this plugin - parameters: ID
                 c/clear - clears all the particles generated by this plugin by a player
                 ca/clearall - clears all the particles generated by this plugin by everyone
-                `);
+                `, "", sender);
+        }
+        else if(isMod(sender)){
+            sendMessage(
+                `help:
+                b/block - shows the changes made to block on [x], [y], [z] - parameters: count, startingFrom, location: x, location: y, location: z
+                p/player - shows the changes made by a player - parameters: count, startingFrom, player
+                r/reverse - reverses actions of a player in specific time frame - parameters: count, startingFrom, player
+                rb/reverseblock - reverses a block to it's older state - parameters: count, startingFrom, location: x, location: y, location: z
+                bt/blockytools - show history of blockytools edits - parameters: count, startingFrom, player -- not ready yet
+                rbt/reversebt/reverseblockytools - reverses a blockytools edit using its id - parameters: count, startingFrom, player -- not ready yet
+                redo - reverses an action made by this plugin - parameters: ID
+                c/clear - clears all the particles generated by this plugin by a player
+                ca/clearall - clears all the particles generated by this plugin by everyone
+                `, "", sender);
+        }
+        else {
+            sendMessage(
+                `
+                sorry but you shouldn't have access to this command. If you believe this is a mistake please contact us.
+                `, "", sender
+            )
         }
     }
-  command_parser.registerCommand("bh", {
+  Commands.registerCommand("bh", {
     parameters: [
         {id: "command", type: "string", optional: true, choice: {
                 b: [
                     {type:'int',id:'count',optional:true},
                     {type:'int',id:'startingFrom',optional:true},
-                    {type:'pos',id:'coords',optional:true}
+                    {type:'pos',id:'coords',optional:true},
+                    {type:'bool',id:'particles', optional:true}
                 ],
                 block: [
                     {type:'int',id:'count',optional:true},
                     {type:'int',id:'startingFrom',optional:true},
-                    {type:'pos',id:'coords',optional:true}
+                    {type:'pos',id:'coords',optional:true},
+                    {type:'bool',id:'particles', optional:true}
                 ],
                 p: [
                     {type:'int',id:'count',optional:true},
                     {type:'int',id:'startingFrom',optional:true},
-                    {type:'string',id:'player',optional:true}
+                    {type:'string',id:'player',optional:true},
+                    {type:'bool',id:'particles', optional:true}
                 ],
                 player: [
                     {type:'int',id:'count',optional:true},
                     {type:'int',id:'startingFrom',optional:true},
-                    {type:'string',id:'player',optional:true}
+                    {type:'string',id:'player',optional:true},
+                    {type:'bool',id:'particles', optional:true}
                 ],
                 c: [
                     {type: 'selector', id: 'players', optional:true, playerOnly:true}
@@ -363,34 +407,48 @@ function main(){
                 r: [
                     {type:'int',id:'count',optional:true},
                     {type:'int',id:'startingFrom',optional:true},
-                    {type:'string',id:'player',optional:true}
+                    {type:'string',id:'player',optional:true},
+                    {type:'bool',id:'particles', optional:true}
                 ],
                 redo: [
                     {type:'int',id:'id'},
-                    {type:'string',id:'player',optional:true}
+                    {type:'string',id:'player',optional:true},
+                    {type:'bool',id:'particles', optional:true}
                 ],
                 reverse: [
                     {type:'int',id:'count',optional:true},
                     {type:'int',id:'startingFrom',optional:true},
-                    {type:'string',id:'player',optional:true}
+                    {type:'string',id:'player',optional:true},
+                    {type:'bool',id:'particles', optional:true}
                 ],
                 rb: [
                     {type:'int',id:'count',optional:true},
                     {type:'int',id:'startingFrom',optional:true},
-                    {type:'pos',id:'coords',optional:true}
+                    {type:'pos',id:'coords',optional:true},
+                    {type:'bool',id:'particles', optional:true}
                 ],
                 reverseblock: [
                     {type:'int',id:'count',optional:true},
                     {type:'int',id:'startingFrom',optional:true},
-                    {type:'pos',id:'coords',optional:true}
+                    {type:'pos',id:'coords',optional:true},
+                    {type:'bool',id:'particles', optional:true}
                 ],
                 confirm: [
+                    {}
+                ],
+                help: [
+                    {}
+                ],
+                h: [
+                    {}
+                ],
+                "?": [
                     {}
                 ]
                 
             }
         }
-    ], aliases: ["blockhistory", "co", "coreprotect"], run: blockHistoryHandler
+    ], aliases: ["blockhistory", "co", "coreprotect"], run: blockHistoryHandler, senderCheck: isMod
   })
 }
 
@@ -438,9 +496,8 @@ function revertBlockChange(blockOld, blockNew, sender){
     block.setType(MinecraftBlockTypes.get(blockOld.typeId))
     block.setPermutation(setPermutationFromObject(block.permutation, getPermutations(blockOld.permutation)))
 }
-async function inspector(blockOld, blockNew, sender){
-    revertBlockChange(blockOld,blockNew,sender)
-    const pos = blockNew.location 
+async function inspector(location, sender){
+    const pos = location 
     const request = {
         sql : `SELECT DISTINCT block_history.*, PlayerConnections.PlayerName 
                 FROM \`block_history\` 
@@ -456,14 +513,13 @@ async function inspector(blockOld, blockNew, sender){
         const tickInAMin = tickInASec*60;
         const tickInAnHour = tickInAMin*60;
         const tickInADay = tickInAnHour*24;
-        if (response.result != ''){
-            sendMessage(`showing listing of block  ${Math.floor(pos.x)}, ${Math.floor(pos.y)}, ${Math.floor(pos.z)}`,'CMD - BlockHistory',sender);
-        }
+        let message = ''
         for (let responseIndex = response.result.length-1; responseIndex+1; responseIndex--) {
             const blockAlteration = response.result[responseIndex];
             const timeOfBlockAlteration = system.currentTick - parseInt(blockAlteration.tick);
-            sendMessage(`${blockAlteration.PlayerName}${blockAlteration.blockPlaceType === "playerPlace"? "" : ` (${blockAlteration.blockPlaceType})`}: ${blockAlteration.before_id} -> ${blockAlteration.after_id} - before: ${Math.floor(timeOfBlockAlteration/tickInADay)}d${Math.floor(timeOfBlockAlteration%tickInADay/tickInAnHour)}h${Math.floor(timeOfBlockAlteration%tickInAnHour/tickInAMin)}m${Math.floor(timeOfBlockAlteration%tickInAMin/tickInASec)}s`,'CMD - BlockHistory',sender);
+            message += `${blockAlteration.PlayerName}${blockAlteration.blockPlaceType === "playerPlace"? "" : ` (${blockAlteration.blockPlaceType})`}: ${blockAlteration.before_id} -> ${blockAlteration.after_id} - before: ${Math.floor(timeOfBlockAlteration/tickInADay)}d${Math.floor(timeOfBlockAlteration%tickInADay/tickInAnHour)}h${Math.floor(timeOfBlockAlteration%tickInAnHour/tickInAMin)}m${Math.floor(timeOfBlockAlteration%tickInAMin/tickInASec)}s\n`;
         }
+        sendLongMessage(`block history of block ${Math.floor(pos.x)}, ${Math.floor(pos.y)}, ${Math.floor(pos.z)}`, message.trim(), sender)
         if (response.result == '') {
             sendMessage(`No changes were made to block  ${Math.floor(pos.x)}, ${Math.floor(pos.y)}, ${Math.floor(pos.z)}`,'CMD - BlockHistory',sender);
         }

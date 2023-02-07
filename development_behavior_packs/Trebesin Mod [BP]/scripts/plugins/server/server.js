@@ -3,10 +3,13 @@ import {world,system,MinecraftEffectTypes,MolangVariableMap,Color,Location} from
 import * as Debug from './../debug/debug';
 //MC module imports
 import * as Particles from './../../mc_modules/particles';
+import { sendMessage } from '../../mc_modules/players';
+import { FACE_DIRECTIONS } from '../../mc_modules/constants';
 //JS module imports
 import { randInt } from '../../js_modules/random';
 import { setVectorLength, sumVectors } from '../../js_modules/vector';
 import { DB } from '../backend/backend';
+import { isAdmin } from '../commands/workers/admin';
 
 const playerData = {
     instaKill: {}
@@ -73,28 +76,24 @@ async function main() {
         try {
             await connection.query(request,true);
         } catch (error) {
-            world.say(`${error}`);
+            Debug.logMessage(`${error}`);
         }
     });
 
-    //try {
-    //    const index = server.playerEquipSubscribe((eventData) => {
-    //        world.say(`Before: ${eventData.itemBefore.typeId} - ${eventData.slotBefore}`);
-    //        world.say(`After: ${eventData.itemAfter.typeId} - ${eventData.slotAfter}`);
-    //    })
-    //    world.say(`${index} subscribed`);
-    //} catch (error) {
-    //    world.say(`${error}`);
-    //}
-    //try {
-    //    const index = server.randomTickSubscribe((block) => {
-    //        if (block.typeId === 'minecraft:red_flower') world.say('Found a flower.');
-    //    });
-    //    world.say(`${index} subscribed`);
-    //} catch (error) {
-    //    world.say(`${error}`)
-    //}
-    
+    //## Block Ban
+    world.events.beforeItemUseOn.subscribe((eventData) => {
+        if (isAdmin(eventData.source) || eventData.source.hasTag('certified_builder')) return;
+        const itemId = eventData.item.typeId;
+        if (
+            itemId === 'minecraft:lava_bucket' ||
+            itemId === 'minecraft:lava' ||
+            itemId === 'minecraft:flowing_lava' || 
+            itemId === 'minecraft:dragon_egg'
+        ) {
+            sendMessage(`§cYou are not permitted to use the item ${itemId}!§r`,'SERVER',eventData.source);
+            eventData.cancel = true;
+        }
+    });
 }
 
 export {main,playerData};
