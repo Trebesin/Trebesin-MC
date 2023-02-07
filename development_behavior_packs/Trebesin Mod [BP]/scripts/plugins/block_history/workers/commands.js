@@ -51,14 +51,30 @@ function main(){
                        WHERE x = ? AND y = ? AND z = ? `,
                 values : [Math.floor(pos.x), Math.floor(pos.y), Math.floor(pos.z)]
             }
-            if((!parameter.until || /^(\d+)$/.exec(parameter.until)) && (!parameter.startingFrom || /^(\d+)$/.exec(parameter.startingFrom))){
-                request.sql += `\nORDER BY \`block_history\`.\`tick\` DESC
-                                LIMIT ? OFFSET ?`
-                request.values.push(parseInt(parameter.until ?? 7), parseInt(parameter.startingFrom ?? 0))
+            try{
+                if((!parameter.until || /^(\d+)$/.exec(parameter.until)) && (!parameter.startingFrom || /^(\d+)$/.exec(parameter.startingFrom))){
+                    request.sql += `ORDER BY \`block_history\`.\`tick\` DESC
+                                    LIMIT ? OFFSET ?`
+                    request.values.push(parseInt(parameter.until ?? 7), parseInt(parameter.startingFrom ?? 0))
+                }
+                if(/^(\d+)(m|w|d|h|s)/.exec(parameter.until) && (!parameter.startingFrom || /^(\d+)$/.exec(parameter.startingFrom))){
+                    request.sql += `AND tick >= ?
+                                    ORDER BY \`block_history\`.\`tick\` DESC
+                                    OFFSET ?`
+                    request.values.push(system.currentTick - parseToTicks(parameter.until), parseInt(parameter.startingFrom ?? 0))
+                }
+                if(/^(\d+)(m|w|d|h|s)/.exec(parameter.until) && /^(\d+)(m|w|d|h|s)/.exec(parameter.startingFrom)){
+                    request.sql += `AND tick >= ? AND tick <= ?
+                                    ORDER BY \`block_history\`.\`tick\` DESC`
+                    request.values.push(system.currentTick - parseToTicks(parameter.until), system.currentTick - parseToTicks(parameter.startingFrom))
+                }
+                else{
+                    sendMessage("invalid until/startingFrom parameter", "blockHistory - error", sender)
+                    return
+                }
             }
-            else{
-                sendMessage("invalid until/startingFrom parameter")
-                return
+            catch(error){
+                sendMessage(`invalid until/startingFrom parameter: ${error}`, "blockHistory - error", sender)
             }
             sendLogMessage(request.sql)
             sendLogMessage(request.values)
@@ -494,13 +510,40 @@ function revertBlockChange(blockOld, blockNew, sender){
 }
 
 function parseToTicks(input){
-    const regex = /^(\d+)(m|w|d|h|s)$/;
-    try{
-        [garbage, number, letter] = regex.exec(input);
+    const regex = /^(\d+)(m|w|d|h|s)/;
+    result = 0
+    const tickInASec = TicksPerSecond
+    const tickInAMin = tickInASec*60
+    const tickInAnHour = tickInAMin*60
+    const tickInADay = tickInAnHour*24
+    const tickInAWeek = tickInADay*7
+    let workingString = input
+    while(input !== ""){
+        const string = regex.exec(workingString)
+        workingString = workingString.replace(regex, "")
+        if(!string)throw new ParsingError(`couldn't parse ${input} to ticks!`)
+        switch (string[2]) {
+            case "w":
+                result += string[1]*tickInAWeek
+                break;
+            case "d":
+                result += string[1]*tickInADay
+                break;
+            case "h":
+                result += string[1]*tickInAnHour
+                break;
+            case "m":
+                result += string[1]*tickInAMin
+                break;
+            case "s":
+                result += string[1]*tickInASec
+                break;
+            default:
+                throw new ParsingError(`couldn't parse ${input} to ticks!`)
+                break;
+        }
     }
-    catch(error){
-
-    }
+    return result;
 }
 
 async function inspector(location, sender){
