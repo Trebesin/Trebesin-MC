@@ -60,13 +60,13 @@ function main(){
                                     LIMIT ? OFFSET ?`
                     request.values.push(parseInt(parameter.until ?? 7), parseInt(parameter.startingFrom ?? 0))
                 }
-                if(/^(\d+)(m|w|d|h|s)/.exec(parameter.until) && (!parameter.startingFrom || /^(\d+)$/.exec(parameter.startingFrom))){
+                else if(/^(\d+)(m|w|d|h|s)/.exec(parameter.until) && (!parameter.startingFrom || /^(\d+)$/.exec(parameter.startingFrom))){
                     request.sql += `AND tick >= ?
                                     ORDER BY \`block_history\`.\`tick\` DESC
                                     OFFSET ?`
                     request.values.push(system.currentTick - parseToTicks(parameter.until), parseInt(parameter.startingFrom ?? 0))
                 }
-                if(/^(\d+)(m|w|d|h|s)/.exec(parameter.until) && /^(\d+)(m|w|d|h|s)/.exec(parameter.startingFrom)){
+                else if(/^(\d+)(m|w|d|h|s)/.exec(parameter.until) && /^(\d+)(m|w|d|h|s)/.exec(parameter.startingFrom)){
                     request.sql += `AND tick >= ? AND tick <= ?
                                     ORDER BY \`block_history\`.\`tick\` DESC`
                     request.values.push(system.currentTick - parseToTicks(parameter.until), system.currentTick - parseToTicks(parameter.startingFrom))
