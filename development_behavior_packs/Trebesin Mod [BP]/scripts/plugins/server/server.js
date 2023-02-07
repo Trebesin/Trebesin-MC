@@ -1,11 +1,11 @@
 //Base imports
 import {world,system,MinecraftEffectTypes,MolangVariableMap,Color,Location} from '@minecraft/server';
 import * as Debug from './../debug/debug';
-//MC module imports
+//MC modules
 import * as Particles from './../../mc_modules/particles';
 import { sendMessage } from '../../mc_modules/players';
 import { FACE_DIRECTIONS } from '../../mc_modules/constants';
-//JS module imports
+//JS modules
 import { randInt } from '../../js_modules/random';
 import { setVectorLength, sumVectors } from '../../js_modules/vector';
 import { DB } from '../backend/backend';

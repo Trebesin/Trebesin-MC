@@ -1,17 +1,16 @@
+//Base imports
 import { world, MolangVariableMap, MinecraftBlockTypes, Color, system } from '@minecraft/server';
-import { Server } from './../modules/server';
-import { insertToArray } from '../modules/helpers/array';
-import { spawnBlockSelection } from '../modules/particles';
-import { getGridBlock } from '../modules/helpers/geometry';
+//MC Modules
+import { spawnBlockSelection } from '../../../mc_modules/particles';
+//JS Modules
+import { getGridBlock } from '../../../js_modules/geometry';
+import { insertToArray } from '../../../js_modules/array';
 
-const server = new Server();
-
-/* individual selection class */
+//# Individual Selection
 class Selection {
     constructor (player) {
         this.#playerId = player.id;
         this.#dimensionId = player.dimension.id;
-        if (Selections[this.#playerId] != null) throw new Error('Player has got a slection already, use the "cancel()" method to cancel an existing player selection!');
         Selections[this.#playerId] = this;
     }
 
@@ -88,7 +87,7 @@ class Selection {
     #bounds = []
 }
 
-/* global selection functions */
+//# Global Selection
 const Selections = {};
 
 system.runSchedule(() => {
