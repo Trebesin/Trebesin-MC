@@ -65,6 +65,8 @@ function main(){
             try {
                 const response = await BlockHistoryPlugin.database.query(request);
 
+                sendLogMessage(JSON.stringify(response))
+
                 if(!printBlockHistory(response, {type: "block", pos: pos}, sender))return;
 
                 if(parameter.particles ?? true){
