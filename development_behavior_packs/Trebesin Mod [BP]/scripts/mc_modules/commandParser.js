@@ -125,15 +125,16 @@ class CommandParser {
      * @param {string} name Name of the command to run.
      * @param {string} parameterString String input of the parameters.
      * @param {Player} sender Player to use as the context of the command execution.
+     * @param {boolean} sudo Wheter or not to run the command if sender doesn't have permisions
      */
-     async runCommand(input,parameterString,sender) {
-        const command = findRegisteredCommand(input,this.#commands)?.definition;
+     async runCommand(name,parameterString,sender, sudo = false) {
+        const command = findRegisteredCommand(name,this.#commands)?.definition;
         try {
             if (command == null) {
-                throw new CommandError(`§cCommand §r§l'${input}'§r§c not found!`);
+                throw new CommandError(`§cCommand §r§l'${name}'§r§c not found!`);
             }
-            if (command.senderCheck && !this.#options.adminCheck(sender) && !command.senderCheck(sender)) {
-                throw new CommandError(`§cYou do not meet requirements to use the command §r§l'${input}'§r§c!`);
+            if (command.senderCheck && !this.#options.adminCheck(sender) && !command.senderCheck(sender) && !sudo) {
+                throw new CommandError(`§cYou do not meet requirements to use the command §r§l'${name}'§r§c!`);
             }
 
             const parameterParser = new ParameterStringParser(parameterString,this.#options.parameterChars);
@@ -143,7 +144,7 @@ class CommandParser {
             if (error instanceof CommandError) {
                 sendMessage(error.message,'CMD',sender);
             } else {
-                sendMessage(`§cFatal error has occurred during the execution of §r§l'${commandInput}'§r§c!`,sender,'CMD');
+                sendMessage(`§cFatal error has occurred during the execution of §r§l'${name}'§r§c!`,sender,'CMD');
             }
         }
     }
