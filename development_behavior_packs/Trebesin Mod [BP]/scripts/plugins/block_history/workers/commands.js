@@ -51,9 +51,9 @@ function main(){
                        WHERE x = ? AND y = ? AND z = ? `,
                 values : [Math.floor(pos.x), Math.floor(pos.y), Math.floor(pos.z)]
             }
-            logMessage(parameter.until)
-            logMessage(parameter.startingFrom)
-            if((!parameter.until || /^(\d+)$/.exec(parameter.until)) && (!parameter.startingFrom || /^(\d+)$/.exec(parameter.until))){
+            logMessage(/^(\d+)$/.exec(parameter.until))
+            logMessage(/^(\d+)$/.exec(parameter.startingFrom))
+            if((!parameter.until || /^(\d+)$/.exec(parameter.until)) && (!parameter.startingFrom || /^(\d+)$/.exec(parameter.startingFrom))){
                 request.sql += `ORDER BY \`block_history\`.\`tick\` DESC
                                 LIMIT ? OFFSET ?`
                 request.values.push(parameter.until ?? 7, parameter.startingFrom ?? 0)
