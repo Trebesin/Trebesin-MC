@@ -80,7 +80,7 @@ function main(){
                             addActiveParticles(loc,axis,sender);
                         })
                     }
-                    sendMessage(`are you sure you want to reverse these changes?\n - !bh confirm to confirm or !bh cancel to cancel`,'CMD - BlockHistory',sender);
+                    system.run(sendMessage(`are you sure you want to reverse these changes?\n - !bh confirm to confirm or !bh cancel to cancel`,'CMD - BlockHistory',sender));
                     if(confirmationPerPlayer[sender.id]) delete confirmationPerPlayer[sender.id];
                     confirmationPerPlayer[sender.id] = {
                         player: sender,
@@ -215,7 +215,7 @@ function main(){
                             addActiveParticles(loc,axis,sender);
                         })
                     }
-                    sendMessage(`are you sure you want to reverse these changes?\n - !bh confirm to confirm or !bh cancel to cancel`,'CMD - BlockHistory',sender);
+                    system.run(sendMessage(`are you sure you want to reverse these changes?\n - !bh confirm to confirm or !bh cancel to cancel`,'CMD - BlockHistory',sender));
                     if(confirmationPerPlayer[sender.id]) delete confirmationPerPlayer[sender.id];
                     confirmationPerPlayer[sender.id] = {
                         player: sender,
@@ -269,7 +269,7 @@ function main(){
                             addActiveParticles(loc,axis,sender);
                         })
                     }
-                    sendMessage(`are you sure you want to reverse these changes?\n - !bh confirm to confirm or !bh cancel to cancel`,'CMD - BlockHistory',sender);
+                    system.run(sendMessage(`are you sure you want to reverse these changes?\n - !bh confirm to confirm or !bh cancel to cancel`,'CMD - BlockHistory',sender))
                     if(confirmationPerPlayer[sender.id]) delete confirmationPerPlayer[sender.id];
                     confirmationPerPlayer[sender.id] = {
                         player: sender,
@@ -529,24 +529,16 @@ async function inspector(location, sender){
     }
 }
 async function reverseBlocks(blocks, sender) {
-    try{
-        const callID = (await getMaxIDPerPlayer("blockHistory: reverse", sender) ?? -1)+1
-        sendLogMessage(callID)
-        for(let i = 0;i<blocks.length;i++){
-            sendLogMessage(i)
-            sendLogMessage(world)
-            const playerId = sender.id;
-            const block = world.getDimension(blocks[i].dimension_id).getBlock(new BlockLocation(blocks[i].x, blocks[i].y, blocks[i].z))
-            const blockOld = copyBlock(block)
-            block.setType(MinecraftBlockTypes.get(blocks[i].before_id))
-            block.setPermutation(setPermutationFromObject(block.permutation, JSON.parse(blocks[i].before_permutations)))
-            BlockHistoryPlugin.saveBlockUpdate(blockOld,copyBlock(block),playerId, "blockHistory: reverse", callID);
-        }
-        sendMessage(`succesfully reversed blocks - callID: ${callID}`)
+    const callID = (await getMaxIDPerPlayer("blockHistory: reverse", sender) ?? -1)+1
+    for(let i = 0;i<blocks.length;i++){
+        const playerId = sender.id;
+        const block = world.getDimension(blocks[i].dimension_id).getBlock(new BlockLocation(blocks[i].x, blocks[i].y, blocks[i].z))
+        const blockOld = copyBlock(block)
+        block.setType(MinecraftBlockTypes.get(blocks[i].before_id))
+        block.setPermutation(setPermutationFromObject(block.permutation, JSON.parse(blocks[i].before_permutations)))
+        BlockHistoryPlugin.saveBlockUpdate(blockOld,copyBlock(block),playerId, "blockHistory: reverse", callID);
     }
-    catch(error){
-        logMessage(error)
-    }
+    sendMessage(`succesfully reversed blocks - callID: ${callID}`, "BlockHistory: reverse",sender)
 }
 
 export {main, inspector, revertBlockChange}
