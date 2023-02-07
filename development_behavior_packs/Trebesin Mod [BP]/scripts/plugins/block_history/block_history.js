@@ -164,8 +164,8 @@ async function main() {
         if(player.hasTag('inspector')){
             try{
                 eventData.cancel = true;
-                const container = sender.getComponent('inventory').container
-                const item = container.getItem(sender.selectedSlot);
+                const container = player.getComponent('inventory').container
+                const item = container.getItem(player.selectedSlot);
                 if(item != null)await BlockHistoryCommandsWorker.inspector(faceBlockLocation, player) 
                 else await BlockHistoryCommandsWorker.inspector(eventData.blockLocation, player)
             }
