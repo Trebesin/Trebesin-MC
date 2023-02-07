@@ -56,7 +56,7 @@ function main(){
             try {
                 const response = await BlockHistoryPlugin.database.query(request);
 
-                if(!printBlockHistory(response, {type: "block"}))return;
+                if(!printBlockHistory(response, {type: "block", pos: pos}))return;
 
                 if(parameter.particles ?? true){
                     getEdgeLocations([{
@@ -99,7 +99,7 @@ function main(){
             try {
                 const response = await BlockHistoryPlugin.database.query(request);
 
-                if(!printBlockHistory(response, {type: "block"}))return;
+                if(!printBlockHistory(response, {type: "block", pos: pos}))return;
 
                 else if(parameter.particles ?? true){
                         getEdgeLocations([{
