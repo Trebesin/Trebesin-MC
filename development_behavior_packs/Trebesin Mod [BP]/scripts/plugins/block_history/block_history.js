@@ -7,6 +7,7 @@ import * as BlockHistoryCommandsWorker from './workers/commands';
 import * as Debug from '../debug/debug';
 import { DB, Server } from '../backend/backend';
 import { DIMENSION_IDS , FACE_DIRECTIONS } from '../../mc_modules/constants';
+import { getEquipedItem } from '../../mc_modules/players';
 const DB_UPDATE_INTERVAL = 100;
 
 const blockUpdates = {};

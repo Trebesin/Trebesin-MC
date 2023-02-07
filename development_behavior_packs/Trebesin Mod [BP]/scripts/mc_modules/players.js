@@ -120,4 +120,4 @@ function sendMessage(message,senderName,actor = null) {
         }
     }
 }
-export {sendMessage}
+export {sendMessage,getEquipedItem}
