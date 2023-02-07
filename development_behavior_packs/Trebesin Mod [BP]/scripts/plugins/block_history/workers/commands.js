@@ -418,6 +418,7 @@ function removeAllActiveParticles() {
  */
 
 function printBlockHistory(request, options, sender){
+    const playerName = sender.name
     if(request.result == "" && options.type === "player"){
         sendMessage(`No changes were made by the player ${playerName}`,'CMD - BlockHistory',sender);
         return;
