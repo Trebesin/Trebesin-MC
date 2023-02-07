@@ -298,7 +298,7 @@ function main(){
         else if(isAdmin(sender) && (parameter.command === "i" || parameter.command === "inspector")){
             if(!sender.hasTag("inspector")) {
                 sender.addTag("inspector");
-                sendMessage("inspector is now turned on, break any blocks to see it's history\nWARNING! Do not break blocks with additional data like signs or chests", "CMD - BlockHistory", sender);
+                sendMessage("inspector is now turned on, right click a block with your hand or place any block to see its history\n", "CMD - BlockHistory", sender);
             }
             else {
                 sender.removeTag("inspector");

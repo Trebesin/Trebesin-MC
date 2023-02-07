@@ -131,7 +131,7 @@ async function main() {
             permutation: eventData.brokenBlockPermutation
         }
         //This Block:
-        if(eventData.player.hasTag('inspector')){
+        /*if(eventData.player.hasTag('inspector')){
             try{
                 BlockHistoryCommandsWorker.revertBlockChange(blockOld, copyBlock(eventData.block), eventData.player)
                 await BlockHistoryCommandsWorker.inspector(eventData.block.location, eventData.player) 
@@ -141,9 +141,9 @@ async function main() {
                 Debug.sendLogMessage(error)
             }
         }
-        else{
+        else{*/
             saveBlockUpdate(blockOld,copyBlock(eventData.block),playerId);
-        }
+        //}
 
         //Updated Blocks:
         await blockUpdateIteration(blockOld.location,blockOld.dimension,(blockBefore,blockAfter,tick) => {
@@ -164,7 +164,10 @@ async function main() {
         if(player.hasTag('inspector')){
             try{
                 eventData.cancel = true;
-                await BlockHistoryCommandsWorker.inspector(faceBlockLocation, player) 
+                const container = player.getComponent('inventory').container
+                const item = container.getItem(player.selectedSlot);
+                if(item != null)await BlockHistoryCommandsWorker.inspector(faceBlockLocation, player) 
+                else await BlockHistoryCommandsWorker.inspector(eventData.blockLocation, player)
             }
             catch(error){
                 Debug.sendLogMessage(error)
