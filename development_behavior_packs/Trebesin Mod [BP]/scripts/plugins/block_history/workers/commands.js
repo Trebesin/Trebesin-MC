@@ -529,16 +529,21 @@ async function inspector(location, sender){
     }
 }
 async function reverseBlocks(blocks, sender) {
-    const callID = (await getMaxIDPerPlayer("blockHistory: reverse", sender) ?? -1)+1
-    for(let i = 0;i<blocks.length;i++){
-        const playerId = sender.id;
-        const block = world.getDimension(blocks[i].dimension_id).getBlock(new BlockLocation(blocks[i].x, blocks[i].y, blocks[i].z))
-        const blockOld = copyBlock(block)
-        block.setType(MinecraftBlockTypes.get(blocks[i].before_id))
-        block.setPermutation(setPermutationFromObject(block.permutation, JSON.parse(blocks[i].before_permutations)))
-        BlockHistoryPlugin.saveBlockUpdate(blockOld,copyBlock(block),playerId, "blockHistory: reverse", callID);
+    try{
+        const callID = (await getMaxIDPerPlayer("blockHistory: reverse", sender) ?? -1)+1
+        for(let i = 0;i<blocks.length;i++){
+            const playerId = sender.id;
+            const block = world.getDimension(blocks[i].dimension_id).getBlock(new BlockLocation(blocks[i].x, blocks[i].y, blocks[i].z))
+            const blockOld = copyBlock(block)
+            block.setType(MinecraftBlockTypes.get(blocks[i].before_id))
+            block.setPermutation(setPermutationFromObject(block.permutation, JSON.parse(blocks[i].before_permutations)))
+            BlockHistoryPlugin.saveBlockUpdate(blockOld,copyBlock(block),playerId, "blockHistory: reverse", callID);
+        }
+        sendMessage(`succesfully reversed blocks - callID: ${callID}`)
     }
-    sendMessage(`succesfully reversed blocks - callID: ${callID}`)
+    catch(error){
+        logMessage(error)
+    }
 }
 
 export {main, inspector, revertBlockChange}
