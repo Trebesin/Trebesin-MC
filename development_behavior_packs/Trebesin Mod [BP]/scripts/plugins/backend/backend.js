@@ -147,13 +147,9 @@ async function PluginMain() {
         initialize() {
             const {data,callbacks} = this;
             world.events.itemUseOn.subscribe(eventData => {
-                const itemStartUseOnCallbacks = callbacks.itemStartUseOn.saved;
+                const itemStartUseOnCallbacks = callbacks.itemStartUseOn;
                 if (((data[eventData.source.id] ?? 0) + 1) < system.currentTick) {
-                    for (let callbackIndex = 0;callbackIndex < itemStartUseOnCallbacks.length;callbackIndex++) {
-                        try {
-                            itemStartUseOnCallbacks[callbackIndex](eventData);
-                        } catch {}
-                    }
+                    itemStartUseOnCallbacks.runCallbacks(eventData);
                 }
                 data[eventData.source.id] = system.currentTick;
             });
