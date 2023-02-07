@@ -52,7 +52,7 @@ function main(){
                 values : [Math.floor(pos.x), Math.floor(pos.y), Math.floor(pos.z)]
             }
             if((!parameter.until || /^(\d+)$/.exec(parameter.until)) && (!parameter.startingFrom || /^(\d+)$/.exec(parameter.startingFrom))){
-                request.sql += `ORDER BY \`block_history\`.\`tick\` DESC
+                request.sql += `\nORDER BY \`block_history\`.\`tick\` DESC
                                 LIMIT ? OFFSET ?`
                 request.values.push(parameter.until ?? 7, parameter.startingFrom ?? 0)
             }
