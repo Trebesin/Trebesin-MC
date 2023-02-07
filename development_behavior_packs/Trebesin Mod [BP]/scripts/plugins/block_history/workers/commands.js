@@ -44,11 +44,12 @@ function main(){
     async function blockHistoryHandler(sender, parameter){
         if (isMod(sender) && (parameter.command === "rb" || parameter.command === "reverseblock")) {
             const pos = parameter.coords ?? sender.location
+            let request = {}
             pos.x = Math.floor(pos.x)
             pos.y = Math.floor(pos.y)
             pos.z = Math.floor(pos.z)
             try{
-                const request = sqlRequestHandler(parameter, {type: "block", pos: pos})
+                request = sqlRequestHandler(parameter, {type: "block", pos: pos})
             }
             catch(error){
                 sendMessage(`invalid until/startingFrom parameter: ${error}`, "blockHistory - error", sender)
