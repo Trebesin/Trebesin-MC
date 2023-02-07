@@ -42,7 +42,7 @@ function main(){
     description: "makes every punch oneshot everything"
   });
 
-  Commands.registerCommand("runas", {aliases: ["execute", "executeas"], description: "runs a command (with the same prefix) as a user", senderCheck: isAdmin, parameters: [{type: "selector", id: "player", playersOnly: true}, {type: "string", id: "command"}, {type: "string", id: "parameters", array: 9999, fullarray: false}],
+  Commands.registerCommand("runas", {aliases: ["execute", "executeas"], description: "runs a command (with the same prefix) as a user", senderCheck: isAdmin, parameters: [{type: "selector", id: "player", playersOnly: true}, {type: "string", id: "command"}, {type: "string", id: "parameters", array: 9999, fullArray: false}],
   run: (sender, parameter) => {
     for(let i = 0;i<parameter.player.length;i++){
       Commands.runCommand(parameter.command, parameter.parameters.join(' '), sender, true)
