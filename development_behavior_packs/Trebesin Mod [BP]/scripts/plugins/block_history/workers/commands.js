@@ -43,7 +43,7 @@ function main(){
     async function blockHistoryHandler(sender, parameter){
         if (isMod(sender) && (parameter.command === "rb" || parameter.command === "reverseblock")) {
             const pos = parameter.coords ?? sender.location
-            const request = {
+            let request = {
                 sql : `SELECT DISTINCT block_history.*, PlayerConnections.PlayerName 
                        FROM \`block_history\` 
                        JOIN PlayerConnections 
@@ -51,6 +51,8 @@ function main(){
                        WHERE x = ? AND y = ? AND z = ? `,
                 values : [Math.floor(pos.x), Math.floor(pos.y), Math.floor(pos.z)]
             }
+            logMessage(parameter.until)
+            logMessage(parameter.startingFrom)
             if((!parameter.until || /^(\d+)$/.exec(parameter.until)) && (!parameter.startingFrom || /^(\d+)$/.exec(parameter.until))){
                 request.sql += `ORDER BY \`block_history\`.\`tick\` DESC
                                 LIMIT ? OFFSET ?`
