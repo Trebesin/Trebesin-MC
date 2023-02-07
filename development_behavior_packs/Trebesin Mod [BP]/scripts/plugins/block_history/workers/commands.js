@@ -96,7 +96,7 @@ function main(){
                 sendMessage(`${error}`,'CMD - BlockHistory',sender);
             }
         }
-        if (isMod(sender) && (parameter.command === "b" || parameter.command === "block")) {
+        else if (isMod(sender) && (parameter.command === "b" || parameter.command === "block")) {
             const pos = parameter.coords ?? sender.location
             const request = {
                 sql : `SELECT DISTINCT block_history.*, PlayerConnections.PlayerName 
@@ -393,16 +393,16 @@ function main(){
                     {type: 'selector', id: 'players', optional:true, playerOnly:true}
                 ],
                 ca: [
-                    {}
+
                 ],
                 clearall: [
-                    {}
+
                 ],
                 i: [
-                    {}
+
                 ],
                 inspector: [
-                    {}
+
                 ],
                 r: [
                     {type:'int',id:'count',optional:true},
@@ -434,16 +434,19 @@ function main(){
                     {type:'bool',id:'particles', optional:true}
                 ],
                 confirm: [
-                    {}
+
                 ],
                 help: [
-                    {}
+
                 ],
                 h: [
-                    {}
+
                 ],
                 "?": [
-                    {}
+
+                ],
+                cancel: [
+
                 ]
                 
             }
