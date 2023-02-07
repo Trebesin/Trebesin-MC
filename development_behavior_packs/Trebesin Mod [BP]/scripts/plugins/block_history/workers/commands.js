@@ -80,7 +80,7 @@ function main(){
                             addActiveParticles(loc,axis,sender);
                         })
                     }
-                    system.run(sendMessage(`are you sure you want to reverse these changes?\n - !bh confirm to confirm or !bh cancel to cancel`,'CMD - BlockHistory',sender));
+                    sendMessage(`are you sure you want to reverse these changes?\n - !bh confirm to confirm or !bh cancel to cancel`,'CMD - BlockHistory',sender);
                     if(confirmationPerPlayer[sender.id]) delete confirmationPerPlayer[sender.id];
                     confirmationPerPlayer[sender.id] = {
                         player: sender,
@@ -215,7 +215,7 @@ function main(){
                             addActiveParticles(loc,axis,sender);
                         })
                     }
-                    system.run(sendMessage(`are you sure you want to reverse these changes?\n - !bh confirm to confirm or !bh cancel to cancel`,'CMD - BlockHistory',sender));
+                    sendMessage(`are you sure you want to reverse these changes?\n - !bh confirm to confirm or !bh cancel to cancel`,'CMD - BlockHistory',sender)
                     if(confirmationPerPlayer[sender.id]) delete confirmationPerPlayer[sender.id];
                     confirmationPerPlayer[sender.id] = {
                         player: sender,
@@ -269,7 +269,7 @@ function main(){
                             addActiveParticles(loc,axis,sender);
                         })
                     }
-                    system.run(sendMessage(`are you sure you want to reverse these changes?\n - !bh confirm to confirm or !bh cancel to cancel`,'CMD - BlockHistory',sender))
+                    sendMessage(`are you sure you want to reverse these changes?\n - !bh confirm to confirm or !bh cancel to cancel`,'CMD - BlockHistory',sender);
                     if(confirmationPerPlayer[sender.id]) delete confirmationPerPlayer[sender.id];
                     confirmationPerPlayer[sender.id] = {
                         player: sender,
