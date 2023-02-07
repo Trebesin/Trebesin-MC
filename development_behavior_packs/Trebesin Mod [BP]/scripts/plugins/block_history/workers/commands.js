@@ -43,8 +43,6 @@ function main(){
 
     async function blockHistoryHandler(sender, parameter){
         if (isMod(sender) && (parameter.command === "rb" || parameter.command === "reverseblock")) {
-            sendLogMessage(parameter.coords)
-            sendLogMessage(`${parameter.coords.x}, ${parameter.coords.y}, ${parameter.coords.z}`)
             let pos = parameter.coords ?? sender.location
             pos.x = Math.floor(pos.x)
             pos.y = Math.floor(pos.y)
@@ -57,8 +55,6 @@ function main(){
                 sendMessage(`invalid until/startingFrom parameter: ${error}`, "blockHistory - error", sender)
                 return;
             }
-            sendLogMessage(request.sql)
-            sendLogMessage(request.values)
             try {
                 const response = await BlockHistoryPlugin.database.query(request);
                 sendLogMessage(JSON.stringify(response.result))
@@ -452,8 +448,6 @@ function sqlRequestHandler(parameters, options){
                 `,
                 values : [options.pos.x, options.pos.y, options.pos.z,system.currentTick - parseToTicks(parameters.until), parseInt(parameters.startingFrom ?? 0)]
             }
-            logMessage(options.pos.x)
-            logMessage(request.values)
         }
         else if(/^(\d+)(m|w|d|h|s)/.exec(parameters.until) && /^(\d+)(m|w|d|h|s)/.exec(parameters.startingFrom)){
             request = {//request for block where we have realtime until and realtime startFrom
@@ -473,7 +467,7 @@ function sqlRequestHandler(parameters, options){
             }
         }
         else{
-            throw CommandError("invalid until/startingFrom parameter")
+            throw new CommandError("invalid until/startingFrom parameter")
         }
     }
     else if(options.type === "player"){
