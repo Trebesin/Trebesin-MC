@@ -52,6 +52,8 @@ function main(){
                        WHERE x = ? AND y = ? AND z = ? `,
                 values : [Math.floor(pos.x), Math.floor(pos.y), Math.floor(pos.z)]
             }
+            sendLogMessage(parameter.until)
+            sendLogMessage(parameter.startingFrom)
             try{
                 if((!parameter.until || /^(\d+)$/.exec(parameter.until)) && (!parameter.startingFrom || /^(\d+)$/.exec(parameter.startingFrom))){
                     request.sql += `ORDER BY \`block_history\`.\`tick\` DESC
