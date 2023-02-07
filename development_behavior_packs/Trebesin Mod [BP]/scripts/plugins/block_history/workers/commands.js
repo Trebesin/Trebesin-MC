@@ -61,6 +61,7 @@ function main(){
                 return
             }
             sendLogMessage(request.sql)
+            sendLogMessage(request.values)
             try {
                 const response = await BlockHistoryPlugin.database.query(request);
 
