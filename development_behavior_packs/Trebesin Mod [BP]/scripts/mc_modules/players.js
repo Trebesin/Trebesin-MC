@@ -95,6 +95,11 @@ function clearItem(entity, typeId, type, data, amount = { min: 1, max: 64 }) {
     return clearAmount
 }
 
+function getEquipedItem(entity) {
+    const container = entity.getComponent('inventory').container;
+    return container.getItem(entity.selectedSlot);
+}
+
 /**
  * 
  * @param {string} message 

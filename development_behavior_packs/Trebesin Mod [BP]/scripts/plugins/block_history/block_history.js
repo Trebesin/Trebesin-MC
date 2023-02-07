@@ -5,7 +5,7 @@ import { sumVectors, copyVector, subVectors } from '../../js_modules/vector';
 import { containsArray, filter, insertToArray, deleteFromArray } from '../../js_modules/array';
 import * as BlockHistoryCommandsWorker from './workers/commands';
 import * as Debug from '../debug/debug';
-import { DB } from '../backend/backend';
+import { DB, Server } from '../backend/backend';
 import { DIMENSION_IDS , FACE_DIRECTIONS } from '../../mc_modules/constants';
 const DB_UPDATE_INTERVAL = 100;
 
@@ -155,7 +155,7 @@ async function main() {
         });
     });
     
-    // inspector place
+    //## Inspector
     world.events.beforeItemUseOn.subscribe(async(eventData) => {
         const player = eventData.source;
         const offset = FACE_DIRECTIONS[eventData.blockFace];
@@ -164,18 +164,27 @@ async function main() {
         if(player.hasTag('inspector')){
             try{
                 eventData.cancel = true;
-                const container = player.getComponent('inventory').container
-                const item = container.getItem(player.selectedSlot);
-                if(item != null)await BlockHistoryCommandsWorker.inspector(faceBlockLocation, player) 
-                else await BlockHistoryCommandsWorker.inspector(eventData.blockLocation, player)
+                if(getEquipedItem(player) != null) await BlockHistoryCommandsWorker.inspector(faceBlockLocation, player) 
+                //else await BlockHistoryCommandsWorker.inspector(eventData.blockLocation, player)
             }
             catch(error){
                 Debug.sendLogMessage(error)
             }
         }
+    });
 
+    Server.events.itemStartUseOn.subscribe(async (eventData) => {
+        const player = eventData.source;
+        if (player.hasTag('inspector')) {
+            try{
+                eventData.cancel = true;
+                if (getEquipedItem(player) == null) await BlockHistoryCommandsWorker.inspector(eventData.blockLocation, player)
+            } catch(error){
+                Debug.sendLogMessage(error)
+            }
+        }
+    });
 
-    })
     //## Block Placing Detection:
     world.events.itemStartUseOn.subscribe(async(eventData) => {
         const player = eventData.source;
