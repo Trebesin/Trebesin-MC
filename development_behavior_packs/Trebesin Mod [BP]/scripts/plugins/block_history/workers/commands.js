@@ -520,10 +520,10 @@ function parseToTicks(input){
     const tickInADay = tickInAnHour*24
     const tickInAWeek = tickInADay*7
     let workingString = input
-    while(input !== ""){
+    while(workingString !== ""){
         const string = regex.exec(workingString)
         workingString = workingString.replace(regex, "")
-        if(!string)throw new CommandError(`couldn't parse ${input} to ticks!, "${workingString}"`)
+        if(!string)throw new CommandError(`couldn't parse ${input} to ticks!`)
         switch (string[2]) {
             case "w":
                 result += string[1]*tickInAWeek
