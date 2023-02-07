@@ -56,6 +56,10 @@ function main(){
                                 LIMIT ? OFFSET ?`
                 request.values.push(parameter.until ?? 7, parameter.startingFrom ?? 0)
             }
+            else{
+                sendMessage("invalid until/startingFrom parameter")
+                return
+            }
             try {
                 const response = await BlockHistoryPlugin.database.query(request);
 
