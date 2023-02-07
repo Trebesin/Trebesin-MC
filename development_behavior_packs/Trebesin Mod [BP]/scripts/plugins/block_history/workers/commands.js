@@ -418,7 +418,8 @@ function removeAllActiveParticles() {
 
 
 
-function sqlRequestHandler(parameters, options, pos = null){
+function sqlRequestHandler(parameters, options){
+    const pos = options.pos
     if(options.type === "block")
         if((!parameters.until || /^(\d+)$/.exec(parameters.until)) && (!parameters.startingFrom || /^(\d+)$/.exec(parameters.startingFrom))){
             let request = {//request for block where we have number until and number startFrom
