@@ -98,7 +98,9 @@ function main(){
             }
             try {
                 const response = await BlockHistoryPlugin.database.query(request);
+
                 if(!printBlockHistory(response, {type: "block"}))return;
+
                 else if(parameter.particles ?? true){
                         getEdgeLocations([{
                             x: Math.floor(pos.x),
@@ -433,8 +435,8 @@ function printBlockHistory(request, options){
     const tickInAnHour = tickInAMin*60
     const tickInADay = tickInAnHour*24
     let message = ''
-    for(let i = response.result.length-1; i+1; i--){
-        const blockAlteration = response.result[i]
+    for(let i = request.result.length-1; i+1; i--){
+        const blockAlteration = request.result[i]
         const timeOfBlockAlteration = system.currentTick - parseInt(blockAlteration.tick)
         if(options.type === "player" || options.type === "reverse"){
             message += `${blockAlteration.blockPlaceType === "playerPlace"? "" : ` (${blockAlteration.blockPlaceType}) - `}[${blockAlteration.x}, ${blockAlteration.y}, ${blockAlteration.z}]: ${blockAlteration.before_id} -> ${blockAlteration.after_id} - before: ${Math.floor(timeOfBlockAlteration/tickInADay)}d${Math.floor(timeOfBlockAlteration%tickInADay/tickInAnHour)}h${Math.floor(timeOfBlockAlteration%tickInAnHour/tickInAMin)}m${Math.floor(timeOfBlockAlteration%tickInAMin/tickInASec)}s\n`;
