@@ -43,43 +43,48 @@ function main(){
 
     async function blockHistoryHandler(sender, parameter){
         if (isMod(sender) && (parameter.command === "rb" || parameter.command === "reverseblock")) {
-            const pos = parameter.coords ?? sender.location
-            pos.x = Math.floor(pos.x)
-            pos.y = Math.floor(pos.y)
-            pos.z = Math.floor(pos.z)
             try{
-                const request = sqlRequestHandler(parameter, {type: "block", pos: pos})
-            }
-            catch(error){
-                sendMessage(`invalid until/startingFrom parameter: ${error}`, "blockHistory - error", sender)
-                return;
-            }
-            sendLogMessage(request.sql)
-            sendLogMessage(request.values)
-            try {
-                const response = await BlockHistoryPlugin.database.query(request);
-
-                sendLogMessage(JSON.stringify(response))
-
-                if(!printBlockHistory(response, {type: "block", pos: pos}, sender))return;
-
-                if(parameter.particles ?? true){
-                    getEdgeLocations([pos], (loc,axis) => {
-                        addActiveParticles(loc,axis,sender);
-                    })
+                const pos = parameter.coords ?? sender.location
+                pos.x = Math.floor(pos.x)
+                pos.y = Math.floor(pos.y)
+                pos.z = Math.floor(pos.z)
+                try{
+                    const request = sqlRequestHandler(parameter, {type: "block", pos: pos})
                 }
+                catch(error){
+                    sendMessage(`invalid until/startingFrom parameter: ${error}`, "blockHistory - error", sender)
+                    return;
+                }
+                sendLogMessage(request.sql)
+                sendLogMessage(request.values)
+                try {
+                    const response = await BlockHistoryPlugin.database.query(request);
 
-                sendMessage(`are you sure you want to reverse these changes?\n - !bh confirm to confirm or !bh cancel to cancel`,'CMD - BlockHistory',sender);
+                    sendLogMessage(JSON.stringify(response))
 
-                if(confirmationPerPlayer[sender.id]) delete confirmationPerPlayer[sender.id];
-                confirmationPerPlayer[sender.id] = {
-                    player: sender,
-                    confirmed: false,
-                    callback: () => {
-                        reverseBlocks(response.result, sender)
-                    },
-                    countdown: 1200
-                };
+                    if(!printBlockHistory(response, {type: "block", pos: pos}, sender))return;
+
+                    if(parameter.particles ?? true){
+                        getEdgeLocations([pos], (loc,axis) => {
+                            addActiveParticles(loc,axis,sender);
+                        })
+                    }
+
+                    sendMessage(`are you sure you want to reverse these changes?\n - !bh confirm to confirm or !bh cancel to cancel`,'CMD - BlockHistory',sender);
+
+                    if(confirmationPerPlayer[sender.id]) delete confirmationPerPlayer[sender.id];
+                    confirmationPerPlayer[sender.id] = {
+                        player: sender,
+                        confirmed: false,
+                        callback: () => {
+                            reverseBlocks(response.result, sender)
+                        },
+                        countdown: 1200
+                    };
+                }
+                catch (error) {
+                    sendMessage(`${error}`,'CMD - BlockHistory',sender);
+                }
             }
             catch (error) {
                 sendMessage(`${error}`,'CMD - BlockHistory',sender);
