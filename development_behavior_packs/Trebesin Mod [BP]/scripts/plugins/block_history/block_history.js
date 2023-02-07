@@ -157,32 +157,17 @@ async function main() {
     });
     
     //## Inspector
-    world.events.beforeItemUseOn.subscribe((eventData) => {
+    Server.events.beforeItemStartUseOn.subscribe((eventData) => {
         const player = eventData.source;
         const offset = FACE_DIRECTIONS[eventData.blockFace];
         const faceBlockLocation = eventData.blockLocation.offset(offset.x,offset.y,offset.z);
-        if(player.hasTag('inspector')){
-            try{
-                if (getEquipedItem(player) != null) {
-                    BlockHistoryCommandsWorker.inspector(faceBlockLocation, player);
-                    eventData.cancel = true;
-                }
+        if (player.hasTag('inspector')){
+            try {
+                eventData.cancel = true;
+                if (getEquipedItem(player) != null) BlockHistoryCommandsWorker.inspector(faceBlockLocation, player);
+                else BlockHistoryCommandsWorker.inspector(eventData.blockLocation, player);
             }
             catch(error){
-                Debug.sendLogMessage(error)
-            }
-        }
-    });
-
-    Server.events.itemStartUseOn.subscribe((eventData) => {
-        Debug.logMessage('tried')
-        const player = eventData.source;
-        Debug.logMessage('got past')
-        if (player.hasTag('inspector')) {
-            try{
-                Debug.logMessage('test')
-                if (getEquipedItem(player) == null) BlockHistoryCommandsWorker.inspector(eventData.blockLocation, player)
-            } catch(error){
                 Debug.sendLogMessage(error)
             }
         }

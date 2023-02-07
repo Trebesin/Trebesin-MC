@@ -147,9 +147,27 @@ async function PluginMain() {
         initialize() {
             const {data,callbacks} = this;
             world.events.itemUseOn.subscribe(eventData => {
-                const itemStartUseOnCallbacks = callbacks.itemStartUseOn;
+                const callbackData = callbacks.itemStartUseOn;
                 if (((data[eventData.source.id] ?? 0) + 1) < system.currentTick) {
-                    itemStartUseOnCallbacks.runCallbacks(eventData);
+                    callbackData.runCallbacks(eventData);
+                }
+                data[eventData.source.id] = system.currentTick;
+            });
+        },
+        execute() {},
+        data: {}
+    });
+
+    server.registerEvent('beforeItemStartUseOn',{
+        callbacks: {
+            beforeItemStartUseOn: new ServerEventCallback()
+        },
+        initialize() {
+            const {data,callbacks} = this;
+            world.events.beforeItemUseOn.subscribe(eventData => {
+                const callbackData = callbacks.beforeItemStartUseOn;
+                if (((data[eventData.source.id] ?? 0) + 1) < system.currentTick) {
+                    callbackData.runCallbacks(eventData);
                 }
                 data[eventData.source.id] = system.currentTick;
             });
