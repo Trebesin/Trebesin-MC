@@ -43,11 +43,11 @@ function main(){
 
     async function blockHistoryHandler(sender, parameter){
         if (isMod(sender) && (parameter.command === "rb" || parameter.command === "reverseblock")) {
-            const position = parameter.coords ?? sender.location
-            let pos = {}
-            pos.x = Math.floor(position.x)
-            pos.y = Math.floor(position.y)
-            pos.z = Math.floor(position.z)
+            sendLogMessage(parameter.coords)
+            let pos = parameter.coords ?? sender.location
+            pos.x = Math.floor(pos.x)
+            pos.y = Math.floor(pos.y)
+            pos.z = Math.floor(pos.z)
             let request = {}
             try{
                 request = sqlRequestHandler(parameter, {type: "block", pos: pos})
