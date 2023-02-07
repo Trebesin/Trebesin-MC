@@ -54,7 +54,7 @@ function main(){
             if((!parameter.until || /^(\d+)$/.exec(parameter.until)) && (!parameter.startingFrom || /^(\d+)$/.exec(parameter.startingFrom))){
                 request.sql += `\nORDER BY \`block_history\`.\`tick\` DESC
                                 LIMIT ? OFFSET ?`
-                request.values.push(parameter.until ?? 7, parameter.startingFrom ?? 0)
+                request.values.push(parseInt(parameter.until) ?? 7, parseInt(parameter.startingFrom) ?? 0)
             }
             else{
                 sendMessage("invalid until/startingFrom parameter")
