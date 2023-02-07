@@ -51,8 +51,6 @@ function main(){
                        WHERE x = ? AND y = ? AND z = ? `,
                 values : [Math.floor(pos.x), Math.floor(pos.y), Math.floor(pos.z)]
             }
-            logMessage(/^(\d+)$/.exec(parameter.until))
-            logMessage(/^(\d+)$/.exec(parameter.startingFrom))
             if((!parameter.until || /^(\d+)$/.exec(parameter.until)) && (!parameter.startingFrom || /^(\d+)$/.exec(parameter.startingFrom))){
                 request.sql += `ORDER BY \`block_history\`.\`tick\` DESC
                                 LIMIT ? OFFSET ?`
@@ -315,26 +313,26 @@ function main(){
     parameters: [
         {id: "command", type: "string", optional: true, choice: {
                 b: [
-                    {type:'int',id:'until',optional:true},
-                    {type:'int',id:'startingFrom',optional:true},
+                    {type:'str',id:'until',optional:true},
+                    {type:'str',id:'startingFrom',optional:true},
                     {type:'pos',id:'coords',optional:true},
                     {type:'bool',id:'particles', optional:true}
                 ],
                 block: [
-                    {type:'int',id:'until',optional:true},
-                    {type:'int',id:'startingFrom',optional:true},
+                    {type:'str',id:'until',optional:true},
+                    {type:'str',id:'startingFrom',optional:true},
                     {type:'pos',id:'coords',optional:true},
                     {type:'bool',id:'particles', optional:true}
                 ],
                 p: [
-                    {type:'int',id:'until',optional:true},
-                    {type:'int',id:'startingFrom',optional:true},
+                    {type:'str',id:'until',optional:true},
+                    {type:'str',id:'startingFrom',optional:true},
                     {type:'string',id:'player',optional:true},
                     {type:'bool',id:'particles', optional:true}
                 ],
                 player: [
-                    {type:'int',id:'until',optional:true},
-                    {type:'int',id:'startingFrom',optional:true},
+                    {type:'str',id:'until',optional:true},
+                    {type:'str',id:'startingFrom',optional:true},
                     {type:'string',id:'player',optional:true},
                     {type:'bool',id:'particles', optional:true}
                 ],
@@ -357,8 +355,8 @@ function main(){
 
                 ],
                 r: [
-                    {type:'int',id:'until',optional:true},
-                    {type:'int',id:'startingFrom',optional:true},
+                    {type:'str',id:'until',optional:true},
+                    {type:'str',id:'startingFrom',optional:true},
                     {type:'string',id:'player',optional:true},
                     {type:'bool',id:'particles', optional:true}
                 ],
@@ -368,20 +366,20 @@ function main(){
                     {type:'bool',id:'particles', optional:true}
                 ],
                 reverse: [
-                    {type:'int',id:'until',optional:true},
-                    {type:'int',id:'startingFrom',optional:true},
+                    {type:'str',id:'until',optional:true},
+                    {type:'str',id:'startingFrom',optional:true},
                     {type:'string',id:'player',optional:true},
                     {type:'bool',id:'particles', optional:true}
                 ],
                 rb: [
-                    {type:'int',id:'until',optional:true},
-                    {type:'int',id:'startingFrom',optional:true},
+                    {type:'str',id:'until',optional:true},
+                    {type:'str',id:'startingFrom',optional:true},
                     {type:'pos',id:'coords',optional:true},
                     {type:'bool',id:'particles', optional:true}
                 ],
                 reverseblock: [
-                    {type:'int',id:'until',optional:true},
-                    {type:'int',id:'startingFrom',optional:true},
+                    {type:'str',id:'until',optional:true},
+                    {type:'str',id:'startingFrom',optional:true},
                     {type:'pos',id:'coords',optional:true},
                     {type:'bool',id:'particles', optional:true}
                 ],
