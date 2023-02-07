@@ -64,7 +64,7 @@ const dbConnection = new DatabaseConnection({
         else{
             let newContent = content.split('\n')
             for(let i = 0;i<newContent.length;i++){
-                if(newContent[i] !== "")messages[sender.id].content.push(newContent[i])
+                if(newContent[i] != "")messages[sender.id].content.push(newContent[i])
             }
         }
         system.run(() => {
