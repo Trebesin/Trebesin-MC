@@ -60,6 +60,7 @@ function main(){
                 sendMessage("invalid until/startingFrom parameter")
                 return
             }
+            sendLogMessage(request.sql)
             try {
                 const response = await BlockHistoryPlugin.database.query(request);
 
