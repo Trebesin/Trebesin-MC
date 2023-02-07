@@ -450,6 +450,8 @@ function sqlRequestHandler(parameters, options){
                 `,
                 values : [options.pos.x, options.pos.y, options.pos.z,system.currentTick - parseToTicks(parameters.until), parseInt(parameters.startingFrom ?? 0)]
             }
+            logMessage(options.pos.x)
+            logMessage(request.values)
         }
         else if(/^(\d+)(m|w|d|h|s)/.exec(parameters.until) && /^(\d+)(m|w|d|h|s)/.exec(parameters.startingFrom)){
             request = {//request for block where we have realtime until and realtime startFrom
