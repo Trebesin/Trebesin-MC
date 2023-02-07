@@ -421,15 +421,15 @@ function printBlockHistory(request, options, sender){
     const playerName = sender.name
     if(request.result == "" && options.type === "player"){
         sendMessage(`No changes were made by the player ${playerName}`,'CMD - BlockHistory',sender);
-        return;
+        return false;
     }
     if(request.result == "" && options.type === "reverse"){
         sendMessage(`No changes were made by blockhistory from ${playerName}`,'CMD - BlockHistory',sender);
-        return;
+        return false;
     }
     if(request.result == "" && options.type === "block"){
         sendMessage(`No changes were made to block ${Math.floor(options.pos.x)}, ${Math.floor(options.pos.y)}, ${Math.floor(options.pos.z)}`,'CMD - BlockHistory',sender);
-        return;
+        return false;
     }
     const tickInASec = TicksPerSecond
     const tickInAMin = tickInASec*60
@@ -449,6 +449,7 @@ function printBlockHistory(request, options, sender){
     if(options.type === "reverse")sendLongMessage(`Block History reverses of ${playerName}`, message.trim(), sender)
     if(options.type === "player")sendLongMessage(`Block History of ${playerName}`, message.trim(), sender);
     if(options.type === "block")sendLongMessage(`Block History of block ${Math.floor(options.pos.x)}, ${Math.floor(options.pos.y)}, ${Math.floor(options.pos.z)}`, message.trim(), sender);
+    return true
 }
 
 function spawnParticles(location, particleAxis, sender) {
