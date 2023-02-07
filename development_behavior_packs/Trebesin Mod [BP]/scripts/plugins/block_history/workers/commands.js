@@ -43,7 +43,7 @@ function main(){
 
     async function blockHistoryHandler(sender, parameter){
         if (isMod(sender) && (parameter.command === "rb" || parameter.command === "reverseblock")) {
-            const pos = parameter.coords ?? sender.location
+            let pos = parameter.coords ?? sender.location
             pos.x = Math.floor(pos.x)
             pos.y = Math.floor(pos.y)
             pos.z = Math.floor(pos.z)
@@ -86,7 +86,7 @@ function main(){
             }
         }
         else if (isMod(sender) && (parameter.command === "b" || parameter.command === "block")) {
-            const pos = parameter.coords ?? sender.location
+            let pos = parameter.coords ?? sender.location
             pos.x = Math.floor(pos.x)
             pos.y = Math.floor(pos.y)
             pos.z = Math.floor(pos.z)
