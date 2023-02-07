@@ -511,7 +511,7 @@ function revertBlockChange(blockOld, blockNew, sender){
 
 function parseToTicks(input){
     const regex = /^(\d+)(m|w|d|h|s)/;
-    result = 0
+    let result = 0
     const tickInASec = TicksPerSecond
     const tickInAMin = tickInASec*60
     const tickInAnHour = tickInAMin*60
