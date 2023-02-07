@@ -77,6 +77,19 @@ function main(){
   });
 
 
+  Commands.registerCommand("tphere", {parameters: [{id: "players", type: "selector"}], description: "teleports players you select to you", run: (sender, parameter) => {
+      for(let i = 0;i<parameter.players.length;i++){
+        parameter.players[i].teleport(sender.location, sender.dimension, sender.rotation.x, sender.rotation.y)
+      }
+  }})
+
+  Commands.registerCommand("tpallhere", {aliases: ["tpall"], description: "teleports all players to you", run: (sender, parameter) => {
+      for (const player of world.getPlayers()) {
+          player.teleport(sender.location, sender.dimension, sender.rotation.x, sender.rotation.y)
+        }
+  }})
+
+
   Commands.registerCommand("op", {parameters: [{id: "player", type: "string", optional: true}], senderCheck: isAdmin, run: (sender, parameter) => {
       if(!parameter.player)parameter.player = sender.name;
       for (const player of world.getPlayers()) {
