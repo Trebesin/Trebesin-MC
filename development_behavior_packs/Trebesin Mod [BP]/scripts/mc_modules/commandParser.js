@@ -255,6 +255,7 @@ class CommandParser {
                 break;
             case 'selector':
             case 'select':
+                logMessage(`Selector: ${parameter}`);
                 value = this.#parseSelector(parameter,sender,option);
                 parsedParameter = value;
                 break;
