@@ -255,7 +255,6 @@ class CommandParser {
                 break;
             case 'selector':
             case 'select':
-                logMessage(`Selector: ${parameter}`);
                 value = this.#parseSelector(parameter,sender,option);
                 parsedParameter = value;
                 break;
@@ -625,7 +624,11 @@ class ParameterStringParser {
                                 selector = 1;
                                 continue;
                             };
-                            if (char !== separator) item.name += char;
+                            if (char !== separator) {
+                                item.name += char;
+                            } else {
+                                parsePhase = 2;
+                            }
                         }
                         if (selector === 1) {
                             if (char == null) throw new CommandError(`Unexpected end of selector at parameter '${option.id}'!`);
