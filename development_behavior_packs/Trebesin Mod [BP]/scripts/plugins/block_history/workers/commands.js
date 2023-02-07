@@ -44,6 +44,7 @@ function main(){
     async function blockHistoryHandler(sender, parameter){
         if (isMod(sender) && (parameter.command === "rb" || parameter.command === "reverseblock")) {
             sendLogMessage(parameter.coords)
+            sendLogMessage(`${parameter.coords.x}, ${parameter.coords.y}, ${parameter.coords.z}`)
             let pos = parameter.coords ?? sender.location
             pos.x = Math.floor(pos.x)
             pos.y = Math.floor(pos.y)
