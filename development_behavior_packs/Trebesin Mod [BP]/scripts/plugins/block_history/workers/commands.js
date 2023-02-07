@@ -4,7 +4,7 @@ import { sendMessage} from "../../../mc_modules/players";
 import { getEdgeLocations, createLocationSet2, locationToString, stringToLocation } from "../../../mc_modules/particles";
 import { Commands, sendLongMessage } from '../../backend/backend';
 import { isAdmin, isMod } from "../../commands/workers/admin";
-import { logMessage } from "../../debug/debug";
+import { logMessage, sendLogMessage } from "../../debug/debug";
 import { playerData } from "../../server/server";
 import * as BlockHistoryPlugin from "../block_history";
 let particlesPerPlayers = {}
@@ -531,7 +531,10 @@ async function inspector(location, sender){
 async function reverseBlocks(blocks, sender) {
     try{
         const callID = (await getMaxIDPerPlayer("blockHistory: reverse", sender) ?? -1)+1
+        sendLogMessage(callID)
         for(let i = 0;i<blocks.length;i++){
+            sendLogMessage(i)
+            sendLogMessage(world)
             const playerId = sender.id;
             const block = world.getDimension(blocks[i].dimension_id).getBlock(new BlockLocation(blocks[i].x, blocks[i].y, blocks[i].z))
             const blockOld = copyBlock(block)
