@@ -56,7 +56,7 @@ function main(){
             try {
                 const response = await BlockHistoryPlugin.database.query(request);
 
-                if(!printBlockHistory(response, {type: "block", pos: pos}))return;
+                if(!printBlockHistory(response, {type: "block", pos: pos}, sender))return;
 
                 if(parameter.particles ?? true){
                     getEdgeLocations([{
@@ -99,7 +99,7 @@ function main(){
             try {
                 const response = await BlockHistoryPlugin.database.query(request);
 
-                if(!printBlockHistory(response, {type: "block", pos: pos}))return;
+                if(!printBlockHistory(response, {type: "block", pos: pos}, sender))return;
 
                 else if(parameter.particles ?? true){
                         getEdgeLocations([{
@@ -131,7 +131,7 @@ function main(){
             try {
                 const response = await BlockHistoryPlugin.database.query(request);
 
-                if(!printBlockHistory(response, {type: "player"}))return;
+                if(!printBlockHistory(response, {type: "player"}, sender))return;
 
                 else if(parameter.particles ?? true){
                     getEdgeLocations(response.result, (loc,axis) => {
@@ -158,7 +158,7 @@ function main(){
             }
             try {
                 const response = await BlockHistoryPlugin.database.query(request);
-                if(!printBlockHistory(response, {type: "reverse"}))return;
+                if(!printBlockHistory(response, {type: "reverse"}, sender))return;
 
                 if(parameter.particles ?? true){
                     getEdgeLocations(response.result, (loc,axis) => {
@@ -197,7 +197,7 @@ function main(){
             }
             try {
                 const response = await BlockHistoryPlugin.database.query(request);
-                if(!printBlockHistory(response, {type: "player"}))return;
+                if(!printBlockHistory(response, {type: "player"}, sender))return;
 
                 if(parameter.particles ?? true){
                     getEdgeLocations(response.result, (loc,axis) => {
@@ -417,7 +417,7 @@ function removeAllActiveParticles() {
  * @returns 
  */
 
-function printBlockHistory(request, options){
+function printBlockHistory(request, options, sender){
     if(request.result == "" && options.type === "player"){
         sendMessage(`No changes were made by the player ${playerName}`,'CMD - BlockHistory',sender);
         return;
@@ -493,7 +493,7 @@ async function inspector(location, sender){
     }
     try {
         const response = await BlockHistoryPlugin.database.query(request);
-        printBlockHistory(response, {type: "block", pos: pos})
+        printBlockHistory(response, {type: "block", pos: pos}, sender)
     }
     catch (error) {
         sendMessage(`${error}`,'CMD - BlockHistory',sender);
