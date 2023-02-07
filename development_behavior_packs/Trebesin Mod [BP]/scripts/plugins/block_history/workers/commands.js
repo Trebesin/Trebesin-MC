@@ -65,7 +65,7 @@ function main(){
                     message += `${blockAlteration.PlayerName}${blockAlteration.blockPlaceType === "playerPlace"? "" : ` (${blockAlteration.blockPlaceType})`}: ${blockAlteration.before_id} -> ${blockAlteration.after_id} - before: ${Math.floor(timeOfBlockAlteration/tickInADay)}d${Math.floor(timeOfBlockAlteration%tickInADay/tickInAnHour)}h${Math.floor(timeOfBlockAlteration%tickInAnHour/tickInAMin)}m${Math.floor(timeOfBlockAlteration%tickInAMin/tickInASec)}s\n`;
                 }
 
-                if(message !== "")sendLongMessage(`block history of block ${Math.floor(pos.x)}, ${Math.floor(pos.y)}, ${Math.floor(pos.z)}`, message.trim(), sender)
+                if(message != "")sendLongMessage(`block history of block ${Math.floor(pos.x)}, ${Math.floor(pos.y)}, ${Math.floor(pos.z)}`, message.trim(), sender)
 
                 if (response.result == '') {
                     sendMessage(`No changes were made to block ${Math.floor(pos.x)}, ${Math.floor(pos.y)}, ${Math.floor(pos.z)}`,'CMD - BlockHistory',sender);
@@ -120,7 +120,7 @@ function main(){
                     const timeOfBlockAlteration = system.currentTick - parseInt(blockAlteration.tick);
                     message += `${blockAlteration.PlayerName}${blockAlteration.blockPlaceType === "playerPlace"? "" : ` (${blockAlteration.blockPlaceType})`}: ${blockAlteration.before_id} -> ${blockAlteration.after_id} - before: ${Math.floor(timeOfBlockAlteration/tickInADay)}d${Math.floor(timeOfBlockAlteration%tickInADay/tickInAnHour)}h${Math.floor(timeOfBlockAlteration%tickInAnHour/tickInAMin)}m${Math.floor(timeOfBlockAlteration%tickInAMin/tickInASec)}s\n`;
                 }
-                if(message !== "")sendLongMessage(`block history of block ${Math.floor(pos.x)}, ${Math.floor(pos.y)}, ${Math.floor(pos.z)}`, message.trim(), sender)
+                if(message != "")sendLongMessage(`block history of block ${Math.floor(pos.x)}, ${Math.floor(pos.y)}, ${Math.floor(pos.z)}`, message.trim(), sender)
                 if (response.result == '') {
                     sendMessage(`No changes were made to block  ${Math.floor(pos.x)}, ${Math.floor(pos.y)}, ${Math.floor(pos.z)}`,'CMD - BlockHistory',sender);
                 }
@@ -164,7 +164,7 @@ function main(){
                     message += `${blockAlteration.blockPlaceType === "playerPlace"? "" : ` (${blockAlteration.blockPlaceType}) - `}[${blockAlteration.x}, ${blockAlteration.y}, ${blockAlteration.z}]: ${blockAlteration.before_id} -> ${blockAlteration.after_id} - before: ${Math.floor(timeOfBlockAlteration/tickInADay)}d${Math.floor(timeOfBlockAlteration%tickInADay/tickInAnHour)}h${Math.floor(timeOfBlockAlteration%tickInAnHour/tickInAMin)}m${Math.floor(timeOfBlockAlteration%tickInAMin/tickInASec)}s\n`;
                     locations.push({x: blockAlteration.x, y: blockAlteration.y, z: blockAlteration.z})
                 }
-                if(message !== "")sendLongMessage(`block history of ${playerName}`, message.trim(), sender)
+                if(message != "")sendLongMessage(`block history of ${playerName}`, message.trim(), sender)
                 
                 if (response.result == '') {
                     sendMessage(`No changes were made by the player ${playerName}`,'CMD - BlockHistory',sender);
@@ -205,7 +205,7 @@ function main(){
                     message += `${blockAlteration.blockPlaceType === "playerPlace"? "" : ` (${blockAlteration.blockPlaceType}) - `}[${blockAlteration.x}, ${blockAlteration.y}, ${blockAlteration.z}]: ${blockAlteration.before_id} -> ${blockAlteration.after_id} - before: ${Math.floor(timeOfBlockAlteration/tickInADay)}d${Math.floor(timeOfBlockAlteration%tickInADay/tickInAnHour)}h${Math.floor(timeOfBlockAlteration%tickInAnHour/tickInAMin)}m${Math.floor(timeOfBlockAlteration%tickInAMin/tickInASec)}s\n`;
                     locations.push({x: blockAlteration.x, y: blockAlteration.y, z: blockAlteration.z})
                 }
-                if(message !== "")sendLongMessage(`BH reverses of ${playerName}`, message.trim(), sender)
+                if(message != "")sendLongMessage(`BH reverses of ${playerName}`, message.trim(), sender)
                 if(response.result == ""){
                     sendMessage(`No changes were made by the player ${playerName}`,'CMD - BlockHistory',sender);
                 }
@@ -259,7 +259,7 @@ function main(){
                     message += `${blockAlteration.blockPlaceType === "playerPlace"? "" : ` (${blockAlteration.blockPlaceType}) - `}[${blockAlteration.x}, ${blockAlteration.y}, ${blockAlteration.z}]: ${blockAlteration.before_id} -> ${blockAlteration.after_id} - before: ${Math.floor(timeOfBlockAlteration/tickInADay)}d${Math.floor(timeOfBlockAlteration%tickInADay/tickInAnHour)}h${Math.floor(timeOfBlockAlteration%tickInAnHour/tickInAMin)}m${Math.floor(timeOfBlockAlteration%tickInAMin/tickInASec)}s\n`;
                     locations.push({x: blockAlteration.x, y: blockAlteration.y, z: blockAlteration.z})
                 }
-                if(message !== "")sendLongMessage(`Block History of ${playerName}`, message.trim(), sender)
+                if(message != "")sendLongMessage(`Block History of ${playerName}`, message.trim(), sender)
                 if(response.result == ""){
                     sendMessage(`No changes were made by the player ${playerName}`,'CMD - BlockHistory',sender);
                 }
@@ -519,7 +519,7 @@ async function inspector(location, sender){
             const timeOfBlockAlteration = system.currentTick - parseInt(blockAlteration.tick);
             message += `${blockAlteration.PlayerName}${blockAlteration.blockPlaceType === "playerPlace"? "" : ` (${blockAlteration.blockPlaceType})`}: ${blockAlteration.before_id} -> ${blockAlteration.after_id} - before: ${Math.floor(timeOfBlockAlteration/tickInADay)}d${Math.floor(timeOfBlockAlteration%tickInADay/tickInAnHour)}h${Math.floor(timeOfBlockAlteration%tickInAnHour/tickInAMin)}m${Math.floor(timeOfBlockAlteration%tickInAMin/tickInASec)}s\n`;
         }
-        if(message !== "")sendLongMessage(`block history of block ${Math.floor(pos.x)}, ${Math.floor(pos.y)}, ${Math.floor(pos.z)}`, message.trim(), sender)
+        if(message != "")sendLongMessage(`block history of block ${Math.floor(pos.x)}, ${Math.floor(pos.y)}, ${Math.floor(pos.z)}`, message.trim(), sender)
         if (response.result == '') {
             sendMessage(`No changes were made to block  ${Math.floor(pos.x)}, ${Math.floor(pos.y)}, ${Math.floor(pos.z)}`,'CMD - BlockHistory',sender);
         }
