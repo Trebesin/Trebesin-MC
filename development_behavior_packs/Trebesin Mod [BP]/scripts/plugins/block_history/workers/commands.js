@@ -7,6 +7,7 @@ import { isAdmin, isMod } from "../../commands/workers/admin";
 import { logMessage, sendLogMessage } from "../../debug/debug";
 import { playerData } from "../../server/server";
 import * as BlockHistoryPlugin from "../block_history";
+import { CommandError } from "../../../mc_modules/commandParser";
 let particlesPerPlayers = {}
 let confirmationPerPlayer = {}
 
@@ -75,6 +76,7 @@ function main(){
             }
             catch(error){
                 sendMessage(`invalid until/startingFrom parameter: ${error}`, "blockHistory - error", sender)
+                return;
             }
             sendLogMessage(request.sql)
             sendLogMessage(request.values)
@@ -521,7 +523,7 @@ function parseToTicks(input){
     while(input !== ""){
         const string = regex.exec(workingString)
         workingString = workingString.replace(regex, "")
-        if(!string)throw new ParsingError(`couldn't parse ${input} to ticks!`)
+        if(!string)throw new CommandError(`couldn't parse ${input} to ticks!`)
         switch (string[2]) {
             case "w":
                 result += string[1]*tickInAWeek
@@ -539,7 +541,7 @@ function parseToTicks(input){
                 result += string[1]*tickInASec
                 break;
             default:
-                throw new ParsingError(`couldn't parse ${input} to ticks!`)
+                throw new CommandError(`couldn't parse ${input} to ticks!`)
                 break;
         }
     }
