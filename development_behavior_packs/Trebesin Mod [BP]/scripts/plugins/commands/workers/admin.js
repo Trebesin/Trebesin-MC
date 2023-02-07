@@ -84,9 +84,14 @@ function main(){
   }})
 
   Commands.registerCommand("tpallhere", {aliases: ["tpall"], description: "teleports all players to you", run: (sender, parameter) => {
+    try{
       for (const player of world.getPlayers()) {
           player.teleport(sender.location, sender.dimension, sender.rotation.x, sender.rotation.y)
         }
+    }
+    catch(error){
+      logMessage(error)
+    }
   }})
 
 
