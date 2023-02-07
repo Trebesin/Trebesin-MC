@@ -44,37 +44,11 @@ function main(){
     async function blockHistoryHandler(sender, parameter){
         if (isMod(sender) && (parameter.command === "rb" || parameter.command === "reverseblock")) {
             const pos = parameter.coords ?? sender.location
-            let request = {
-                sql : `SELECT DISTINCT block_history.*, PlayerConnections.PlayerName 
-                       FROM \`block_history\` 
-                       JOIN PlayerConnections 
-                       ON block_history.actor_id = PlayerConnections.PlayerID 
-                       WHERE x = ? AND y = ? AND z = ? `,
-                values : [Math.floor(pos.x), Math.floor(pos.y), Math.floor(pos.z)]
-            }
-            sendLogMessage(parameter.until)
-            sendLogMessage(parameter.startingFrom)
+            pos.x = Math.floor(pos.x)
+            pos.y = Math.floor(pos.y)
+            pos.z = Math.floor(pos.z)
             try{
-                if((!parameter.until || /^(\d+)$/.exec(parameter.until)) && (!parameter.startingFrom || /^(\d+)$/.exec(parameter.startingFrom))){
-                    request.sql += `ORDER BY \`block_history\`.\`tick\` DESC
-                                    LIMIT ? OFFSET ?`
-                    request.values.push(parseInt(parameter.until ?? 7), parseInt(parameter.startingFrom ?? 0))
-                }
-                else if(/^(\d+)(m|w|d|h|s)/.exec(parameter.until) && (!parameter.startingFrom || /^(\d+)$/.exec(parameter.startingFrom))){
-                    request.sql += `AND tick >= ?
-                                    ORDER BY \`block_history\`.\`tick\` DESC
-                                    OFFSET ?`
-                    request.values.push(system.currentTick - parseToTicks(parameter.until), parseInt(parameter.startingFrom ?? 0))
-                }
-                else if(/^(\d+)(m|w|d|h|s)/.exec(parameter.until) && /^(\d+)(m|w|d|h|s)/.exec(parameter.startingFrom)){
-                    request.sql += `AND tick >= ? AND tick <= ?
-                                    ORDER BY \`block_history\`.\`tick\` DESC`
-                    request.values.push(system.currentTick - parseToTicks(parameter.until), system.currentTick - parseToTicks(parameter.startingFrom))
-                }
-                else{
-                    sendMessage("invalid until/startingFrom parameter", "blockHistory - error", sender)
-                    return
-                }
+                const request = sqlRequestHandler(parameter, {type: "block", pos: pos})
             }
             catch(error){
                 sendMessage(`invalid until/startingFrom parameter: ${error}`, "blockHistory - error", sender)
@@ -90,11 +64,7 @@ function main(){
                 if(!printBlockHistory(response, {type: "block", pos: pos}, sender))return;
 
                 if(parameter.particles ?? true){
-                    getEdgeLocations([{
-                        x: Math.floor(pos.x),
-                        y: Math.floor(pos.y),
-                        z: Math.floor(pos.z)
-                    }], (loc,axis) => {
+                    getEdgeLocations([pos], (loc,axis) => {
                         addActiveParticles(loc,axis,sender);
                     })
                 }
@@ -117,6 +87,9 @@ function main(){
         }
         else if (isMod(sender) && (parameter.command === "b" || parameter.command === "block")) {
             const pos = parameter.coords ?? sender.location
+            pos.x = Math.floor(pos.x)
+            pos.y = Math.floor(pos.y)
+            pos.z = Math.floor(pos.z)
             const request = {
                 sql : `SELECT DISTINCT block_history.*, PlayerConnections.PlayerName 
                        FROM \`block_history\` 
@@ -441,6 +414,78 @@ function removeAllActiveParticles() {
         delete particlesPerPlayers[player];
     }
 }
+
+
+
+
+function sqlRequestHandler(parameters, options, pos = null){
+    if(options.type === "block")
+        if((!parameters.until || /^(\d+)$/.exec(parameters.until)) && (!parameters.startingFrom || /^(\d+)$/.exec(parameters.startingFrom))){
+            let request = {//request for block where we have number until and number startFrom
+            sql: `
+                SELECT DISTINCT block_history.*, PlayerConnections.PlayerName
+                FROM block_history 
+                JOIN (SELECT PlayerID, MAX(ID) AS latest_id 
+                        FROM PlayerConnections 
+                        GROUP BY PlayerID) AS latest_connections 
+                    ON block_history.actor_id = latest_connections.PlayerID 
+                    JOIN PlayerConnections 
+                    ON latest_connections.latest_id = PlayerConnections.ID
+                WHERE x = ? AND y = ? AND z = ?
+                LIMIT ? OFFSET ?
+            `,
+            values : [Math.floor(pos.x), Math.floor(pos.y), Math.floor(pos.z),parseInt(parameters.until ?? 7), parseInt(parameters.startingFrom ?? 0)]
+            }
+        }
+        else if(/^(\d+)(m|w|d|h|s)/.exec(parameters.until) && (!parameters.startingFrom || /^(\d+)$/.exec(parameters.startingFrom))){
+            let request = {//request for block where we have realtime until and startFrom number
+                sql : `
+                WITH cte AS (
+                SELECT DISTINCT block_history.*, PlayerConnections.PlayerName, ROW_NUMBER() OVER (ORDER BY block_history.tick DESC) AS rn
+                FROM block_history 
+                JOIN (SELECT PlayerID, MAX(ID) AS latest_id 
+                        FROM PlayerConnections 
+                        GROUP BY PlayerID) AS latest_connections 
+                    ON block_history.actor_id = latest_connections.PlayerID 
+                    JOIN PlayerConnections 
+                    ON latest_connections.latest_id = PlayerConnections.ID
+                WHERE x = ? AND y = ? AND z = ? AND block_history.tick >= ?
+                )
+                SELECT *
+                FROM cte
+                WHERE rn > ?
+                `,
+                values : [Math.floor(pos.x), Math.floor(pos.y), Math.floor(pos.z),system.currentTick - parseToTicks(parameters.until), parseInt(parameters.startingFrom ?? 0)]
+            }
+        }
+        else if(/^(\d+)(m|w|d|h|s)/.exec(parameter.until) && /^(\d+)(m|w|d|h|s)/.exec(parameters.startingFrom)){
+            let request = {//request for block where we have realtime until and realtime startFrom
+            sql: `
+                SELECT DISTINCT block_history.*, PlayerConnections.PlayerName
+                FROM block_history 
+                JOIN (SELECT PlayerID, MAX(ID) AS latest_id 
+                        FROM PlayerConnections 
+                        GROUP BY PlayerID) AS latest_connections 
+                    ON block_history.actor_id = latest_connections.PlayerID 
+                    JOIN PlayerConnections 
+                    ON latest_connections.latest_id = PlayerConnections.ID
+                WHERE x = ? AND y = ? AND z = ? AND block_history.tick >= ? AND block_history.tick <= ?
+            `,
+            values : [Math.floor(pos.x), Math.floor(pos.y), Math.floor(pos.z),system.currentTick - parseToTicks(parameter.until), system.currentTick - parseToTicks(parameters.startingFrom)]
+            }
+        }
+        else{
+            throw CommandError("invalid until/startingFrom parameter")
+            return
+        }
+
+
+}
+
+
+
+
+
 /**
  * 
  * @param {Promise} request 
