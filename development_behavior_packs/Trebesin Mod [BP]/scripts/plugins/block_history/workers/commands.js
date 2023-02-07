@@ -43,53 +43,47 @@ function main(){
 
     async function blockHistoryHandler(sender, parameter){
         if (isMod(sender) && (parameter.command === "rb" || parameter.command === "reverseblock")) {
+            const pos = parameter.coords ?? sender.location
+            pos.x = Math.floor(pos.x)
+            pos.y = Math.floor(pos.y)
+            pos.z = Math.floor(pos.z)
             try{
-                const pos = parameter.coords ?? sender.location
-                let request = {}
-                pos.x = Math.floor(pos.x)
-                pos.y = Math.floor(pos.y)
-                pos.z = Math.floor(pos.z)
-                try{
-                    request = sqlRequestHandler(parameter, {type: "block", pos: pos})
-                }
-                catch(error){
-                    sendMessage(`invalid until/startingFrom parameter: ${error}`, "blockHistory - error", sender)
-                    return;
-                }
-                sendLogMessage(request.sql)
-                sendLogMessage(request.values)
-                try {
-                    const response = await BlockHistoryPlugin.database.query(request);
-
-                    sendLogMessage(JSON.stringify(response))
-
-                    if(!printBlockHistory(response, {type: "block", pos: pos}, sender))return;
-
-                    if(parameter.particles ?? true){
-                        getEdgeLocations([pos], (loc,axis) => {
-                            addActiveParticles(loc,axis,sender);
-                        })
-                    }
-
-                    sendMessage(`are you sure you want to reverse these changes?\n - !bh confirm to confirm or !bh cancel to cancel`,'CMD - BlockHistory',sender);
-
-                    if(confirmationPerPlayer[sender.id]) delete confirmationPerPlayer[sender.id];
-                    confirmationPerPlayer[sender.id] = {
-                        player: sender,
-                        confirmed: false,
-                        callback: () => {
-                            reverseBlocks(response.result, sender)
-                        },
-                        countdown: 1200
-                    };
-                }
-                catch (error) {
-                    sendMessage(`${error}`,'CMD - BlockHistory',sender);
-                }
+                const request = sqlRequestHandler(parameter, {type: "block", pos: pos})
             }
-                catch (error) {
-                    sendMessage(`${error}`,'CMD - BlockHistory',sender);
+            catch(error){
+                sendMessage(`invalid until/startingFrom parameter: ${error}`, "blockHistory - error", sender)
+                return;
+            }
+            sendLogMessage(request.sql)
+            sendLogMessage(request.values)
+            try {
+                const response = await BlockHistoryPlugin.database.query(request);
+
+                sendLogMessage(JSON.stringify(response))
+
+                if(!printBlockHistory(response, {type: "block", pos: pos}, sender))return;
+
+                if(parameter.particles ?? true){
+                    getEdgeLocations([pos], (loc,axis) => {
+                        addActiveParticles(loc,axis,sender);
+                    })
                 }
+
+                sendMessage(`are you sure you want to reverse these changes?\n - !bh confirm to confirm or !bh cancel to cancel`,'CMD - BlockHistory',sender);
+
+                if(confirmationPerPlayer[sender.id]) delete confirmationPerPlayer[sender.id];
+                confirmationPerPlayer[sender.id] = {
+                    player: sender,
+                    confirmed: false,
+                    callback: () => {
+                        reverseBlocks(response.result, sender)
+                    },
+                    countdown: 1200
+                };
+            }
+            catch (error) {
+                sendMessage(`${error}`,'CMD - BlockHistory',sender);
+            }
         }
         else if (isMod(sender) && (parameter.command === "b" || parameter.command === "block")) {
             const pos = parameter.coords ?? sender.location
@@ -426,9 +420,10 @@ function removeAllActiveParticles() {
 
 function sqlRequestHandler(parameters, options){
     const pos = options.pos
+    let request
     if(options.type === "block")
         if((!parameters.until || /^(\d+)$/.exec(parameters.until)) && (!parameters.startingFrom || /^(\d+)$/.exec(parameters.startingFrom))){
-            let request = {//request for block where we have number until and number startFrom
+            request = {//request for block where we have number until and number startFrom
             sql: `
                 SELECT DISTINCT block_history.*, PlayerConnections.PlayerName
                 FROM block_history 
@@ -445,7 +440,7 @@ function sqlRequestHandler(parameters, options){
             }
         }
         else if(/^(\d+)(m|w|d|h|s)/.exec(parameters.until) && (!parameters.startingFrom || /^(\d+)$/.exec(parameters.startingFrom))){
-            let request = {//request for block where we have realtime until and startFrom number
+            request = {//request for block where we have realtime until and startFrom number
                 sql : `
                 WITH cte AS (
                 SELECT DISTINCT block_history.*, PlayerConnections.PlayerName, ROW_NUMBER() OVER (ORDER BY block_history.tick DESC) AS rn
@@ -466,7 +461,7 @@ function sqlRequestHandler(parameters, options){
             }
         }
         else if(/^(\d+)(m|w|d|h|s)/.exec(parameter.until) && /^(\d+)(m|w|d|h|s)/.exec(parameters.startingFrom)){
-            let request = {//request for block where we have realtime until and realtime startFrom
+            request = {//request for block where we have realtime until and realtime startFrom
             sql: `
                 SELECT DISTINCT block_history.*, PlayerConnections.PlayerName
                 FROM block_history 
@@ -483,10 +478,8 @@ function sqlRequestHandler(parameters, options){
         }
         else{
             throw CommandError("invalid until/startingFrom parameter")
-            return
         }
-
-
+    return request
 }
 
 
