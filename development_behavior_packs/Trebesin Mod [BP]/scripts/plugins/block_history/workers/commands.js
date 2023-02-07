@@ -39,6 +39,7 @@ function main(){
             }
         }
     },4);
+
     async function blockHistoryHandler(sender, parameter){
         if (isMod(sender) && (parameter.command === "rb" || parameter.command === "reverseblock")) {
             const pos = parameter.coords ?? sender.location
@@ -54,43 +55,30 @@ function main(){
             }
             try {
                 const response = await BlockHistoryPlugin.database.query(request);
-                const tickInASec = TicksPerSecond;
-                const tickInAMin = tickInASec*60;
-                const tickInAnHour = tickInAMin*60;
-                const tickInADay = tickInAnHour*24;
-                let message = '' 
-                for (let responseIndex = response.result.length-1; responseIndex+1; responseIndex--) {
-                    const blockAlteration = response.result[responseIndex];
-                    const timeOfBlockAlteration = system.currentTick - parseInt(blockAlteration.tick);
-                    message += `${blockAlteration.PlayerName}${blockAlteration.blockPlaceType === "playerPlace"? "" : ` (${blockAlteration.blockPlaceType})`}: ${blockAlteration.before_id} -> ${blockAlteration.after_id} - before: ${Math.floor(timeOfBlockAlteration/tickInADay)}d${Math.floor(timeOfBlockAlteration%tickInADay/tickInAnHour)}h${Math.floor(timeOfBlockAlteration%tickInAnHour/tickInAMin)}m${Math.floor(timeOfBlockAlteration%tickInAMin/tickInASec)}s\n`;
+
+                if(!printBlockHistory(response, {type: "block"}))return;
+
+                if(parameter.particles ?? true){
+                    getEdgeLocations([{
+                        x: Math.floor(pos.x),
+                        y: Math.floor(pos.y),
+                        z: Math.floor(pos.z)
+                    }], (loc,axis) => {
+                        addActiveParticles(loc,axis,sender);
+                    })
                 }
 
-                if(message != "")sendLongMessage(`block history of block ${Math.floor(pos.x)}, ${Math.floor(pos.y)}, ${Math.floor(pos.z)}`, message.trim(), sender)
+                sendMessage(`are you sure you want to reverse these changes?\n - !bh confirm to confirm or !bh cancel to cancel`,'CMD - BlockHistory',sender);
 
-                if (response.result == '') {
-                    sendMessage(`No changes were made to block ${Math.floor(pos.x)}, ${Math.floor(pos.y)}, ${Math.floor(pos.z)}`,'CMD - BlockHistory',sender);
-                }
-                else {
-                    if(parameter.particles ?? true){
-                        getEdgeLocations([{
-                            x: Math.floor(pos.x),
-                            y: Math.floor(pos.y),
-                            z: Math.floor(pos.z)
-                        }], (loc,axis) => {
-                            addActiveParticles(loc,axis,sender);
-                        })
-                    }
-                    sendMessage(`are you sure you want to reverse these changes?\n - !bh confirm to confirm or !bh cancel to cancel`,'CMD - BlockHistory',sender);
-                    if(confirmationPerPlayer[sender.id]) delete confirmationPerPlayer[sender.id];
-                    confirmationPerPlayer[sender.id] = {
-                        player: sender,
-                        confirmed: false,
-                        callback: () => {
-                            reverseBlocks(response.result, sender)
-                        },
-                        countdown: 1200
-                    };
-                }
+                if(confirmationPerPlayer[sender.id]) delete confirmationPerPlayer[sender.id];
+                confirmationPerPlayer[sender.id] = {
+                    player: sender,
+                    confirmed: false,
+                    callback: () => {
+                        reverseBlocks(response.result, sender)
+                    },
+                    countdown: 1200
+                };
             }
             catch (error) {
                 sendMessage(`${error}`,'CMD - BlockHistory',sender);
@@ -110,20 +98,7 @@ function main(){
             }
             try {
                 const response = await BlockHistoryPlugin.database.query(request);
-                const tickInASec = TicksPerSecond;
-                const tickInAMin = tickInASec*60;
-                const tickInAnHour = tickInAMin*60;
-                const tickInADay = tickInAnHour*24;
-                let message = ''
-                for (let responseIndex = response.result.length-1; responseIndex+1; responseIndex--) {
-                    const blockAlteration = response.result[responseIndex];
-                    const timeOfBlockAlteration = system.currentTick - parseInt(blockAlteration.tick);
-                    message += `${blockAlteration.PlayerName}${blockAlteration.blockPlaceType === "playerPlace"? "" : ` (${blockAlteration.blockPlaceType})`}: ${blockAlteration.before_id} -> ${blockAlteration.after_id} - before: ${Math.floor(timeOfBlockAlteration/tickInADay)}d${Math.floor(timeOfBlockAlteration%tickInADay/tickInAnHour)}h${Math.floor(timeOfBlockAlteration%tickInAnHour/tickInAMin)}m${Math.floor(timeOfBlockAlteration%tickInAMin/tickInASec)}s\n`;
-                }
-                if(message != "")sendLongMessage(`block history of block ${Math.floor(pos.x)}, ${Math.floor(pos.y)}, ${Math.floor(pos.z)}`, message.trim(), sender)
-                if (response.result == '') {
-                    sendMessage(`No changes were made to block  ${Math.floor(pos.x)}, ${Math.floor(pos.y)}, ${Math.floor(pos.z)}`,'CMD - BlockHistory',sender);
-                }
+                if(!printBlockHistory(response, {type: "block"}))return;
                 else if(parameter.particles ?? true){
                         getEdgeLocations([{
                             x: Math.floor(pos.x),
@@ -138,6 +113,7 @@ function main(){
                 sendMessage(`${error}`,'CMD - BlockHistory',sender);
             }
         }
+
         else if (isMod(sender) && (parameter.command === "p" || parameter.command === "player")) {
             const playerName = parameter.player ?? sender.name
             const request = {
@@ -152,25 +128,11 @@ function main(){
             }
             try {
                 const response = await BlockHistoryPlugin.database.query(request);
-                const tickInASec = TicksPerSecond
-                const tickInAMin = tickInASec*60
-                const tickInAnHour = tickInAMin*60
-                const tickInADay = tickInAnHour*24
-                let message = ''
-                let locations = []
-                for (let responseIndex = response.result.length-1; responseIndex+1; responseIndex--) {
-                    const blockAlteration = response.result[responseIndex]
-                    const timeOfBlockAlteration = system.currentTick - parseInt(blockAlteration.tick)
-                    message += `${blockAlteration.blockPlaceType === "playerPlace"? "" : ` (${blockAlteration.blockPlaceType}) - `}[${blockAlteration.x}, ${blockAlteration.y}, ${blockAlteration.z}]: ${blockAlteration.before_id} -> ${blockAlteration.after_id} - before: ${Math.floor(timeOfBlockAlteration/tickInADay)}d${Math.floor(timeOfBlockAlteration%tickInADay/tickInAnHour)}h${Math.floor(timeOfBlockAlteration%tickInAnHour/tickInAMin)}m${Math.floor(timeOfBlockAlteration%tickInAMin/tickInASec)}s\n`;
-                    locations.push({x: blockAlteration.x, y: blockAlteration.y, z: blockAlteration.z})
-                }
-                if(message != "")sendLongMessage(`block history of ${playerName}`, message.trim(), sender)
-                
-                if (response.result == '') {
-                    sendMessage(`No changes were made by the player ${playerName}`,'CMD - BlockHistory',sender);
-                }
+
+                if(!printBlockHistory(response, {type: "player"}))return;
+
                 else if(parameter.particles ?? true){
-                    getEdgeLocations(locations, (loc,axis) => {
+                    getEdgeLocations(response.result, (loc,axis) => {
                         addActiveParticles(loc,axis,sender);
                     })
                 }
@@ -180,6 +142,7 @@ function main(){
                 sendMessage(`${error}`,'CMD - BlockHistory',sender);
             }
         }
+
         else if(isMod(sender) && (parameter.command === "redo")) {
             const playerName = parameter.player ?? sender.name
             const request = {
@@ -193,46 +156,31 @@ function main(){
             }
             try {
                 const response = await BlockHistoryPlugin.database.query(request);
-                const tickInASec = TicksPerSecond
-                const tickInAMin = tickInASec*60
-                const tickInAnHour = tickInAMin*60
-                const tickInADay = tickInAnHour*24
-                let message = ''
-                let locations = []
-                for(let i = response.result.length-1; i+1; i--){
-                    const blockAlteration = response.result[i]
-                    const timeOfBlockAlteration = system.currentTick - parseInt(blockAlteration.tick)
-                    message += `${blockAlteration.blockPlaceType === "playerPlace"? "" : ` (${blockAlteration.blockPlaceType}) - `}[${blockAlteration.x}, ${blockAlteration.y}, ${blockAlteration.z}]: ${blockAlteration.before_id} -> ${blockAlteration.after_id} - before: ${Math.floor(timeOfBlockAlteration/tickInADay)}d${Math.floor(timeOfBlockAlteration%tickInADay/tickInAnHour)}h${Math.floor(timeOfBlockAlteration%tickInAnHour/tickInAMin)}m${Math.floor(timeOfBlockAlteration%tickInAMin/tickInASec)}s\n`;
-                    locations.push({x: blockAlteration.x, y: blockAlteration.y, z: blockAlteration.z})
-                }
-                if(message != "")sendLongMessage(`BH reverses of ${playerName}`, message.trim(), sender)
-                if(response.result == ""){
-                    sendMessage(`No changes were made by the player ${playerName}`,'CMD - BlockHistory',sender);
-                }
-                else{
-                    if(parameter.particles ?? true){
-                        getEdgeLocations(locations, (loc,axis) => {
-                            addActiveParticles(loc,axis,sender);
-                        })
-                    }
-                    sendMessage(`are you sure you want to reverse these changes?\n - !bh confirm to confirm or !bh cancel to cancel`,'CMD - BlockHistory',sender)
-                    if(confirmationPerPlayer[sender.id]) delete confirmationPerPlayer[sender.id];
-                    confirmationPerPlayer[sender.id] = {
-                        player: sender,
-                        confirmed: false,
-                        callback: () => {
-                            reverseBlocks(response.result, sender)
-                        },
-                        countdown: 1200
-                    };
+                if(!printBlockHistory(response, {type: "reverse"}))return;
+
+                if(parameter.particles ?? true){
+                    getEdgeLocations(response.result, (loc,axis) => {
+                        addActiveParticles(loc,axis,sender);
+                    })
                 }
 
+                sendMessage(`are you sure you want to revert these changes?\n - !bh confirm to confirm or !bh cancel to cancel`,'CMD - BlockHistory',sender);
+
+                if(confirmationPerPlayer[sender.id]) delete confirmationPerPlayer[sender.id];
+                confirmationPerPlayer[sender.id] = {
+                    player: sender,
+                    confirmed: false,
+                    callback: () => {
+                        reverseBlocks(response.result, sender)
+                    },
+                    countdown: 1200
+                };
             }
             catch(error) {
                 sendMessage(`${error}`,'CMD - BlockHistory',sender);
             }
-            
         }
+
         else if(isMod(sender) && (parameter.command === "r" || parameter.command === "reverse")) {
             const playerName = parameter.player ?? sender.name
             const request = {
@@ -247,46 +195,31 @@ function main(){
             }
             try {
                 const response = await BlockHistoryPlugin.database.query(request);
-                const tickInASec = TicksPerSecond
-                const tickInAMin = tickInASec*60
-                const tickInAnHour = tickInAMin*60
-                const tickInADay = tickInAnHour*24
-                let locations = []
-                let message = ''
-                for(let i = response.result.length-1; i+1; i--){
-                    const blockAlteration = response.result[i]
-                    const timeOfBlockAlteration = system.currentTick - parseInt(blockAlteration.tick)
-                    message += `${blockAlteration.blockPlaceType === "playerPlace"? "" : ` (${blockAlteration.blockPlaceType}) - `}[${blockAlteration.x}, ${blockAlteration.y}, ${blockAlteration.z}]: ${blockAlteration.before_id} -> ${blockAlteration.after_id} - before: ${Math.floor(timeOfBlockAlteration/tickInADay)}d${Math.floor(timeOfBlockAlteration%tickInADay/tickInAnHour)}h${Math.floor(timeOfBlockAlteration%tickInAnHour/tickInAMin)}m${Math.floor(timeOfBlockAlteration%tickInAMin/tickInASec)}s\n`;
-                    locations.push({x: blockAlteration.x, y: blockAlteration.y, z: blockAlteration.z})
-                }
-                if(message != "")sendLongMessage(`Block History of ${playerName}`, message.trim(), sender)
-                if(response.result == ""){
-                    sendMessage(`No changes were made by the player ${playerName}`,'CMD - BlockHistory',sender);
-                }
-                else{
-                    if(parameter.particles ?? true){
-                        getEdgeLocations(locations, (loc,axis) => {
-                            addActiveParticles(loc,axis,sender);
-                        })
-                    }
-                    sendMessage(`are you sure you want to reverse these changes?\n - !bh confirm to confirm or !bh cancel to cancel`,'CMD - BlockHistory',sender);
-                    if(confirmationPerPlayer[sender.id]) delete confirmationPerPlayer[sender.id];
-                    confirmationPerPlayer[sender.id] = {
-                        player: sender,
-                        confirmed: false,
-                        callback: () => {
-                            reverseBlocks(response.result, sender)
-                        },
-                        countdown: 1200
-                    };
+                if(!printBlockHistory(response, {type: "player"}))return;
+
+                if(parameter.particles ?? true){
+                    getEdgeLocations(response.result, (loc,axis) => {
+                        addActiveParticles(loc,axis,sender);
+                    })
                 }
 
+                sendMessage(`are you sure you want to reverse these changes?\n - !bh confirm to confirm or !bh cancel to cancel`,'CMD - BlockHistory',sender);
+
+                if(confirmationPerPlayer[sender.id]) delete confirmationPerPlayer[sender.id];
+                confirmationPerPlayer[sender.id] = {
+                    player: sender,
+                    confirmed: false,
+                    callback: () => {
+                        reverseBlocks(response.result, sender)
+                    },
+                    countdown: 1200
+                };
             }
             catch(error) {
                 sendMessage(`${error}`,'CMD - BlockHistory',sender);
             }
-            
         }
+
         else if(isMod(sender) && parameter.command === "confirm") {
             try {
                 confirmationPerPlayer[sender.id].confirmed = true
@@ -295,6 +228,7 @@ function main(){
                 sendMessage('the confirmation has expired!', 'cmd - BlockHistory', sender)
             }
         }
+
         else if(isAdmin(sender) && (parameter.command === "i" || parameter.command === "inspector")){
             if(!sender.hasTag("inspector")) {
                 sender.addTag("inspector");
@@ -305,10 +239,12 @@ function main(){
                 sendMessage("inspector is now turned off", "CMD - BlockHistory", sender);
             };
         }
+
         else if(parameter.command === "cancel"){
             delete confirmationPerPlayer[sender.id]
             sendMessage("The call is now aborted", "CMD - BlockHistory", sender)
         }
+
         else if(isMod(sender) &&(parameter.command === "c" || parameter.command === "clear")) {
             if(parameter.players){
                 for(let i = 0;i<parameter.players.length; i++){
@@ -319,9 +255,11 @@ function main(){
                 removeActiveParticles(sender);
             }
         }
+
         else if(isMod(sender) && (parameter.command === "ca" || parameter.command === "clearall")) {
             removeAllActiveParticles();
         }
+
         else if(isAdmin(sender)){
             sendMessage(
                 `help:
@@ -337,6 +275,7 @@ function main(){
                 ca/clearall - clears all the particles generated by this plugin by everyone
                 `, "", sender);
         }
+
         else if(isMod(sender)){
             sendMessage(
                 `help:
@@ -351,6 +290,7 @@ function main(){
                 ca/clearall - clears all the particles generated by this plugin by everyone
                 `, "", sender);
         }
+
         else {
             sendMessage(
                 `
@@ -359,6 +299,7 @@ function main(){
             )
         }
     }
+
   Commands.registerCommand("bh", {
     parameters: [
         {id: "command", type: "string", optional: true, choice: {
@@ -434,19 +375,14 @@ function main(){
                     {type:'bool',id:'particles', optional:true}
                 ],
                 confirm: [
-
                 ],
                 help: [
-
                 ],
                 h: [
-
                 ],
                 "?": [
-
                 ],
                 cancel: [
-
                 ]
                 
             }
@@ -472,12 +408,53 @@ function removeAllActiveParticles() {
         delete particlesPerPlayers[player];
     }
 }
+/**
+ * 
+ * @param {Promise} request 
+ * @param {options} options 
+ * @returns 
+ */
+
+function printBlockHistory(request, options){
+    if(request.result == "" && options.type === "player"){
+        sendMessage(`No changes were made by the player ${playerName}`,'CMD - BlockHistory',sender);
+        return;
+    }
+    if(request.result == "" && options.type === "reverse"){
+        sendMessage(`No changes were made by blockhistory from ${playerName}`,'CMD - BlockHistory',sender);
+        return;
+    }
+    if(request.result == "" && options.type === "block"){
+        sendMessage(`No changes were made to block ${Math.floor(options.pos.x)}, ${Math.floor(options.pos.y)}, ${Math.floor(options.pos.z)}`,'CMD - BlockHistory',sender);
+        return;
+    }
+    const tickInASec = TicksPerSecond
+    const tickInAMin = tickInASec*60
+    const tickInAnHour = tickInAMin*60
+    const tickInADay = tickInAnHour*24
+    let message = ''
+    for(let i = response.result.length-1; i+1; i--){
+        const blockAlteration = response.result[i]
+        const timeOfBlockAlteration = system.currentTick - parseInt(blockAlteration.tick)
+        if(options.type === "player" || options.type === "reverse"){
+            message += `${blockAlteration.blockPlaceType === "playerPlace"? "" : ` (${blockAlteration.blockPlaceType}) - `}[${blockAlteration.x}, ${blockAlteration.y}, ${blockAlteration.z}]: ${blockAlteration.before_id} -> ${blockAlteration.after_id} - before: ${Math.floor(timeOfBlockAlteration/tickInADay)}d${Math.floor(timeOfBlockAlteration%tickInADay/tickInAnHour)}h${Math.floor(timeOfBlockAlteration%tickInAnHour/tickInAMin)}m${Math.floor(timeOfBlockAlteration%tickInAMin/tickInASec)}s\n`;
+        }
+        if(options.type === "block"){
+            message += `${blockAlteration.PlayerName}${blockAlteration.blockPlaceType === "playerPlace"? "" : ` (${blockAlteration.blockPlaceType})`}: ${blockAlteration.before_id} -> ${blockAlteration.after_id} - before: ${Math.floor(timeOfBlockAlteration/tickInADay)}d${Math.floor(timeOfBlockAlteration%tickInADay/tickInAnHour)}h${Math.floor(timeOfBlockAlteration%tickInAnHour/tickInAMin)}m${Math.floor(timeOfBlockAlteration%tickInAMin/tickInASec)}s\n`;
+        }
+    }
+    if(options.type === "reverse")sendLongMessage(`Block History reverses of ${playerName}`, message.trim(), sender)
+    if(options.type === "player")sendLongMessage(`Block History of ${playerName}`, message.trim(), sender);
+    if(options.type === "block")sendLongMessage(`Block History of block ${Math.floor(options.pos.x)}, ${Math.floor(options.pos.y)}, ${Math.floor(options.pos.z)}`, message.trim(), sender);
+}
+
 function spawnParticles(location, particleAxis, sender) {
     const molang = new MolangVariableMap()
     .setColorRGB('variable.colour',new Color(1,0,0,1));
     const dimension = world.getDimension('overworld');
     dimension.spawnParticle(`trebesin:edge_highlight_${particleAxis}`, location, molang);
 }
+
 async function getMaxIDPerPlayer(blockPlaceType, player){
     try{
         const request = await BlockHistoryPlugin.database.query({
@@ -494,11 +471,13 @@ async function getMaxIDPerPlayer(blockPlaceType, player){
         logMessage(error)
     }
 }
+
 function revertBlockChange(blockOld, blockNew, sender){
     const block = sender.dimension.getBlock(new BlockLocation(blockNew.location.x, blockNew.location.y, blockNew.location.z))
     block.setType(MinecraftBlockTypes.get(blockOld.typeId))
     block.setPermutation(setPermutationFromObject(block.permutation, getPermutations(blockOld.permutation)))
 }
+
 async function inspector(location, sender){
     const pos = location 
     const request = {
@@ -512,25 +491,13 @@ async function inspector(location, sender){
     }
     try {
         const response = await BlockHistoryPlugin.database.query(request);
-        const tickInASec = TicksPerSecond;
-        const tickInAMin = tickInASec*60;
-        const tickInAnHour = tickInAMin*60;
-        const tickInADay = tickInAnHour*24;
-        let message = ''
-        for (let responseIndex = response.result.length-1; responseIndex+1; responseIndex--) {
-            const blockAlteration = response.result[responseIndex];
-            const timeOfBlockAlteration = system.currentTick - parseInt(blockAlteration.tick);
-            message += `${blockAlteration.PlayerName}${blockAlteration.blockPlaceType === "playerPlace"? "" : ` (${blockAlteration.blockPlaceType})`}: ${blockAlteration.before_id} -> ${blockAlteration.after_id} - before: ${Math.floor(timeOfBlockAlteration/tickInADay)}d${Math.floor(timeOfBlockAlteration%tickInADay/tickInAnHour)}h${Math.floor(timeOfBlockAlteration%tickInAnHour/tickInAMin)}m${Math.floor(timeOfBlockAlteration%tickInAMin/tickInASec)}s\n`;
-        }
-        if(message != "")sendLongMessage(`block history of block ${Math.floor(pos.x)}, ${Math.floor(pos.y)}, ${Math.floor(pos.z)}`, message.trim(), sender)
-        if (response.result == '') {
-            sendMessage(`No changes were made to block  ${Math.floor(pos.x)}, ${Math.floor(pos.y)}, ${Math.floor(pos.z)}`,'CMD - BlockHistory',sender);
-        }
+        printBlockHistory(response, {type: "block", pos: pos})
     }
     catch (error) {
         sendMessage(`${error}`,'CMD - BlockHistory',sender);
     }
 }
+
 async function reverseBlocks(blocks, sender) {
     const callID = (await getMaxIDPerPlayer("blockHistory: reverse", sender) ?? -1)+1
     for(let i = 0;i<blocks.length;i++){
