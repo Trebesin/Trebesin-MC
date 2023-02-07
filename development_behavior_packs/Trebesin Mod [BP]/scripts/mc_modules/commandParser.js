@@ -876,4 +876,4 @@ function normalizeParameterType(type) {
     return normalizedType;
 }
 
-export {CommandParser}
+export {CommandParser, CommandError}

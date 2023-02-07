@@ -67,11 +67,9 @@ const dbConnection = new DatabaseConnection({
                 if(newContent[i] != "")messages[sender.id].content.push(newContent[i])
             }
         }
-        system.run(() => {
-            if(!messages[sender.id].viewedFirst){
-            more(sender, {page: 1});
+        if(!messages[sender.id].viewedFirst){
+        more(sender, {page: 1});
         }
-        })
     }
 
 const PluginName = 'Backend';

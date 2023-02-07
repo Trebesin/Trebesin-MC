@@ -1,3 +1,4 @@
+import { world } from "@minecraft/server";
 function hasItem(entity, typeId, data, amount = { min: 1, max: 64 }) {
     let hasItem = false;
     const inventory = entity.getComponent('inventory');
