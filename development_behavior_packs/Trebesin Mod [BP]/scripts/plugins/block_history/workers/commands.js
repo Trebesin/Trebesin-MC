@@ -10,7 +10,7 @@ import * as BlockHistoryPlugin from "../block_history";
 import { CommandError } from "../../../mc_modules/commandParser";
 let particlesPerPlayers = {}
 let confirmationPerPlayer = {}
-const PARTICLE_LIMIT = 100//particle limit per player
+const PARTICLE_LIMIT = 500//particle limit per player
 
 function main(){
     system.runSchedule(() => {
