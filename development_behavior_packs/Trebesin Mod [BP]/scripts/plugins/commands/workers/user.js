@@ -1,20 +1,34 @@
 import {CommandResult, Location, system, world, Vector, Player, MinecraftEffectTypes} from "@minecraft/server";
-import {CommandParser, sendMessage} from "../../../mc_modules/commandParser";
+import { sendMessage } from '../../../mc_modules/players';
 import * as Debug from './../../debug/debug';
 import { playerData as serverPlayerData } from '../../server/server';
-import {command_parser} from "./admin";
+import { Commands } from '../../backend/backend';
 import * as vectorMath from "../../../js_modules/vector.js";
 function main(){
-  command_parser.registerCommand("gmsp", {
+  Commands.registerCommand("gmsp", {
     aliases: ["gamemodespectator", "gamemodesp", "gm3", "gmspectator", "spectator"], parameters: [], run: async (sender) => {
       await sender.runCommandAsync(`gamerule sendcommandfeedback false`)
       await sender.runCommandAsync(`gamemode spectator @s `)
       sendMessage("you are now in §lspectator§r§f Mode", "§aCMD§f", sender)
       await sender.runCommandAsync(`gamerule sendcommandfeedback true`)
+    },
+    description: "sets your gamemode to spectator"
+  })
+
+  Commands.registerCommand("cls", {
+    aliases: ["clear", "clearchat", "clschat"],
+    parameters: [],
+    description: "spams your chat with newlines therefore clearing chat",
+    run: (sender) => {
+      let message = ''
+      for(let i = 0;i<10000;i++){
+        message += '\n'
+      }
+      sender.tell(message)
     }
   })
 
-  command_parser.registerCommand("gma", {
+  Commands.registerCommand("gma", {
     aliases: ["gamemodeadventure", "gamemodea", "gm2", "gmadventure", "adventure"], parameters: [], run: async (sender) => {
       await sender.runCommandAsync(`gamerule sendcommandfeedback false`)
       await sender.runCommandAsync(`gamemode a @s `)
@@ -24,22 +38,20 @@ function main(){
       }
       sendMessage("you are now in §ladventure§r§f mode", "§aCMD§f", sender)
       await sender.runCommandAsync(`gamerule sendcommandfeedback true`)
-    }
+    },
+    description: "sets your gamemode to adventure"
   })
 
-  command_parser.registerCommand("phase", {
+  Commands.registerCommand("phase", {
     parameters: [{id: "distance", type: "int", optional: true}], aliases: ["p","phaser"], run: (sender, parameter) => {
-      try {
-        const newLocation = Vector.add(sender.location, vectorMath.setVectorLength(sender.viewDirection, parameter.distance ?? 2));
-        sender.teleport(newLocation, sender.dimension, sender.rotation.x, sender.rotation.y);
-        sendMessage("§l§bWHOOSH!§r", "", sender);
-      } catch (error) {
-        world.say(`${error}`)
-      }
-    }
+      const newLocation = Vector.add(sender.location, vectorMath.setVectorLength(sender.viewDirection, parameter.distance ?? 2));
+      sender.teleport(newLocation, sender.dimension, sender.rotation.x, sender.rotation.y);
+      sendMessage("§l§bWHOOSH!§r", "", sender);
+    },
+    description: "teleports you in front by [distance] blocks"
   })
 
-  command_parser.registerCommand("fly", {
+  Commands.registerCommand("fly", {
     parameters: [], aliases: ["f"], run: async (sender) => {
       const __parameter = !sender.hasTag("fly");
       await sender.runCommandAsync(`gamerule sendcommandfeedback false`)
@@ -53,12 +65,13 @@ function main(){
         sendMessage("you have disabled §lflying§r", "§aCMD§f", sender)
       }
       await sender.runCommandAsync(`gamerule sendcommandfeedback true`)
-    }
+    },
+    description: "switches flying"
   });
 
 
     
-  command_parser.registerCommand("nv", {description: "switches night vision on/off", aliases: ["nightvision"], parameters: [], run: (sender) => {
+  Commands.registerCommand("nv", {description: "switches night vision on/off", aliases: ["nightvision"], parameters: [], run: (sender) => {
       try {
         if(!sender.hasTag("nvoff")) {
           sender.addTag("nvoff");

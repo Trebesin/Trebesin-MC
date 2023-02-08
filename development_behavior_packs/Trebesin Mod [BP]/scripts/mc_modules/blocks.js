@@ -1,6 +1,7 @@
 import {Block, BlockPermutation, world, system, BlockLocation} from '@minecraft/server';
 import { arrayDifference, find } from '../js_modules/array';
 import { sumVectors, compareVectors } from '../js_modules/vector';
+import { logMessage, sendLogMessage } from '../plugins/debug/debug';
 import { DIRECTIONS, TREBESIN_PERMUTATIONS } from './constants';
 
 /**
@@ -52,6 +53,19 @@ function getPermutations(permutation) {
         permutationObject[permutationName] = permutation.getProperty(permutationName)?.value;
     }
     return permutationObject
+}
+
+/**
+ * 
+ * @param {BlockPermutation} permutation 
+ * @param {object} object 
+ */
+function setPermutationFromObject(permutation,object) {
+    for (const property in object) {
+        const value = object[property];
+        permutation.getProperty(property).value = value;
+    }
+    return permutation;
 }
 
 /**
@@ -111,7 +125,7 @@ function getAdjecentBlockCoords(coord) {
 }
 
 async function blockUpdateIteration(location,dimension,callback) {
-    world.say(`starting block update iteration @ ${location.x},${location.y},${location.z} [${system.currentTick}]`);
+    sendLogMessage(`starting block update iteration @ ${location.x},${location.y},${location.z} [${system.currentTick}]`);
     let blockUpdateSignal = [];
     blockUpdateSignal.push(...getAdjecentBlockCopies(location,dimension));
     while (blockUpdateSignal.length !== 0) {
@@ -135,7 +149,7 @@ async function blockUpdateIteration(location,dimension,callback) {
             return newBlockUpdates;
         });
     }
-    world.say(`ending block update iteration [${system.currentTick}]`);
+    logMessage(`ending block update iteration [${system.currentTick}]`);
 }
 
 async function blockUpdateIterationObject(location,dimension,callback) {
@@ -272,4 +286,4 @@ function generateBlockArea(coord,steps = 10,callback = null) {
     return coords;
 }
 
-export {compareBlocks, compareBlockLocations, copyBlock, getPermutations, getAdjecentBlocks, getAdjecentBlockCopies, blockUpdateIteration, generateBlockArea}
+export {compareBlocks, compareBlockLocations, setPermutationFromObject, copyBlock, getPermutations, getAdjecentBlocks, getAdjecentBlockCopies, blockUpdateIteration, generateBlockArea}

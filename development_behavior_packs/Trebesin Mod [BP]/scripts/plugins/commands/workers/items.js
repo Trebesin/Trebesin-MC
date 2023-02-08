@@ -1,6 +1,7 @@
-import { command_parser } from './admin';
+import { isAdmin, isBuilder } from './admin';
+import { Commands } from '../../backend/backend';
 import {world,ItemTypes, ItemStack} from '@minecraft/server';
-import { sendMessage } from '../../../mc_modules/commandParser';
+import { sendMessage } from '../../../mc_modules/players';
 
 function main() {
     const itemCommands = {
@@ -9,21 +10,18 @@ function main() {
             parameter: '2'
         }
     }
-    command_parser.registerCommand('commanditem',{
-        aliases: ["itemcommand", "customitem", "ci"],
+    Commands.registerCommand('commanditem',{
+        aliases: ["itemcommand", "customitem", "ci"], senderCheck: isBuilder,
         parameters: [
             {
                 type: 'str',
                 id: 'commandName'
             },
             {
-                type: 'str',
-                id: 'commandParameters'
-            },
-            {
-                type: 'str',
-                id: 'itemName',
-                optional: true
+                type: "string",
+                id: "commandParameters",
+                array: Infinity,
+                fullArray: false
             }
         ],
         /**
@@ -33,7 +31,7 @@ function main() {
          */
         run(sender,parameters) {
             const commandItem = new ItemStack(ItemTypes.get('trebesin:cmd_universal'),1);
-            commandItem.setLore([parameters.commandName,parameters.commandParameters]);
+            commandItem.setLore([parameters.commandName,parameters.commandParameters.join(' ')]);
             commandItem.nameTag = parameters.itemName ?? `[CMD] ${parameters.commandName}`;
             sender.getComponent('inventory').container.addItem(commandItem);
             sendMessage(`Successfully created item for the command ${parameters.commandName}. It's been addded to your inventory.`,'CMD',sender);
@@ -46,12 +44,12 @@ function main() {
             const itemLore = eventData.item.getLore();
             const command = itemLore[0];
             const parameters = itemLore[1];
-            command_parser.runCommand(command,parameters,eventData.source);
+            Commands.runCommand(command,parameters,eventData.source);
         }
         //## Hardcoded items:
         const itemCommand = itemCommands[eventData.item.typeId];
         if (itemCommand) {
-            command_parser.runCommand(itemCommand.input,itemCommand.parameter,eventData.source);
+            Commands.runCommand(itemCommand.input,itemCommand.parameter,eventData.source);
         }
     })
 }

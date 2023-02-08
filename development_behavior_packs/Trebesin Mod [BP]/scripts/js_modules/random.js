@@ -95,7 +95,7 @@ function rndN(n) {
   return rand / n
 }
 
-function mulberry32(a) {
+function mulberry32seed(a) {
     return function() {
       var t = a += 0x6D2B79F5;
       t = Math.imul(t ^ t >>> 15, t | 1);
@@ -104,4 +104,4 @@ function mulberry32(a) {
     }
 }
 
-export {randInt,randFloat}
+export {randInt,randFloat,mulberry32seed}

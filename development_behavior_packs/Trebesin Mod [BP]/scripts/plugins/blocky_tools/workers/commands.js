@@ -1,12 +1,14 @@
 import {CommandResult, MinecraftEffectTypes , system, world, Player, MinecraftBlockTypes, BlockLocation} from "@minecraft/server";
-import {CommandParser, sendMessage} from "../../../mc_modules/commandParser";
+import {CommandParser} from "../../../mc_modules/commandParser";
+import { sendMessage } from '../../../mc_modules/players';
 import { copyVector, sumVectors } from '../../../js_modules/vector';
 import { setBlockType } from '../../block_history/block_history';
-const commands = new CommandParser({
+import { isAdmin } from "../../commands/workers/admin";
+const Commands = new CommandParser({
   prefix: ".", caseSensitive: false
 })
 async function main() {
-  commands.registerCommand('idk',{
+  Commands.registerCommand('idk',{
     parameters: [
       {
         type: 'pos',
@@ -21,6 +23,7 @@ async function main() {
         id: 'size'
       }
     ],
+    senderCheck: isAdmin,
     /**
      * 
      * @param {Player} sender 

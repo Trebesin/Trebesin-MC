@@ -3,7 +3,9 @@ import { setVectorLength } from './../js_modules/vector';
 import { filter } from '../js_modules/array';
 import { randInt } from '../js_modules/random';
 import { findCharIndex, findLastCharIndex, findNumber } from '../js_modules/string';
+import { sendMessage } from './players';
 import { logMessage } from '../plugins/debug/debug';
+import { sendLongMessage } from '../plugins/backend/backend';
 
 //# Type Definitions:
 /**
@@ -14,25 +16,27 @@ import { logMessage } from '../plugins/debug/debug';
 
 /**
 * @callback CommandDefinitionSenderCheck
-* @param {Player} sender - Actor that has invoked the command.
+* @param {Player} sender Actor that has invoked the command.
 */
 
 /**
 * @typedef CommandDefinitionParameter
-* @property {string} id - ID of the parameter.
+* @property {string} id ID of the parameter.
 * @property {('string'|'integer'|'float'|'boolean'|'position'|'selector'|'json')} type - Type of the parameter defining what the user input should look like.
-* @property {number} [array] - Number defining an array of parameters, the value corresponds to its length.
-* @property {boolean} [playersOnly] - Only for `'type': 'selector'`, sets the selector to only allow `@a`,`@p` and `@r(type: 'minecraft:player')`
+* @property {number} [array] Number defining an array of parameters, the value corresponds to its length.
+* @property {boolean} [optional] Defines that the command will successfully execute even without this and following parameters specified by the user.
+* @property {boolean} [fullArray] Only for `array: <number>`, allows the array to be returned even if it doesn't contain the same amount of elements as specified by the property.
+* @property {boolean} [playersOnly] Only for `type: 'selector'`, sets the selector to only allow `@a`,`@p` and `@r(type: 'minecraft:player')`
 */
 
 /**
 * @typedef CommandDefinition
-* @property {string} description - Description of the command shown in the default help command.
-* @property {string[]} [aliases] - Aliases to invoke the command. Repeating the same aliases might have unexpected results.
-* @property {CommandDefinitionParameter[]} parameters - All parameters that the command takes.
-* @property {any[]} [arguments] - Array of any additional arguments that will be passed to the command function when it's ran.
-* @property {CommandDefinitionSenderCheck} [senderCheck] - Optional function that needs to return `true` in order to allow execution of the command.
-* @property {CommandDefinitionRun} run - Function that runs when the command is invoked.
+* @property {string} description Description of the command shown in the default help command.
+* @property {string[]} [aliases] Aliases to invoke the command. Repeating the same aliases might have unexpected results.
+* @property {CommandDefinitionParameter[]} parameters All parameters that the command takes.
+* @property {any[]} [arguments] Array of any additional arguments that will be passed to the command function when it's ran.
+* @property {CommandDefinitionSenderCheck} [senderCheck] Optional function that needs to return `true` in order to allow execution of the command.
+* @property {CommandDefinitionRun} run Function that runs when the command is invoked.
 */
 
 //#Main Command Parser Class:
@@ -51,6 +55,7 @@ class CommandParser {
 
             if (message.startsWith(this.#options.prefix)) {
                 eventData.cancel = true;
+                logMessage(`player ${sender.name} executed command: ${message}`)
                 const messageArray = message.split(' ');
                 let commandInput = messageArray[0].slice(this.#options.prefix.length);
                 if (!this.#options.caseSensitive) {
@@ -59,36 +64,46 @@ class CommandParser {
                 this.runCommand(commandInput,messageArray.slice(1).join(' '),sender);
             }
         });
-
+        
         this.registerCommand('help',{
             aliases: ['?'],
+            description: 'Lists all commands or explains specific command in more detail.',
             parameters: [{id:'command',type:'string',optional: true}],
+            arguments: [this.#commands,this.#options],
             run: this.#helpCommand
         });
     }
 
-    #helpCommand(sender, parameters) {
+    #helpCommand(sender, parameters,commandRegister,commandOptions) {
         let helpMessage = '';
         if (parameters.command) {
-            const command = findRegisteredCommand(parameters.command);
+            const command = findRegisteredCommand(parameters.command,commandRegister);
+            if (command == null) {
+                throw new CommandError(`§cCommand §r§l'${parameters.command}'§r§c not found!`);
+            }
             const definition = command.definition;
             const commandName = command.name;
-            helpMessage += `[CMD] §9${commandName}§r [${definition.aliases.join(',')}]\n`;
-            helpMessage += `[Description] ${definition.description}\n`;
-            helpMessage += `[Paramaters]:\n`;
-            const parameterHelp = parseParameterHelp(definition.parameters);
-            for (let parameterIndex = 0;parameterIndex < parameterHelp.length;parameterIndex++) {
-                helpMessage += parameterHelp[parameterIndex];
+            if (definition.senderCheck && !commandOptions.adminCheck(sender) && !definition.senderCheck(sender)) {
+                throw new CommandError(`§cYou do not meet requirements to use the command §r§l'${commandName}'§r§c!`);
             }
+            const aliases = definition.aliases?.length ? `[§7§o${definition.aliases.join(',')}§r]` : '';
+            helpMessage += `§a§l${commandName}§r ${aliases}\n`;
+            helpMessage += `§l§bDescription§r: ${definition.description ?? 'None'}\n`;
+            helpMessage += `§l§bParamaters§r:\n`;
+            const parameterHelp = parseParameterHelp(definition.parameters);
+            helpMessage += parameterHelp.join('\n');
         } else {
-            for (const commandName in this.#commands) {
-                const command = this.#commands[commandName];
-                const description = command.description.slice(0,64);
-                const ending = command.description.length >= 64 ? '...' : '';
-                helpMessage += `[CMD] §9${commandName}§r [${command.aliases.join(',')}] - ${description}${ending}\n`;
+            helpMessage += `§l§btip:§r use help [command] for detailed command description\n`
+            for (const commandName in commandRegister) {
+                const command = commandRegister[commandName];
+                if (command.senderCheck && !commandOptions.adminCheck(sender) && !command.senderCheck(sender)) continue;
+                const description = command.description ? command.description.slice(0,32) : '';
+                const ending = command.description?.length > 32 ? '...' : '';
+                const aliases = command.aliases?.length ? `[§7§o${command.aliases.join(',')}§r]` : '';
+                helpMessage += `§l§a${commandName}§r${aliases == ''?'':` ${aliases}`}${(description + ending) == ''? `` : ` - ${description + ending}`}\n`;
             }
         }
-        sender.tell(helpMessage);
+        sendLongMessage("help", helpMessage, sender);
     }
 
     /** 
@@ -110,15 +125,16 @@ class CommandParser {
      * @param {string} name Name of the command to run.
      * @param {string} parameterString String input of the parameters.
      * @param {Player} sender Player to use as the context of the command execution.
+     * @param {boolean} sudo Wheter or not to run the command if sender doesn't have permisions
      */
-     async runCommand(input,parameterString,sender) {
-        const command = findRegisteredCommand(input,this.#commands)?.definition;
+     async runCommand(name,parameterString,sender, sudo = false) {
+        const command = findRegisteredCommand(name,this.#commands)?.definition;
         try {
             if (command == null) {
-                throw new CommandError(`§cCommand §r§l'${input}'§r§c not found!`);
+                throw new CommandError(`§cCommand §r§l'${name}'§r§c not found!`);
             }
-            if (command.senderCheck && !this.#options.adminCheck(sender) && !command.senderCheck(sender)) {
-                throw new CommandError(`§cYou do not meet requirements to use the command §r§l'${input}'§r§c!`);
+            if (command.senderCheck && !this.#options.adminCheck(sender) && !command.senderCheck(sender) && !sudo) {
+                throw new CommandError(`§cYou do not meet requirements to use the command §r§l'${name}'§r§c!`);
             }
 
             const parameterParser = new ParameterStringParser(parameterString,this.#options.parameterChars);
@@ -128,7 +144,7 @@ class CommandParser {
             if (error instanceof CommandError) {
                 sendMessage(error.message,'CMD',sender);
             } else {
-                sendMessage(`§cFatal error has occurred during the execution of §r§l'${commandInput}'§r§c!`,sender,'CMD');
+                sendMessage(`§cFatal error has occurred during the execution of §r§l'${name}'§r§c!`,sender,'CMD');
             }
         }
     }
@@ -146,13 +162,19 @@ class CommandParser {
         adminCheck: () => false
     }
 
+    /**
+     * 
+     * @param {ParameterStringParser} parameters 
+     * @param {CommandDefinitionParameter[]} options 
+     * @param {Player} sender 
+     * @returns 
+     */
     #getParameterChain(parameters,options,sender) {
         const output = {};
         let optional = false;
         let currentOptions = options;
         for (let optionIndex = 0;optionIndex < currentOptions.length;optionIndex++) {
             const option = currentOptions[optionIndex];
-            logMessage(`Starting parameter ${optionIndex}: ${option.id} [${option.type}]`)
             const parameter = parameters.next(option);
 
             if (option.optional) optional = true;
@@ -273,7 +295,7 @@ class CommandParser {
                     coord[index] = Math.round(entity.location[axis]) + (isNaN(number) ? 0 : number);
                 } else if (string[1] === '[' && string[string.length - 1] === ']') {
                     const number = parseFloat(string.slice(2,string.length-1));
-                    coord[index] = parseInt(entity.location[axis]) + (isNaN(number) ? 0 : number);
+                    coord[index] = Math.floor(entity.location[axis]) + (isNaN(number) ? 0 : number);
                 } else {
                     const number = parseFloat(string.slice(1));
                     coord[index] = entity.location[axis] + (isNaN(number) ? 0 : number);
@@ -536,6 +558,7 @@ class ParameterStringParser {
             }
 
             if (parsePhase === 0) {
+                if (char == null && parameterArray && !(option.fullArray ?? true)) return parameterArray;
                 if (char == null) return null;
 
                 if (!escaped && char === separator) continue;
@@ -608,7 +631,11 @@ class ParameterStringParser {
                                 selector = 1;
                                 continue;
                             };
-                            if (char !== separator) item.name += char;
+                            if (char !== separator) {
+                                item.name += char;
+                            } else {
+                                parsePhase = 2;
+                            }
                         }
                         if (selector === 1) {
                             if (char == null) throw new CommandError(`Unexpected end of selector at parameter '${option.id}'!`);
@@ -686,27 +713,8 @@ class ParameterStringParser {
     }
 }
 
+
 //# Helper Functions:
-/**
- * 
- * @param {string} message 
- * @param {Player | Player[]} [actor]
- * @param {string} [sender]
- */
- function sendMessage(message,senderName,actor = null) {
-    const messageText = !senderName ? message : `[${senderName}§r] ${message}`;
-    if (!actor) {
-        world.say(messageText);
-    } else {
-        if (!Array.isArray(actor)) {
-            actor.tell(messageText);
-        } else {
-            for (let playerIndex = 0;playerIndex < actor.length;playerIndex++) {
-                actor[playerIndex].tell(messageText);
-            }
-        }
-    }
-}
 
 function parseRangeSelectorArg(selectorArg,query,options = {}) {
     let min,max;
@@ -796,6 +804,18 @@ function getScoreSelectors(string,options = {escapeChar: '\\', separator: ','}) 
     return selector
 }
 
+/**
+* @typedef CommandRegisterEntry
+* @property {string} name - Name of the command.
+* @property {CommandDefinition} [definition] - Definition of the command.
+*/
+
+/**
+ * 
+ * @param {string} input 
+ * @param {object} commands 
+ * @returns {CommandRegisterEntry}
+ */
 function findRegisteredCommand(input,commands) {
     for (const commandName in commands) {
         if (commandName === input || commands[commandName].aliases?.includes(input)) {
@@ -820,9 +840,9 @@ function parseParameterHelp(paremeters) {
                 }
             }
         } else {
-            const optionalString = optional ? `?` : '';
-            const arrayString = definition.array ? `(${definition.array})` : '';
-            helpMessage += `${definition.id}${optionalString}[${type}${arrayString}] `;
+            const optionalString = optional ? `§b?§r` : '';
+            const arrayString = definition.array ? `(§d${definition.array}§r)` : '';
+            helpMessage += `${definition.id}${optionalString}[§c${type}§r${arrayString}] `;
         }
     }
     if (messages.length === 0) messages.push(helpMessage);
@@ -863,4 +883,4 @@ function normalizeParameterType(type) {
     return normalizedType;
 }
 
-export {CommandParser,sendMessage}
+export {CommandParser, CommandError}
