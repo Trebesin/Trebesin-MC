@@ -48,6 +48,7 @@ function main(){
             pos.y = Math.floor(pos.y)
             pos.z = Math.floor(pos.z)
             let request = {}
+
             try{
                 request = sqlRequestHandler(parameter, {type: "block", pos: pos})
             }
@@ -466,13 +467,34 @@ function sqlRequestHandler(parameters, options){
             values : [options.pos.x, options.pos.y, options.pos.z,system.currentTick - parseToTicks(parameters.until), system.currentTick - parseToTicks(parameters.startingFrom)]
             }
         }
+        else if((!parameters.until || /^(\d+)$/.exec(parameters.until)) && /^(\d+)(m|w|d|h|s)/.exec(parameters.startingFrom)){
+            request = {//request for block where we have number until and realtime startFrom
+            sql: `
+                SELECT DISTINCT block_history.*, PlayerConnections.PlayerName
+                FROM block_history 
+                JOIN (SELECT PlayerID, MAX(ID) AS latest_id 
+                        FROM PlayerConnections 
+                        GROUP BY PlayerID) AS latest_connections 
+                    ON block_history.actor_id = latest_connections.PlayerID 
+                    JOIN PlayerConnections 
+                    ON latest_connections.latest_id = PlayerConnections.ID
+                WHERE x = ? AND y = ? AND z = ? AND block_history.tick <= ?
+                ORDER BY \`block_history\`.\`tick\` DESC
+                LIMIT ?
+            `,
+            values : [options.pos.x, options.pos.y, options.pos.z,system.currentTick - parseToTicks(parameters.startingFrom), parameters.until ?? 7]
+            }
+        }
         else{
             throw new CommandError("invalid until/startingFrom parameter")
         }
     }
+    
+
+
     else if(options.type === "player"){
         if((!parameters.until || /^(\d+)$/.exec(parameters.until)) && (!parameters.startingFrom || /^(\d+)$/.exec(parameters.startingFrom))){
-            const request = {//request for block where we have number until and number startFrom
+            request = {//request for block where we have number until and number startFrom
                 sql : `
                 SELECT DISTINCT block_history.*, PlayerConnections.PlayerName 
                 FROM \`block_history\` 
