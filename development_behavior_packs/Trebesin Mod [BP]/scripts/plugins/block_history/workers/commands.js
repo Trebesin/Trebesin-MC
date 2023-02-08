@@ -97,8 +97,11 @@ function main(){
                 sendMessage(`invalid until/startingFrom parameter: ${error}`, "blockHistory - error", sender)
                 return;
             }
+            sendLogMessage(request.sql)
+            sendLogMessage(request.values)
             try {
                 const response = await BlockHistoryPlugin.database.query(request);
+                sendLogMessage(JSON.stringify(response.result))
 
                 if(!printBlockHistory(response, {type: "block", pos: pos}, sender))return;
 
@@ -123,7 +126,6 @@ function main(){
                 sendMessage(`invalid until/startingFrom parameter: ${error}`, "blockHistory - error", sender)
                 return;
             }
-            request.timeout = 100000
             sendLogMessage(request.sql)
             sendLogMessage(request.values)
             try {
@@ -483,15 +485,19 @@ function sqlRequestHandler(parameters, options){
                     ON latest_connections.latest_id = PlayerConnections.ID
                 WHERE x = ? AND y = ? AND z = ? AND block_history.tick <= ?
                 ORDER BY \`block_history\`.\`tick\` DESC
-                LIMIT ?
+                LIMIT ? OFFSET 0
             `,
-            values : [options.pos.x, options.pos.y, options.pos.z,system.currentTick - parseToTicks(parameters.startingFrom), parameters.until ?? 7]
+            values : [options.pos.x, options.pos.y, options.pos.z,system.currentTick - parseToTicks(parameters.startingFrom), parseInt(parameters.until ?? 7)]
             }
         }
         else{
             throw new CommandError("invalid until/startingFrom parameter")
         }
     }
+
+
+
+
     
 
 
