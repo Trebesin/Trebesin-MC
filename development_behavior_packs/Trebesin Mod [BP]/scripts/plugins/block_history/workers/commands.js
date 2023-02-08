@@ -682,6 +682,7 @@ function parseToRealTime(input){
     const timers = [tickInAWeek, tickInADay, tickInAnHour, tickInAMin, tickInASec]
     const timerletter = ['w', 'd', 'h', 'm', 's']
     for(let i = 0;i<timers.length;i++){
+        if(!Math.floor(input/timers[i]))continue;
         result += `${Math.floor(input/timers[i])}` + timerletter[i]
         input = input%timers[i]
     }
