@@ -52,8 +52,7 @@ class DatabaseConnection {
                 resolve(response);
             } else if (response.status === 400) {
                 reject(response)
-            }
-            else if (attempts > 0) {
+            } else if (attempts > 0) {
                 resolve(await this.disconnect(attempts - 1));
             } else {
                 resolve(response);
@@ -84,7 +83,7 @@ class DatabaseConnection {
                 if (disconnectResponse.status === 200) {
                     resolve(await this.connect(attempts));
                 } else {
-                    reject('Can\'t disconnect existing connection!');
+                    reject(`Unable to disconnect existing connection to reconnect!\n[${disconnectResponse.status}] - ${disconnectResponse.body}`);
                 }
             } else if (attempts > 0) {
                 resolve(await this.connect(attempts - 1));
@@ -117,17 +116,17 @@ class DatabaseConnection {
             const response = await http.request(request);
             if (response.status === 200) {
                 resolve(JSON.parse(response.body));
-            } else if (response.status === 400) {
+            } else if (response.status === 403) {
                 const reConnected = await this.connect(2);
                 if (reConnected.status === 200) {
                     resolve(await this.query(options,fullResponse,attempts));
                 } else {
-                    reject('Can\'t connect to the database!');
+                    reject(`Token denied, unable reconnect to the database!\n[${reConnected.status}] - ${reConnected.body}`);
                 }
             } else if (attempts > 0) {
                 resolve(await this.query(options,fullResponse,attempts - 1));
             } else {
-                reject('Can\'t query the database!');
+                reject(response);
             }
         });
     }
