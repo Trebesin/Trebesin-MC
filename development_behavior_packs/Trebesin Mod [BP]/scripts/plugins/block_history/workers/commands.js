@@ -501,8 +501,12 @@ function sqlRequestHandler(parameters, options){
                 sql : `
                 SELECT DISTINCT block_history.*, PlayerConnections.PlayerName 
                 FROM \`block_history\` 
-                JOIN PlayerConnections 
-                ON block_history.actor_id = PlayerConnections.PlayerID 
+                JOIN (SELECT PlayerID, MAX(ID) AS latest_id 
+                        FROM PlayerConnections 
+                        GROUP BY PlayerID) AS latest_connections 
+                    ON block_history.actor_id = latest_connections.PlayerID 
+                    JOIN PlayerConnections 
+                    ON latest_connections.latest_id = PlayerConnections.ID
                 WHERE PlayerName = ?  
                 ORDER BY \`block_history\`.\`tick\` DESC
                 LIMIT ? OFFSET ?
@@ -516,8 +520,12 @@ function sqlRequestHandler(parameters, options){
                 WITH cte AS (
                 SELECT DISTINCT block_history.*, PlayerConnections.PlayerName, ROW_NUMBER() OVER (ORDER BY block_history.tick DESC) AS rn
                 FROM block_history 
-                JOIN PlayerConnections 
-                ON block_history.actor_id = PlayerConnections.PlayerID 
+                JOIN (SELECT PlayerID, MAX(ID) AS latest_id 
+                        FROM PlayerConnections 
+                        GROUP BY PlayerID) AS latest_connections 
+                    ON block_history.actor_id = latest_connections.PlayerID 
+                    JOIN PlayerConnections 
+                    ON latest_connections.latest_id = PlayerConnections.ID
                 WHERE PlayerName = ? AND block_history.tick >= ?
                 ORDER BY \`block_history\`.\`tick\` DESC
                 )
@@ -533,8 +541,12 @@ function sqlRequestHandler(parameters, options){
             sql: `
                 SELECT DISTINCT block_history.*, PlayerConnections.PlayerName
                 FROM block_history 
-                JOIN PlayerConnections 
-                ON block_history.actor_id = PlayerConnections.PlayerID 
+                JOIN (SELECT PlayerID, MAX(ID) AS latest_id 
+                        FROM PlayerConnections 
+                        GROUP BY PlayerID) AS latest_connections 
+                    ON block_history.actor_id = latest_connections.PlayerID 
+                    JOIN PlayerConnections 
+                    ON latest_connections.latest_id = PlayerConnections.ID
                 WHERE playerName = ? AND block_history.tick >= ? AND block_history.tick <= ?
                 ORDER BY \`block_history\`.\`tick\` DESC
             `,
