@@ -1,3 +1,4 @@
+import { world } from "@minecraft/server";
 function hasItem(entity, typeId, data, amount = { min: 1, max: 64 }) {
     let hasItem = false;
     const inventory = entity.getComponent('inventory');
@@ -95,6 +96,11 @@ function clearItem(entity, typeId, type, data, amount = { min: 1, max: 64 }) {
     return clearAmount
 }
 
+function getEquipedItem(entity) {
+    const container = entity.getComponent('inventory').container;
+    return container.getItem(entity.selectedSlot);
+}
+
 /**
  * 
  * @param {string} message 
@@ -115,4 +121,4 @@ function sendMessage(message,senderName,actor = null) {
         }
     }
 }
-export {sendMessage}
+export {sendMessage,getEquipedItem}

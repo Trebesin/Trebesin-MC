@@ -67,11 +67,9 @@ const dbConnection = new DatabaseConnection({
                 if(newContent[i] != "")messages[sender.id].content.push(newContent[i])
             }
         }
-        system.run(() => {
-            if(!messages[sender.id].viewedFirst){
-            more(sender, {page: 1});
+        if(!messages[sender.id].viewedFirst){
+        more(sender, {page: 1});
         }
-        })
     }
 
 const PluginName = 'Backend';
@@ -147,13 +145,27 @@ async function PluginMain() {
         initialize() {
             const {data,callbacks} = this;
             world.events.itemUseOn.subscribe(eventData => {
-                const itemStartUseOnCallbacks = callbacks.itemStartUseOn.saved;
+                const callbackData = callbacks.itemStartUseOn;
                 if (((data[eventData.source.id] ?? 0) + 1) < system.currentTick) {
-                    for (let callbackIndex = 0;callbackIndex < itemStartUseOnCallbacks.length;callbackIndex++) {
-                        try {
-                            itemStartUseOnCallbacks[callbackIndex](eventData);
-                        } catch {}
-                    }
+                    callbackData.runCallbacks(eventData);
+                }
+                data[eventData.source.id] = system.currentTick;
+            });
+        },
+        execute() {},
+        data: {}
+    });
+
+    server.registerEvent('beforeItemStartUseOn',{
+        callbacks: {
+            beforeItemStartUseOn: new ServerEventCallback()
+        },
+        initialize() {
+            const {data,callbacks} = this;
+            world.events.beforeItemUseOn.subscribe(eventData => {
+                const callbackData = callbacks.beforeItemStartUseOn;
+                if (((data[eventData.source.id] ?? 0) + 1) < system.currentTick) {
+                    callbackData.runCallbacks(eventData);
                 }
                 data[eventData.source.id] = system.currentTick;
             });

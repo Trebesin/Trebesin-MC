@@ -42,11 +42,20 @@ function main(){
     description: "makes every punch oneshot everything"
   });
 
+  Commands.registerCommand("runas", {aliases: ["execute", "executeas"], description: "runs a command (with the same prefix) as a user", senderCheck: isAdmin, parameters: [{type: "selector", id: "player", playersOnly: true}, {type: "string", id: "command"}, {type: "string", id: "parameters", array: Infinity, fullArray: false}],
+  run: (sender, parameter) => {
+    for(let i = 0;i<parameter.player.length;i++){
+      Commands.runCommand(parameter.command, parameter.parameters.join(' '), sender, true)
+    }
+  }
+})
+
 
   Commands.registerCommand("dupe", {
-    parameters: [{id: 'count', type: 'integer', optional: true}, {id: 'whomTo', type: 'selector', playerOnly: true, optional: true}], aliases: [], senderCheck: isBuilder, run: (sender,parameter) => {
+    parameters: [{id: 'count', type: 'integer', optional: true}, {id: 'whomTo', type: 'selector', playersOnly: true, optional: true}, {id: 'name', type: 'string', optional: true}], aliases: [], senderCheck: isBuilder, run: (sender,parameter) => {
       const container = sender.getComponent('inventory').container
       const item = container.getItem(sender.selectedSlot);
+      if(parameter.name)item.nameTag = parameter.name
       if (item != null) {
         const itemReceivers = parameter.whomTo ?? [sender]
         for(let j = 0;j<itemReceivers.length;j++){
@@ -67,6 +76,19 @@ function main(){
     },
     description: "dupes item in your hand"
   });
+
+
+  Commands.registerCommand("tphere", {parameters: [{id: "players", type: "selector"}], description: "teleports players you select to you", run: (sender, parameter) => {
+      for(let i = 0;i<parameter.players.length;i++){
+        parameter.players[i].teleport(sender.location, sender.dimension, sender.rotation.x, sender.rotation.y)
+      }
+  }})
+
+  Commands.registerCommand("tpallhere", {aliases: ["tpall"], description: "teleports all players to you", parameters: [], run: (sender, parameter) => {
+    for (const player of world.getPlayers()) {
+        player.teleport(sender.location, sender.dimension, sender.rotation.x, sender.rotation.y)
+      }
+  }})
 
 
   Commands.registerCommand("op", {parameters: [{id: "player", type: "string", optional: true}], senderCheck: isAdmin, run: (sender, parameter) => {
