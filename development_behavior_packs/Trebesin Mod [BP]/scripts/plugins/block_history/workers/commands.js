@@ -23,6 +23,7 @@ function main(){
                     delete particlesPerPlayers[player]
                     break
                 }
+                limitIndex++
                 const particleLocation = stringToLocation(locationString);
                 spawnParticles(particleLocation[0], particleLocation[1], particlesPerPlayers[player].player)
             }
