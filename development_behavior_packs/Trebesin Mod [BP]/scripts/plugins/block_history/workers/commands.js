@@ -123,6 +123,8 @@ function main(){
                 sendMessage(`invalid until/startingFrom parameter: ${error}`, "blockHistory - error", sender)
                 return;
             }
+            sendLogMessage(request.sql)
+            sendLogMessage(request.values)
             try {
                 const response = await BlockHistoryPlugin.database.query(request);
 
