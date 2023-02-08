@@ -113,7 +113,7 @@ class DatabaseConnection {
             .addHeader('accept','text/plain')
             .setBody(JSON.stringify(options))
             .setMethod(HttpRequestMethod.POST)
-            .setTimeout(10);
+            .setTimeout(options.timeout);
             const response = await http.request(request);
             if (response.status === 200) {
                 resolve(JSON.parse(response.body));
