@@ -1,6 +1,6 @@
 import {CommandResult, MinecraftEffectTypes , system, world} from "@minecraft/server";
-import {CommandParser, sendMessage} from "../../../mc_modules/commandParser";
-import {command_parser} from "./admin";
+import { sendMessage } from '../../../mc_modules/players';
+import {Commands} from "../../backend/backend";
 async function main(){
 
 }

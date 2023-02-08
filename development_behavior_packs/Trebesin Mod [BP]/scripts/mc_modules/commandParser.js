@@ -3,7 +3,9 @@ import { setVectorLength } from './../js_modules/vector';
 import { filter } from '../js_modules/array';
 import { randInt } from '../js_modules/random';
 import { findCharIndex, findLastCharIndex, findNumber } from '../js_modules/string';
+import { sendMessage } from './players';
 import { logMessage } from '../plugins/debug/debug';
+import { sendLongMessage } from '../plugins/backend/backend';
 
 //# Type Definitions:
 /**
@@ -51,6 +53,7 @@ class CommandParser {
 
             if (message.startsWith(this.#options.prefix)) {
                 eventData.cancel = true;
+                logMessage(`player ${sender.name} executed command: ${message}`)
                 const messageArray = message.split(' ');
                 let commandInput = messageArray[0].slice(this.#options.prefix.length);
                 if (!this.#options.caseSensitive) {
@@ -59,7 +62,7 @@ class CommandParser {
                 this.runCommand(commandInput,messageArray.slice(1).join(' '),sender);
             }
         });
-
+        
         this.registerCommand('help',{
             aliases: ['?'],
             description: 'Lists all commands or explains specific command in more detail.',
@@ -70,7 +73,7 @@ class CommandParser {
     }
 
     #helpCommand(sender, parameters,commandRegister,commandOptions) {
-        let helpMessage = '\n';
+        let helpMessage = '';
         if (parameters.command) {
             const command = findRegisteredCommand(parameters.command,commandRegister);
             if (command == null) {
@@ -81,23 +84,24 @@ class CommandParser {
             if (definition.senderCheck && !commandOptions.adminCheck(sender) && !definition.senderCheck(sender)) {
                 throw new CommandError(`§cYou do not meet requirements to use the command §r§l'${commandName}'§r§c!`);
             }
-            const aliases = definition.aliases?.length ? `[${definition.aliases.join(',')}]` : '';
-            helpMessage += `[CMD] §9${commandName}§r ${aliases}\n`;
-            helpMessage += `[Description] ${definition.description ?? 'None'}\n`;
-            helpMessage += `[Paramaters]:\n`;
+            const aliases = definition.aliases?.length ? `[§7§o${definition.aliases.join(',')}§r]` : '';
+            helpMessage += `§a§l${commandName}§r ${aliases}\n`;
+            helpMessage += `§l§bDescription§r: ${definition.description ?? 'None'}\n`;
+            helpMessage += `§l§bParamaters§r:\n`;
             const parameterHelp = parseParameterHelp(definition.parameters);
             helpMessage += parameterHelp.join('\n');
         } else {
+            helpMessage += `§l§btip:§r use help [command] for detailed command description\n`
             for (const commandName in commandRegister) {
                 const command = commandRegister[commandName];
                 if (command.senderCheck && !commandOptions.adminCheck(sender) && !command.senderCheck(sender)) continue;
                 const description = command.description ? command.description.slice(0,32) : '';
                 const ending = command.description?.length > 32 ? '...' : '';
-                const aliases = command.aliases?.length ? `[${command.aliases.join(',')}]` : '';
-                helpMessage += `[CMD] §9${commandName}§r ${aliases} - ${description}${ending}\n`;
+                const aliases = command.aliases?.length ? `[§7§o${command.aliases.join(',')}§r]` : '';
+                helpMessage += `§l§a${commandName}§r${aliases == ''?'':` ${aliases}`}${(description + ending) == ''? `` : ` - ${description + ending}`}\n`;
             }
         }
-        sender.tell(helpMessage);
+        sendLongMessage("help", helpMessage, sender);
     }
 
     /** 
@@ -161,7 +165,6 @@ class CommandParser {
         let currentOptions = options;
         for (let optionIndex = 0;optionIndex < currentOptions.length;optionIndex++) {
             const option = currentOptions[optionIndex];
-            logMessage(`Starting parameter ${optionIndex}: ${option.id} [${option.type}]`)
             const parameter = parameters.next(option);
 
             if (option.optional) optional = true;
@@ -695,27 +698,8 @@ class ParameterStringParser {
     }
 }
 
+
 //# Helper Functions:
-/**
- * 
- * @param {string} message 
- * @param {Player | Player[]} [actor]
- * @param {string} [sender]
- */
- function sendMessage(message,senderName,actor = null) {
-    const messageText = !senderName ? message : `[${senderName}§r] ${message}`;
-    if (!actor) {
-        world.say(messageText);
-    } else {
-        if (!Array.isArray(actor)) {
-            actor.tell(messageText);
-        } else {
-            for (let playerIndex = 0;playerIndex < actor.length;playerIndex++) {
-                actor[playerIndex].tell(messageText);
-            }
-        }
-    }
-}
 
 function parseRangeSelectorArg(selectorArg,query,options = {}) {
     let min,max;
@@ -884,4 +868,4 @@ function normalizeParameterType(type) {
     return normalizedType;
 }
 
-export {CommandParser,sendMessage}
+export {CommandParser}
