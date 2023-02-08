@@ -123,7 +123,7 @@ function main(){
                 sendMessage(`invalid until/startingFrom parameter: ${error}`, "blockHistory - error", sender)
                 return;
             }
-            request.timeout = 10
+            request.timeout = 10000
             sendLogMessage(request.sql)
             sendLogMessage(request.values)
             try {
