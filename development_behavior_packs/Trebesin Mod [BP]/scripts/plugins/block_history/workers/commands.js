@@ -502,7 +502,7 @@ function sqlRequestHandler(parameters, options){
 
     else if(options.type === "player"){
         if((!parameters.until || /^(\d+)$/.exec(parameters.until)) && (!parameters.startingFrom || /^(\d+)$/.exec(parameters.startingFrom))){
-            request = {//request for block where we have number until and number startFrom
+            request = {//request for player where we have number until and number startFrom
                 sql : `
                 SELECT DISTINCT block_history.*, PlayerConnections.PlayerName 
                 FROM \`block_history\` 
@@ -520,7 +520,7 @@ function sqlRequestHandler(parameters, options){
             }
         }
         else if(/^(\d+)(m|w|d|h|s)/.exec(parameters.until) && (!parameters.startingFrom || /^(\d+)$/.exec(parameters.startingFrom))){
-            request = {//request for block where we have realtime until and startFrom number
+            request = {//request for player where we have realtime until and startFrom number
                 sql : `
                     WITH cte AS (
                         SELECT block_history.*, PlayerConnections.PlayerName, ROW_NUMBER() OVER (ORDER BY block_history.tick DESC) AS rn
@@ -541,7 +541,7 @@ function sqlRequestHandler(parameters, options){
             }
         }
         else if(/^(\d+)(m|w|d|h|s)/.exec(parameters.until) && /^(\d+)(m|w|d|h|s)/.exec(parameters.startingFrom)){
-            request = {//request for block where we have realtime until and realtime startFrom
+            request = {//request for player where we have realtime until and realtime startFrom
             sql: `
                 SELECT DISTINCT block_history.*, PlayerConnections.PlayerName
                 FROM block_history 
@@ -555,6 +555,24 @@ function sqlRequestHandler(parameters, options){
                 ORDER BY \`block_history\`.\`tick\` DESC
             `,
             values : [options.playerName,system.currentTick - parseToTicks(parameters.until), system.currentTick - parseToTicks(parameters.startingFrom)]
+            }
+        }
+        else if((!parameters.until || /^(\d+)$/.exec(parameters.until)) && /^(\d+)(m|w|d|h|s)/.exec(parameters.startingFrom)){
+            request = {//request for player where we have number until and realtime startFrom
+            sql: `
+                SELECT DISTINCT block_history.*, PlayerConnections.PlayerName
+                FROM block_history 
+                JOIN (SELECT PlayerID, MAX(ID) AS latest_id 
+                        FROM PlayerConnections 
+                        GROUP BY PlayerID) AS latest_connections 
+                    ON block_history.actor_id = latest_connections.PlayerID 
+                    JOIN PlayerConnections 
+                    ON latest_connections.latest_id = PlayerConnections.ID
+                WHERE playerName = ? AND block_history.tick >= ?
+                ORDER BY \`block_history\`.\`tick\` DESC
+                LIMIT ? OFFSET 0
+            `,
+            values : [options.pos.x, options.pos.y, options.pos.z,system.currentTick - parseToTicks(parameters.startingFrom), parseInt(parameters.until ?? 7)]
             }
         }
     }
