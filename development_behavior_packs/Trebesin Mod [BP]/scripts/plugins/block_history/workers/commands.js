@@ -572,7 +572,7 @@ function sqlRequestHandler(parameters, options){
                 ORDER BY \`block_history\`.\`tick\` DESC
                 LIMIT ? OFFSET 0
             `,
-            values : [options.pos.x, options.pos.y, options.pos.z,system.currentTick - parseToTicks(parameters.startingFrom), parseInt(parameters.until ?? 7)]
+            values : [options.playerName,system.currentTick - parseToTicks(parameters.startingFrom), parseInt(parameters.until ?? 7)]
             }
         }
     }
