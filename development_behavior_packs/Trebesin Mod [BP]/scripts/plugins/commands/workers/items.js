@@ -18,13 +18,10 @@ function main() {
                 id: 'commandName'
             },
             {
-                type: 'str',
-                id: 'commandParameters'
-            },
-            {
-                type: 'str',
-                id: 'itemName',
-                optional: true
+                type: "string",
+                id: "commandParameters",
+                array: Infinity,
+                fullArray: false
             }
         ],
         /**
@@ -34,7 +31,7 @@ function main() {
          */
         run(sender,parameters) {
             const commandItem = new ItemStack(ItemTypes.get('trebesin:cmd_universal'),1);
-            commandItem.setLore([parameters.commandName,parameters.commandParameters]);
+            commandItem.setLore([parameters.commandName,parameters.commandParameters.join(' ')]);
             commandItem.nameTag = parameters.itemName ?? `[CMD] ${parameters.commandName}`;
             sender.getComponent('inventory').container.addItem(commandItem);
             sendMessage(`Successfully created item for the command ${parameters.commandName}. It's been addded to your inventory.`,'CMD',sender);
