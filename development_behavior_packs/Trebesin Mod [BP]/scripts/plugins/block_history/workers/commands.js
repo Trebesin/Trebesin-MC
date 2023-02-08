@@ -523,21 +523,20 @@ function sqlRequestHandler(parameters, options){
         else if(/^(\d+)(m|w|d|h|s)/.exec(parameters.until) && (!parameters.startingFrom || /^(\d+)$/.exec(parameters.startingFrom))){
             request = {//request for block where we have realtime until and startFrom number
                 sql : `
-                WITH cte AS (
-                SELECT DISTINCT block_history.*, PlayerConnections.PlayerName, ROW_NUMBER() OVER (ORDER BY block_history.tick DESC) AS rn
-                FROM block_history 
-                JOIN (SELECT PlayerID, MAX(ID) AS latest_id 
-                        FROM PlayerConnections 
-                        GROUP BY PlayerID) AS latest_connections 
-                    ON block_history.actor_id = latest_connections.PlayerID 
-                    JOIN PlayerConnections 
-                    ON latest_connections.latest_id = PlayerConnections.ID
-                WHERE PlayerName = ? AND block_history.tick >= ?
-                ORDER BY \`block_history\`.\`tick\` DESC
-                )
-                SELECT *
-                FROM cte
-                WHERE rn > ?
+                    WITH cte AS (
+                        SELECT block_history.*, PlayerConnections.PlayerName, ROW_NUMBER() OVER (ORDER BY block_history.tick DESC) AS rn
+                        FROM block_history
+                        JOIN (SELECT PlayerID, MAX(ID) AS latest_id
+                            FROM PlayerConnections
+                            GROUP BY PlayerID) AS latest_connections
+                        ON block_history.actor_id = latest_connections.PlayerID
+                        JOIN PlayerConnections
+                        ON latest_connections.latest_id = PlayerConnections.ID
+                        WHERE PlayerName = "tpkowastaken" AND block_history.tick >= 0
+                    )
+                    SELECT *
+                    FROM cte
+                    WHERE rn > ?
                 `,
                 values : [options.playerName,system.currentTick - parseToTicks(parameters.until), parseInt(parameters.startingFrom ?? 0)]
             }
