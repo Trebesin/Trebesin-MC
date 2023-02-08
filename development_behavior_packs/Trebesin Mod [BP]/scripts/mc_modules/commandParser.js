@@ -72,7 +72,6 @@ class CommandParser {
         });
     }
 
-
     #helpCommand(sender, parameters,commandRegister,commandOptions) {
         let helpMessage = '';
         if (parameters.command) {
