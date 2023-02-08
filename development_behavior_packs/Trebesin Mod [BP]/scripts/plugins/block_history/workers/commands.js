@@ -43,7 +43,7 @@ function main(){
                 delete confirmationPerPlayer[player];
             }
             else {
-                sendMessage('The confirmation has expired!', 'blockHistory manager', confirmationPerPlayer[player].player)
+                sendMessage('The confirmation has expired!', 'blockHistory', confirmationPerPlayer[player].player)
                 delete confirmationPerPlayer[player];
             }
         }
@@ -64,7 +64,7 @@ function main(){
                 request = sqlRequestHandler(parameter, {type: "block", pos: pos})
             }
             catch(error){
-                sendMessage(`invalid until/startingFrom parameter: ${error}`, "blockHistory - error", sender)
+                sendMessage(`invalid until/startingFrom parameter: ${error}`, "blockHistory", sender)
                 return;
             }
             try {
@@ -80,7 +80,7 @@ function main(){
                 }
                 else{
                     if(lastParticleCall[sender.id])delete lastParticleCall[sender.id]
-                    sendMessage(`you can use !bh show to see these changes using particles`, "cmd - BlockHistory", sender)
+                    sendMessage(`you can use !bh show to see these changes using particles`, "blockHistory", sender)
                     lastParticleCall[sender.id] = {
                         callback: () => {
                             getEdgeLocations([pos], (loc,axis) => {
@@ -89,7 +89,7 @@ function main(){
                         }
                     }
                 }
-                sendMessage(`are you sure you want to reverse these changes?\n - !bh confirm to confirm or !bh cancel to cancel`,'CMD - BlockHistory',sender);
+                sendMessage(`are you sure you want to reverse these changes?\n - !bh confirm to confirm or !bh cancel to cancel`,'blockHistory',sender);
 
                 if(confirmationPerPlayer[sender.id]) delete confirmationPerPlayer[sender.id];
                 confirmationPerPlayer[sender.id] = {
@@ -102,7 +102,7 @@ function main(){
                 };
             }
             catch (error) {
-                sendMessage(`${error}`,'CMD - BlockHistory',sender);
+                sendMessage(`${error}`,'blockHistory',sender);
             }
         }
 
@@ -110,9 +110,9 @@ function main(){
             if(lastParticleCall[sender.id]){
                 lastParticleCall[sender.id].callback()
                 delete lastParticleCall[sender.id]
-                sendMessage("showing particles..", "cmd - BlockHistory", sender)
+                sendMessage("showing particles..", "blockHistory", sender)
             }
-            else sendMessage("there is nothing to show", "cmd - BlockHistory", sender)
+            else sendMessage("there is nothing to show", "blockHistory", sender)
         }
 
         else if (isMod(sender) && (parameter.command === "b" || parameter.command === "block")) {
@@ -125,7 +125,7 @@ function main(){
                 request = sqlRequestHandler(parameter, {type: "block", pos: pos})
             }
             catch(error){
-                sendMessage(`invalid until/startingFrom parameter: ${error}`, "blockHistory - error", sender)
+                sendMessage(`invalid until/startingFrom parameter: ${error}`, "blockHistory", sender)
                 return;
             }
             try {
@@ -141,7 +141,7 @@ function main(){
                 }
                 else{
                     if(lastParticleCall[sender.id])delete lastParticleCall[sender.id]
-                    sendMessage(`you can use !bh show to see these changes using particles`, "cmd - BlockHistory", sender)
+                    sendMessage(`you can use !bh show to see these changes using particles`, "blockHistory", sender)
                     lastParticleCall[sender.id] = {
                         callback: () => {
                             getEdgeLocations([pos], (loc,axis) => {
@@ -152,7 +152,7 @@ function main(){
                 }
             }
             catch (error) {
-                sendMessage(`${error}`,'CMD - BlockHistory',sender);
+                sendMessage(`${error}`,'BlockHistory',sender);
             }
         }
 
@@ -163,7 +163,7 @@ function main(){
                 request = sqlRequestHandler(parameter, {type: "player", playerName: playerName})
             }
             catch(error){
-                sendMessage(`invalid until/startingFrom parameter: ${error}`, "blockHistory - error", sender)
+                sendMessage(`invalid until/startingFrom parameter: ${error}`, "", sender)
                 return;
             }
             try {
@@ -178,7 +178,7 @@ function main(){
                 }
                 else{
                     if(lastParticleCall[sender.id])delete lastParticleCall[sender.id]
-                    sendMessage(`you can use !bh show to see these changes using particles`, "cmd - BlockHistory", sender)
+                    sendMessage(`you can use !bh show to see these changes using particles`, "blockHistory", sender)
                     lastParticleCall[sender.id] = {
                         callback: () => {
                             getEdgeLocations(response.result, (loc,axis) => {
@@ -190,7 +190,7 @@ function main(){
 
             }
             catch (error) {
-                sendMessage(`${error}`,'CMD - BlockHistory',sender);
+                sendMessage(`${error}`,'blockHistory',sender);
             }
         }
 
@@ -222,7 +222,7 @@ function main(){
                 }
                 else{
                     if(lastParticleCall[sender.id])delete lastParticleCall[sender.id]
-                    sendMessage(`you can use !bh show to see these changes using particles`, "cmd - BlockHistory", sender)
+                    sendMessage(`you can use !bh show to see these changes using particles`, "blockHistory", sender)
                     lastParticleCall[sender.id] = {
                         callback: () => {
                             getEdgeLocations(response.result, (loc,axis) => {
@@ -232,7 +232,7 @@ function main(){
                     }
                 }
 
-                sendMessage(`are you sure you want to revert these changes?\n - !bh confirm to confirm or !bh cancel to cancel`,'CMD - BlockHistory',sender);
+                sendMessage(`are you sure you want to revert these changes?\n - !bh confirm to confirm or !bh cancel to cancel`,'blockHistory',sender);
 
                 if(confirmationPerPlayer[sender.id]) delete confirmationPerPlayer[sender.id];
                 confirmationPerPlayer[sender.id] = {
@@ -245,7 +245,7 @@ function main(){
                 };
             }
             catch(error) {
-                sendMessage(`${error}`,'CMD - BlockHistory',sender);
+                sendMessage(`${error}`,'blockHistory',sender);
             }
         }
 
@@ -256,7 +256,7 @@ function main(){
                 request = sqlRequestHandler(parameter, {type: "player", playerName: playerName})
             }
             catch(error){
-                sendMessage(`invalid until/startingFrom parameter: ${error}`, "blockHistory - error", sender)
+                sendMessage(`invalid until/startingFrom parameter: ${error}`, "blockHistory", sender)
                 return;
             }
             try {
@@ -270,7 +270,7 @@ function main(){
                 }
                 else{
                     if(lastParticleCall[sender.id])delete lastParticleCall[sender.id]
-                    sendMessage(`you can use !bh show to see these changes using particles`, "cmd - BlockHistory", sender)
+                    sendMessage(`you can use !bh show to see these changes using particles`, "blockHistory", sender)
                     lastParticleCall[sender.id] = {
                         callback: () => {
                             getEdgeLocations(response.result, (loc,axis) => {
@@ -280,7 +280,7 @@ function main(){
                     }
                 }
 
-                sendMessage(`are you sure you want to reverse these changes?\n - !bh confirm to confirm or !bh cancel to cancel`,'CMD - BlockHistory',sender);
+                sendMessage(`are you sure you want to reverse these changes?\n - !bh confirm to confirm or !bh cancel to cancel`,'blockHistory',sender);
 
                 if(confirmationPerPlayer[sender.id]) delete confirmationPerPlayer[sender.id];
                 confirmationPerPlayer[sender.id] = {
@@ -293,7 +293,7 @@ function main(){
                 };
             }
             catch(error) {
-                sendMessage(`${error}`,'CMD - BlockHistory',sender);
+                sendMessage(`${error}`,'blockHistory',sender);
             }
         }
 
@@ -302,24 +302,24 @@ function main(){
                 confirmationPerPlayer[sender.id].confirmed = true
             }
             catch {
-                sendMessage('the confirmation has expired!', 'cmd - BlockHistory', sender)
+                sendMessage('the confirmation has expired!', 'blockHistory', sender)
             }
         }
 
-        else if(isAdmin(sender) && (parameter.command === "i" || parameter.command === "inspector")){
+        else if(parameter.command === "i" || parameter.command === "inspector"){
             if(!sender.hasTag("inspector")) {
                 sender.addTag("inspector");
-                sendMessage("inspector is now turned on, right click a block with your hand or place any block to see its history\n", "CMD - BlockHistory", sender);
+                sendMessage("inspector is now turned on, right click a block with your hand or place any block to see its history\n", "blockHistory", sender);
             }
             else {
                 sender.removeTag("inspector");
-                sendMessage("inspector is now turned off", "CMD - BlockHistory", sender);
+                sendMessage("inspector is now turned off", "blockHistory", sender);
             };
         }
 
         else if(parameter.command === "cancel"){
             delete confirmationPerPlayer[sender.id]
-            sendMessage("The call is now aborted", "CMD - BlockHistory", sender)
+            sendMessage("The call is now aborted", "blockHistory", sender)
         }
 
         else if(isMod(sender) &&(parameter.command === "c" || parameter.command === "clear")) {
@@ -338,41 +338,41 @@ function main(){
         }
 
         else if(isAdmin(sender)){
-            sendMessage(
-                `help:
-                b/block - shows the changes made to block on [x], [y], [z] - parameters: until, startingFrom, location: x, location: y, location: z, allowParticles
-                p/player - shows the changes made by a player - parameters: until, startingFrom, player, allowParticles
-                i/inspect - gets you into inspector mode - when you place blocks it doesn't place them and instead shows you the changes made to that block
-                r/reverse - reverses actions of a player in specific time frame - parameters: until, startingFrom, player, allowParticles
-                rb/reverseblock - reverses a block to it's older state - parameters: until, startingFrom, location: x, location: y, location: z, allowParticles
-                bt/blockytools - show history of blockytools edits - parameters: until, startingFrom, player -- not ready yet
-                rbt/reversebt/reverseblockytools - reverses a blockytools edit using its id - parameters: until, startingFrom, player -- not ready yet
-                redo - reverses an action made by this plugin - parameters: ID, player, allowParticles
-                c/clear - clears all the particles generated by this plugin by a player
-                ca/clearall - clears all the particles generated by this plugin by everyone
-                `, "", sender);
+            sendLongMessage(`blockHistory: help`,
+                `
+b/block - shows the changes made to block on [x], [y], [z] - parameters: until, startingFrom, location: x, location: y, location: z, allowParticles
+p/player - shows the changes made by a player - parameters: until, startingFrom, player, allowParticles
+i/inspect - gets you into inspector mode - when you place blocks it doesn't place them and instead shows you the changes made to that block
+r/reverse - reverses actions of a player in specific time frame - parameters: until, startingFrom, player, allowParticles
+rb/reverseblock - reverses a block to it's older state - parameters: until, startingFrom, location: x, location: y, location: z, allowParticles
+bt/blockytools - show history of blockytools edits - parameters: until, startingFrom, player -- not ready yet
+rbt/reversebt/reverseblockytools - reverses a blockytools edit using its id - parameters: until, startingFrom, player -- not ready yet
+redo - reverses an action made by this plugin - parameters: ID, player, allowParticles
+c/clear - clears all the particles generated by this plugin by a player
+ca/clearall - clears all the particles generated by this plugin by everyone
+                `,sender);
         }
 
         else if(isMod(sender)){
-            sendMessage(
-                `help:
-                b/block - shows the changes made to block on [x], [y], [z] - parameters: until, startingFrom, location: x, location: y, location: z, allowParticles
-                p/player - shows the changes made by a player - parameters: until, startingFrom, player, allowParticles
-                r/reverse - reverses actions of a player in specific time frame - parameters: until, startingFrom, player, allowParticles
-                rb/reverseblock - reverses a block to it's older state - parameters: until, startingFrom, location: x, location: y, location: z, allowParticles
-                bt/blockytools - show history of blockytools edits - parameters: until, startingFrom, player -- not ready yet
-                rbt/reversebt/reverseblockytools - reverses a blockytools edit using its id - parameters: until, startingFrom, player -- not ready yet
-                redo - reverses an action made by this plugin - parameters: ID, player, allowParticles
-                c/clear - clears all the particles generated by this plugin by a player
-                ca/clearall - clears all the particles generated by this plugin by everyone
-                `, "", sender);
+            sendMessage(`blockHistory: help`
+                `
+b/block - shows the changes made to block on [x], [y], [z] - parameters: until, startingFrom, location: x, location: y, location: z, allowParticles
+p/player - shows the changes made by a player - parameters: until, startingFrom, player, allowParticles
+r/reverse - reverses actions of a player in specific time frame - parameters: until, startingFrom, player, allowParticles
+rb/reverseblock - reverses a block to it's older state - parameters: until, startingFrom, location: x, location: y, location: z, allowParticles
+bt/blockytools - show history of blockytools edits - parameters: until, startingFrom, player -- not ready yet
+rbt/reversebt/reverseblockytools - reverses a blockytools edit using its id - parameters: until, startingFrom, player -- not ready yet
+redo - reverses an action made by this plugin - parameters: ID, player, allowParticles
+c/clear - clears all the particles generated by this plugin by a player
+ca/clearall - clears all the particles generated by this plugin by everyone
+                `, sender);
         }
 
         else {
-            sendMessage(
+            sendLongMessage(`blockHistory: help`
                 `
-                sorry but you shouldn't have access to this command. If you believe this is a mistake please contact us.
-                `, "", sender
+i/inspector - gets you into inspector mode: place blocks or right click with hand to see changes
+                `, sender
             )
         }
     }
