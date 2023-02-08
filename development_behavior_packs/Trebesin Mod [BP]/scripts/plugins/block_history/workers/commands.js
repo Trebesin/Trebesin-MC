@@ -49,6 +49,9 @@ function main(){
         }
     },4);
 
+
+
+
     async function blockHistoryHandler(sender, parameter){
         if (isMod(sender) && (parameter.command === "rb" || parameter.command === "reverseblock")) {
             let pos = parameter.coords ?? sender.location
@@ -77,6 +80,7 @@ function main(){
                 }
                 else{
                     if(lastParticleCall[sender.id])delete lastParticleCall[sender.id]
+                    sendMessage(`you can use !bh show to see these changes using particles`, "cmd - BlockHistory", sender)
                     lastParticleCall[sender.id] = {
                         callback: () => {
                             getEdgeLocations([pos], (loc,axis) => {
@@ -85,7 +89,6 @@ function main(){
                         }
                     }
                 }
-
                 sendMessage(`are you sure you want to reverse these changes?\n - !bh confirm to confirm or !bh cancel to cancel`,'CMD - BlockHistory',sender);
 
                 if(confirmationPerPlayer[sender.id]) delete confirmationPerPlayer[sender.id];
@@ -104,7 +107,11 @@ function main(){
         }
 
         else if(isMod(sender) && (parameter.command === "show")){
-            if(lastParticleCall[sender.id])lastParticleCall[sender.id].callback()
+            if(lastParticleCall[sender.id]){
+                lastParticleCall[sender.id].callback()
+                delete lastParticleCall[sender.id]
+                sendMessage("showing particles..", "cmd - BlockHistory", sender)
+            }
             else sendMessage("there is nothing to show", "cmd - BlockHistory", sender)
         }
 
@@ -121,8 +128,6 @@ function main(){
                 sendMessage(`invalid until/startingFrom parameter: ${error}`, "blockHistory - error", sender)
                 return;
             }
-            sendLogMessage(request.sql)
-            sendLogMessage(request.values)
             try {
                 const response = await BlockHistoryPlugin.database.query(request);
                 sendLogMessage(JSON.stringify(response.result))
@@ -133,6 +138,17 @@ function main(){
                         getEdgeLocations([pos], (loc,axis) => {
                             addActiveParticles(loc,axis,sender);
                         })
+                }
+                else{
+                    if(lastParticleCall[sender.id])delete lastParticleCall[sender.id]
+                    sendMessage(`you can use !bh show to see these changes using particles`, "cmd - BlockHistory", sender)
+                    lastParticleCall[sender.id] = {
+                        callback: () => {
+                            getEdgeLocations([pos], (loc,axis) => {
+                                addActiveParticles(loc,axis,sender);
+                            })
+                        }
+                    }
                 }
             }
             catch (error) {
@@ -150,8 +166,6 @@ function main(){
                 sendMessage(`invalid until/startingFrom parameter: ${error}`, "blockHistory - error", sender)
                 return;
             }
-            sendLogMessage(request.sql)
-            sendLogMessage(request.values)
             try {
                 const response = await BlockHistoryPlugin.database.query(request);
 
@@ -161,6 +175,17 @@ function main(){
                     getEdgeLocations(response.result, (loc,axis) => {
                         addActiveParticles(loc,axis,sender);
                     })
+                }
+                else{
+                    if(lastParticleCall[sender.id])delete lastParticleCall[sender.id]
+                    sendMessage(`you can use !bh show to see these changes using particles`, "cmd - BlockHistory", sender)
+                    lastParticleCall[sender.id] = {
+                        callback: () => {
+                            getEdgeLocations(response.result, (loc,axis) => {
+                                addActiveParticles(loc,axis,sender);
+                            })
+                        }
+                    }
                 }
 
             }
@@ -194,6 +219,17 @@ function main(){
                     getEdgeLocations(response.result, (loc,axis) => {
                         addActiveParticles(loc,axis,sender);
                     })
+                }
+                else{
+                    if(lastParticleCall[sender.id])delete lastParticleCall[sender.id]
+                    sendMessage(`you can use !bh show to see these changes using particles`, "cmd - BlockHistory", sender)
+                    lastParticleCall[sender.id] = {
+                        callback: () => {
+                            getEdgeLocations(response.result, (loc,axis) => {
+                                addActiveParticles(loc,axis,sender);
+                            })
+                        }
+                    }
                 }
 
                 sendMessage(`are you sure you want to revert these changes?\n - !bh confirm to confirm or !bh cancel to cancel`,'CMD - BlockHistory',sender);
@@ -231,6 +267,17 @@ function main(){
                     getEdgeLocations(response.result, (loc,axis) => {
                         addActiveParticles(loc,axis,sender);
                     })
+                }
+                else{
+                    if(lastParticleCall[sender.id])delete lastParticleCall[sender.id]
+                    sendMessage(`you can use !bh show to see these changes using particles`, "cmd - BlockHistory", sender)
+                    lastParticleCall[sender.id] = {
+                        callback: () => {
+                            getEdgeLocations(response.result, (loc,axis) => {
+                                addActiveParticles(loc,axis,sender);
+                            })
+                        }
+                    }
                 }
 
                 sendMessage(`are you sure you want to reverse these changes?\n - !bh confirm to confirm or !bh cancel to cancel`,'CMD - BlockHistory',sender);
@@ -751,15 +798,29 @@ async function inspector(location, sender){
     const request = {
         sql : `SELECT DISTINCT block_history.*, PlayerConnections.PlayerName 
                 FROM \`block_history\` 
-                JOIN PlayerConnections 
-                ON block_history.actor_id = PlayerConnections.PlayerID 
+                JOIN (SELECT PlayerID, MAX(ID) AS latest_id 
+                        FROM PlayerConnections 
+                        GROUP BY PlayerID) AS latest_connections 
+                    ON block_history.actor_id = latest_connections.PlayerID 
+                    JOIN PlayerConnections 
+                    ON latest_connections.latest_id = PlayerConnections.ID
                 WHERE x = ? AND y = ? AND z = ?
                 ORDER BY \`block_history\`.\`tick\` DESC`,
         values: [Math.floor(pos.x), Math.floor(pos.y), Math.floor(pos.z)]
     }
     try {
         const response = await BlockHistoryPlugin.database.query(request);
-        printBlockHistory(response, {type: "block", pos: pos}, sender)
+        if(printBlockHistory(response, {type: "block", pos: pos}, sender)){
+            if(lastParticleCall[sender.id])delete lastParticleCall[sender.id]
+            sendMessage(`you can use !bh show to see these changes using particles`, "cmd - BlockHistory", sender)
+            lastParticleCall[sender.id] = {
+                callback: () => {
+                    getEdgeLocations(response.result, (loc,axis) => {
+                        addActiveParticles(loc,axis,sender);
+                    })
+                }
+            }
+        }
     }
     catch (error) {
         sendMessage(`${error}`,'CMD - BlockHistory',sender);
