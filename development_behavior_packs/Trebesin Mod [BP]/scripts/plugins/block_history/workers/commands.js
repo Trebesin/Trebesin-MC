@@ -485,7 +485,7 @@ function sqlRequestHandler(parameters, options){
                     ON latest_connections.latest_id = PlayerConnections.ID
                 WHERE x = ? AND y = ? AND z = ? AND block_history.tick <= ?
                 ORDER BY \`block_history\`.\`tick\` DESC
-                LIMIT ?
+                LIMIT ? OFFSET 0
             `,
             values : [options.pos.x, options.pos.y, options.pos.z,system.currentTick - parseToTicks(parameters.startingFrom), parameters.until ?? 7]
             }
