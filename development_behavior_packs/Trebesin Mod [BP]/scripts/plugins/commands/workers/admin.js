@@ -52,9 +52,10 @@ function main(){
 
 
   Commands.registerCommand("dupe", {
-    parameters: [{id: 'count', type: 'integer', optional: true}, {id: 'whomTo', type: 'selector', playersOnly: true, optional: true}], aliases: [], senderCheck: isBuilder, run: (sender,parameter) => {
+    parameters: [{id: 'count', type: 'integer', optional: true}, {id: 'whomTo', type: 'selector', playersOnly: true, optional: true}, {id: 'name', type: 'string', optional: true}], aliases: [], senderCheck: isBuilder, run: (sender,parameter) => {
       const container = sender.getComponent('inventory').container
       const item = container.getItem(sender.selectedSlot);
+      if(parameter.name)item.nameTag = parameter.name
       if (item != null) {
         const itemReceivers = parameter.whomTo ?? [sender]
         for(let j = 0;j<itemReceivers.length;j++){
