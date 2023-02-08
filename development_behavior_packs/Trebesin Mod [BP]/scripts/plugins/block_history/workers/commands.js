@@ -10,6 +10,7 @@ import * as BlockHistoryPlugin from "../block_history";
 import { CommandError } from "../../../mc_modules/commandParser";
 let particlesPerPlayers = {}
 let confirmationPerPlayer = {}
+let lastParticleCall = {}
 const PARTICLE_LIMIT = 1000//particle limit per player
 
 function main(){
@@ -74,6 +75,16 @@ function main(){
                         addActiveParticles(loc,axis,sender);
                     })
                 }
+                else{
+                    if(lastParticleCall[sender.id])delete lastParticleCall[sender.id]
+                    lastParticleCall[sender.id] = {
+                        callback: () => {
+                            getEdgeLocations([pos], (loc,axis) => {
+                                addActiveParticles(loc,axis,sender);
+                            })
+                        }
+                    }
+                }
 
                 sendMessage(`are you sure you want to reverse these changes?\n - !bh confirm to confirm or !bh cancel to cancel`,'CMD - BlockHistory',sender);
 
@@ -91,6 +102,12 @@ function main(){
                 sendMessage(`${error}`,'CMD - BlockHistory',sender);
             }
         }
+
+        else if(isMod(sender) && (parameter.command === "show")){
+            if(lastParticleCall[sender.id])lastParticleCall[sender.id].callback()
+            else sendMessage("there is nothing to show", "cmd - BlockHistory", sender)
+        }
+
         else if (isMod(sender) && (parameter.command === "b" || parameter.command === "block")) {
             let pos = parameter.coords ?? sender.location
             pos.x = Math.floor(pos.x)
