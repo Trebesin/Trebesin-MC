@@ -15,7 +15,6 @@ function main(){
     system.runSchedule(() => {
         for (const player in particlesPerPlayers) {
             //particles
-            const set = particlesPerPlayers[player].particleLocations;
             for(const locationString of particlesPerPlayers[player].particleLocations){
                 const particleLocation = stringToLocation(locationString);
                 spawnParticles(particleLocation[0], particleLocation[1], particlesPerPlayers[player].player)
@@ -517,7 +516,7 @@ function sqlRequestHandler(parameters, options){
                 ORDER BY \`block_history\`.\`tick\` DESC
                 LIMIT ? OFFSET ?
                 `,
-                values : [options.playerName, parameters.until ?? 7, parameters.startingFrom ?? 0]
+                values : [options.playerName, parseInt(parameters.until ?? 7), parseInt(parameters.startingFrom ?? 0)]
             }
         }
         else if(/^(\d+)(m|w|d|h|s)/.exec(parameters.until) && (!parameters.startingFrom || /^(\d+)$/.exec(parameters.startingFrom))){
