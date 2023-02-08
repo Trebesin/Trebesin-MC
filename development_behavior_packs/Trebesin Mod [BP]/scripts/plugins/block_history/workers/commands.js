@@ -345,6 +345,9 @@ function main(){
                     {type:'pos',id:'coords',optional:true},
                     {type:'bool',id:'particles', optional:true}
                 ],
+                show: [
+
+                ],
                 p: [
                     {type:'str',id:'until',optional:true},
                     {type:'str',id:'startingFrom',optional:true},
