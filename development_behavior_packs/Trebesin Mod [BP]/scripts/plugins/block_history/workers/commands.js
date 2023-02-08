@@ -568,7 +568,7 @@ function sqlRequestHandler(parameters, options){
                     ON block_history.actor_id = latest_connections.PlayerID 
                     JOIN PlayerConnections 
                     ON latest_connections.latest_id = PlayerConnections.ID
-                WHERE playerName = ? AND block_history.tick >= ?
+                WHERE playerName = ? AND block_history.tick <= ?
                 ORDER BY \`block_history\`.\`tick\` DESC
                 LIMIT ? OFFSET 0
             `,
