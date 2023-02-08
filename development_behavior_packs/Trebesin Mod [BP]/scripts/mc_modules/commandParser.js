@@ -24,7 +24,7 @@ import { sendLongMessage } from '../plugins/backend/backend';
 * @property {string} id ID of the parameter.
 * @property {('string'|'integer'|'float'|'boolean'|'position'|'selector'|'json')} type - Type of the parameter defining what the user input should look like.
 * @property {number} [array] Number defining an array of parameters, the value corresponds to its length.
-* @property {boolean} [optional] Defines that from now on the command will successfully execute even without this and following parameters specified.
+* @property {boolean} [optional] Defines that the command will successfully execute even without this and following parameters specified by the user.
 * @property {boolean} [fullArray] Only for `array: <number>`, allows the array to be returned even if it doesn't contain the same amount of elements as specified by the property.
 * @property {boolean} [playersOnly] Only for `type: 'selector'`, sets the selector to only allow `@a`,`@p` and `@r(type: 'minecraft:player')`
 */
