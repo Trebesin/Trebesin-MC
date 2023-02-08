@@ -38,7 +38,7 @@ class LoggingConnection {
             .addHeader('accept','text/plain')
             .setBody('{}')
             .setMethod(HttpRequestMethod.POST)
-            .setTimeout(3);
+            .setTimeout(4);
             const response = await http.request(request);
             if (response.status === 200) {
                 this.#token = null;
@@ -66,7 +66,7 @@ class LoggingConnection {
             .addHeader('accept','text/plain')
             .setBody('{}')
             .setMethod(HttpRequestMethod.POST)
-            .setTimeout(3);
+            .setTimeout(4);
             const response = await http.request(request);
             if (response.status === 200) {
                 this.#token = JSON.parse(response.body).token;
@@ -88,9 +88,12 @@ class LoggingConnection {
     /**
      * Attempts to log message to the API server consple.
      * @param {string} message Message that gets logged into the API server console.
-     * @param {number} [attempts] Maximal amount of attemps it should make to log the message.
+     * @param {object} [options] Options
+     * @param {number} [options.attempts] Maximal amount of attemps it should make to log the message.
+     * @param {number} [options.timeout] Timeout for the request in seconds.
      */
-    async sendLog(message,attempts = 0) {
+    async sendLog(message,options = {}) {
+        const reqOptions = Object.assign({attempts:0,timeout:3},options);
         return new Promise(async (resolve,reject) => {
             if (!this.#token) reject('Not Connected!');
             const request = new HttpRequest(this.#options.server.url+'/log')
@@ -100,19 +103,20 @@ class LoggingConnection {
             .addHeader('blank','true')
             .setBody(JSON.stringify({message}))
             .setMethod(HttpRequestMethod.POST)
-            .setTimeout(3);
+            .setTimeout(reqOptions.timeout);
             const response = await http.request(request);
             if (response.status === 200) {
                 resolve(JSON.parse(response.body));
             } else if (response.status === 403) {
                 const reConnected = await this.connect(2);
                 if (reConnected.status === 200) {
-                    resolve(await this.sendLog(message,attempts));
+                    resolve(await this.sendLog(message,reqOptions));
                 } else {
                     reject(`Token denied, unable to reconnect to the log!\n[${reConnected.status}] - ${reConnected.body}`);
                 }
-            } else if (attempts > 0) {
-                resolve(await this.sendLog(message,attempts - 1));
+            } else if (reqOptions.attempts > 0) {
+                reqOptions.attempts--;
+                resolve(await this.sendLog(message,reqOptions));
             } else {
                 reject(response);
             }
