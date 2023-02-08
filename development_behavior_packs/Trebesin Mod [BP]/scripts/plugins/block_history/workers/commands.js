@@ -20,8 +20,8 @@ function main(){
             for(const locationString of particlesPerPlayers[player].particleLocations){
                 if(limitIndex > PARTICLE_LIMIT){
                     sendMessage("§c§lTOO MANY PARTICLES §r- removing all your particles", "§cBH - CHAOS MANAGER",particlesPerPlayers[player].player)
-                    delete particlesPerPlayers[player]
                     break
+                    delete particlesPerPlayers[player]
                 }
                 limitIndex++
                 const particleLocation = stringToLocation(locationString);
