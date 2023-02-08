@@ -10,12 +10,19 @@ import * as BlockHistoryPlugin from "../block_history";
 import { CommandError } from "../../../mc_modules/commandParser";
 let particlesPerPlayers = {}
 let confirmationPerPlayer = {}
+const PARTICLE_LIMIT = 500//particle limit per player
 
 function main(){
     system.runSchedule(() => {
         for (const player in particlesPerPlayers) {
             //particles
+            let limitIndex = 0;
             for(const locationString of particlesPerPlayers[player].particleLocations){
+                if(limitIndex > PARTICLE_LIMIT){
+                    sendMessage("§c§lTOO MANY PARTICLES §r- removing all your particles", "§cBH - CHAOS MANAGER",particlesPerPlayers[player].player)
+                    delete particlesPerPlayers[player]
+                    break
+                }
                 const particleLocation = stringToLocation(locationString);
                 spawnParticles(particleLocation[0], particleLocation[1], particlesPerPlayers[player].player)
             }
@@ -61,7 +68,7 @@ function main(){
 
                 if(!printBlockHistory(response, {type: "block", pos: pos}, sender))return;
 
-                if(parameter.particles ?? true){
+                if(parameter.particles ?? false){
                     getEdgeLocations([pos], (loc,axis) => {
                         addActiveParticles(loc,axis,sender);
                     })
@@ -104,7 +111,7 @@ function main(){
 
                 if(!printBlockHistory(response, {type: "block", pos: pos}, sender))return;
 
-                else if(parameter.particles ?? true){
+                else if(parameter.particles ?? false){
                         getEdgeLocations([pos], (loc,axis) => {
                             addActiveParticles(loc,axis,sender);
                         })
@@ -132,7 +139,7 @@ function main(){
 
                 if(!printBlockHistory(response, {type: "player"}, sender))return;
 
-                else if(parameter.particles ?? true){
+                else if(parameter.particles ?? false){
                     getEdgeLocations(response.result, (loc,axis) => {
                         addActiveParticles(loc,axis,sender);
                     })
@@ -147,19 +154,25 @@ function main(){
         else if(isMod(sender) && (parameter.command === "redo")) {
             const playerName = parameter.player ?? sender.name
             const request = {
-                sql : `SELECT DISTINCT block_history.*, PlayerConnections.PlayerName 
-                       FROM \`block_history\` 
-                       JOIN PlayerConnections 
-                       ON block_history.actor_id = PlayerConnections.PlayerID 
-                       WHERE PlayerName = ? AND blockPlaceType = 'blockHistory: reverse' AND blockPlaceTypeID = ?
-                       ORDER BY \`block_history\`.\`tick\` DESC`,
+                sql : `
+                    SELECT DISTINCT block_history.*, PlayerConnections.PlayerName 
+                    FROM \`block_history\` 
+                    JOIN (SELECT PlayerID, MAX(ID) AS latest_id 
+                        FROM PlayerConnections 
+                        GROUP BY PlayerID) AS latest_connections 
+                    ON block_history.actor_id = latest_connections.PlayerID 
+                    JOIN PlayerConnections 
+                    ON latest_connections.latest_id = PlayerConnections.ID
+                    WHERE PlayerName = ? AND blockPlaceType = 'blockHistory: reverse' AND blockPlaceTypeID = ?
+                    ORDER BY \`block_history\`.\`tick\` DESC
+                `,
                 values : [playerName, parameter.id]
             }
             try {
                 const response = await BlockHistoryPlugin.database.query(request);
                 if(!printBlockHistory(response, {type: "reverse"}, sender))return;
 
-                if(parameter.particles ?? true){
+                if(parameter.particles ?? false){
                     getEdgeLocations(response.result, (loc,axis) => {
                         addActiveParticles(loc,axis,sender);
                     })
@@ -196,7 +209,7 @@ function main(){
                 const response = await BlockHistoryPlugin.database.query(request);
                 if(!printBlockHistory(response, {type: "player"}, sender))return;
 
-                if(parameter.particles ?? true){
+                if(parameter.particles ?? false){
                     getEdgeLocations(response.result, (loc,axis) => {
                         addActiveParticles(loc,axis,sender);
                     })
@@ -269,7 +282,7 @@ function main(){
                 rb/reverseblock - reverses a block to it's older state - parameters: until, startingFrom, location: x, location: y, location: z
                 bt/blockytools - show history of blockytools edits - parameters: until, startingFrom, player -- not ready yet
                 rbt/reversebt/reverseblockytools - reverses a blockytools edit using its id - parameters: until, startingFrom, player -- not ready yet
-                redo - reverses an action made by this plugin - parameters: ID
+                redo - reverses an action made by this plugin - parameters: ID, player, particles
                 c/clear - clears all the particles generated by this plugin by a player
                 ca/clearall - clears all the particles generated by this plugin by everyone
                 `, "", sender);
@@ -574,6 +587,9 @@ function sqlRequestHandler(parameters, options){
             `,
             values : [options.playerName,system.currentTick - parseToTicks(parameters.startingFrom), parseInt(parameters.until ?? 7)]
             }
+        }
+        else{
+            throw new CommandError("invalid until/startingFrom parameter")
         }
     }
     return request
