@@ -467,7 +467,7 @@ i/inspector - gets you into inspector mode: place blocks or right click with han
                 
             }
         }
-    ], aliases: ["blockhistory", "co", "coreprotect"], run: blockHistoryHandler, senderCheck: isMod
+    ], aliases: ["blockhistory", "co", "coreprotect"], run: blockHistoryHandler, senderCheck: isMod, description: `manage/view player blockHistory. view !bh help for detailed help`
   })
 }
 
