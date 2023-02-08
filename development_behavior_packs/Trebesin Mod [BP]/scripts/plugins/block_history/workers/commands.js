@@ -532,7 +532,7 @@ function sqlRequestHandler(parameters, options){
                         ON block_history.actor_id = latest_connections.PlayerID
                         JOIN PlayerConnections
                         ON latest_connections.latest_id = PlayerConnections.ID
-                        WHERE PlayerName = "tpkowastaken" AND block_history.tick >= 0
+                        WHERE PlayerName = ? AND block_history.tick >= ?
                     )
                     SELECT *
                     FROM cte
