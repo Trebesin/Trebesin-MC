@@ -20,8 +20,8 @@ function main(){
             for(const locationString of particlesPerPlayers[player].particleLocations){
                 if(limitIndex > PARTICLE_LIMIT){
                     sendMessage("§c§lTOO MANY PARTICLES §r- removing all your particles", "§cBH - CHAOS MANAGER",particlesPerPlayers[player].player)
-                    break
                     delete particlesPerPlayers[player]
+                    break
                 }
                 limitIndex++
                 const particleLocation = stringToLocation(locationString);
@@ -630,10 +630,10 @@ function printBlockHistory(request, options, sender){
         const blockAlteration = request.result[i]
         const timeOfBlockAlteration = system.currentTick - parseInt(blockAlteration.tick)
         if(options.type === "player" || options.type === "reverse"){
-            message += `${blockAlteration.blockPlaceType === "playerPlace"? "" : `(${blockAlteration.blockPlaceType}) - `}[${blockAlteration.x}, ${blockAlteration.y}, ${blockAlteration.z}]: ${blockAlteration.before_id} -> ${blockAlteration.after_id} - before: ${Math.floor(timeOfBlockAlteration/tickInADay)}d${Math.floor(timeOfBlockAlteration%tickInADay/tickInAnHour)}h${Math.floor(timeOfBlockAlteration%tickInAnHour/tickInAMin)}m${Math.floor(timeOfBlockAlteration%tickInAMin/tickInASec)}s\n`;
+            message += `${blockAlteration.blockPlaceType === "playerPlace"? "" : `(${blockAlteration.blockPlaceType}) - `}[${blockAlteration.x}, ${blockAlteration.y}, ${blockAlteration.z}]: ${blockAlteration.before_id} -> ${blockAlteration.after_id} - before: ${parseToRealTime(timeOfBlockAlteration)}\n`;
         }
         if(options.type === "block"){
-            message += `${blockAlteration.PlayerName}${blockAlteration.blockPlaceType === "playerPlace"? "" : ` (${blockAlteration.blockPlaceType})`}: ${blockAlteration.before_id} -> ${blockAlteration.after_id} - before: ${Math.floor(timeOfBlockAlteration/tickInADay)}d${Math.floor(timeOfBlockAlteration%tickInADay/tickInAnHour)}h${Math.floor(timeOfBlockAlteration%tickInAnHour/tickInAMin)}m${Math.floor(timeOfBlockAlteration%tickInAMin/tickInASec)}s\n`;
+            message += `${blockAlteration.PlayerName}${blockAlteration.blockPlaceType === "playerPlace"? "" : ` (${blockAlteration.blockPlaceType})`}: ${blockAlteration.before_id} -> ${blockAlteration.after_id} - before: ${parseToRealTime(timeOfBlockAlteration)}\n`;
         }
     }
     if(options.type === "reverse")sendLongMessage(`Block History reverses of ${playerName}`, message.trim(), sender)
@@ -670,6 +670,22 @@ function revertBlockChange(blockOld, blockNew, sender){
     const block = sender.dimension.getBlock(new BlockLocation(blockNew.location.x, blockNew.location.y, blockNew.location.z))
     block.setType(MinecraftBlockTypes.get(blockOld.typeId))
     block.setPermutation(setPermutationFromObject(block.permutation, getPermutations(blockOld.permutation)))
+}
+
+function parseToRealTime(input){
+    let result = ""
+    const tickInASec = TicksPerSecond
+    const tickInAMin = tickInASec*60
+    const tickInAnHour = tickInAMin*60
+    const tickInADay = tickInAnHour*24
+    const tickInAWeek = tickInADay*7
+    const timers = [tickInAWeek, tickInADay, tickInAnHour, tickInAMin, tickInASec]
+    const timerletter = ['w', 'd', 'h', 'm', 's']
+    for(let i = 0;i<timers.length;i++){
+        result += `${Math.floor(input/timers[i])}` + timerletter[i]
+        input = input%timers[i]
+    }
+    return result
 }
 
 function parseToTicks(input){
