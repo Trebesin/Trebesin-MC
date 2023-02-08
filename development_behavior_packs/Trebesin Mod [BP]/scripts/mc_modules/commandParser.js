@@ -16,26 +16,27 @@ import { sendLongMessage } from '../plugins/backend/backend';
 
 /**
 * @callback CommandDefinitionSenderCheck
-* @param {Player} sender - Actor that has invoked the command.
+* @param {Player} sender Actor that has invoked the command.
 */
 
 /**
 * @typedef CommandDefinitionParameter
-* @property {string} id - ID of the parameter.
+* @property {string} id ID of the parameter.
 * @property {('string'|'integer'|'float'|'boolean'|'position'|'selector'|'json')} type - Type of the parameter defining what the user input should look like.
-* @property {number} [array] - Number defining an array of parameters, the value corresponds to its length.
-* @property {boolean} [fullArray] - Only for `array: <number>`, allows the array to be returned even if it doesn't contain the same amount of elements as specified by the property.
-* @property {boolean} [playersOnly] - Only for `type: 'selector'`, sets the selector to only allow `@a`,`@p` and `@r(type: 'minecraft:player')`
+* @property {number} [array] Number defining an array of parameters, the value corresponds to its length.
+* @property {boolean} [optional] Defines that from now on the command will successfully execute even without this and following parameters specified.
+* @property {boolean} [fullArray] Only for `array: <number>`, allows the array to be returned even if it doesn't contain the same amount of elements as specified by the property.
+* @property {boolean} [playersOnly] Only for `type: 'selector'`, sets the selector to only allow `@a`,`@p` and `@r(type: 'minecraft:player')`
 */
 
 /**
 * @typedef CommandDefinition
-* @property {string} description - Description of the command shown in the default help command.
-* @property {string[]} [aliases] - Aliases to invoke the command. Repeating the same aliases might have unexpected results.
-* @property {CommandDefinitionParameter[]} parameters - All parameters that the command takes.
-* @property {any[]} [arguments] - Array of any additional arguments that will be passed to the command function when it's ran.
-* @property {CommandDefinitionSenderCheck} [senderCheck] - Optional function that needs to return `true` in order to allow execution of the command.
-* @property {CommandDefinitionRun} run - Function that runs when the command is invoked.
+* @property {string} description Description of the command shown in the default help command.
+* @property {string[]} [aliases] Aliases to invoke the command. Repeating the same aliases might have unexpected results.
+* @property {CommandDefinitionParameter[]} parameters All parameters that the command takes.
+* @property {any[]} [arguments] Array of any additional arguments that will be passed to the command function when it's ran.
+* @property {CommandDefinitionSenderCheck} [senderCheck] Optional function that needs to return `true` in order to allow execution of the command.
+* @property {CommandDefinitionRun} run Function that runs when the command is invoked.
 */
 
 //#Main Command Parser Class:
@@ -162,6 +163,13 @@ class CommandParser {
         adminCheck: () => false
     }
 
+    /**
+     * 
+     * @param {ParameterStringParser} parameters 
+     * @param {CommandDefinitionParameter[]} options 
+     * @param {Player} sender 
+     * @returns 
+     */
     #getParameterChain(parameters,options,sender) {
         const output = {};
         let optional = false;
@@ -551,7 +559,7 @@ class ParameterStringParser {
             }
 
             if (parsePhase === 0) {
-                if (char == null && parameterArray && !option.fullArray) return parameterArray;
+                if (char == null && parameterArray && !(option.fullArray ?? true)) return parameterArray;
                 if (char == null) return null;
 
                 if (!escaped && char === separator) continue;
