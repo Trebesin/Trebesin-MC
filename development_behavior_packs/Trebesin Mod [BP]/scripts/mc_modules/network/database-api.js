@@ -106,7 +106,6 @@ class DatabaseConnection {
      */
     async query(queryOptions,options = {}) {
         const reqOptions = Object.assign({fullResponse:true,attempts:0,timeout:3},options);
-        logMessage(`AT:${reqOptions.attempts},FR:${reqOptions.fullResponse},TO:${reqOptions.timeout}`)
         return new Promise(async (resolve,reject) => {
             if (!this.#token) reject('Not Connected!');
             const request = new HttpRequest(this.#options.server.url+'/sql')
@@ -118,13 +117,10 @@ class DatabaseConnection {
             .setBody(JSON.stringify(queryOptions))
             .setMethod(HttpRequestMethod.POST)
             .setTimeout(reqOptions.timeout);
-            logMessage('About to request!')
             const response = await http.request(request);
             if (response.status === 200) {
-                logMessage('Query worked!')
                 resolve(JSON.parse(response.body));
             } else if (response.status === 403) {
-                logMessage('Token wrong huh?!')
                 const reConnected = await this.connect(2);
                 if (reConnected.status === 200) {
                     resolve(await this.query(queryOptions,reqOptions));
@@ -132,11 +128,8 @@ class DatabaseConnection {
                     reject(`Token denied, unable reconnect to the database!\n[${reConnected.status}] - ${reConnected.body}`);
                 }
             } else if (reqOptions.attempts > 0) {
-                logMessage('Retrying!')
-                logMessage(`Retrying! AT Left: ${reqOptions.attempts}`)
                 resolve(await this.query(queryOptions,reqOptions));
             } else {
-                logMessage('Some error!');
                 reject(response);
             }
         });
