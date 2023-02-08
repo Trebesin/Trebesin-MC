@@ -43,58 +43,27 @@ function main(){
 
     async function blockHistoryHandler(sender, parameter){
         if (isMod(sender) && (parameter.command === "rb" || parameter.command === "reverseblock")) {
-            const pos = parameter.coords ?? sender.location
-            let request = {
-                sql : `SELECT DISTINCT block_history.*, PlayerConnections.PlayerName 
-                       FROM \`block_history\` 
-                       JOIN PlayerConnections 
-                       ON block_history.actor_id = PlayerConnections.PlayerID 
-                       WHERE x = ? AND y = ? AND z = ? `,
-                values : [Math.floor(pos.x), Math.floor(pos.y), Math.floor(pos.z)]
-            }
-            sendLogMessage(parameter.until)
-            sendLogMessage(parameter.startingFrom)
+            let pos = parameter.coords ?? sender.location
+            pos.x = Math.floor(pos.x)
+            pos.y = Math.floor(pos.y)
+            pos.z = Math.floor(pos.z)
+            let request = {}
+
             try{
-                if((!parameter.until || /^(\d+)$/.exec(parameter.until)) && (!parameter.startingFrom || /^(\d+)$/.exec(parameter.startingFrom))){
-                    request.sql += `ORDER BY \`block_history\`.\`tick\` DESC
-                                    LIMIT ? OFFSET ?`
-                    request.values.push(parseInt(parameter.until ?? 7), parseInt(parameter.startingFrom ?? 0))
-                }
-                else if(/^(\d+)(m|w|d|h|s)/.exec(parameter.until) && (!parameter.startingFrom || /^(\d+)$/.exec(parameter.startingFrom))){
-                    request.sql += `AND tick >= ?
-                                    ORDER BY \`block_history\`.\`tick\` DESC
-                                    OFFSET ?`
-                    request.values.push(system.currentTick - parseToTicks(parameter.until), parseInt(parameter.startingFrom ?? 0))
-                }
-                else if(/^(\d+)(m|w|d|h|s)/.exec(parameter.until) && /^(\d+)(m|w|d|h|s)/.exec(parameter.startingFrom)){
-                    request.sql += `AND tick >= ? AND tick <= ?
-                                    ORDER BY \`block_history\`.\`tick\` DESC`
-                    request.values.push(system.currentTick - parseToTicks(parameter.until), system.currentTick - parseToTicks(parameter.startingFrom))
-                }
-                else{
-                    sendMessage("invalid until/startingFrom parameter", "blockHistory - error", sender)
-                    return
-                }
+                request = sqlRequestHandler(parameter, {type: "block", pos: pos})
             }
             catch(error){
                 sendMessage(`invalid until/startingFrom parameter: ${error}`, "blockHistory - error", sender)
                 return;
             }
-            sendLogMessage(request.sql)
-            sendLogMessage(request.values)
             try {
                 const response = await BlockHistoryPlugin.database.query(request);
-
-                sendLogMessage(JSON.stringify(response))
+                sendLogMessage(JSON.stringify(response.result))
 
                 if(!printBlockHistory(response, {type: "block", pos: pos}, sender))return;
 
                 if(parameter.particles ?? true){
-                    getEdgeLocations([{
-                        x: Math.floor(pos.x),
-                        y: Math.floor(pos.y),
-                        z: Math.floor(pos.z)
-                    }], (loc,axis) => {
+                    getEdgeLocations([pos], (loc,axis) => {
                         addActiveParticles(loc,axis,sender);
                     })
                 }
@@ -116,16 +85,17 @@ function main(){
             }
         }
         else if (isMod(sender) && (parameter.command === "b" || parameter.command === "block")) {
-            const pos = parameter.coords ?? sender.location
-            const request = {
-                sql : `SELECT DISTINCT block_history.*, PlayerConnections.PlayerName 
-                       FROM \`block_history\` 
-                       JOIN PlayerConnections 
-                       ON block_history.actor_id = PlayerConnections.PlayerID 
-                       WHERE x = ${Math.floor(pos.x)} AND y = ${Math.floor(pos.y)} AND z = ${Math.floor(pos.z)}
-                       ORDER BY \`block_history\`.\`tick\` DESC
-                       LIMIT ? OFFSET ?`,
-                values : [parameter.until ?? 7, parameter.startingFrom ?? 0]
+            let pos = parameter.coords ?? sender.location
+            pos.x = Math.floor(pos.x)
+            pos.y = Math.floor(pos.y)
+            pos.z = Math.floor(pos.z)
+            let request = {}
+            try{
+                request = sqlRequestHandler(parameter, {type: "block", pos: pos})
+            }
+            catch(error){
+                sendMessage(`invalid until/startingFrom parameter: ${error}`, "blockHistory - error", sender)
+                return;
             }
             try {
                 const response = await BlockHistoryPlugin.database.query(request);
@@ -133,11 +103,7 @@ function main(){
                 if(!printBlockHistory(response, {type: "block", pos: pos}, sender))return;
 
                 else if(parameter.particles ?? true){
-                        getEdgeLocations([{
-                            x: Math.floor(pos.x),
-                            y: Math.floor(pos.y),
-                            z: Math.floor(pos.z)
-                        }], (loc,axis) => {
+                        getEdgeLocations([pos], (loc,axis) => {
                             addActiveParticles(loc,axis,sender);
                         })
                 }
@@ -149,16 +115,17 @@ function main(){
 
         else if (isMod(sender) && (parameter.command === "p" || parameter.command === "player")) {
             const playerName = parameter.player ?? sender.name
-            const request = {
-                sql : `SELECT DISTINCT block_history.*, PlayerConnections.PlayerName 
-                       FROM \`block_history\` 
-                       JOIN PlayerConnections 
-                       ON block_history.actor_id = PlayerConnections.PlayerID 
-                       WHERE PlayerName = ?  
-                       ORDER BY \`block_history\`.\`tick\` DESC
-                       LIMIT ? OFFSET ?`,
-                values : [playerName, parameter.until ?? 7, parameter.startingFrom ?? 0]
+            let request = {}
+            try{
+                request = sqlRequestHandler(parameter, {type: "player", playerName: playerName})
             }
+            catch(error){
+                sendMessage(`invalid until/startingFrom parameter: ${error}`, "blockHistory - error", sender)
+                return;
+            }
+            request.timeout = 100000
+            sendLogMessage(request.sql)
+            sendLogMessage(request.values)
             try {
                 const response = await BlockHistoryPlugin.database.query(request);
 
@@ -216,15 +183,13 @@ function main(){
 
         else if(isMod(sender) && (parameter.command === "r" || parameter.command === "reverse")) {
             const playerName = parameter.player ?? sender.name
-            const request = {
-                sql : `SELECT DISTINCT block_history.*, PlayerConnections.PlayerName 
-                       FROM \`block_history\` 
-                       JOIN PlayerConnections 
-                       ON block_history.actor_id = PlayerConnections.PlayerID 
-                       WHERE PlayerName = ?  
-                       ORDER BY \`block_history\`.\`tick\` DESC
-                       LIMIT ? OFFSET ?`,
-                values : [playerName, parameter.until ?? 7, parameter.startingFrom ?? 0]
+            let request = {}
+            try{
+                request = sqlRequestHandler(parameter, {type: "player", playerName: playerName})
+            }
+            catch(error){
+                sendMessage(`invalid until/startingFrom parameter: ${error}`, "blockHistory - error", sender)
+                return;
             }
             try {
                 const response = await BlockHistoryPlugin.database.query(request);
@@ -441,6 +406,149 @@ function removeAllActiveParticles() {
         delete particlesPerPlayers[player];
     }
 }
+
+
+
+
+function sqlRequestHandler(parameters, options){
+    let request = {}
+    if(options.type === "block"){
+        if((!parameters.until || /^(\d+)$/.exec(parameters.until)) && (!parameters.startingFrom || /^(\d+)$/.exec(parameters.startingFrom))){
+            request = {//request for block where we have number until and number startFrom
+            sql: `
+                SELECT DISTINCT block_history.*, PlayerConnections.PlayerName
+                FROM block_history 
+                JOIN (SELECT PlayerID, MAX(ID) AS latest_id 
+                        FROM PlayerConnections 
+                        GROUP BY PlayerID) AS latest_connections 
+                    ON block_history.actor_id = latest_connections.PlayerID 
+                    JOIN PlayerConnections 
+                    ON latest_connections.latest_id = PlayerConnections.ID
+                WHERE x = ? AND y = ? AND z = ?
+                ORDER BY \`block_history\`.\`tick\` DESC
+                LIMIT ? OFFSET ?
+            `,
+            values : [options.pos.x, options.pos.y, options.pos.z,parseInt(parameters.until ?? 7), parseInt(parameters.startingFrom ?? 0)]
+            }
+        }
+        else if(/^(\d+)(m|w|d|h|s)/.exec(parameters.until) && (!parameters.startingFrom || /^(\d+)$/.exec(parameters.startingFrom))){
+            request = {//request for block where we have realtime until and startFrom number
+                sql : `
+                WITH cte AS (
+                SELECT DISTINCT block_history.*, PlayerConnections.PlayerName, ROW_NUMBER() OVER (ORDER BY block_history.tick DESC) AS rn
+                FROM block_history 
+                JOIN (SELECT PlayerID, MAX(ID) AS latest_id 
+                        FROM PlayerConnections 
+                        GROUP BY PlayerID) AS latest_connections 
+                    ON block_history.actor_id = latest_connections.PlayerID 
+                    JOIN PlayerConnections 
+                    ON latest_connections.latest_id = PlayerConnections.ID
+                WHERE x = ? AND y = ? AND z = ? AND block_history.tick >= ?
+                ORDER BY \`block_history\`.\`tick\` DESC
+                )
+                SELECT *
+                FROM cte
+                WHERE rn > ?
+                `,
+                values : [options.pos.x, options.pos.y, options.pos.z,system.currentTick - parseToTicks(parameters.until), parseInt(parameters.startingFrom ?? 0)]
+            }
+        }
+        else if(/^(\d+)(m|w|d|h|s)/.exec(parameters.until) && /^(\d+)(m|w|d|h|s)/.exec(parameters.startingFrom)){
+            request = {//request for block where we have realtime until and realtime startFrom
+            sql: `
+                SELECT DISTINCT block_history.*, PlayerConnections.PlayerName
+                FROM block_history 
+                JOIN (SELECT PlayerID, MAX(ID) AS latest_id 
+                        FROM PlayerConnections 
+                        GROUP BY PlayerID) AS latest_connections 
+                    ON block_history.actor_id = latest_connections.PlayerID 
+                    JOIN PlayerConnections 
+                    ON latest_connections.latest_id = PlayerConnections.ID
+                WHERE x = ? AND y = ? AND z = ? AND block_history.tick >= ? AND block_history.tick <= ?
+                ORDER BY \`block_history\`.\`tick\` DESC
+            `,
+            values : [options.pos.x, options.pos.y, options.pos.z,system.currentTick - parseToTicks(parameters.until), system.currentTick - parseToTicks(parameters.startingFrom)]
+            }
+        }
+        else if((!parameters.until || /^(\d+)$/.exec(parameters.until)) && /^(\d+)(m|w|d|h|s)/.exec(parameters.startingFrom)){
+            request = {//request for block where we have number until and realtime startFrom
+            sql: `
+                SELECT DISTINCT block_history.*, PlayerConnections.PlayerName
+                FROM block_history 
+                JOIN (SELECT PlayerID, MAX(ID) AS latest_id 
+                        FROM PlayerConnections 
+                        GROUP BY PlayerID) AS latest_connections 
+                    ON block_history.actor_id = latest_connections.PlayerID 
+                    JOIN PlayerConnections 
+                    ON latest_connections.latest_id = PlayerConnections.ID
+                WHERE x = ? AND y = ? AND z = ? AND block_history.tick <= ?
+                ORDER BY \`block_history\`.\`tick\` DESC
+                LIMIT ?
+            `,
+            values : [options.pos.x, options.pos.y, options.pos.z,system.currentTick - parseToTicks(parameters.startingFrom), parameters.until ?? 7]
+            }
+        }
+        else{
+            throw new CommandError("invalid until/startingFrom parameter")
+        }
+    }
+    
+
+
+    else if(options.type === "player"){
+        if((!parameters.until || /^(\d+)$/.exec(parameters.until)) && (!parameters.startingFrom || /^(\d+)$/.exec(parameters.startingFrom))){
+            request = {//request for block where we have number until and number startFrom
+                sql : `
+                SELECT DISTINCT block_history.*, PlayerConnections.PlayerName 
+                FROM \`block_history\` 
+                JOIN PlayerConnections 
+                ON block_history.actor_id = PlayerConnections.PlayerID 
+                WHERE PlayerName = ?  
+                ORDER BY \`block_history\`.\`tick\` DESC
+                LIMIT ? OFFSET ?
+                `,
+                values : [options.playerName, parameters.until ?? 7, parameters.startingFrom ?? 0]
+            }
+        }
+        else if(/^(\d+)(m|w|d|h|s)/.exec(parameters.until) && (!parameters.startingFrom || /^(\d+)$/.exec(parameters.startingFrom))){
+            request = {//request for block where we have realtime until and startFrom number
+                sql : `
+                WITH cte AS (
+                SELECT DISTINCT block_history.*, PlayerConnections.PlayerName, ROW_NUMBER() OVER (ORDER BY block_history.tick DESC) AS rn
+                FROM block_history 
+                JOIN PlayerConnections 
+                ON block_history.actor_id = PlayerConnections.PlayerID 
+                WHERE PlayerName = ? AND block_history.tick >= ?
+                ORDER BY \`block_history\`.\`tick\` DESC
+                )
+                SELECT *
+                FROM cte
+                WHERE rn > ?
+                `,
+                values : [options.playerName,system.currentTick - parseToTicks(parameters.until), parseInt(parameters.startingFrom ?? 0)]
+            }
+        }
+        else if(/^(\d+)(m|w|d|h|s)/.exec(parameters.until) && /^(\d+)(m|w|d|h|s)/.exec(parameters.startingFrom)){
+            request = {//request for block where we have realtime until and realtime startFrom
+            sql: `
+                SELECT DISTINCT block_history.*, PlayerConnections.PlayerName
+                FROM block_history 
+                JOIN PlayerConnections 
+                ON block_history.actor_id = PlayerConnections.PlayerID 
+                WHERE playerName = ? AND block_history.tick >= ? AND block_history.tick <= ?
+                ORDER BY \`block_history\`.\`tick\` DESC
+            `,
+            values : [options.playerName,system.currentTick - parseToTicks(parameters.until), system.currentTick - parseToTicks(parameters.startingFrom)]
+            }
+        }
+    }
+    return request
+}
+
+
+
+
+
 /**
  * 
  * @param {Promise} request 
@@ -467,7 +575,7 @@ function printBlockHistory(request, options, sender){
     const tickInAnHour = tickInAMin*60
     const tickInADay = tickInAnHour*24
     let message = ''
-    for(let i = request.result.length-1; i+1; i--){
+    for(let i = 0; i < request.result.length; i++){
         const blockAlteration = request.result[i]
         const timeOfBlockAlteration = system.currentTick - parseInt(blockAlteration.tick)
         if(options.type === "player" || options.type === "reverse"){
