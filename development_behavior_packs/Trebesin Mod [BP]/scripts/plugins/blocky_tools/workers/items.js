@@ -1,13 +1,17 @@
+//APIs:
 import { BoolBlockProperty, MolangVariableMap, Color, DirectionBlockProperty, IntBlockProperty, StringBlockProperty, world, system, Block} from '@minecraft/server';
-import * as FormUi from '../../../mc_modules/ui';
+//Plugins:
+import * as Debug from './../../debug/debug';
+import { Server } from '../../backend/backend';
+//Modules:
 import {mapArray,insertToArray} from '../../../js_modules/array';
+import * as FormUi from '../../../mc_modules/ui';
 import {setBlockPermutation,setBlockType} from '../../block_history/block_history';
 import { spawnBlockSelection, spawnLine } from '../../../mc_modules/particles';
 import { getAbsoluteChunkCoord, getOriginChunkCoord} from '../../../mc_modules/chunk';
-import * as Debug from './../../debug/debug';
-import { Server } from '../../backend/backend';
 
-function main() {
+
+export function main() {
     //## Debug Stick:
     const showChunkBorder = {};
     Server.events.playerEquip.subscribe((eventData) => {
@@ -81,7 +85,7 @@ function main() {
             if (showChunkBorder[player.id] === 0 || showChunkBorder[player.id] == null) continue; 
             const chunk = getOriginChunkCoord(player.location);
             const molang = new MolangVariableMap()
-                .setColorRGBA('variable.colour',new Color(Math.random(),Math.random(),Math.random(),1));
+            .setColorRGBA('variable.colour',new Color(Math.random(),Math.random(),Math.random(),1));
             spawnLine('trebesin:selection_dot',[{x:chunk.x,y:player.location.y-20,z:chunk.z},{x:chunk.x,y:player.location.y+20,z:chunk.z}],player.dimension,molang);
             spawnLine('trebesin:selection_dot',[{x:chunk.x+8,y:player.location.y-20,z:chunk.z},{x:chunk.x+8,y:player.location.y+20,z:chunk.z}],player.dimension,molang);
             spawnLine('trebesin:selection_dot',[{x:chunk.x+16,y:player.location.y-20,z:chunk.z+8},{x:chunk.x+16,y:player.location.y+20,z:chunk.z+8}],player.dimension,molang);
@@ -96,5 +100,3 @@ function main() {
     },20);
     //## -- --
 }
-
-export {main}

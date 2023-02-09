@@ -1,10 +1,9 @@
-//Base imports
+//APIs:
 import { world, MolangVariableMap, MinecraftBlockTypes, Color, system } from '@minecraft/server';
-//MC Modules
-import { spawnBlockSelection } from '../../../mc_modules/particles';
-//JS Modules
+//Modules:
 import { getGridBlock } from '../../../js_modules/geometry';
 import { insertToArray } from '../../../js_modules/array';
+import { spawnBlockSelection } from '../../../mc_modules/particles';
 
 //# Individual Selection
 class Selection {

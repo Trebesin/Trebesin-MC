@@ -1,15 +1,19 @@
+//APIs:
 import {CommandResult, MinecraftEffectTypes , world, BlockLocation,Location, TicksPerDay, TicksPerSecond, Vector, MolangVariableMap, Color, system, MinecraftBlockTypes, BlockPermutation} from "@minecraft/server";
-import { copyBlock, getPermutations, setPermutationFromObject } from "../../../mc_modules/blocks";
-import { sendMessage} from "../../../mc_modules/players";
-import { getEdgeLocations, createLocationSet2, locationToString, stringToLocation } from "../../../mc_modules/particles";
-import { Commands, sendLongMessage } from '../../backend/backend';
+//Plugins:
+import * as BlockHistoryPlugin from "../block_history";
+import { Commands, sendLongMessage, DB } from '../../backend/backend';
 import { isAdmin, isMod } from "../../commands/workers/admin";
 import { logMessage, sendLogMessage } from "../../debug/debug";
-import { playerData } from "../../server/server";
-import * as BlockHistoryPlugin from "../block_history";
+//Modules:
+import { copyBlock, getPermutations, setPermutationFromObject } from "../../../mc_modules/blocks";
+import { sendMessage} from "../../../mc_modules/players";
+import { getEdgeLocations, locationToString, stringToLocation } from "../../../mc_modules/particles";
 import { CommandError } from "../../../mc_modules/commandParser";
-let particlesPerPlayers = {}
-let confirmationPerPlayer = {}
+
+
+const particlesPerPlayers = {}
+const confirmationPerPlayer = {}
 
 function main(){
     system.runSchedule(() => {
@@ -57,7 +61,7 @@ function main(){
                 return;
             }
             try {
-                const response = await BlockHistoryPlugin.database.query(request);
+                const response = await DB.query(request);
                 sendLogMessage(JSON.stringify(response.result))
 
                 if(!printBlockHistory(response, {type: "block", pos: pos}, sender))return;
@@ -100,7 +104,7 @@ function main(){
             sendLogMessage(request.sql)
             sendLogMessage(request.values)
             try {
-                const response = await BlockHistoryPlugin.database.query(request);
+                const response = await DB.query(request);
                 sendLogMessage(JSON.stringify(response.result))
 
                 if(!printBlockHistory(response, {type: "block", pos: pos}, sender))return;
@@ -129,7 +133,7 @@ function main(){
             sendLogMessage(request.sql)
             sendLogMessage(request.values)
             try {
-                const response = await BlockHistoryPlugin.database.query(request);
+                const response = await DB.query(request);
 
                 if(!printBlockHistory(response, {type: "player"}, sender))return;
 
@@ -157,7 +161,7 @@ function main(){
                 values : [playerName, parameter.id]
             }
             try {
-                const response = await BlockHistoryPlugin.database.query(request);
+                const response = await DB.query(request);
                 if(!printBlockHistory(response, {type: "reverse"}, sender))return;
 
                 if(parameter.particles ?? true){
@@ -194,7 +198,7 @@ function main(){
                 return;
             }
             try {
-                const response = await BlockHistoryPlugin.database.query(request);
+                const response = await DB.query(request);
                 if(!printBlockHistory(response, {type: "player"}, sender))return;
 
                 if(parameter.particles ?? true){
@@ -618,7 +622,7 @@ function spawnParticles(location, particleAxis, sender) {
 
 async function getMaxIDPerPlayer(blockPlaceType, player){
     try{
-        const request = await BlockHistoryPlugin.database.query({
+        const request = await DB.query({
             sql: `SELECT actor_id, MAX(blockPlaceTypeID) AS id
                     FROM block_history
                     WHERE actor_id = ? AND blockPlaceType = ? AND blockPlaceTypeID IS NOT NULL
@@ -688,7 +692,7 @@ async function inspector(location, sender){
         values: [Math.floor(pos.x), Math.floor(pos.y), Math.floor(pos.z)]
     }
     try {
-        const response = await BlockHistoryPlugin.database.query(request);
+        const response = await DB.query(request);
         printBlockHistory(response, {type: "block", pos: pos}, sender)
     }
     catch (error) {

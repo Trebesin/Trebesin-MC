@@ -1,12 +1,19 @@
-import {CommandResult, MinecraftEffectTypes , system, world, Player, MinecraftBlockTypes, BlockLocation} from "@minecraft/server";
-import {CommandParser} from "../../../mc_modules/commandParser";
+//APIs:
+import {CommandResult, MinecraftEffectTypes , system, world, Player, MinecraftBlockTypes, BlockLocation} from '@minecraft/server';
+//Plugins:
+import { setBlockType } from '../../block_history/block_history';
+//Modules:
+import { generateBlockPyramid } from '../../../js_modules/geometry';
+import { CommandParser } from '../../../mc_modules/commandParser';
 import { sendMessage } from '../../../mc_modules/players';
 import { copyVector, sumVectors } from '../../../js_modules/vector';
-import { setBlockType } from '../../block_history/block_history';
+
+
 const Commands = new CommandParser({
-  prefix: ".", caseSensitive: false
+  prefix: '.', caseSensitive: false
 })
-async function main() {
+
+export async function main() {
   Commands.registerCommand('idk',{
     parameters: [
       {
@@ -129,5 +136,3 @@ function generateBlockArea(coord,steps = 10) {
   }
   return coords;
 }
-
-export {main};

@@ -1,10 +1,15 @@
+//APIs:
 import {CommandResult, Location, system, world, Vector, Player, MinecraftEffectTypes} from "@minecraft/server";
-import { sendMessage } from '../../../mc_modules/players';
+//Plugins:
 import * as Debug from './../../debug/debug';
 import { playerData as serverPlayerData } from '../../server/server';
 import { Commands } from '../../backend/backend';
+//Modules:
 import * as vectorMath from "../../../js_modules/vector.js";
-function main(){
+import { sendMessage } from '../../../mc_modules/players';
+
+
+export function main(){
   Commands.registerCommand("gmsp", {
     aliases: ["gamemodespectator", "gamemodesp", "gm3", "gmspectator", "spectator"], parameters: [], run: async (sender) => {
       await sender.runCommandAsync(`gamerule sendcommandfeedback false`)
@@ -86,4 +91,3 @@ function main(){
       }
   }})
 }
-export {main};

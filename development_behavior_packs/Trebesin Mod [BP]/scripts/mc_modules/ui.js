@@ -67,7 +67,7 @@ const actionMenuData = {
 //!add new features forced shit yk the drill
 //Async
 
-async function modalMenu(menuData,player) {
+export async function modalMenu(menuData,player) {
     let menu = new ModalFormData()
     .title(menuData.title);
     if (menuData.structure?.length === 0) throw new Error('No structure found!');
@@ -110,7 +110,7 @@ async function modalMenu(menuData,player) {
     return { canceled:response.canceled, cancelationReason:response.cancelationReason, formValues }
 }
 
-async function actionMenu(menuData, player) {
+export async function actionMenu(menuData, player) {
     let menu = new ActionFormData()
     .title(menuData.title)
     .body(menuData.body);
@@ -135,7 +135,7 @@ async function actionMenu(menuData, player) {
     }
 }
 
-async function messageMenu(menuData, player) {
+export async function messageMenu(menuData, player) {
     const menu = new MessageFormData()
     .title(menuData.title)
     .body(menuData.body)
@@ -146,5 +146,3 @@ async function messageMenu(menuData, player) {
 
     return response
 }
-
-export { modalMenu, messageMenu, actionMenu }

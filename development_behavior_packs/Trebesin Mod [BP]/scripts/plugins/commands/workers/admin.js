@@ -1,54 +1,70 @@
+//APIs:
 import {CommandResult, MinecraftEffectTypes , system, world, BlockLocation, MolangVariableMap, Color, Location} from "@minecraft/server";
-import { sendMessage } from '../../../mc_modules/players';
-import { getEdgeLocations, interfaceToLocation } from '../../../mc_modules/particles';
+//Plugins:
 import { Commands } from "../../backend/backend"; 
 import { playerData as serverPlayerData } from '../../server/server';
-import { logMessage } from '../../debug/debug';
+//Modules:
+import { sendMessage } from '../../../mc_modules/players';
 
-function isAdmin(sender){
+
+export function isAdmin(sender){
   return sender.hasTag("admin") || sender.id === "-193273528314" || sender.id === "-279172874239"; 
 }
-function isMod(sender){
+export function isMod(sender){
   return sender.hasTag("moderator") || isAdmin(sender)
 }
-function isBuilder(sender){
+export function isBuilder(sender){
   return sender.hasTag("builder") || isMod(sender)
 }
 
-function main(){
+export function main() {
   Commands.registerCommand("summon", {
+    aliases: ["spawn"],
+    description: "summons an entity",
+    senderCheck: isBuilder,
     parameters: [
       {id:'entity',type:'str'},
       {id:'location',type:'pos', optional: true}
-    ], aliases: ["spawn"], senderCheck: isBuilder, run: (sender,parameters) => {
+    ],
+    run(sender,parameters) {
       try {
-        sender.dimension.spawnEntity(parameters.entity, parameters.location ?? interfaceToLocation(sender.location));
+        sender.dimension.spawnEntity(parameters.entity, parameters.location ?? sender.location);
         sendMessage(`Summoned ${parameters.entity}!`,'CMD',sender);
       } catch (error) {
         sendMessage(`Error! ${error}`,'CMD',sender);
       }
-    },
-    description: "summons an entity"
+    }
   });
 
 
   Commands.registerCommand("instakill", {
-    parameters: [], aliases: ["ik"], senderCheck: isBuilder, run: (sender) => {
+    aliases: ["ik"],
+    description: "makes every punch oneshot everything",
+    senderCheck: isBuilder,
+    parameters: [],
+    run(sender) {
       const instaKillStatus = serverPlayerData.instaKill[sender.id];
       if (instaKillStatus) serverPlayerData.instaKill[sender.id] = false;
       else serverPlayerData.instaKill[sender.id] = true;
       sendMessage(`Your new InstaKill status: ${serverPlayerData.instaKill[sender.id]}`,'CMD',sender);
-    },
-    description: "makes every punch oneshot everything"
+    }
   });
 
-  Commands.registerCommand("runas", {aliases: ["execute", "executeas"], description: "runs a command (with the same prefix) as a user", senderCheck: isAdmin, parameters: [{type: "selector", id: "player", playersOnly: true}, {type: "string", id: "command"}, {type: "string", id: "parameters", array: Infinity, fullArray: false}],
-  run: (sender, parameter) => {
-    for(let i = 0;i<parameter.player.length;i++){
-      Commands.runCommand(parameter.command, parameter.parameters.join(' '), sender, true)
+  Commands.registerCommand("runas", {
+    aliases: ["execute", "executeas"], 
+    description: "runs a command (with the same prefix) as a user",
+    senderCheck: isAdmin,
+    parameters: [
+      {type: "selector", id: "player", playersOnly: true},
+      {type: "string", id: "command"},
+      {type: "string", id: "parameters", array: Infinity, fullArray: false}
+    ],
+    run(sender, parameter) {
+      for(let i = 0;i<parameter.player.length;i++){
+        Commands.runCommand(parameter.command, parameter.parameters.join(' '), sender, true)
+      }
     }
-  }
-})
+  });
 
 
   Commands.registerCommand("dupe", {
@@ -191,5 +207,3 @@ function main(){
   })
 
 }
-
-export {main, isAdmin, isBuilder, isMod};

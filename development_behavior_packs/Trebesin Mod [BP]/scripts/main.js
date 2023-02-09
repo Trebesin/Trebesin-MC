@@ -1,3 +1,4 @@
+//Plugins:
 import * as BlockHistoryPlugin from './plugins/block_history/block_history';
 import * as BlockyToolsPlugin from './plugins/blocky_tools/blocky_tools';
 import * as ServerPlugin from './plugins/server/server';
@@ -5,8 +6,22 @@ import * as CommandsPlugin from './plugins/commands/commands';
 import * as Debug from './plugins/debug/debug';
 import * as Backend from './plugins/backend/backend';
 
+
+//#This is the main executable file of the script. It loads all imported plugins.
+//#Order of the loading is important, Debug and Backend must be loaded first!
+//#To ensure the order eveything is asynchrounus and awaited.
+
 async function executePlugins() {
     Debug.sendLogMessage('\n\nReloading Trebesin Mod Script...\n\n',{api:false});
+    //!Debug && Backend (1.):
+    await loadPlugin(Debug);
+    await loadPlugin(Backend);
+    //!Rest of the plugins (2.):
+    await loadPlugin(ServerPlugin);
+    await loadPlugin(BlockHistoryPlugin);
+    await loadPlugin(BlockyToolsPlugin);
+    await loadPlugin(CommandsPlugin);
+    return
     //!Loading Debug (1.):
     try {
         await Debug.main();
@@ -52,8 +67,6 @@ async function executePlugins() {
     }
 }
 
-executePlugins();
-
 async function loadPlugin(pluginImport) {
     try {
         Debug.sendLogMessage(`Loading ${pluginImport.name}...\n{`);
@@ -63,3 +76,5 @@ async function loadPlugin(pluginImport) {
         Debug.sendLogMessage(`}\nError has occured during the load, read below!\n${error}`);
     }
 }
+
+executePlugins();

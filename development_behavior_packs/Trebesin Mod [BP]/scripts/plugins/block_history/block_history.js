@@ -1,26 +1,29 @@
+//APIs:
 import { world,system, Block, BlockType, BlockLocation, Entity, BlockPermutation} from '@minecraft/server';
-import { sendMessage } from '../../mc_modules/players';
-import { copyBlock, compareBlocks, getPermutations, blockUpdateIteration } from '../../mc_modules/blocks';
-import { sumVectors, copyVector, subVectors } from '../../js_modules/vector';
-import { containsArray, filter, insertToArray, deleteFromArray } from '../../js_modules/array';
+//Plugins:
 import * as BlockHistoryCommandsWorker from './workers/commands';
 import * as Debug from '../debug/debug';
 import { DB, Server } from '../backend/backend';
+//Modules:
+import { getEntityById } from '../../mc_modules/entities';
+import { sumVectors, copyVector, subVectors } from '../../js_modules/vector';
+import { containsArray, filter, insertToArray, deleteFromArray } from '../../js_modules/array';
+import { copyBlock, compareBlocks, getPermutations, blockUpdateIteration } from '../../mc_modules/blocks';
 import { DIMENSION_IDS , FACE_DIRECTIONS } from '../../mc_modules/constants';
-import { getEquipedItem } from '../../mc_modules/players';
-const DB_UPDATE_INTERVAL = 100;
+import { getEquipedItem, sendMessage } from '../../mc_modules/players';
 
+
+const DB_UPDATE_INTERVAL = 100;
 const blockUpdates = {};
 const fallingBlocksTracked = [];
-let DatabaseExport = null;
 
-async function main() {
+export const name = 'Block History';
+export async function main() {
     //# Workers:
     loadWorkers();
     
     //# Database:
     const connection = DB;
-    DatabaseExport = connection
     //## DB Save Schedule:
     system.runSchedule(async () => {
         let empty = true;
@@ -232,29 +235,13 @@ function loadWorkers() {
 }
 
 /**
- * Function used to get entity with a specified ID from the world.
- * @param {*} id Id of the entity to find.
- * @param {EntityQueryOptions} [queryOptions] Optional query options to further specify the entity to look for.
- * @param {string[]} [dimensionIds] IDs of dimensions to look for. Defaults to all dimensions of the world.
- * @returns {Entity|undefined} Entity with the specified ID or undefined if no entity was found.
- */
-function getEntityById(id,queryOptions = {},dimensionIds = DIMENSION_IDS) {
-    for (let index = 0;index < dimensionIds.length;index++) {
-        const dimension = world.getDimension(DIMENSION_IDS[index]);
-        const entities = [...dimension.getEntities(queryOptions)];
-        const entityWithId = filter(entities,(entity) => entity.id === id)[0]
-        if (entityWithId != null) return entityWithId;
-    }
-}
-
-/**
  * Function for saving block updates into the Block History memory database.
  * @param {object} blockBefore **Copy** of the `Block` class object saved as the block before the update.
  * @param {object} blockAfter **Copy** of the `Block` class object saved as the block after the update.
  * @param {object} actorId ID that is used to identify the cause of the block update, usually an entity ID.
  * @returns {number} Returns a number indicating change to the memory database.
  */
-function saveBlockUpdate(blockBefore,blockAfter,actorId,blockPlaceType = "playerPlace",blockPlaceID = null) {
+export function saveBlockUpdate(blockBefore,blockAfter,actorId,blockPlaceType = "playerPlace",blockPlaceID = null) {
     if (blockUpdates[actorId] == null) blockUpdates[actorId] = [];
     const updateRecord = {
         before: blockBefore,
@@ -289,7 +276,7 @@ function saveBlockUpdate(blockBefore,blockAfter,actorId,blockPlaceType = "player
  * @param {BlockType} blockType `blockType` parameter of the `setType()` method.
  * @param {string} actorId ID that is used to identify the cause of the block update saved to the database, usually an entity ID.
  */
-function setBlockType(block,blockType,actorId) {
+export function setBlockType(block,blockType,actorId) {
     const blockBefore = copyBlock(block);
     block.setType(blockType);
     const blockAfter = copyBlock(block);
@@ -302,19 +289,11 @@ function setBlockType(block,blockType,actorId) {
  * @param {BlockPermutation} permutation `permutation` parameter of the `setpermutation()` method.
  * @param {string} actorId ID that is used to identify the cause of the block update saved to the database, usually an entity ID.
  */
-function setBlockPermutation(block,permutation,actorId) {
+export function setBlockPermutation(block,permutation,actorId) {
     const blockBefore = copyBlock(block);
     block.setPermutation(permutation);
     const blockAfter = copyBlock(block);
     saveBlockUpdate(blockBefore,blockAfter,actorId);
 }
-
-export {
-    main,
-    setBlockType,
-    setBlockPermutation,
-    saveBlockUpdate,
-    DatabaseExport as database
-};
 
 

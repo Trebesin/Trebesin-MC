@@ -1,9 +1,13 @@
+//APIs:
+import {world,ItemTypes, ItemStack} from '@minecraft/server';
+//Plugins:
 import { isAdmin, isBuilder } from './admin';
 import { Commands } from '../../backend/backend';
-import {world,ItemTypes, ItemStack} from '@minecraft/server';
+//Modules:
 import { sendMessage } from '../../../mc_modules/players';
 
-function main() {
+
+export function main() {
     const itemCommands = {
         'trebesin:cmd_phaser': {
             input: 'phase',
@@ -56,5 +60,3 @@ function main() {
         }
     })
 }
-
-export {main}

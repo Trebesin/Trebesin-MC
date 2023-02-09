@@ -1,4 +1,4 @@
-//Base imports
+//APIs:
 import {world,system,MinecraftEffectTypes,MolangVariableMap,Color,Location} from '@minecraft/server';
 import * as Debug from './../debug/debug';
 //MC modules
@@ -11,11 +11,12 @@ import { setVectorLength, sumVectors } from '../../js_modules/vector';
 import { DB } from '../backend/backend';
 import { isAdmin } from '../commands/workers/admin';
 
-const playerData = {
+export const playerData = {
     instaKill: {}
 };
 
-async function main() {
+export const name = 'Server';
+export async function main() {
     system.runSchedule(() => {
         for (const player of world.getPlayers()) {
             player.addEffect(MinecraftEffectTypes.saturation,9999,128,false);
@@ -95,5 +96,3 @@ async function main() {
         }
     });
 }
-
-export {main,playerData};
