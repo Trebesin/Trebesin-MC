@@ -1,4 +1,4 @@
-import {world, BlockLocation, Vector} from "mojang-minecraft";
+import {world, Vector} from "mojang-minecraft";
 import { includes } from '../js_modules/array';
 import { sumVectors } from '../js_modules/vector';
 

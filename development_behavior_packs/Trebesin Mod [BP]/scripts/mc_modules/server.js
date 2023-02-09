@@ -1,4 +1,4 @@
-import { world, system, BlockLocation } from "@minecraft/server";
+import { world, system } from "@minecraft/server";
 import { ChunkManager, getSubchunksCoords } from './chunk.js';
 import { randInt } from '../js_modules/random.js';
 import { insertToArray, deleteFromArray } from "../js_modules/array.js";
@@ -186,11 +186,11 @@ function executeRandomTick(callbackArray,loadedChunks,tickSpeed) {
                     //!40-45% CPU Usage Getting The Block, 40-45% CPU Usage Generating the Number :/
                     for (let index = 0;index <= tickSpeed;index++) {
                         const subChunk = subChunks[subChunkIndex];
-                        const blockLocation = new BlockLocation(
-                            randInt(subChunk.x,subChunk.x + 15),
-                            randInt(subChunk.y,subChunk.y + 15),
-                            randInt(subChunk.z,subChunk.z + 15)
-                        );
+                        const blockLocation = {
+                            x: randInt(subChunk.x,subChunk.x + 15),
+                            y: randInt(subChunk.y,subChunk.y + 15),
+                            z: randInt(subChunk.z,subChunk.z + 15)
+                        };
                         const block = dimension.getBlock(blockLocation);
                         for (let callbackIndex = 0;callbackIndex < callbackArray.length;callbackIndex++) {
                             callbackArray[callbackIndex](block);

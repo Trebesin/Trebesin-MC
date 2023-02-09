@@ -1,5 +1,5 @@
 //APIs:
-import {CommandResult, MinecraftEffectTypes , world, BlockLocation,Location, TicksPerDay, TicksPerSecond, Vector, MolangVariableMap, Color, system, MinecraftBlockTypes, BlockPermutation} from "@minecraft/server";
+import {CommandResult, MinecraftEffectTypes , world, TicksPerDay, TicksPerSecond, Vector, MolangVariableMap, Color, system, MinecraftBlockTypes, BlockPermutation} from "@minecraft/server";
 //Plugins:
 import * as BlockHistoryPlugin from "../block_history";
 import { Commands, sendLongMessage, DB } from '../../backend/backend';
@@ -638,9 +638,9 @@ async function getMaxIDPerPlayer(blockPlaceType, player){
 }
 
 function revertBlockChange(blockOld, blockNew, sender){
-    const block = sender.dimension.getBlock(new BlockLocation(blockNew.location.x, blockNew.location.y, blockNew.location.z))
-    block.setType(MinecraftBlockTypes.get(blockOld.typeId))
-    block.setPermutation(setPermutationFromObject(block.permutation, getPermutations(blockOld.permutation)))
+    const block = sender.dimension.getBlock(blockNew.location);
+    block.setType(MinecraftBlockTypes.get(blockOld.typeId));
+    block.setPermutation(setPermutationFromObject(block.permutation, getPermutations(blockOld.permutation)));
 }
 
 function parseToTicks(input){
@@ -704,10 +704,10 @@ async function reverseBlocks(blocks, sender) {
     const callID = (await getMaxIDPerPlayer("blockHistory: reverse", sender) ?? -1)+1
     for(let i = 0;i<blocks.length;i++){
         const playerId = sender.id;
-        const block = world.getDimension(blocks[i].dimension_id).getBlock(new BlockLocation(blocks[i].x, blocks[i].y, blocks[i].z))
-        const blockOld = copyBlock(block)
-        block.setType(MinecraftBlockTypes.get(blocks[i].before_id))
-        block.setPermutation(setPermutationFromObject(block.permutation, JSON.parse(blocks[i].before_permutations)))
+        const block = world.getDimension(blocks[i].dimension_id).getBlock(blocks[i]);
+        const blockOld = copyBlock(block);
+        block.setType(MinecraftBlockTypes.get(blocks[i].before_id));
+        block.setPermutation(setPermutationFromObject(block.permutation, JSON.parse(blocks[i].before_permutations)));
         BlockHistoryPlugin.saveBlockUpdate(blockOld,copyBlock(block),playerId, "blockHistory: reverse", callID);
     }
     sendMessage(`succesfully reversed blocks - callID: ${callID}`, "BlockHistory: reverse",sender)

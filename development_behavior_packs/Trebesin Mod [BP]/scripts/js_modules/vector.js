@@ -57,6 +57,15 @@ export function copyVector(vector) {
     return {x:vector.x,y:vector.y,z:vector.z};
 }
 
+/**
+ * Floors the vector.
+ * @param {object} vector Vector to floor.
+ * @returns {object} Result of flooring all axis of the vector.
+ */
+export function floorVector(vector) {
+    return {x:Math.floor(vector.x),y:Math.floor(vector.y),z:Math.floor(vector.z)};
+}
+
 
 export function compareVectors(vectorA,vectorB) {
     return (vectorA.x === vectorB.x && vectorA.y === vectorB.y && vectorA.z === vectorB.z);

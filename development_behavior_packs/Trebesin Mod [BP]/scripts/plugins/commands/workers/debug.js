@@ -1,5 +1,5 @@
 //APIs:
-import {CommandResult, Location, system, world, Vector, Player, MinecraftEffectTypes} from "@minecraft/server";
+import {CommandResult, system, world, Vector, Player, MinecraftEffectTypes} from "@minecraft/server";
 import { variables as ServerConfig } from '@minecraft/server-admin';
 //Plugins:
 import {isAdmin} from "./admin";
@@ -33,7 +33,7 @@ export function main(){
       }],(loc,axis) => {
         const molang = new MolangVariableMap()
         .setColorRGBA('variable.colour',new Color(parameters.colour[0]/255,parameters.colour[1]/255,parameters.colour[2]/255,1));
-        sender.dimension.spawnParticle(`trebesin:edge_highlight_${axis}`,new Location(loc.x,loc.y,loc.z),molang)
+        sender.dimension.spawnParticle(`trebesin:edge_highlight_${axis}`,loc,molang)
       })
     }
   })

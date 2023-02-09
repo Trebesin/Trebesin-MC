@@ -1,5 +1,5 @@
 //APIs:
-import {CommandResult, Location, system, world, Vector, Player, MinecraftEffectTypes} from "@minecraft/server";
+import {CommandResult, system, world, Vector, Player, MinecraftEffectTypes} from "@minecraft/server";
 //Plugins:
 import * as Debug from './../../debug/debug';
 import { playerData as serverPlayerData } from '../../server/server';

@@ -1,5 +1,5 @@
 //APIs:
-import {world,system,MinecraftEffectTypes,MolangVariableMap,Color,Location} from '@minecraft/server';
+import {world,system,MinecraftEffectTypes,MolangVariableMap,Color} from '@minecraft/server';
 import * as Debug from './../debug/debug';
 //MC modules
 import * as Particles from './../../mc_modules/particles';
@@ -29,12 +29,7 @@ export async function main() {
             if (playerData.instaKill[player.id]) {
                 const molang = new MolangVariableMap()
                 .setColorRGBA('variable.colour',new Color(1,0,0,1));
-                const vectorLocation = sumVectors(setVectorLength(player.viewDirection,2),player.headLocation);
-                const location = new Location(
-                    vectorLocation.x,
-                    vectorLocation.y,
-                    vectorLocation.z
-                );
+                const location = sumVectors(setVectorLength(player.viewDirection,2),player.headLocation);
                 player.dimension.spawnParticle(
                     'trebesin:selection_dot_fast',
                     location,

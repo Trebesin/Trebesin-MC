@@ -1,12 +1,12 @@
 //APIs:
-import { world,system, Block, BlockType, BlockLocation, Entity, BlockPermutation} from '@minecraft/server';
+import { world,system, Block, BlockType, Entity, BlockPermutation} from '@minecraft/server';
 //Plugins:
 import * as BlockHistoryCommandsWorker from './workers/commands';
 import * as Debug from '../debug/debug';
 import { DB, Server } from '../backend/backend';
 //Modules:
 import { getEntityById } from '../../mc_modules/entities';
-import { sumVectors, copyVector, subVectors } from '../../js_modules/vector';
+import { sumVectors, copyVector, subVectors, floorVector } from '../../js_modules/vector';
 import { containsArray, filter, insertToArray, deleteFromArray } from '../../js_modules/array';
 import { copyBlock, compareBlocks, getPermutations, blockUpdateIteration } from '../../mc_modules/blocks';
 import { DIMENSION_IDS , FACE_DIRECTIONS } from '../../mc_modules/constants';
@@ -69,8 +69,7 @@ export async function main() {
     //## Falling Block Patches:
     world.events.entitySpawn.subscribe((eventData) => {
         if (eventData.entity.typeId === 'minecraft:falling_block') {
-            const location = eventData.entity.location;
-            const blockLocation = new BlockLocation(Math.floor(location.x),Math.floor(location.y),Math.floor(location.z));
+            const blockLocation = floorVector(eventData.entity.location);
             insertToArray(
                 fallingBlocksTracked,
                 {
@@ -113,11 +112,7 @@ export async function main() {
                 )?.nameTag}`);
                 deleteFromArray(fallingBlocksTracked,index);
             } else {
-                fallingBlockData.location.current = new BlockLocation(
-                    Math.floor(fallingBlockEntity.location.x),
-                    Math.floor(fallingBlockEntity.location.y),
-                    Math.floor(fallingBlockEntity.location.z)
-                );
+                fallingBlockData.location.current = floorVector(fallingBlockEntity.location);
                 fallingBlockData.tick.current = system.currentTick;
             }
         }
@@ -163,12 +158,12 @@ export async function main() {
     Server.events.beforeItemStartUseOn.subscribe((eventData) => {
         const player = eventData.source;
         const offset = FACE_DIRECTIONS[eventData.blockFace];
-        const faceBlockLocation = eventData.blockLocation.offset(offset.x,offset.y,offset.z);
+        const faceBlockLocation = sumVectors(eventData.getBlockLocation(),offset);
         if (player.hasTag('inspector')){
             try {
                 eventData.cancel = true;
                 if (getEquipedItem(player) != null) BlockHistoryCommandsWorker.inspector(faceBlockLocation, player);
-                else BlockHistoryCommandsWorker.inspector(eventData.blockLocation, player);
+                else BlockHistoryCommandsWorker.inspector(eventData.getBlockLocation(), player);
             }
             catch(error){
                 Debug.sendLogMessage(error)
@@ -180,10 +175,10 @@ export async function main() {
     world.events.itemStartUseOn.subscribe(async(eventData) => {
         const player = eventData.source;
         const offset = FACE_DIRECTIONS[eventData.blockFace];
-        const faceBlockLocation = eventData.blockLocation.offset(offset.x,offset.y,offset.z);
+        const faceBlockLocation = sumVectors(eventData.getBlockLocation(),offset);
         const faceBlock = player.dimension.getBlock(faceBlockLocation);
         const faceBlockOld = copyBlock(faceBlock);
-        const block = player.dimension.getBlock(eventData.blockLocation);
+        const block = player.dimension.getBlock(eventData.getBlockLocation());
         const blockOld = copyBlock(block);
 
         //Those Blocks:
@@ -210,7 +205,7 @@ export async function main() {
     //Debug:
     world.events.itemUseOn.subscribe((eventData) => {
         if (eventData.item.typeId === 'minecraft:stick') {
-            const block = eventData.source.dimension.getBlock(eventData.blockLocation);
+            const block = eventData.source.dimension.getBlock(eventData.getBlockLocation());
             if (block.typeId.startsWith('trebesin')) {
                 Debug.sendLogMessage(`[trebesin:rotation] - ${block.permutation.getProperty('trebesin:rotation')?.value}`);
                 Debug.sendLogMessage(`[trebesin:horizontal_rotation] - ${block.permutation.getProperty('trebesin:horizontal_rotation')?.value}`);

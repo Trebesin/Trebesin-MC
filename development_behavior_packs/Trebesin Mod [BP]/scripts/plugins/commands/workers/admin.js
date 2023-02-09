@@ -1,5 +1,5 @@
 //APIs:
-import {CommandResult, MinecraftEffectTypes , system, world, BlockLocation, MolangVariableMap, Color, Location} from "@minecraft/server";
+import {CommandResult, MinecraftEffectTypes , system, world, MolangVariableMap, Color} from "@minecraft/server";
 //Plugins:
 import { Commands } from "../../backend/backend"; 
 import { playerData as serverPlayerData } from '../../server/server';
@@ -80,7 +80,7 @@ export function main() {
             if (receiverContainer.emptySlotsCount > 0) {
               receiverContainer.addItem(item);
             } else {
-              player.dimension.spawnItem(item,new Location(player.location.x,player.location.y,player.location.z));
+              player.dimension.spawnItem(item,player.location);
             }
           sendMessage(`Added copy of ${item.typeId} to your inventory by ${sender.name}`,'CMD',player);
           }

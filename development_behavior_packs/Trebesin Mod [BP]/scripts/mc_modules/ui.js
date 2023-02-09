@@ -1,4 +1,3 @@
-import { world } from '@minecraft/server';
 import {ModalFormData, MessageFormData, ActionFormData} from "@minecraft/server-ui";
 
 //Form with title, accepts text fields, toggles, sliders, graphical icons and dropdown menus
