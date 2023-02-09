@@ -3,7 +3,7 @@ import {arrayDifference} from '../js_modules/array';
 import {getGridLine} from '../js_modules/geometry';
 import { EDGE_AXES,EDGE_COORDS } from './constants';
 
-function spawnBlockSelection(particle,coords,dimension,molang) {
+export function spawnBlockSelection(particle,coords,dimension,molang) {
     const cornerMin = [
         Math.min(coords[0].x,coords[1].x),
         Math.min(coords[0].y,coords[1].y),
@@ -34,14 +34,14 @@ function spawnBlockSelection(particle,coords,dimension,molang) {
     }
 }
 
-function spawnLine(particle,coords,dimension,molang,stepBy = 1) {
+export function spawnLine(particle,coords,dimension,molang,stepBy = 1) {
     getGridLine(coords,{stepBy,round:false},(coord) => {
         const location = new Location(coord.x,coord.y,coord.z);
         dimension.spawnParticle(particle,location,molang);
     })
 }
 
-function highlightBlockCoords(particle,coords,dimension,molang) {
+export function highlightBlockCoords(particle,coords,dimension,molang) {
     const blocksSet = createLocationSet(coords);
     for (let blockIndex = 0;blockIndex < coords.length;blockIndex++) {
         const block = coords[blockIndex];
@@ -75,7 +75,7 @@ function highlightBlockCoords(particle,coords,dimension,molang) {
     }
 }
 
-function getCornerLocations(coords,callback) {
+export function getCornerLocations(coords,callback) {
     const blocksSet = createLocationSet(coords);
     for (let blockIndex = 0;blockIndex < coords.length;blockIndex++) {
         const block = coords[blockIndex];
@@ -107,7 +107,7 @@ function getCornerLocations(coords,callback) {
     }
 }
 
-function getEdgeLocations(coords,callback) {
+export function getEdgeLocations(coords,callback) {
     const blocksSet = createLocationSet(coords);
     for (let blockIndex = 0;blockIndex < coords.length;blockIndex++) {
         const block = coords[blockIndex];
@@ -139,25 +139,25 @@ function getEdgeLocations(coords,callback) {
     }
 }
 
-function drawEdge(origin,corner,callback) {
+export function drawEdge(origin,corner,callback) {
     const otherAxis = getStaleAxis(corner);
     const particleCoord = getCornerOffset(origin,corner);
     callback(particleCoord,otherAxis);
 }
 
-function drawCorner(origin,corner,callback) {
+export function drawCorner(origin,corner,callback) {
     const otherAxis = getStaleAxis(corner);
     const particleCoord = getCornerOffset(origin,corner);
     for (let staleAxisStep = 0;staleAxisStep <= 1;staleAxisStep++) {
         const staleAxisOffset = {};
         staleAxisOffset[otherAxis] = staleAxisStep;
-        const particleLocation = interfaceToLocation(sumLocations(particleCoord,staleAxisOffset));
+        const particleLocation = sumLocations(particleCoord,staleAxisOffset);
         callback(particleLocation);
     }
 }
 
 
-function createLocationSet(locations) {
+export function createLocationSet(locations) {
     const locationSet = new Set();
     for (let locationIndex = 0;locationIndex < locations.length;locationIndex++) {
         const location = locations[locationIndex];
@@ -166,7 +166,7 @@ function createLocationSet(locations) {
     return locationSet;
 }
 
-function createLocationSet2(locations) {
+export function createLocationSet2(locations) {
     const locationSet = new Set();
     for (let locationIndex = 0;locationIndex < locations.length;locationIndex++) {
         const location = locations[locationIndex][0];
@@ -176,11 +176,11 @@ function createLocationSet2(locations) {
     return locationSet;
 }
 
-function locationToString(location,axis) {
+export function locationToString(location,axis) {
     return `${location.x},${location.y},${location.z},${axis}`;
 }
 
-function stringToLocation(string) {
+export function stringToLocation(string) {
     const positionArray = string.split(',');
     return [
         new Location(
@@ -192,7 +192,7 @@ function stringToLocation(string) {
     ];
 }
 
-function sumLocations(locationA,locationB) {
+export function sumLocations(locationA,locationB) {
     return {
         x: (locationA.x ?? 0) + (locationB.x ?? 0),
         y: (locationA.y ?? 0) + (locationB.y ?? 0),
@@ -200,22 +200,16 @@ function sumLocations(locationA,locationB) {
     }
 }
 
-function interfaceToLocation(object) {
-    return new Location(object.x,object.y,object.z)
-}
-
-function getStaleAxis(coord) {
+export function getStaleAxis(coord) {
     if ((coord.x ?? 0) === 0) return 'x';
     if ((coord.y ?? 0) === 0) return 'y';
     if ((coord.z ?? 0) === 0) return 'z';
 }
 
-function getCornerOffset(origin,corner) {
+export function getCornerOffset(origin,corner) {
     return {
         x: origin.x + (corner.x === 1 ? 1 : 0),
         y: origin.y + (corner.y === 1 ? 1 : 0),
         z: origin.z + (corner.z === 1 ? 1 : 0)
     }
 }
-
-export {spawnBlockSelection,spawnLine,highlightBlockCoords,getCornerLocations,getEdgeLocations,createLocationSet2,locationToString,stringToLocation, interfaceToLocation}

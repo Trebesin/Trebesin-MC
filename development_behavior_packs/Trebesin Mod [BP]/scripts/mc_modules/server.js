@@ -8,7 +8,7 @@ import * as Debug from './../plugins/debug/debug'
 /**
  * @description - Class with helper functions that relate to scheduling or backend functioning of the server.
  */
-class Server {
+export class Server {
     constructor(initialTick = 0) {
         this.#tick = initialTick;
 
@@ -140,7 +140,7 @@ class Server {
     }
 }
 
-class ServerEventCallback {
+export class ServerEventCallback {
     constructor() {
         this.saved = [];
     }
@@ -201,5 +201,3 @@ function executeRandomTick(callbackArray,loadedChunks,tickSpeed) {
         }
     }
 }
-
-export { Server , ServerEventCallback}

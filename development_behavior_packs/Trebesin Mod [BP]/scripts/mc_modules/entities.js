@@ -6,7 +6,7 @@ import { DIMENSION_IDS } from '../mc_modules/constants';
  * @param {string[]} [dimensionIds] IDs of dimensions to look for. Defaults to all dimensions of the world.
  * @returns {Entity|undefined} Entity with the specified ID or undefined if no entity was found.
  */
-function getEntityById(id,queryOptions = {},dimensionIds = DIMENSION_IDS) {
+export function getEntityById(id,queryOptions = {},dimensionIds = DIMENSION_IDS) {
     for (let index = 0;index < dimensionIds.length;index++) {
         const dimension = world.getDimension(DIMENSION_IDS[index]);
         const entities = [...dimension.getEntities(queryOptions)];
@@ -14,5 +14,3 @@ function getEntityById(id,queryOptions = {},dimensionIds = DIMENSION_IDS) {
         if (entityWithId != null) return entityWithId;
     }
 }
-
-export {getEntityById}

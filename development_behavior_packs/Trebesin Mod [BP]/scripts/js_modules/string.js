@@ -1,4 +1,4 @@
-function findNumber(string,startIndex = 0) {
+export function findNumber(string,startIndex = 0) {
     let number = '';
     let numberPart = -1;
     for (let index = startIndex;index < string.length;index++) {
@@ -22,16 +22,14 @@ function findNumber(string,startIndex = 0) {
     return parseFloat(number);
 }
 
-function findLastCharIndex(string,char) {
+export function findLastCharIndex(string,char) {
     for (let index = string.length-1;index >= 0;index--) {
         if (string[index] === char) return index;
     }
 }
 
-function findCharIndex(string,char) {
+export function findCharIndex(string,char) {
     for (let index = 0;index < string.length;index++) {
         if (string[index] === char) return index;
     }
 }
-
-export {findCharIndex,findLastCharIndex,findNumber}

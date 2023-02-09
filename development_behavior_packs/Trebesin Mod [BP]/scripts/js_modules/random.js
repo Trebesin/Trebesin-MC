@@ -3,7 +3,7 @@
  * @param {number} max maximal number to be chosen, inclusive.
  * @returns {number} Uniformly selected random integer number.
  */
- function randInt(min, max) {
+export function randInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
@@ -12,7 +12,7 @@
  * @param {number} max maximal number to be chosen, exclusive.
  * @returns {number} Uniformly selected random integer number.
  */
-function randFloat(min, max) {
+export function randFloat(min, max) {
     return Math.random() * (max - min) + min;
 }
 
@@ -21,7 +21,7 @@ function randFloat(min, max) {
  * @param {number[]} [weights] Optional weights coresponding to each element by index.
  * @returns {any} Randomly selected elements.
  */
- function randChoice(array, weights = null) {
+export function randChoice(array, weights = null) {
     let totalWeight = 0;
     for (let index = 0; index < array.length; index++) {
         totalWeight += weights[index] ?? 1;
@@ -95,7 +95,7 @@ function rndN(n) {
   return rand / n
 }
 
-function mulberry32seed(a) {
+export function mulberry32seed(a) {
     return function() {
       var t = a += 0x6D2B79F5;
       t = Math.imul(t ^ t >>> 15, t | 1);
@@ -103,5 +103,3 @@ function mulberry32seed(a) {
       return ((t ^ t >>> 14) >>> 0) / 4294967296;
     }
 }
-
-export {randInt,randFloat,mulberry32seed}

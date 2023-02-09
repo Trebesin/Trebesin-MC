@@ -10,7 +10,7 @@
         "name": "Třebešín Mód [BP]",
         "uuid": "6131cbff-1172-4c3e-a701-52f21fc9c9d3",
         "version": [ 1, 0, 0 ],
-        "min_engine_version": [ 1, 19, 50 ]
+        "min_engine_version": [ 1, 19, 70 ]
     },
     "modules": [
         {

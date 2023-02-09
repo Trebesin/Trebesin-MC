@@ -1,14 +1,14 @@
 /**
  * @param {object} vector 
  **/
-function getVectorLength(vector) {
+export function getVectorLength(vector) {
     return Math.sqrt(vector.x**2+vector.y**2+vector.z**2);
 }
 /**
  * @param {object} vector
  * @param {number} length
  **/
-function setVectorLength(vector, length) {
+export function setVectorLength(vector, length) {
     const vectorLength = getVectorLength(vector);
     const ratio = length/vectorLength;
     vector.x *= ratio;
@@ -24,7 +24,7 @@ function setVectorLength(vector, length) {
  * @param {object} vectorB Second vector to sum.
  * @returns {object} New object with the result of the sum of the vector.
  */
- function sumVectors(vectorA,vectorB) {
+export function sumVectors(vectorA,vectorB) {
     return {x:vectorA.x+vectorB.x,y:vectorA.y+vectorB.y,z:vectorA.z+vectorB.z};
 }
 
@@ -34,7 +34,7 @@ function setVectorLength(vector, length) {
  * @param {object} vectorB Second vector to sub.
  * @returns {object} New object with the result of the sub of the vector.
  */
-function subVectors(vectorA,vectorB) {
+export function subVectors(vectorA,vectorB) {
     return {x:vectorA.x-vectorB.x,y:vectorA.y-vectorB.y,z:vectorA.z-vectorB.z};
 }
 
@@ -44,7 +44,7 @@ function subVectors(vectorA,vectorB) {
  * @param {number} amount Multiplication.
  * @returns {object} Result of the vector multiplication.
  */
-function multiplyVector(vector,amount) {
+export function multiplyVector(vector,amount) {
     return {x:vector.x*amount,y:vector.y*amount,z:vector.z*amount};
 }
 
@@ -53,13 +53,11 @@ function multiplyVector(vector,amount) {
  * @param {object} vector Vector to copy.
  * @returns {object} New object of the same vector.
  */
-function copyVector(vector) {
+export function copyVector(vector) {
     return {x:vector.x,y:vector.y,z:vector.z};
 }
 
 
-function compareVectors(vectorA,vectorB) {
+export function compareVectors(vectorA,vectorB) {
     return (vectorA.x === vectorB.x && vectorA.y === vectorB.y && vectorA.z === vectorB.z);
 }
-
-export {setVectorLength,getVectorLength,sumVectors,subVectors,multiplyVector,copyVector,compareVectors}

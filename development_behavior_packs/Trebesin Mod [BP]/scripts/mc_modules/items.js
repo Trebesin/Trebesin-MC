@@ -1,4 +1,4 @@
-function compareItems(itemA,itemB) {
+export function compareItems(itemA,itemB) {
     if (
         itemA?.typeId !== itemB?.typeId || 
         itemA?.data !== itemB?.data ||
@@ -7,9 +7,6 @@ function compareItems(itemA,itemB) {
     return true;
 }
 
-function copyItem(itemA,itemB) {
+export function copyItem(itemA,itemB) {
 
 }
-
-
-export { compareItems }

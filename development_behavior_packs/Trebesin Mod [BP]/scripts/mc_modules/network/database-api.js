@@ -1,3 +1,4 @@
+"use strict";
 import {http,HttpRequest,HttpRequestMethod} from '@minecraft/server-net';
 import { SecretString } from '@minecraft/server-admin';
 import { logMessage } from '../../plugins/debug/debug';

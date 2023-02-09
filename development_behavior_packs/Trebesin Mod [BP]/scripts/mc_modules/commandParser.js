@@ -1,4 +1,4 @@
-import { world, Location, BlockAreaSize, Player } from '@minecraft/server';
+import { world, BlockAreaSize, Player } from '@minecraft/server';
 import { setVectorLength } from './../js_modules/vector';
 import { filter } from '../js_modules/array';
 import { randInt } from '../js_modules/random';
@@ -331,7 +331,7 @@ class CommandParser {
                 }
             }
         }
-        return new Location(...coord);
+        return {x:coord[0],y:coord[1],z:coord[2]};
     }
 
     #parseSelector(selector,sender,option) {

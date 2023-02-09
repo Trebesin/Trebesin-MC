@@ -4,10 +4,9 @@ import * as ServerPlugin from './plugins/server/server';
 import * as CommandsPlugin from './plugins/commands/commands';
 import * as Debug from './plugins/debug/debug';
 import * as Backend from './plugins/backend/backend';
-import { world } from '@minecraft/server';
 
-Debug.sendLogMessage('\n\nReloading Trebesin Mod...\n\n',{api:false});
 async function executePlugins() {
+    Debug.sendLogMessage('\n\nReloading Trebesin Mod Script...\n\n',{api:false});
     //!Loading Debug (1.):
     try {
         await Debug.main();
@@ -54,3 +53,13 @@ async function executePlugins() {
 }
 
 executePlugins();
+
+async function loadPlugin(pluginImport) {
+    try {
+        Debug.sendLogMessage(`Loading ${pluginImport.name}...\n{`);
+        await pluginImport.main();
+        Debug.sendLogMessage(`}\nLoaded successfully!`);
+    } catch {
+        Debug.sendLogMessage(`}\nError has occured during the load, read below!\n${error}`);
+    }
+}

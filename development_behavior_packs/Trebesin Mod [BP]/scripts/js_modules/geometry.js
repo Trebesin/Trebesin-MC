@@ -12,7 +12,7 @@ import {mapArray} from './array';
  * @param {Function} [callback] Callback that gets each step as an input, it will make the return `undefined`.
  * @returns {Object[]|undefined} Array containing X,Y,Z coordinates the line is composed of.
  */
-function getGridLine(coords,options = {},callback = null) {
+export function getGridLine(coords,options = {},callback = null) {
     let {stepBy, round} = Object.assign({stepBy:1,round:true},options);
     const resultCoords = !callback ? [] : undefined;
     let differences = [
@@ -49,7 +49,7 @@ function getGridLine(coords,options = {},callback = null) {
 }
 
 
-function getGridBlock(coords,options = {},callback = null) {
+export function getGridBlock(coords,options = {},callback = null) {
     const {stepBy,hollow,width} = Object.assign({stepBy:{x:1,y:1,z:1},hollow:false,width:1},options);
     const resultCoords = !callback ? [] : undefined;
     const maxCorner = {
@@ -107,5 +107,3 @@ function getGridTriangle(verticies,options = {},callback = null) {
 function withinBounds(coords,coord) {
     //* check if block is within a selection
 }
-
-export {getGridBlock,getGridLine}

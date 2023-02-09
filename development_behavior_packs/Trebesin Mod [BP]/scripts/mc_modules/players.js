@@ -96,7 +96,7 @@ function clearItem(entity, typeId, type, data, amount = { min: 1, max: 64 }) {
     return clearAmount
 }
 
-function getEquipedItem(entity) {
+export function getEquipedItem(entity) {
     const container = entity.getComponent('inventory').container;
     return container.getItem(entity.selectedSlot);
 }
@@ -107,7 +107,7 @@ function getEquipedItem(entity) {
  * @param {Player | Player[]} [actor]
  * @param {string} [sender]
  */
-function sendMessage(message,senderName,actor = null) {
+export function sendMessage(message,senderName,actor = null) {
     const messageText = !senderName ? message : `[${senderName}§r] ${message}`;
     if (!actor) {
         world.say(messageText);
@@ -121,4 +121,3 @@ function sendMessage(message,senderName,actor = null) {
         }
     }
 }
-export {sendMessage,getEquipedItem}
