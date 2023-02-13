@@ -45,7 +45,7 @@ function main(){
   Commands.registerCommand("runas", {aliases: ["execute", "executeas"], description: "runs a command (with the same prefix) as a user", senderCheck: isAdmin, parameters: [{type: "selector", id: "player", playersOnly: true}, {type: "string", id: "command"}, {type: "string", id: "parameters", array: Infinity, fullArray: false}],
   run: (sender, parameter) => {
     for(let i = 0;i<parameter.player.length;i++){
-      Commands.runCommand(parameter.command, parameter.parameters.join(' '), sender, true)
+      Commands.runCommand(parameter.command, parameter.parameters.join(' '), player, true)
     }
   }
 })
