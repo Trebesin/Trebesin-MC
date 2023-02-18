@@ -265,6 +265,7 @@ async function main() {
     console.log(langDefinitions);
     generateBlock(id,{resourceFolder,behaviorFolder,namespace},langDefinitions);
     process.stdout.write('Block successfully generated!');
+    process.exit()
 }
 
 async function mainAutom() {
@@ -301,4 +302,3 @@ async function mainAutom() {
 }
 
 main();
-process.exit()
