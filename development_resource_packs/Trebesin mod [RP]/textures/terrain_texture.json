@@ -96,6 +96,9 @@
     },
     "trebesin.image_white": {
       "textures": "textures/blocks/white"
+    },
+    "trebesin.image_logo_trebesin_mc": {
+      "textures": "textures/blocks/logo_trebesin_mc"
     }
   }
 }

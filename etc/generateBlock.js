@@ -300,4 +300,4 @@ async function mainAutom() {
     }
 }
 
-mainAutom();
+main();
