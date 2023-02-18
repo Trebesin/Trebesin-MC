@@ -301,3 +301,4 @@ async function mainAutom() {
 }
 
 main();
+process.exit()
