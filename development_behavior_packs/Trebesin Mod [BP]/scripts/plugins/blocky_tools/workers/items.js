@@ -25,6 +25,7 @@ export function main() {
              * @type {Block}
              */
             const block = eventData.source.dimension.getBlock(eventData.getBlockLocation());
+            const propertyList = block.permutation.getAllProperties();
             const player = eventData.source;
             const menuData = {
                 title: `${block.typeId}`,
@@ -32,8 +33,8 @@ export function main() {
                 structure: []
                 
             }
-            const propertyList = block.permutation.getAllProperties();
-            for (const propertyName in propertyList) { //Record ?? Prolly an object ???
+            
+            for (const propertyName in propertyList) {
                 const option = {
                     id: propertyName
                 };
