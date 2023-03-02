@@ -1,5 +1,5 @@
 //APIs:
-import { BoolBlockProperty, MolangVariableMap, DirectionBlockProperty, BlockPermutation,IntBlockProperty,BlockProperties, StringBlockProperty, world, system, Block} from '@minecraft/server';
+import { MolangVariableMap, BlockPermutation,BlockProperties, world, system, Block} from '@minecraft/server';
 //Plugins:
 import * as Debug from './../../debug/debug';
 import { Server } from '../../backend/backend';
@@ -33,7 +33,7 @@ export function main() {
                 structure: []
                 
             }
-            
+
             for (const propertyName in propertyList) {
                 const option = {
                     id: propertyName
