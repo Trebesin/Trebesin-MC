@@ -1,5 +1,5 @@
 //APIs:
-import {CommandResult, MinecraftEffectTypes , world, TicksPerDay, TicksPerSecond, Vector, MolangVariableMap, Color, system, MinecraftBlockTypes, BlockPermutation} from "@minecraft/server";
+import {CommandResult, MinecraftEffectTypes , world, TicksPerDay, TicksPerSecond, Vector, MolangVariableMap, system, MinecraftBlockTypes, BlockPermutation} from "@minecraft/server";
 //Plugins:
 import * as BlockHistoryPlugin from "../block_history";
 import { Commands, sendLongMessage, DB } from '../../backend/backend';
@@ -615,7 +615,7 @@ function printBlockHistory(request, options, sender){
 
 function spawnParticles(location, particleAxis, sender) {
     const molang = new MolangVariableMap()
-    .setColorRGB('variable.colour',new Color(1,0,0,1));
+    .setColorRGB('variable.color',{red:1,green:0,blue:0,alpha:1});
     const dimension = world.getDimension('overworld');
     dimension.spawnParticle(`trebesin:edge_highlight_${particleAxis}`, location, molang);
 }

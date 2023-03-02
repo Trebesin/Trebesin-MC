@@ -1,5 +1,5 @@
 //APIs:
-import {world,system,MinecraftEffectTypes,MolangVariableMap,Color} from '@minecraft/server';
+import {world,system,MinecraftEffectTypes,MolangVariableMap} from '@minecraft/server';
 import * as Debug from './../debug/debug';
 //MC modules
 import * as Particles from './../../mc_modules/particles';
@@ -28,8 +28,8 @@ export async function main() {
         for (const player of world.getPlayers()) {
             if (playerData.instaKill[player.id]) {
                 const molang = new MolangVariableMap()
-                .setColorRGBA('variable.colour',new Color(1,0,0,1));
-                const location = sumVectors(setVectorLength(player.viewDirection,2),player.headLocation);
+                .setColorRGBA('variable.color',{red:1,green:0,blue:0,alpha:1});
+                const location = sumVectors(setVectorLength(player.getViewDirection(),2),player.getHeadLocation());
                 player.dimension.spawnParticle(
                     'trebesin:selection_dot_fast',
                     location,
@@ -40,12 +40,12 @@ export async function main() {
             const equipedItem = player.getComponent('inventory').container.getSlot(player.selectedSlot).getItem();
             if (equipedItem.typeId === 'trebesin:cmd_phaser') {
                 const molang = new MolangVariableMap()
-                .setColorRGBA('variable.colour',new Color(0,1,1,1));
+                .setColorRGBA('variable.color',{red:0,green:1,blue:1,alpha:1});
                 Particles.spawnLine(
                     'trebesin:selection_dot_fast',
                     [
                         player.location,
-                        sumVectors(setVectorLength(player.viewDirection,2),player.headLocation)
+                        sumVectors(setVectorLength(player.getViewDirection(),2),player.getHeadLocation())
                     ],
                     player.dimension,
                     molang,

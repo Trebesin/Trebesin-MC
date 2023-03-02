@@ -49,8 +49,8 @@ export function main(){
 
   Commands.registerCommand("phase", {
     parameters: [{id: "distance", type: "int", optional: true}], aliases: ["p","phaser"], run: (sender, parameter) => {
-      const newLocation = Vector.add(sender.location, vectorMath.setVectorLength(sender.viewDirection, parameter.distance ?? 2));
-      sender.teleport(newLocation, sender.dimension, sender.rotation.x, sender.rotation.y);
+      const newLocation = Vector.add(sender.location, vectorMath.setVectorLength(sender.getViewDirection(), parameter.distance ?? 2));
+      sender.teleport(newLocation, sender.dimension, sender.getRotation().x, sender.getRotation().y);
       sendMessage("§l§bWHOOSH!§r", "", sender);
     },
     description: "teleports you in front by [distance] blocks"

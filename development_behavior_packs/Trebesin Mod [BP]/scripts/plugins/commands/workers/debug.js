@@ -32,7 +32,7 @@ export function main(){
         z:Math.floor(parameters.location.z)
       }],(loc,axis) => {
         const molang = new MolangVariableMap()
-        .setColorRGBA('variable.colour',new Color(parameters.colour[0]/255,parameters.colour[1]/255,parameters.colour[2]/255,1));
+        .setColorRGBA('variable.color',new Color(parameters.colour[0]/255,parameters.colour[1]/255,parameters.colour[2]/255,1));
         sender.dimension.spawnParticle(`trebesin:edge_highlight_${axis}`,loc,molang)
       })
     }

@@ -308,7 +308,7 @@ class CommandParser {
     
                     if (isNaN(number)) continue;
                     let useVector;
-                    const vector = entity.viewDirection;
+                    const vector = entity.getViewDirection();
                     switch (index) {
                         case 0:
                             useVector = setVectorLength({x:vector.z,y:0,z:-vector.x},number);

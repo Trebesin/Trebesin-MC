@@ -110,7 +110,7 @@ export function getEquipedItem(entity) {
 export function sendMessage(message,senderName,actor = null) {
     const messageText = !senderName ? message : `[${senderName}§r] ${message}`;
     if (!actor) {
-        world.say(messageText);
+        world.sendMessage(messageText);
     } else {
         if (!Array.isArray(actor)) {
             actor.tell(messageText);
