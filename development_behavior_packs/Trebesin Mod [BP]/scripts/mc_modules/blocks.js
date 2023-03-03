@@ -111,7 +111,7 @@ function getAdjecentBlocks(coord,dimension) {
     const blockArray = [];
     for (let index = 0;index < DIRECTIONS.length;index++) {
         const face = DIRECTIONS[index];
-        blockArray.push(dimension.getBlock(sumVectors(coord,face));
+        blockArray.push(dimension.getBlock(sumVectors(coord,face)));
     }
     return blockArray;
 }
