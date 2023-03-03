@@ -94,7 +94,6 @@ export async function main() {
         for (let index = 0;index < fallingBlocksTracked.length;index++) {
             const fallingBlockData = fallingBlocksTracked[index];
             
-            Debug.logMessage(`${fallingBlockData.id} - ${fallingBlockData.location.start.x},${fallingBlockData.location.start.y},${fallingBlockData.location.start.z}`);
             if (fallingBlockData == null) continue;
             const fallingBlockEntity = getEntityById(
                     fallingBlockData.id,
