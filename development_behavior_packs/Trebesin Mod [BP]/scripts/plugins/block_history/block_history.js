@@ -22,6 +22,7 @@ export async function main() {
     //# Workers:
     loadWorkers();
     
+    Debug.logMessage('Workers Done')
     //# Database:
     const connection = DB;
     //## DB Save Schedule:
@@ -118,6 +119,7 @@ export async function main() {
         }
     },1);
 
+    Debug.logMessage('Falling Blocks Done')
     //## Block Breaking Detection:
     world.events.blockBreak.subscribe(async (eventData) => {
         Debug.sendLogMessage(`§cBlock Break§r - ${system.currentTick}`);
@@ -153,6 +155,7 @@ export async function main() {
             if (fallObject) fallObject.playerId = playerId;
         });
     });
+    Debug.logMessage('Block Breaking Done')
     
     //## Inspector
     Server.events.beforeItemStartUseOn.subscribe((eventData) => {
@@ -201,6 +204,7 @@ export async function main() {
             if (fallObject) fallObject.playerId = player.id;
         });
     });  
+    Debug.logMessage('Block Placing Done')
 
     //Debug:
     world.events.itemUseOn.subscribe((eventData) => {
@@ -211,14 +215,17 @@ export async function main() {
                 Debug.sendLogMessage(`[trebesin:horizontal_rotation] - ${block.permutation.getProperty('trebesin:horizontal_rotation')?.value}`);
                 Debug.sendLogMessage(`[trebesin:vertical_rotation] - ${block.permutation.getProperty('trebesin:vertical_rotation')?.value}`);    
             } else {
-                for (const permutation of block.permutation.getAllProperties()) {
-                    Debug.sendLogMessage(`[${permutation.name}] - ${permutation.value}`);
+                const properties = block.permutation.getAllProperties();
+                for (const property of block.permutation.getAllProperties()) {
+                    Debug.sendLogMessage(`[${property}] - ${properties[property]}`);
                 }
             }
         } else if (eventData.item.typeId === 'minecraft:diamond_sword') {
             Debug.sendLogMessage(`${JSON.stringify(blockUpdates,null,1)}`);
         }
     })
+
+    Debug.logMessage('Debug Done')
 }
 
 //# Functions:
