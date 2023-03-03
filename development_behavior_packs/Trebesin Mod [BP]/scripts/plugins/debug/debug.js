@@ -5,7 +5,7 @@ import * as serverAdmin from '@minecraft/server-admin';
 import { sendMessage } from '../../mc_modules/players';
 import { LoggingConnection } from '../../mc_modules/network/logging-api';
 
-
+let apiConnected = false;
 const apiLog = new LoggingConnection({
     server: {
         url: serverAdmin.variables.get('log-server-url'),
@@ -17,11 +17,12 @@ const apiLog = new LoggingConnection({
 export const name = 'Debug';
 export async function main() {
     await apiLog.connect();
+    apiConnected = true;
 }
 
-export function sendLogMessage(message){
+export function sendLogMessage(message) {
     for (const player of world.getPlayers({tags:['log']})) {
-        sendMessage(`§o§7${message.replace('\n','\n§r[§o§7LOG§r]')}§r`, '§o§7LOG', player);
+        sendMessage(`§o§7${message.replace('\n','\n§r[§o§7LOG§r]§o§7 ')}`, '§o§7LOG', player);
     }
 }
 /**
@@ -32,5 +33,5 @@ export async function logMessage(message,options) {
     const OPTIONS = Object.assign({api:true,world:true,content:true},options);
     if (OPTIONS.world) sendLogMessage(`${message}`);
     if (OPTIONS.content) console.warn(`${message}`);
-    if (OPTIONS.api) await apiLog.sendLog(`${message}`);
+    if (OPTIONS.api && apiConnected) await apiLog.sendLog(`${message}`);
 }

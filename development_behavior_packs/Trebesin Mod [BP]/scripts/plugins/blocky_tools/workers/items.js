@@ -34,6 +34,7 @@ export function main() {
                 
             }
 
+            //!some blocks dont show ui, i dont see why
             for (const propertyName in propertyList) {
                 const option = {
                     id: propertyName
@@ -46,7 +47,7 @@ export function main() {
                     option.defaultValue = propertyList[propertyName];
                 } else {
                     option.type = 'dropdown';
-                    option.options = mapArray(propertyDefinition.validValues,value => value);
+                    option.options = propertyDefinition.validValues;
                     option.defaultValueIndex = propertyDefinition.validValues.indexOf(propertyList[propertyName]);
                 }
                 menuData.structure.push(option);
@@ -56,7 +57,7 @@ export function main() {
 
             if (block?.typeId == null) return;
             const propertyRecord = {};
-            for (const propertyName of propertyList) {
+            for (const propertyName in propertyList) {
                 const propertyDefinition = BlockProperties.get(propertyName);
                 const propertyType = typeof propertyDefinition.validValues[0];
                 if (propertyType === 'boolean') {

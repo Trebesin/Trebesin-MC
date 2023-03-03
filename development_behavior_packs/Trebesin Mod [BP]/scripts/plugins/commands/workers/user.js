@@ -29,7 +29,7 @@ export function main(){
       for(let i = 0;i<10000;i++){
         message += '\n'
       }
-      sender.tell(message)
+      sender.sendMessage(message)
     }
   })
 

@@ -49,7 +49,7 @@ function more(sender, parameters) {
         message += `${messages[sender.id].content[i]}\n`;
     }
     message += `§2Use !more [pageNumber] for other pages.`;
-    sender.tell(message);
+    sender.sendMessage(message);
 }
 
 Commands.registerCommand('more',{
@@ -60,20 +60,19 @@ Commands.registerCommand('more',{
 });
 
 export function sendLongMessage(title, content, sender, rewriteOld = true){
-    if(rewriteOld && messages[sender.id]){
+    if (rewriteOld && messages[sender.id]) {
         delete messages[sender.id]
     }
-    if(!messages[sender.id]){
+    if (!messages[sender.id]) {
         messages[sender.id] = {title: title, content: content.split(`\n`), viewedFirst: false}
-    }
-    else{
+    } else {
         let newContent = content.split('\n')
-        for(let i = 0;i<newContent.length;i++){
-            if(newContent[i] != "")messages[sender.id].content.push(newContent[i])
+        for (let i = 0;i<newContent.length;i++) {
+            if (newContent[i] != '') messages[sender.id].content.push(newContent[i])
         }
     }
-    if(!messages[sender.id].viewedFirst){
-    more(sender, {page: 1});
+    if (!messages[sender.id].viewedFirst) {
+        more(sender, {page: 1});
     }
 }
 

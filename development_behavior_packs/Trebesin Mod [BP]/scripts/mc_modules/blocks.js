@@ -30,13 +30,11 @@ function compareBlocks(blockA,blockB,checkLocation = false) {
     const permutationA = blockA.permutation;
     const permutationB = blockB.permutation;
     const properties = blockA.typeId.startsWith('trebesin:') ? TREBESIN_PERMUTATIONS : permutationA.getAllProperties();
-    for (let index = 0;index < properties.length;index++) {
-        const permutationName = properties[index].name;
-        const valueA = permutationA.getProperty(permutationName)?.value;
-        const valueB = permutationB.getProperty(permutationName)?.value;
+    for (const property in properties) {
+        const valueA = permutationA.getProperty(property);
+        const valueB = permutationB.getProperty(property);
         if (valueA !== valueB) return false;
     }
-
     return true
 }
 

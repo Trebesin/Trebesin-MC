@@ -1,4 +1,4 @@
-import { world } from "@minecraft/server";
+import { world, Player } from "@minecraft/server";
 function hasItem(entity, typeId, data, amount = { min: 1, max: 64 }) {
     let hasItem = false;
     const inventory = entity.getComponent('inventory');
@@ -108,15 +108,15 @@ export function getEquipedItem(entity) {
  * @param {string} [sender]
  */
 export function sendMessage(message,senderName,player = null) {
-    const messageText = !senderName ? message : `[${senderName}§r] ${message}`;
+    const messageText = senderName == null ? message : `[${senderName}§r] ${message}`;
     if (!player) {
         world.sendMessage(messageText);
     } else {
         if (!Array.isArray(player)) {
-            player.tell(messageText);
+            player.sendMessage(messageText);
         } else {
             for (let playerIndex = 0;playerIndex < player.length;playerIndex++) {
-                player[playerIndex].tell(messageText);
+                player[playerIndex].sendMessage(messageText);
             }
         }
     }

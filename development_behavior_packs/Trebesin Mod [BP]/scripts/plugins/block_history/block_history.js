@@ -22,7 +22,6 @@ export async function main() {
     //# Workers:
     loadWorkers();
     
-    Debug.logMessage('Workers Done')
     //# Database:
     const connection = DB;
     //## DB Save Schedule:
@@ -49,8 +48,8 @@ export async function main() {
                     record.after.typeId,
                     record.before.isWaterlogged,
                     record.after.isWaterlogged,
-                    JSON.stringify(getPermutations(record.before.permutation)),
-                    JSON.stringify(getPermutations(record.after.permutation)),
+                    record.before.permutation.getAllProperties(),
+                    record.after.permutation.getAllProperties(),
                     record.blockPlaceType,
                     record.blockPlaceID
                 );
@@ -94,12 +93,15 @@ export async function main() {
     system.runInterval(() => {
         for (let index = 0;index < fallingBlocksTracked.length;index++) {
             const fallingBlockData = fallingBlocksTracked[index];
+            
+            Debug.logMessage(`${fallingBlockData.id} - ${fallingBlockData.location.start.x},${fallingBlockData.location.start.y},${fallingBlockData.location.start.z}`);
             if (fallingBlockData == null) continue;
             const fallingBlockEntity = getEntityById(
                     fallingBlockData.id,
                     { type: 'minecraft:falling_block' },
                     [fallingBlockData.dimensionId]
             );
+            Debug.logMessage(fallingBlockEntity?.id)
             if (fallingBlockEntity == null) {
                 const location = fallingBlockData.location;
                 const tick = fallingBlockData.tick;
@@ -119,7 +121,6 @@ export async function main() {
         }
     },1);
 
-    Debug.logMessage('Falling Blocks Done')
     //## Block Breaking Detection:
     world.events.blockBreak.subscribe(async (eventData) => {
         Debug.sendLogMessage(`§cBlock Break§r - ${system.currentTick}`);
@@ -155,7 +156,6 @@ export async function main() {
             if (fallObject) fallObject.playerId = playerId;
         });
     });
-    Debug.logMessage('Block Breaking Done')
     
     //## Inspector
     Server.events.beforeItemStartUseOn.subscribe((eventData) => {
@@ -203,8 +203,7 @@ export async function main() {
             const fallObject = fallingBlocksTracked.find((block) => blockBefore.location.equals(block.location.start));
             if (fallObject) fallObject.playerId = player.id;
         });
-    });  
-    Debug.logMessage('Block Placing Done')
+    });
 
     //Debug:
     world.events.itemUseOn.subscribe((eventData) => {
@@ -216,7 +215,7 @@ export async function main() {
                 Debug.sendLogMessage(`[trebesin:vertical_rotation] - ${block.permutation.getProperty('trebesin:vertical_rotation')?.value}`);    
             } else {
                 const properties = block.permutation.getAllProperties();
-                for (const property of block.permutation.getAllProperties()) {
+                for (const property in properties) {
                     Debug.sendLogMessage(`[${property}] - ${properties[property]}`);
                 }
             }
@@ -224,8 +223,6 @@ export async function main() {
             Debug.sendLogMessage(`${JSON.stringify(blockUpdates,null,1)}`);
         }
     })
-
-    Debug.logMessage('Debug Done')
 }
 
 //# Functions:
