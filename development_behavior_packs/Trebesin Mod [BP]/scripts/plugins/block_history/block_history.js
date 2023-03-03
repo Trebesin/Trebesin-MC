@@ -93,14 +93,12 @@ export async function main() {
     system.runInterval(() => {
         for (let index = 0;index < fallingBlocksTracked.length;index++) {
             const fallingBlockData = fallingBlocksTracked[index];
-            
             if (fallingBlockData == null) continue;
             const fallingBlockEntity = getEntityById(
                     fallingBlockData.id,
                     { type: 'minecraft:falling_block' },
                     [fallingBlockData.dimensionId]
             );
-            Debug.logMessage(fallingBlockEntity?.id)
             if (fallingBlockEntity == null) {
                 const location = fallingBlockData.location;
                 const tick = fallingBlockData.tick;
