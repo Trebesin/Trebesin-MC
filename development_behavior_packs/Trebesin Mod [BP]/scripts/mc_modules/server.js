@@ -174,6 +174,7 @@ export class ServerEventCallback {
     saved;
 }
 
+/*
 function executeRandomTick(callbackArray,loadedChunks,tickSpeed) {
     if (callbackArray.length) {
         //!this has terrible performance:
@@ -202,3 +203,4 @@ function executeRandomTick(callbackArray,loadedChunks,tickSpeed) {
         }
     }
 }
+*/
