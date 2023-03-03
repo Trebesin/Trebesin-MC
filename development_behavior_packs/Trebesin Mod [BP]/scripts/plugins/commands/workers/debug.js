@@ -1,5 +1,5 @@
 //APIs:
-import {CommandResult, system, world, Vector, Player, MinecraftEffectTypes} from "@minecraft/server";
+import {} from "@minecraft/server";
 import { variables as ServerConfig } from '@minecraft/server-admin';
 //Plugins:
 import {isAdmin} from "./admin";

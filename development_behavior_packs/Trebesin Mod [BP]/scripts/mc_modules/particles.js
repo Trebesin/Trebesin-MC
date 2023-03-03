@@ -1,4 +1,3 @@
-import {Location} from '@minecraft/server';
 import {arrayDifference} from '../js_modules/array';
 import {getGridLine} from '../js_modules/geometry';
 import { EDGE_AXES,EDGE_COORDS } from './constants';
@@ -26,7 +25,7 @@ export function spawnBlockSelection(particle,coords,dimension,molang) {
                     location[otherAxis[0]] = corners[corner0][otherAxis[0]] + corner0;
                     location[otherAxis[1]] = corners[corner1][otherAxis[1]] + corner1;
 
-                    const spawnLocation = new Location(...location);
+                    const spawnLocation = {x:location[0],y:location[1],z:location[2]};
                     dimension.spawnParticle(particle,spawnLocation,molang);
                 }
             }
@@ -36,8 +35,7 @@ export function spawnBlockSelection(particle,coords,dimension,molang) {
 
 export function spawnLine(particle,coords,dimension,molang,stepBy = 1) {
     getGridLine(coords,{stepBy,round:false},(coord) => {
-        const location = new Location(coord.x,coord.y,coord.z);
-        dimension.spawnParticle(particle,location,molang);
+        dimension.spawnParticle(particle,coord,molang);
     })
 }
 
@@ -183,11 +181,11 @@ export function locationToString(location,axis) {
 export function stringToLocation(string) {
     const positionArray = string.split(',');
     return [
-        new Location(
-            parseInt(positionArray[0]),
-            parseInt(positionArray[1]),
-            parseInt(positionArray[2])
-        ),
+        {
+            x:parseInt(positionArray[0]),
+            y:parseInt(positionArray[1]),
+            z:parseInt(positionArray[2])
+        },
         positionArray[3]
     ];
 }

@@ -1,4 +1,4 @@
-import {Block, BlockPermutation, world, system, BlockLocation} from '@minecraft/server';
+import {Block, BlockPermutation, world, system} from '@minecraft/server';
 import { arrayDifference, find } from '../js_modules/array';
 import { sumVectors, compareVectors } from '../js_modules/vector';
 import { logMessage, sendLogMessage } from '../plugins/debug/debug';
@@ -102,7 +102,7 @@ function getAdjecentBlockCopies(coord,dimension) {
     const blockArray = [];
     for (let index = 0;index < DIRECTIONS.length;index++) {
         const face = DIRECTIONS[index];
-        blockArray.push(copyBlock(dimension.getBlock(new BlockLocation(coord.x + face.x,coord.y + face.y,coord.z + face.z))));
+        blockArray.push(copyBlock(dimension.getBlock(sumVectors(coord,face))));
     }
     return blockArray;
 }
@@ -111,7 +111,7 @@ function getAdjecentBlocks(coord,dimension) {
     const blockArray = [];
     for (let index = 0;index < DIRECTIONS.length;index++) {
         const face = DIRECTIONS[index];
-        blockArray.push(dimension.getBlock(new BlockLocation(coord.x + face.x,coord.y + face.y,coord.z + face.z)));
+        blockArray.push(dimension.getBlock(sumVectors(coord,face));
     }
     return blockArray;
 }
