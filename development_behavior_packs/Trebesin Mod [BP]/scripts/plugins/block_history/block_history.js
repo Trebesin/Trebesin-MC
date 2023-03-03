@@ -25,7 +25,7 @@ export async function main() {
     //# Database:
     const connection = DB;
     //## DB Save Schedule:
-    system.runSchedule(async () => {
+    system.runInterval(async () => {
         let empty = true;
         const request = {
             sql: 'INSERT INTO block_history (actor_id,tick,dimension_id,x,y,z,before_id,after_id,before_waterlogged,after_waterlogged,before_permutations,after_permutations,blockPlaceType,blockPlaceTypeID) VALUES ',
@@ -90,7 +90,7 @@ export async function main() {
         }
     });
 
-    system.runSchedule(() => {
+    system.runInterval(() => {
         for (let index = 0;index < fallingBlocksTracked.length;index++) {
             const fallingBlockData = fallingBlocksTracked[index];
             if (fallingBlockData == null) continue;
@@ -182,15 +182,15 @@ export async function main() {
         const blockOld = copyBlock(block);
 
         //Those Blocks:
-        system.run(async () => {
-                saveBlockUpdate(faceBlockOld,copyBlock(faceBlock),player.id);
-                saveBlockUpdate(blockOld,copyBlock(block),player.id);
+        system.runTimeout(async () => {
+            saveBlockUpdate(faceBlockOld,copyBlock(faceBlock),player.id);
+            saveBlockUpdate(blockOld,copyBlock(block),player.id);
             //Falling Blocks
-            system.run(() => {
+            system.runTimeout(() => {
                 const fallObject = fallingBlocksTracked.find((block) => faceBlock.location.equals(block.location.start));
                 if (fallObject) fallObject.playerId = player.id;
-            })
-        });
+            },1);
+        },1);
 
         //Updated Blocks:
         await blockUpdateIteration(faceBlockLocation,faceBlockOld.dimension,(blockBefore,blockAfter,tick) => {

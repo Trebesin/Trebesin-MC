@@ -89,7 +89,7 @@ class Selection {
 //# Global Selection
 const Selections = {};
 
-system.runSchedule(() => {
+system.runInterval(() => {
     for (player in Selections) {
         const selection = Selections[player];
         const molang = new MolangVariableMap()

@@ -16,7 +16,7 @@ const particlesPerPlayers = {}
 const confirmationPerPlayer = {}
 
 function main(){
-    system.runSchedule(() => {
+    system.runInterval(() => {
         for (const player in particlesPerPlayers) {
             //particles
             const set = particlesPerPlayers[player].particleLocations;

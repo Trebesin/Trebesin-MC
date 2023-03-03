@@ -71,7 +71,7 @@ export function main() {
         }
     });
 
-    system.runSchedule(() => {
+    system.runInterval(() => {
         const players = world.getAllPlayers();
         for (let playerIndex = 0;playerIndex < players.length;playerIndex++) {
             const player = players[playerIndex];

@@ -17,14 +17,14 @@ export const playerData = {
 
 export const name = 'Server';
 export async function main() {
-    system.runSchedule(() => {
+    system.runInterval(() => {
         for (const player of world.getPlayers()) {
             player.addEffect(MinecraftEffectTypes.saturation,9999,128,false);
             if(!player.hasTag("nvoff")) player.addEffect(MinecraftEffectTypes.nightVision,300,128,false);
         }
     },20);
 
-    system.runSchedule(() => {
+    system.runInterval(() => {
         for (const player of world.getPlayers()) {
             if (playerData.instaKill[player.id]) {
                 const molang = new MolangVariableMap()

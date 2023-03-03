@@ -183,7 +183,7 @@ async function blockUpdateIterationObject(location,dimension,callback) {
 
 async function waitForNextTick(callback) {
     return new Promise((resolve,reject) => {
-        system.run(() => {
+        system.runTimeout(() => {
             try {
                 resolve(callback());
             } catch (error) {

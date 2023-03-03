@@ -11,7 +11,7 @@ import * as Debug from './../plugins/debug/debug'
 export class Server {
     constructor(initialTick = 0) {
         this.#tick = initialTick;
-        
+
         //## Relative Tick, Loaded Players, Custom Events
         system.runInterval(() => {
             this.#tick++;
@@ -119,7 +119,7 @@ export class Server {
      */
     async waitForNextTick(callback) {
         return new Promise((resolve,reject) => {
-            system.run(() => {
+            system.runTimeout(() => {
                 try {
                     resolve(callback());
                 } catch (error) {
