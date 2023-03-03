@@ -125,31 +125,9 @@ export class Server {
                 } catch (error) {
                     reject(error)
                 }
-            })
+            },1);
         })
     }
-}
-
-export class ServerEventCallback {
-    constructor() {
-        this.saved = [];
-    }
-    subscribe(callback) {
-        return insertToArray(this.saved,callback);
-    }
-    unsubscribe(index) {
-        deleteFromArray(this.saved,index);
-    }
-    runCallbacks(eventData,errorHandle = null) {
-        for (let callbackIndex = 0;callbackIndex < this.saved.length;callbackIndex++) {
-            try {
-                this.saved[callbackIndex](eventData);
-            } catch (error) {
-                if (errorHandle) errorHandle(error);
-            }
-        }   
-    }
-    saved;
 }
 
 export class ServerEventCallback {
