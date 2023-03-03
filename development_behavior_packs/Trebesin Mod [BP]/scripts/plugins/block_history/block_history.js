@@ -174,6 +174,7 @@ export async function main() {
         }
     });
 
+    //! player doesnt get saved
     //## Block Placing Detection:
     world.events.itemStartUseOn.subscribe(async(eventData) => {
         const player = eventData.source;
