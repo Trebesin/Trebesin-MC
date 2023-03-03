@@ -1,4 +1,5 @@
-import {mapArray} from './array';
+import { mapArray } from './array';
+import { sumVectors } from './vector';
 
 /**
  * Function that creates a line in 3D coordinate system.
@@ -12,7 +13,7 @@ import {mapArray} from './array';
  * @param {Function} [callback] Callback that gets each step as an input, it will make the return `undefined`.
  * @returns {Object[]|undefined} Array containing X,Y,Z coordinates the line is composed of.
  */
-function getGridLine(coords,options = {},callback = null) {
+export function getGridLine(coords,options = {},callback = null) {
     let {stepBy, round} = Object.assign({stepBy:1,round:true},options);
     const resultCoords = !callback ? [] : undefined;
     let differences = [
@@ -49,7 +50,7 @@ function getGridLine(coords,options = {},callback = null) {
 }
 
 
-function getGridBlock(coords,options = {},callback = null) {
+export function getGridBlock(coords,options = {},callback = null) {
     const {stepBy,hollow,width} = Object.assign({stepBy:{x:1,y:1,z:1},hollow:false,width:1},options);
     const resultCoords = !callback ? [] : undefined;
     const maxCorner = {
@@ -100,6 +101,92 @@ function getGridBlock(coords,options = {},callback = null) {
     return resultCoords;
 }
 
+export function generateBlockPyramid(startCoord,steps = 10,callback) {
+    const vectorDefinitions = {};
+    //Tertiary vectors are sent at the beginning from the starting coordinate and also from the secondary and primary vectors. Those cover the whole Y axis.
+    vectorDefinitions.tertiary = [
+            {
+                vector: {x:0,y:1,z:0}
+            },
+            {
+                vector: {x:0,y:-1,z:0}
+            }
+    ];
+    //Secondary vectors are sent by the primary vectors. Those cover each X,Z quadrant of the area.
+    vectorDefinitions.secondary = [
+            {
+                vector: {x:0,y:0,z:1},
+                sends: vectorDefinitions.tertiary
+            },
+            {
+                vector: {x:0,y:0,z:-1},
+                sends: vectorDefinitions.tertiary
+            },
+            {
+                vector: {x:-1,y:0,z:0},
+                sends: vectorDefinitions.tertiary
+            },
+            {
+                vector: {x:1,y:0,z:0},
+                sends: vectorDefinitions.tertiary
+            }
+    ];
+    //Primary vectors are sent at the beginning from the starting coordinate. Those are the edges between the X,Z quadrants of the area.
+    vectorDefinitions.primary = [
+            {
+                vector: {x:1,y:0,z:0},
+                sends: [vectorDefinitions.secondary[0],...vectorDefinitions.tertiary]
+            },
+            {
+                vector: {x:-1,y:0,z:0},
+                sends: [vectorDefinitions.secondary[1],...vectorDefinitions.tertiary]
+            },
+            {
+                vector: {x:0,y:0,z:1},
+                sends: [vectorDefinitions.secondary[2],...vectorDefinitions.tertiary]
+            },
+            {
+                vector: {x:0,y:0,z:-1},
+                sends: [vectorDefinitions.secondary[3],...vectorDefinitions.tertiary]
+            }
+  
+    ];
+    let sentVectors = [];
+    for (let step = 0;step <= steps;step++) {
+        const lastLength = sentVectors.length;
+        if (step === 0) {
+            const location = startCoord;
+            for (let index = 0;index < vectorDefinitions.primary.length;index++) {
+                sentVectors.push({
+                    location: location,
+                    definition: vectorDefinitions.primary[index]
+                });
+            }
+            for (let index = 0;index < vectorDefinitions.tertiary.length;index++) {
+                sentVectors.push({
+                    location: location,
+                    definition: vectorDefinitions.tertiary[index]
+                });
+            }
+            callback(location);
+        }
+        for (let index = 0;index < lastLength;index++) {
+            const vector = sentVectors[index];
+            const location = sumVectors(vector.location,vector.definition.vector);
+            vector.location = location;
+            callback(location);
+            if (vector.definition.sends) {
+                for (let sendIndex = 0;sendIndex < vector.definition.sends.length;sendIndex++) {
+                    sentVectors.push({
+                        location: location,
+                        definition: vector.definition.sends[sendIndex]
+                    });
+                }
+            }
+        }
+    }
+}
+
 function getGridTriangle(verticies,options = {},callback = null) {
 
 }
@@ -107,5 +194,3 @@ function getGridTriangle(verticies,options = {},callback = null) {
 function withinBounds(coords,coord) {
     //* check if block is within a selection
 }
-
-export {getGridBlock,getGridLine}

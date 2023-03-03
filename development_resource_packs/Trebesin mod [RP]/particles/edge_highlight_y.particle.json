@@ -24,7 +24,7 @@
 				"facing_camera_mode": "lookat_direction",
 				"direction": {
 					"mode": "custom",
-					"custom_direction": [0,1,0]
+					"custom_direction": [0, 1, 0]
 				},
 				"uv": {
 					"texture_width": 32,
@@ -34,7 +34,7 @@
 				}
 			},
 			"minecraft:particle_appearance_tinting": {
-				"color": ["v.colour.r", "v.colour.g", "v.colour.b", 1]
+				"color": ["v.color.r", "v.color.g", "v.color.b", 1]
 			}
 		}
 	}

@@ -1,20 +1,23 @@
-import {CommandResult, MinecraftEffectTypes , world, BlockLocation,Location, TicksPerDay, TicksPerSecond, Vector, MolangVariableMap, Color, system, MinecraftBlockTypes, BlockPermutation} from "@minecraft/server";
-import { copyBlock, getPermutations, setPermutationFromObject } from "../../../mc_modules/blocks";
-import { sendMessage} from "../../../mc_modules/players";
-import { getEdgeLocations, createLocationSet2, locationToString, stringToLocation } from "../../../mc_modules/particles";
-import { Commands, sendLongMessage } from '../../backend/backend';
+//APIs:
+import {CommandResult, MinecraftEffectTypes , world, TicksPerDay, TicksPerSecond, Vector, MolangVariableMap, system, MinecraftBlockTypes, BlockPermutation} from "@minecraft/server";
+//Plugins:
+import * as BlockHistoryPlugin from "../block_history";
+import { Commands, sendLongMessage, DB } from '../../backend/backend';
 import { isAdmin, isMod } from "../../commands/workers/admin";
 import { logMessage, sendLogMessage } from "../../debug/debug";
-import { playerData } from "../../server/server";
-import * as BlockHistoryPlugin from "../block_history";
+//Modules:
+import { copyBlock, getPermutations, setPermutationFromObject } from "../../../mc_modules/blocks";
+import { sendMessage} from "../../../mc_modules/players";
+import { getEdgeLocations, locationToString, stringToLocation } from "../../../mc_modules/particles";
 import { CommandError } from "../../../mc_modules/commandParser";
+
 let particlesPerPlayers = {}
 let confirmationPerPlayer = {}
 let lastParticleCall = {}
 const PARTICLE_LIMIT = 1000//particle limit per player
 
 function main(){
-    system.runSchedule(() => {
+    system.runInterval(() => {
         for (const player in particlesPerPlayers) {
             //particles
             let limitIndex = 0;
@@ -68,7 +71,7 @@ function main(){
                 return;
             }
             try {
-                const response = await BlockHistoryPlugin.database.query(request);
+                const response = await DB.query(request);
                 sendLogMessage(JSON.stringify(response.result))
 
                 if(!printBlockHistory(response, {type: "block", pos: pos}, sender))return;
@@ -129,7 +132,7 @@ function main(){
                 return;
             }
             try {
-                const response = await BlockHistoryPlugin.database.query(request);
+                const response = await DB.query(request);
                 sendLogMessage(JSON.stringify(response.result))
 
                 if(!printBlockHistory(response, {type: "block", pos: pos}, sender))return;
@@ -167,7 +170,7 @@ function main(){
                 return;
             }
             try {
-                const response = await BlockHistoryPlugin.database.query(request);
+                const response = await DB.query(request);
 
                 if(!printBlockHistory(response, {type: "player"}, sender))return;
 
@@ -212,7 +215,7 @@ function main(){
                 values : [playerName, parameter.id]
             }
             try {
-                const response = await BlockHistoryPlugin.database.query(request);
+                const response = await DB.query(request);
                 if(!printBlockHistory(response, {type: "reverse"}, sender))return;
 
                 if(parameter.particles ?? false){
@@ -260,7 +263,7 @@ function main(){
                 return;
             }
             try {
-                const response = await BlockHistoryPlugin.database.query(request);
+                const response = await DB.query(request);
                 if(!printBlockHistory(response, {type: "player"}, sender))return;
 
                 if(parameter.particles ?? false){
@@ -711,14 +714,14 @@ function printBlockHistory(request, options, sender){
 
 function spawnParticles(location, particleAxis, sender) {
     const molang = new MolangVariableMap()
-    .setColorRGB('variable.colour',new Color(1,0,0,1));
+    .setColorRGB('variable.color',{red:1,green:0,blue:0,alpha:1});
     const dimension = world.getDimension('overworld');
     dimension.spawnParticle(`trebesin:edge_highlight_${particleAxis}`, location, molang);
 }
 
 async function getMaxIDPerPlayer(blockPlaceType, player){
     try{
-        const request = await BlockHistoryPlugin.database.query({
+        const request = await DB.query({
             sql: `SELECT actor_id, MAX(blockPlaceTypeID) AS id
                     FROM block_history
                     WHERE actor_id = ? AND blockPlaceType = ? AND blockPlaceTypeID IS NOT NULL
@@ -734,9 +737,9 @@ async function getMaxIDPerPlayer(blockPlaceType, player){
 }
 
 function revertBlockChange(blockOld, blockNew, sender){
-    const block = sender.dimension.getBlock(new BlockLocation(blockNew.location.x, blockNew.location.y, blockNew.location.z))
-    block.setType(MinecraftBlockTypes.get(blockOld.typeId))
-    block.setPermutation(setPermutationFromObject(block.permutation, getPermutations(blockOld.permutation)))
+    const block = sender.dimension.getBlock(blockNew.location);
+    block.setType(MinecraftBlockTypes.get(blockOld.typeId));
+    block.setPermutation(setPermutationFromObject(block.permutation, getPermutations(blockOld.permutation)));
 }
 
 function parseToRealTime(input){
@@ -809,7 +812,7 @@ async function inspector(location, sender){
         values: [Math.floor(pos.x), Math.floor(pos.y), Math.floor(pos.z)]
     }
     try {
-        const response = await BlockHistoryPlugin.database.query(request);
+        const response = await DB.query(request);
         if(printBlockHistory(response, {type: "block", pos: pos}, sender)){
             if(lastParticleCall[sender.id])delete lastParticleCall[sender.id]
             sendMessage(`you can use !bh show to see these changes using particles`, "cmd - BlockHistory", sender)
@@ -831,10 +834,10 @@ async function reverseBlocks(blocks, sender) {
     const callID = (await getMaxIDPerPlayer("blockHistory: reverse", sender) ?? -1)+1
     for(let i = 0;i<blocks.length;i++){
         const playerId = sender.id;
-        const block = world.getDimension(blocks[i].dimension_id).getBlock(new BlockLocation(blocks[i].x, blocks[i].y, blocks[i].z))
-        const blockOld = copyBlock(block)
-        block.setType(MinecraftBlockTypes.get(blocks[i].before_id))
-        block.setPermutation(setPermutationFromObject(block.permutation, JSON.parse(blocks[i].before_permutations)))
+        const block = world.getDimension(blocks[i].dimension_id).getBlock(blocks[i]);
+        const blockOld = copyBlock(block);
+        block.setType(MinecraftBlockTypes.get(blocks[i].before_id));
+        block.setPermutation(setPermutationFromObject(block.permutation, JSON.parse(blocks[i].before_permutations)));
         BlockHistoryPlugin.saveBlockUpdate(blockOld,copyBlock(block),playerId, "blockHistory: reverse", callID);
     }
     sendMessage(`succesfully reversed blocks - callID: ${callID}`, "BlockHistory: reverse",sender)

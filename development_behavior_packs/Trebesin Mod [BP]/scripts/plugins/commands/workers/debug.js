@@ -1,13 +1,14 @@
-import {CommandResult, Location, system, world, Vector, Player, MinecraftEffectTypes} from "@minecraft/server";
-import { sendMessage } from '../../../mc_modules/players';
-import * as Debug from './../../debug/debug';
-import { playerData as serverPlayerData } from '../../server/server';
-import { Commands } from '../../backend/backend';
-import {isAdmin} from "./admin";
-import * as backend from "../../backend/backend"; 
-import * as vectorMath from "../../../js_modules/vector.js";
+//APIs:
+import {} from "@minecraft/server";
 import { variables as ServerConfig } from '@minecraft/server-admin';
-function main(){
+//Plugins:
+import {isAdmin} from "./admin";
+import { Commands, DB } from '../../backend/backend';
+//Modules:
+import { sendMessage } from '../../../mc_modules/players';
+
+
+export function main(){
   if(!ServerConfig.get('debug-enabled')) return;
   Commands.registerCommand('testArray', { aliases:[], parameters:[
         {type:'pos',id:'location'},
@@ -31,14 +32,14 @@ function main(){
         z:Math.floor(parameters.location.z)
       }],(loc,axis) => {
         const molang = new MolangVariableMap()
-        .setColorRGBA('variable.colour',new Color(parameters.colour[0]/255,parameters.colour[1]/255,parameters.colour[2]/255,1));
-        sender.dimension.spawnParticle(`trebesin:edge_highlight_${axis}`,new Location(loc.x,loc.y,loc.z),molang)
+        .setColorRGBA('variable.color',new Color(parameters.colour[0]/255,parameters.colour[1]/255,parameters.colour[2]/255,1));
+        sender.dimension.spawnParticle(`trebesin:edge_highlight_${axis}`,loc,molang)
       })
     }
   })
   Commands.registerCommand("databasedisconnect", {aliases: ["dbdisconnect", "dbdis"], parameters: [], senderCheck: isAdmin, run: async (sender) =>  {
       try {
-        await backend.DB.disconnect();
+        await DB.disconnect();
         sendMessage(`§asuccesfully disconnected from the database.`,'cmd',sender);
       } catch(error) {
         sendMessage(`${error}`,'cmd',sender);
@@ -48,7 +49,7 @@ function main(){
 
   Commands.registerCommand("databaseconnect", {aliases: ["dbconnect", "dbcon"], parameters: [], senderCheck: isAdmin, run: async (sender) => {
       try {
-        await backend.DB.connect();
+        await DB.connect();
         sendMessage(`§asuccesfully connected to the database.`,'cmd',sender);
       } catch(error) {
         sendMessage(`${error}`,'cmd',sender);
@@ -89,5 +90,3 @@ function main(){
   })
 
 }
-
-export {main}

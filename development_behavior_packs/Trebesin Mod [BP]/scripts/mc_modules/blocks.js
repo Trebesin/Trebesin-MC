@@ -1,4 +1,4 @@
-import {Block, BlockPermutation, world, system, BlockLocation} from '@minecraft/server';
+import {Block, BlockPermutation, world, system} from '@minecraft/server';
 import { arrayDifference, find } from '../js_modules/array';
 import { sumVectors, compareVectors } from '../js_modules/vector';
 import { logMessage, sendLogMessage } from '../plugins/debug/debug';
@@ -30,13 +30,11 @@ function compareBlocks(blockA,blockB,checkLocation = false) {
     const permutationA = blockA.permutation;
     const permutationB = blockB.permutation;
     const properties = blockA.typeId.startsWith('trebesin:') ? TREBESIN_PERMUTATIONS : permutationA.getAllProperties();
-    for (let index = 0;index < properties.length;index++) {
-        const permutationName = properties[index].name;
-        const valueA = permutationA.getProperty(permutationName)?.value;
-        const valueB = permutationB.getProperty(permutationName)?.value;
+    for (const property in properties) {
+        const valueA = permutationA.getProperty(property);
+        const valueB = permutationB.getProperty(property);
         if (valueA !== valueB) return false;
     }
-
     return true
 }
 
@@ -102,7 +100,7 @@ function getAdjecentBlockCopies(coord,dimension) {
     const blockArray = [];
     for (let index = 0;index < DIRECTIONS.length;index++) {
         const face = DIRECTIONS[index];
-        blockArray.push(copyBlock(dimension.getBlock(new BlockLocation(coord.x + face.x,coord.y + face.y,coord.z + face.z))));
+        blockArray.push(copyBlock(dimension.getBlock(sumVectors(coord,face))));
     }
     return blockArray;
 }
@@ -111,7 +109,7 @@ function getAdjecentBlocks(coord,dimension) {
     const blockArray = [];
     for (let index = 0;index < DIRECTIONS.length;index++) {
         const face = DIRECTIONS[index];
-        blockArray.push(dimension.getBlock(new BlockLocation(coord.x + face.x,coord.y + face.y,coord.z + face.z)));
+        blockArray.push(dimension.getBlock(sumVectors(coord,face)));
     }
     return blockArray;
 }
@@ -183,7 +181,7 @@ async function blockUpdateIterationObject(location,dimension,callback) {
 
 async function waitForNextTick(callback) {
     return new Promise((resolve,reject) => {
-        system.run(() => {
+        system.runTimeout(() => {
             try {
                 resolve(callback());
             } catch (error) {

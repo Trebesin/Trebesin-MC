@@ -9,15 +9,15 @@
         "description": "Behaviors for Třebešín",
         "name": "Třebešín Mód [BP]",
         "uuid": "6131cbff-1172-4c3e-a701-52f21fc9c9d3",
-        "version": [ 1, 0, 0 ],
-        "min_engine_version": [ 1, 19, 50 ]
+        "version": [ 1, 2, 0 ],
+        "min_engine_version": [ 1, 19, 70 ]
     },
     "modules": [
         {
             "description": "Třebešín Mód [BP] - data module",
             "type": "data",
             "uuid": "39e08f47-5e87-47a1-a927-fc6c4e5ebfa9",
-            "version": [1, 0, 0]
+            "version": [1, 2, 0]
         },
         {
             "description": "Třebešín Mód [BP] - scripts module",
@@ -25,7 +25,7 @@
             "language": "javascript",
             "entry": "scripts/main.js",
             "uuid": "39e08f47-5e87-47a1-a927-fc6c4e5ebfa9",
-            "version": [1, 0, 0]
+            "version": [1, 2, 0]
         }
     ],
 	"dependencies": [

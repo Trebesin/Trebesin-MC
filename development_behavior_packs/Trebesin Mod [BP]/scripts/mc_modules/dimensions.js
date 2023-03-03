@@ -1,37 +1,37 @@
-import {world, BlockLocation, Vector, Location} from "mojang-minecraft";
+import {world, Vector} from "mojang-minecraft";
 import { includes } from '../js_modules/array';
 import { sumVectors } from '../js_modules/vector';
 
-function getTopSolidBlock(x, z, dimension = world.getDimension('overworld')) {
-    const location = new Location(x, 320, z);
-    return dimension.getBlockFromRay(location, Vector.down, {includeLiquidBlocks: false, includePassableBlocks: false, maxDistance: 390});
+//!remove all usage of arrays to store locations/vectors
+
+export function getTopBlock(x, z, dimension, solid = false) {
+    return dimension.getBlockFromRay(
+        {x,y:320,z},
+        {x:0,y:-1,z:0},
+        {includeLiquidBlocks: !solid, includePassableBlocks: !solid, maxDistance: 400}
+    );
 }
 
-function getTopBlock(x, z, dimension = world.getDimension('overworld')) {
-    const location = new Location(x, 320, z);
-    return dimension.getBlockFromRay(location, Vector.down, {includeLiquidBlocks: true, includePassableBlocks: true, maxDistance: 390});
-}
-
-function getClosestEmptyBlock(coordinate, dimension = world.getDimension('overworld'), vectorMap = [[0,1,0],[0,-1,0]], maxDistance = 256) {
+function getClosestBlock(coordinate, dimension = world.getDimension('overworld'), typeId = 'minecraft:air', options = {}) {
+    const OPTIONS = Object.assign({vectorMap:[{x:0,y:1,z:0},{x:0,y:-1,z:0}],maxDistance:256},options)
     let emptyBlock = null;
-    const checkedBlocks = [];
+    const checkedBlocks = new Set();
     let coords = [coordinate];
     while (coords.length) {
         const newCoords = [];
         for (let index = 0;index < coords.length;index++) {
             const coord = coords[index];
             if (coord.some((element, index) => Math.abs(coordinate[index] - element) > maxDistance)) continue;
-            const blockLocation = new BlockLocation(coord[0], coord[1], coord[2]);
-            if (dimension.isEmpty(blockLocation)) {
+            if (dimension.getBlock(coord).typeId === typeId) {
                 emptyBlock = coord;
                 coords.length = 0;
                 break;
             } else {
-                checkedBlocks.push(coord);
-                for (let vectorIndex = 0;vectorIndex < vectorMap.length;vectorIndex++) {
-                    const vector = vectorMap[vectorIndex];
-                    const newCoord = vector.map((element, index) => element + coord[index]);
-                    if (!(containsArray(checkedBlocks,newCoord) || containsArray(coords,newCoord))) {
+                checkedBlocks.add(locationToString(coord));
+                for (let vectorIndex = 0;vectorIndex < OPTIONS.vectorMap.length;vectorIndex++) {
+                    const vector = OPTIONS.vectorMap[vectorIndex];
+                    const newCoord = sumVectors(vector,coord);
+                    if (!checkedBlocks.has(locationToString(newCoord))) {
                         newCoords.push(newCoord);
                     }
                 }
@@ -92,6 +92,7 @@ function createRandomSpread(coordinate, options, vectorMap = { x: [-1, 1], y: [-
     }
 }
 
+//!Instead one callback with argument 
 /**
    * Gets all blocks that can be filled starting from a single location and returns them and the edges, alternatively callbacks can also be used.
    * @arg {object} origin - Base coordinates, which the function fills its surounding area from.
@@ -116,7 +117,7 @@ function getAreaFill(origin, dimension, options, innerCallback, outerCallback) {
     while (coords.length) {
         const coord = coords.shift();
         if (outsideDistance(coord,origin,fill.maxDistance)) continue;
-        const currentBlock = dimension.getBlock(new BlockLocation(coord.x,coord.y,coord.z));
+        const currentBlock = dimension.getBlock(coord);
         if (includes(fill.whitelist,currentBlock.typeId)) {
             innerCallback(coord);
             for (const vector of fill.vectorMap) {
