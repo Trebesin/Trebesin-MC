@@ -71,11 +71,14 @@ async function executePlugins() {
 
 async function loadPlugin(pluginImport) {
     try {
+        world.sendMessage(`Loading ${pluginImport.name}...\n{`);
         Debug.logMessage(`Loading ${pluginImport.name}...\n{`,{api:false,world:true,content:true});
         await pluginImport.main();
         Debug.logMessage(`}\nLoaded successfully!`,{api:false,world:true,content:true});
+        world.sendMessage(`}\nLoaded successfully!`);
     } catch {
         Debug.logMessage(`}\nError has occured during the load, read below!\n${error}`,{api:false,world:true,content:true});
+        world.sendMessage(`}\nError has occured during the load, read below!\n${error}`);
     }
 }
 
