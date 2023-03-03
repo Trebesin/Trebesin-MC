@@ -14,14 +14,20 @@ import * as Backend from './plugins/backend/backend';
 
 async function executePlugins() {
     world.sendMessage('Start!');
-    Debug.sendLogMessage('\n\nReloading Trebesin Mod Script...\n\n',{api:false});
+    Debug.logMessage('\n\nReloading Trebesin Mod Script...\n\n',{api:false});
     //!Debug && Backend (1.):
+    world.sendMessage('Debug!');
     await loadPlugin(Debug);
+    world.sendMessage('Backend!');
     await loadPlugin(Backend);
     //!Rest of the plugins (2.):
+    world.sendMessage('Server Plugin!');
     await loadPlugin(ServerPlugin);
+    world.sendMessage('Block History Plugin!');
     await loadPlugin(BlockHistoryPlugin);
+    world.sendMessage('Blocky Tools Plugin!');
     await loadPlugin(BlockyToolsPlugin);
+    world.sendMessage('Commands Plugin!');
     await loadPlugin(CommandsPlugin);
     return
     //!Loading Debug (1.):
@@ -72,12 +78,12 @@ async function executePlugins() {
 async function loadPlugin(pluginImport) {
     try {
         world.sendMessage(`Loading ${pluginImport.name}...\n{`);
-        Debug.logMessage(`Loading ${pluginImport.name}...\n{`,{api:false,world:true,content:true});
+        Debug.logMessage(`Loading ${pluginImport.name}...\n{`,{api:false});
         await pluginImport.main();
-        Debug.logMessage(`}\nLoaded successfully!`,{api:false,world:true,content:true});
+        Debug.logMessage(`}\nLoaded successfully!`,{api:false});
         world.sendMessage(`}\nLoaded successfully!`);
     } catch {
-        Debug.logMessage(`}\nError has occured during the load, read below!\n${error}`,{api:false,world:true,content:true});
+        Debug.logMessage(`}\nError has occured during the load, read below!\n${error}`,{api:false});
         world.sendMessage(`}\nError has occured during the load, read below!\n${error}`);
     }
 }
