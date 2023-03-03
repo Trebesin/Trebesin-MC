@@ -1,4 +1,6 @@
-import {ModalFormData, MessageFormData, ActionFormData} from "@minecraft/server-ui";
+import { Player } from '@minecraft/server';
+import { ModalFormData, MessageFormData, ActionFormData } from "@minecraft/server-ui";
+import { logMessage } from '../plugins/debug/debug';
 
 //Form with title, accepts text fields, toggles, sliders, graphical icons and dropdown menus
 const modalMenuData = {
@@ -66,6 +68,30 @@ const actionMenuData = {
 //!add new features forced shit yk the drill
 //Async
 
+/**
+ * @typedef {object} ModalMenuElement
+ * @property {'toggle'|'textField'|'slider'|'icon'|'dropdown'} type - Type of element.
+ * @property {number} [valueStep] - The step between values for a slider.
+ * @property {string} [iconPath] - Will document rest later.
+*/
+
+/**
+ * @typedef {ModalMenuElement & {type: 'slider', valueStep: number}} SliderModalMenuElement
+ */
+
+/**
+ * @typedef ModalMenuData
+ * @property {string} title
+ * @property {boolean} [withIds]
+ * @property {ModalMenuElement[]} structure
+ */
+
+/**
+ * 
+ * @param {ModalMenuData} menuData 
+ * @param {Player} player 
+ * @returns 
+ */
 export async function modalMenu(menuData,player) {
     let menu = new ModalFormData()
     .title(menuData.title);
@@ -74,27 +100,28 @@ export async function modalMenu(menuData,player) {
         const element = menuData.structure[index];
         switch (element.type) {
             case "toggle":
-                menu = menu.toggle(element.label, element.defaultValue);
+                menu.toggle(element.label, element.defaultValue);
                 break
             case "textField":
-                menu = menu.textField(element.label, element.placeholderText, element.defaultValue);
+                menu.textField(element.label, element.placeholderText, element.defaultValue);
                 break
             case "slider":
-                menu = menu.slider(element.label, element.minimalValue, element.maximalValue, element.valueStep, element.defaultValue);
+                menu.slider(element.label, element.minimalValue, element.maximalValue, element.valueStep, element.defaultValue);
                 break
             case "icon":
-                menu = menu.icon(element.iconPath);
+                menu.icon(element.iconPath);
                 break
             case "dropdown":
-                menu = menu.dropdown(element.label, element.options, element.defaultValueIndex);
+                menu.dropdown(element.label, element.options, element.defaultValueIndex);
                 break
             default: 
-                console.warn(`[UI Parser]: Recieved invalid type of '${element.type}' during parsing! Element has been skipped*`)
+                console.warn(`[UI Parser]: Recieved invalid type of '${element.type}' during parsing! Element has been skipped.`);
         }
     }
 
     let formValues;
     const response = await menu.show(player);
+    if (response.canceled) return response;
     if (menuData.withIds) {
         formValues = {};
         for (let index = 0;index < response.formValues.length;index++) {
@@ -106,7 +133,7 @@ export async function modalMenu(menuData,player) {
         formValues = response.formValues;
     }
     
-    return { canceled:response.canceled, cancelationReason:response.cancelationReason, formValues }
+    return { formValues, canceled: response.canceled, cancelationReason: response.cancelationReason }
 }
 
 export async function actionMenu(menuData, player) {
@@ -114,11 +141,12 @@ export async function actionMenu(menuData, player) {
     .title(menuData.title)
     .body(menuData.body);
     for (const button of menuData.structure) {
-        menu = menu.button(button.text,button.iconPath);
+        menu.button(button.text,button.iconPath);
     }
 
     let selection;
     const response = await menu.show(player);
+    if (response.canceled) return response;
     if (menuData.withIds) {
         selection = {};
         selection.index = response.selection;
@@ -143,5 +171,5 @@ export async function messageMenu(menuData, player) {
 
     const response = await menu.show(player);
 
-    return response
+    return response;
 }

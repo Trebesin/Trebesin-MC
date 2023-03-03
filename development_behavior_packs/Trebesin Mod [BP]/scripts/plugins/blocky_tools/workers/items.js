@@ -34,7 +34,6 @@ export function main() {
                 
             }
 
-            //!some blocks dont show ui, i dont see why
             for (const propertyName in propertyList) {
                 const option = {
                     id: propertyName
@@ -47,12 +46,12 @@ export function main() {
                     option.defaultValue = propertyList[propertyName];
                 } else {
                     option.type = 'dropdown';
-                    option.options = propertyDefinition.validValues;
+                    option.options = propertyDefinition.validValues.map((value) => `${value}`);
                     option.defaultValueIndex = propertyDefinition.validValues.indexOf(propertyList[propertyName]);
                 }
                 menuData.structure.push(option);
             }
-            if (menuData.structure.length === 0) return
+            if (menuData.structure.length === 0) return;
             const response = await FormUi.modalMenu(menuData,player);
 
             if (block?.typeId == null) return;
