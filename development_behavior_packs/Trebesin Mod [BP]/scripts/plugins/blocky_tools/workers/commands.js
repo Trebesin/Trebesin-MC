@@ -2,12 +2,12 @@
 import {CommandResult, MinecraftEffectTypes , system, world, Player, MinecraftBlockTypes } from '@minecraft/server';
 //Plugins:
 import { setBlockType } from '../../block_history/block_history';
+import { isAdmin } from "../../commands/workers/admin";
 //Modules:
 import { generateBlockPyramid } from '../../../js_modules/geometry';
 import { CommandParser } from '../../../mc_modules/commandParser';
 import { sendMessage } from '../../../mc_modules/players';
 import { copyVector, sumVectors } from '../../../js_modules/vector';
-
 
 const Commands = new CommandParser({
   prefix: '.', caseSensitive: false
@@ -29,6 +29,7 @@ export async function main() {
         id: 'size'
       }
     ],
+    senderCheck: isAdmin,
     /**
      * 
      * @param {Player} sender 
