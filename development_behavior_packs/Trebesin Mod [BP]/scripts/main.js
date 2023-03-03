@@ -1,4 +1,5 @@
 //Plugins:
+import { world } from '@minecraft/server';
 import * as BlockHistoryPlugin from './plugins/block_history/block_history';
 import * as BlockyToolsPlugin from './plugins/blocky_tools/blocky_tools';
 import * as ServerPlugin from './plugins/server/server';
@@ -12,6 +13,7 @@ import * as Backend from './plugins/backend/backend';
 //#To ensure the order eveything is asynchrounus and awaited.
 
 async function executePlugins() {
+    world.sendMessage('Start!');
     Debug.sendLogMessage('\n\nReloading Trebesin Mod Script...\n\n',{api:false});
     //!Debug && Backend (1.):
     await loadPlugin(Debug);

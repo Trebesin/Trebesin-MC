@@ -20,6 +20,6 @@
             "version": [1, 0, 0]
         }
     ],
-    "capabilities": ["raytraced"],//I(Pavel) will add ray tracing *shiny*
+    "capabilities": ["raytraced"],
 	"dependencies": []
 }
