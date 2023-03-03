@@ -6,7 +6,7 @@ import * as Debug from '../debug/debug';
 import { DB, Server } from '../backend/backend';
 //Modules:
 import { getEntityById } from '../../mc_modules/entities';
-import { sumVectors, copyVector, subVectors, floorVector } from '../../js_modules/vector';
+import { sumVectors, copyVector, subVectors, floorVector, compareVectors } from '../../js_modules/vector';
 import { containsArray, filter, insertToArray, deleteFromArray } from '../../js_modules/array';
 import { copyBlock, compareBlocks, getPermutations, blockUpdateIteration } from '../../mc_modules/blocks';
 import { DIMENSION_IDS , FACE_DIRECTIONS } from '../../mc_modules/constants';
@@ -174,7 +174,6 @@ export async function main() {
         }
     });
 
-    //! player doesnt get saved
     //## Block Placing Detection:
     world.events.itemStartUseOn.subscribe(async(eventData) => {
         const player = eventData.source;
@@ -191,7 +190,7 @@ export async function main() {
             saveBlockUpdate(blockOld,copyBlock(block),player.id);
             //Falling Blocks
             system.runTimeout(() => {
-                const fallObject = fallingBlocksTracked.find((block) => faceBlock.location.equals(block.location.start));
+                const fallObject = fallingBlocksTracked.find((block) => compareVectors(faceBlock.location,block.location.start));
                 if (fallObject) fallObject.playerId = player.id;
             },1);
         },1);
