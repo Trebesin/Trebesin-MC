@@ -69,7 +69,7 @@ let currentActiveUnitTestingPerPlayer = {}
 
 function getObjectFromIndex(object, positionArray){
     if(positionArray.length === 0)return object
-    const newObject = object.child[positionArray.shift()]
+    const newObject = object.child[[...positionArray].shift()]
     return getObjectFromIndex(newObject, positionArray)
 }
 
@@ -114,9 +114,7 @@ export async function main(){
                     sendMessage("there is not a unitTesting session running. Use !unittesting to initiate.", 'cmd - unitTesting', sender)
                     break;
                 }
-                let locationWithoutTheLast = currentActiveUnitTestingPerPlayer[sender.id].position
-                locationWithoutTheLast.pop()
-                if(currentActiveUnitTestingPerPlayer[sender.id].position[ currentActiveUnitTestingPerPlayer[sender.id].position.length - 1] + 1 >= getObjectFromIndex(unitTestingList, position).child.length){
+                if(currentActiveUnitTestingPerPlayer[sender.id].position[ currentActiveUnitTestingPerPlayer[sender.id].position.length - 1] + 1 >= getObjectFromIndex(unitTestingList, [...currentActiveUnitTestingPerPlayer[sender.id].position].pop()).child.length){
                     //doing the parent navigation
                     if(currentActiveUnitTestingPerPlayer[sender.id]?.position.length <= 1){
                     sendMessage('gj you have finished the unitTesting. If everything is included in the list in \\development_behavior_packs\\Trebesin Mod [BP]\\scripts\\plugins\\debug\\workers\\unit_testing.js you\'re now free to make a pr to stable', 'cmd - unitTesting', sender)
