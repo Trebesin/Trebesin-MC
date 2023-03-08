@@ -82,7 +82,7 @@ function showOption(object, positionArray){
 
 export async function main(){
     try{
-    Commands.registerCommand("unittesting", {aliases: ["ut"], senderCheck: isAdmin(), parameters: [
+    Commands.registerCommand("unittesting", {aliases: ["ut"], senderCheck: isAdmin, parameters: [
         {id: 'command', type: "string", optional: true, choice: {
             run: [
 
