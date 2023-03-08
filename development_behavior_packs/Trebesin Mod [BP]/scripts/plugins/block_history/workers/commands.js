@@ -72,8 +72,6 @@ function main(){
             }
             try {
                 const response = await DB.query(request);
-                sendLogMessage(JSON.stringify(response.result))
-
                 if(!printBlockHistory(response, {type: "block", pos: pos}, sender))return;
 
                 if(parameter.particles ?? false){
@@ -836,8 +834,9 @@ async function reverseBlocks(blocks, sender) {
         const playerId = sender.id;
         const block = world.getDimension(blocks[i].dimension_id).getBlock(blocks[i]);
         const blockOld = copyBlock(block);
+        const permutationsBefore = BlockPermutation.resolve(blocks[i].before_id, JSON.parse(blocks[i].before_permutations))
         block.setType(MinecraftBlockTypes.get(blocks[i].before_id));
-        block.setPermutation(setPermutationFromObject(block.permutation, JSON.parse(blocks[i].before_permutations)));
+        block.setPermutation(permutationsBefore);
         BlockHistoryPlugin.saveBlockUpdate(blockOld,copyBlock(block),playerId, "blockHistory: reverse", callID);
     }
     sendMessage(`succesfully reversed blocks - callID: ${callID}`, "BlockHistory: reverse",sender)

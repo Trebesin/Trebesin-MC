@@ -78,7 +78,7 @@ export async function main() {
 
     //## Block Ban
     world.events.beforeItemUseOn.subscribe((eventData) => {
-        if (isAdmin(eventData.source) || eventData.source.hasTag('certified_builder')) return;
+        if (eventData.source.hasTag('certified_builder')) return;
         const itemId = eventData.item.typeId;
         if (
             itemId === 'minecraft:lava_bucket' ||
@@ -87,6 +87,7 @@ export async function main() {
             itemId === 'minecraft:dragon_egg'
         ) {
             sendMessage(`§cYou are not permitted to use the item ${itemId}!§r`,'SERVER',eventData.source);
+            if(isAdmin(eventData.source))sendMessage(`§a You hovewer do have the permissions to place lava buckets. Use !allowbuild @s to grant them§r\n`,'SERVER',eventData.source);
             eventData.cancel = true;
         }
     });
