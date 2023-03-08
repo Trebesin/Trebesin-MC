@@ -162,7 +162,7 @@ export function main() {
     description: "sets your gamemode to creative"
   })
 
-  Commands.registerCommand("allowbuild", {description: "allows lava placing for players", aliases: ["allowlava", "lavaplace", "allowwater", "waterplace"], senderCheck: isAdmin, parameters: [{id: "player", type: 'selector', optional: false, playersOnly: true}], run: (sender) => {
+  Commands.registerCommand("allowbuild", {description: "allows lava placing for players", aliases: ["allowlava", "lavaplace", "allowwater", "waterplace"], senderCheck: isAdmin, parameters: [{id: "player", type: 'selector', optional: true, playersOnly: true}], run: (sender) => {
     player = parameter.player[0] ?? sender
     if(sender.hasTag("certified_builder")) {
       sender.removeTag("certified_builder");
