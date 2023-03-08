@@ -192,6 +192,7 @@ export async function main(){
                 }
                 if(runObject.run === undefined){
                     sendMessage('this unitTesting option doesn\'t have a run feature', 'cmd - unitTesting', sender)
+                    break;
                 }
                 sendMessage('running the run option [', "", sender)
                 runObject.run(sender);
