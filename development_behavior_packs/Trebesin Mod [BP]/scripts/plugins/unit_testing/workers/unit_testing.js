@@ -10,27 +10,27 @@ const unitTestingList = {child: [
         {name: '!co p', run: (sender) => {Commands.runCommand("co", "p", sender)}, child: [
             {name: '!co p 5', run:(sender) => {Commands.runCommand("co", "p 5", sender)}},
             {name: '!co p 5m', run: (sender) => {Commands.runCommand("co", "p 5m", sender)}},
-            {name: '!co p 5m 4m', run: (sender) => {Commands.runCommand("co", "p 5m 4m", sender)}},
-            {name: '!co p 10 4m', run: (sender) => {Commands.runCommand("co", "p 10 4m", sender)}}
+            {name: '!co p 5m 4m', run: (sender) => {Commands.runCommand("co", "p 5m 1m", sender)}},
+            {name: '!co p 10 4m', run: (sender) => {Commands.runCommand("co", "p 10 1m", sender)}}
         ]},
         {name: '!co b', run: (sender) => {Commands.runCommand("co", "b", sender)}, child: [
             {name: '!co b 5', run: (sender) => {Commands.runCommand("co", "b 5", sender)}},
             {name: '!co b 5m', run:(sender) => {Commands.runCommand("co", "b 5m", sender)}},
-            {name: '!co b 5m 4m', run: (sender) => {Commands.runCommand("co", "b 5m 4m", sender)}},
-            {name: '!co b 10 4m', run: (sender) => {Commands.runCommand("co", "b 10 4m", sender)}}
+            {name: '!co b 5m 4m', run: (sender) => {Commands.runCommand("co", "b 5m 1m", sender)}},
+            {name: '!co b 10 4m', run: (sender) => {Commands.runCommand("co", "b 10 1m", sender)}}
         ]},
         {name: '!co rb',run: (sender) => {Commands.runCommand("co", "rb", sender)}, child: [
             {name: '!co rb 5', run: (sender) => {Commands.runCommand("co", "rb 5", sender)}},
             {name: '!co rb 5m', run: (sender) => {Commands.runCommand("co", "rb 5m", sender)}},
-            {name: '!co rb 5m 4m', run: (sender) => {Commands.runCommand("co", "rb 5m 4m", sender)}},
-            {name: '!co rb 10 4m', run: (sender) => {Commands.runCommand("co", "rb 10 4m", sender)}}
+            {name: '!co rb 5m 4m', run: (sender) => {Commands.runCommand("co", "rb 5m 1m", sender)}},
+            {name: '!co rb 10 4m', run: (sender) => {Commands.runCommand("co", "rb 10 1m", sender)}}
         ]},
         {name: "!co confirm", run: (sender) => {Commands.runCommand("co", "confirm", sender)}},
         {name: '!co r',run: (sender) => {Commands.runCommand("co", "r", sender)}, child: [
             {name: '!co r 5', run: (sender) => {Commands.runCommand("co", "r 5", sender)}},
             {name: '!co r 5m', run: (sender) => {Commands.runCommand("co", "r 5m", sender)}},
-            {name: '!co r 5m 4m', run: (sender) => {Commands.runCommand("co", "r 5m 4m", sender)}},
-            {name: '!co r 10 4m', run: (sender) => {Commands.runCommand("co", "r 10 4m", sender)}}
+            {name: '!co r 5m 4m', run: (sender) => {Commands.runCommand("co", "r 5m 1m", sender)}},
+            {name: '!co r 10 4m', run: (sender) => {Commands.runCommand("co", "r 10 1m", sender)}}
         ]},
         {name: '!co show', run: (sender) => {Commands.runCommand("co", "show", sender)}},
         {name: "!co cancel", run: (sender) => {Commands.runCommand("co", "cancel", sender)}},
