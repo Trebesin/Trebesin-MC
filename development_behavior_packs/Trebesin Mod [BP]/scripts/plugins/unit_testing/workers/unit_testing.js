@@ -68,7 +68,6 @@ let currentActiveUnitTestingPerPlayer = {}
 
 function getObjectFromIndex(object, positionArray){
     if(positionArray.length === 0)return object
-    logMessage(`positionarray: ${positionArray}`)
     const newObject = object.child[positionArray.shift()]
     return getObjectFromIndex(newObject, positionArray)
 }
@@ -200,9 +199,7 @@ export async function main(){
             default: 
                 if(!currentActiveUnitTestingPerPlayer[sender.id]){
                     currentActiveUnitTestingPerPlayer[sender.id] = {player: sender, position: [0]}
-                    logMessage("before or after>>>>")
                     showOption(unitTestingList, currentActiveUnitTestingPerPlayer[sender.id].position, sender)
-                    logMessage("before or after<<<<")
                 }
                 else{
                     sendMessage('the unit testing is currently active! use !unittesting stop and then run this again to reset', 'cmd - unitTesting', sender)
