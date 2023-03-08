@@ -67,7 +67,7 @@ const unitTestingList = {child: [
 let currentActiveUnitTestingPerPlayer = {}
 
 function getObjectFromIndex(object, positionArray){
-    if(!positionArray)return object
+    if(positionArray.length === 0)return object
     logMessage(`positionarray: ${positionArray}`)
     const newObject = object.child[positionArray.shift()]
     return getObjectFromIndex(newObject, positionArray)
