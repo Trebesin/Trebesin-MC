@@ -59,8 +59,7 @@ export async function main() {
         }
         if (empty) return 0;
         try {
-            Debug.logMessage(request.sql)
-            Debug.logMessage(JSON.stringify(await connection.query(request,true)));
+            await connection.query(request,true);
         } catch (error) {
             Debug.sendLogMessage(`${error}`);
         }
