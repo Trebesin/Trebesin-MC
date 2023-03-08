@@ -48,13 +48,13 @@ export async function main() {
                     record.after.typeId,
                     record.before.isWaterlogged,
                     record.after.isWaterlogged,
-                    record.before.permutation.getAllProperties(),
-                    record.after.permutation.getAllProperties(),
+                    JSON.stringify(record.before.permutation.getAllProperties()),
+                    JSON.stringify(record.after.permutation.getAllProperties()),
                     record.blockPlaceType,
                     record.blockPlaceID
                 );
-                    Debug.logMessage(JSON.stringify(record.before.permutation.getAllProperties))
-                    Debug.logMessage(JSON.stringify(record.after.permutation.getAllProperties))
+                    Debug.logMessage(JSON.stringify(record.before.permutation.getAllProperties()))
+                    Debug.logMessage(JSON.stringify(record.after.permutation.getAllProperties()))
                 empty = false;
             }
             actorRecords.length = 0;
