@@ -68,6 +68,7 @@ let currentActiveUnitTestingPerPlayer = {}
 
 function getObjectFromIndex(object, positionArray){
     if(!positionArray)return object
+    logMessage(`positionarray: ${positionArray}`)
     const newObject = object.child[positionArray.shift()]
     return getObjectFromIndex(newObject, positionArray)
 }
