@@ -70,7 +70,6 @@ let currentActiveUnitTestingPerPlayer = {}
 
 function getObjectFromIndex(object, positionArray){
     if(positionArray.length === 0)return object
-    logMessage(`position array: ${positionArray}, object: ${object.name}`)
     const newArray = [...positionArray]
     const newObject = object.child?.[newArray.shift()]
     if(!newObject)return object
@@ -78,7 +77,7 @@ function getObjectFromIndex(object, positionArray){
 }
 
 function showOption(object, positionArray, sender){
-    sendMessage(`unitTesting for: ${getObjectFromIndex(object, positionArray).name}`, 'cmd - unitTesting', sender)
+    sendMessage(`unitTesting for: §c ${getObjectFromIndex(object, positionArray).name}`, 'cmd - unitTesting', sender)
     sendMessage('use !ut run for running or !ut [next|previous|parent|child] for navigating', 'cmd - unitTesting', sender)
     sendMessage(`${getObjectFromIndex(object, positionArray).child? 'this feature does have a child' : 'this feature doesn\'t have a child'}`)
 }
