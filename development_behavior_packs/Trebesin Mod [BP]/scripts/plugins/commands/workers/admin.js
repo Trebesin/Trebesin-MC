@@ -163,8 +163,7 @@ export function main() {
     description: "sets your gamemode to creative"
   })
 
-  Commands.registerCommand("allowbuild", {description: "allows lava placing for players", aliases: ["allowlava", "lavaplace", "allowwater", "waterplace"], senderCheck: isAdmin, parameters: [{id: "player", type: 'selector', optional: true, playersOnly: true}], run: (sender) => {
-    try{
+  Commands.registerCommand("allowbuild", {description: "allows lava placing for players", aliases: ["allowlava", "lavaplace", "allowwater", "waterplace"], senderCheck: isAdmin, parameters: [{id: "player", type: 'selector', optional: true, playersOnly: true}], run: (sender, parameter) => {
     player = parameter.player[0] ?? sender
     if(sender.hasTag("certified_builder")) {
       sender.removeTag("certified_builder");
@@ -176,10 +175,6 @@ export function main() {
       sendMessage("you are now able to place lava", "§aCMD§f", player);
       sendMessage(`${player.name} is now able to place lava`, "§aCMD§f", sender);
     };
-    }
-    catch(error){
-      logMessage(error)
-    }
   },
 })
 
