@@ -28,7 +28,7 @@ async function loadPlugin(pluginImport) {
     try {
         Debug.logMessage(`Loading ${pluginImport.name}...\n{`);
         await pluginImport.main();
-        Debug.logMessage(`}\nLoaded successfully!`);
+        Debug.logMessage(`}\n${pluginImport.name} loaded successfully!`);
     } catch {
         Debug.logMessage(`}\nError has occured during the load, read below!\n${error}`);
     }
