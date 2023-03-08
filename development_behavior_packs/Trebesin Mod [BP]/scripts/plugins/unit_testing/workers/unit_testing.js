@@ -1,6 +1,7 @@
 import { sendMessage } from "../../../mc_modules/players";
 import { Commands } from "../../backend/backend";
 import { isAdmin } from "../../commands/workers/admin"
+import { logMessage } from "../../debug/debug";
 
 const unitTestingList = {child: [
     {name: 'block_history', child: [
@@ -80,6 +81,7 @@ function showOption(object, positionArray){
 
 
 export async function main(){
+    try{
     Commands.registerCommand("unittesting", {aliases: ["ut"], senderCheck: isAdmin(), parameters: [
         {id: 'command', type: "string", optional: true, choice: {
             run: [
@@ -205,4 +207,8 @@ export async function main(){
         }
     }
 })
+}
+catch(error){
+    logMessage(error)
+}
 }
