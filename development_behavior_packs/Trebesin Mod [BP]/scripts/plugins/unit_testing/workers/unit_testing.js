@@ -120,6 +120,7 @@ export async function main(){
                 logMessage([...currentActiveUnitTestingPerPlayer[sender.id].position].pop())
                 if(currentActiveUnitTestingPerPlayer[sender.id].position
                     [currentActiveUnitTestingPerPlayer[sender.id].position.length - 1] + 1 >= getObjectFromIndex(unitTestingList, [...currentActiveUnitTestingPerPlayer[sender.id].position].pop()).child.length){
+                        logMessage("have i got through this")
                     //doing the parent navigation
                     if(currentActiveUnitTestingPerPlayer[sender.id]?.position.length <= 1){
                     sendMessage('gj you have finished the unitTesting. If everything is included in the list in \\development_behavior_packs\\Trebesin Mod [BP]\\scripts\\plugins\\debug\\workers\\unit_testing.js you\'re now free to make a pr to stable', 'cmd - unitTesting', sender)
