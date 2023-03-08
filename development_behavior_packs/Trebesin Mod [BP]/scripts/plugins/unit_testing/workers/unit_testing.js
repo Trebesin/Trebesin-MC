@@ -132,6 +132,7 @@ export async function main(){
                 }
                 else{
                     currentActiveUnitTestingPerPlayer[sender.id].position[ currentActiveUnitTestingPerPlayer[sender.id].position.length - 1]++
+                    showOption(unitTestingList, currentActiveUnitTestingPerPlayer[sender.id].position, sender)
                 }
                 break;
             case 'previous':
@@ -141,6 +142,7 @@ export async function main(){
                 }
                 if(currentActiveUnitTestingPerPlayer[sender.id].position[ currentActiveUnitTestingPerPlayer[sender.id].position.length - 1 ] !== 0){
                     currentActiveUnitTestingPerPlayer[sender.id].position[ currentActiveUnitTestingPerPlayer[sender.id].position.length - 1 ]--;
+                    showOption(unitTestingList, currentActiveUnitTestingPerPlayer[sender.id].position, sender)
                 }
                 else {
                     sendMessage("you are already at the first feature. To go up the hieararchy use !unittesting parent", 'cmd - unitTesting', sender)
