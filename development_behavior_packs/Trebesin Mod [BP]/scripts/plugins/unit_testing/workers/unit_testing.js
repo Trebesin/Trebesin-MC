@@ -82,14 +82,20 @@ function showOption(object, positionArray, sender){
     sendMessage(`${getObjectFromIndex(object, positionArray).child? 'this feature does have a child' : 'this feature doesn\'t have a child'}`)
 }
 
+function createItem(commandName, parameters, name, sender) {
+    const commandItem = new ItemStack(ItemTypes.get('trebesin:cmd_universal'),1);
+    commandItem.setLore([commandName,parameters.join(' ')]);
+    commandItem.nameTag = name;
+    sender.getComponent('inventory').container.addItem(commandItem);
+}
 function getTools(sender){
-    Commands.runCommand('itemcommand', 'ut parent', sender)
-    Commands.runCommand('itemcommand', 'ut previous', sender)
-    Commands.runCommand('itemcommand', 'ut run', sender)
-    Commands.runCommand('itemcommand', 'ut show', sender)
-    Commands.runCommand('itemcommand', 'ut next', sender)
-    Commands.runCommand('itemcommand', 'ut child', sender)
-    Commands.runCommand('itemcommand', 'ut stop', sender)
+    Commands.runCommand('itemcommand', 'ut parent', 'parent', sender)
+    Commands.runCommand('itemcommand', 'ut previous', 'previous', sender)
+    Commands.runCommand('itemcommand', 'ut run', 'run', sender)
+    Commands.runCommand('itemcommand', 'ut show', 'show', sender)
+    Commands.runCommand('itemcommand', 'ut next', 'next', sender)
+    Commands.runCommand('itemcommand', 'ut child', 'child', sender)
+    Commands.runCommand('itemcommand', 'ut stop', 'stop', sender)
 }
 
 export async function main(){
