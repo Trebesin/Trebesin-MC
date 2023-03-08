@@ -35,7 +35,7 @@ export async function main() {
             const actorRecords = blockUpdates[actorId];
             for (let index = 0;index < actorRecords.length;index++) {
                 const record = actorRecords[index];
-                request.sql += '(?,?,?,?,?,?,?,?,?,?,?,?)';
+                request.sql += '(?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
                 request.sql += (index+1 === actorRecords.length) ? ';' : ',';
                 request.values.push(
                     actorId,
@@ -59,6 +59,7 @@ export async function main() {
         }
         if (empty) return 0;
         try {
+            Debug.logMessage(request.sql)
             Debug.logMessage(JSON.stringify(await connection.query(request,true)));
         } catch (error) {
             Debug.sendLogMessage(`${error}`);
