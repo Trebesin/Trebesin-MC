@@ -3,6 +3,7 @@ import { Commands } from "../../backend/backend";
 import { isAdmin } from "../../commands/workers/admin"
 import { logMessage } from "../../debug/debug";
 import { variables as ServerConfig } from '@minecraft/server-admin';
+import {world,ItemTypes, ItemStack} from '@minecraft/server';
 
 const unitTestingList = {child: [
     {name: 'block_history', child: [
