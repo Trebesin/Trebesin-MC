@@ -162,6 +162,7 @@ export async function main() {
             Debug.sendLogMessage(player.id)
             const offset = FACE_DIRECTIONS[eventData.blockFace];
             const faceBlockLocation = sumVectors(eventData.BlockLocation,offset);
+            Debug.sendLogMessage(player.id)
             if (player.hasTag('inspector')){
                     eventData.cancel = true;
                     if (getEquipedItem(player) != null) BlockHistoryCommandsWorker.inspector(faceBlockLocation, player);
