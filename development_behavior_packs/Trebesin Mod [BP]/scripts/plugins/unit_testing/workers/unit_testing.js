@@ -4,6 +4,7 @@ import { isAdmin } from "../../commands/workers/admin"
 import { logMessage } from "../../debug/debug";
 import { variables as ServerConfig } from '@minecraft/server-admin';
 import {world,ItemTypes, ItemStack} from '@minecraft/server';
+import * as blockyTools from '../../blocky_tools/workers/commands'
 
 const unitTestingList = {child: [
     {name: 'block_history', child: [
@@ -64,6 +65,21 @@ const unitTestingList = {child: [
         {name: '!getcoords', debug: true, run: (sender) => {Commands.runCommand('getcoords', '', sender)}},
         {name: '!testselector @e[type=!pig]', debug: true, run: (sender) => {Commands.runCommand('testselector', '@e[type=!pig]', sender)}},
         {name: '!testpos ~ ~ ~', debug: true, run: (sender) => {Commands.runCommand('testpos', '~ ~ ~', sender)}},
+    ]},
+    {name: 'items', child: [
+        {name: 'phaser', run: (sender) => {getNormalItem('trebesin:cmd_phaser', sender)}},
+        {name: 'debug stick', run: (sender) => {getNormalItem('trebesin:bt_debug_stick', sender)}},
+        {name: 'bt axe', run: (sender) => {getNormalItem('trebesin:bt_blocky_axe', sender)}},
+        {name: 'stick', run: (sender) => {getNormalItem('minecraft:stick', sender)}},
+        {name: 'diamond sword', run: (sender) => {getNormalItem('minecraft:diamond_sword', sender)}}
+    ]},
+    {name: 'blocky tools', child: [
+        {name: '.idk ~ ~ ~ minecraft:tnt 5', run: (sender) => {blockyTools.Commands.runCommand('idk', '~ ~ ~ minecraft:tnt 5', sender)}}
+    ]},
+    {name: 'server', child: [
+        {name: 'test if lava can be placed', run: (sender) => {Commands.runCommand('allowbuild', '@s', sender)}},
+        {name: 'test if tnt is fine', run: (sender) => {Commands.runCommand('allowbuild', '@s', sender)}},
+        {name: 'test nv',run: (sender) => {Commands.runCommand('nv', '', sender)}}
     ]}
 ]}
 let currentActiveUnitTestingPerPlayer = {}
@@ -80,6 +96,11 @@ function showOption(object, positionArray, sender){
     sendMessage(`unitTesting for: §c ${getObjectFromIndex(object, positionArray).name}`, 'cmd - unitTesting', sender)
     sendMessage('use !ut run for running or !ut [next|previous|parent|child] for navigating', 'cmd - unitTesting', sender)
     sendMessage(`${getObjectFromIndex(object, positionArray).child? 'this feature does have a child' : 'this feature doesn\'t have a child'}`)
+}
+function getNormalItem(item, sender, name = null){
+    const commandItem = new ItemStack(ItemTypes.get(item),1);
+    if(name)commandItem.nameTag = name;
+    sender.getComponent('inventory').container.addItem(commandItem);
 }
 
 function createItem(commandName, parameters, name, sender) {
