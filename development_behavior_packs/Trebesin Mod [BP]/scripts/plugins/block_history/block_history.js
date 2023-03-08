@@ -159,6 +159,7 @@ export async function main() {
         try {
             Debug.sendLogMessage("does this run?")
             const player = eventData.source;
+            Debug.sendLogMessage(player.id)
             const offset = FACE_DIRECTIONS[eventData.blockFace];
             const faceBlockLocation = sumVectors(eventData.BlockLocation,offset);
             if (player.hasTag('inspector')){
