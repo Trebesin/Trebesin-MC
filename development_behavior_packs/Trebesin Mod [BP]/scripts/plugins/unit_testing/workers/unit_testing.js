@@ -82,7 +82,15 @@ function showOption(object, positionArray, sender){
     sendMessage(`${getObjectFromIndex(object, positionArray).child? 'this feature does have a child' : 'this feature doesn\'t have a child'}`)
 }
 
-
+function getTools(sender){
+    Commands.runCommand('itemcommand', 'ut parent', sender)
+    Commands.runCommand('itemcommand', 'ut previous', sender)
+    Commands.runCommand('itemcommand', 'ut run', sender)
+    Commands.runCommand('itemcommand', 'ut show', sender)
+    Commands.runCommand('itemcommand', 'ut next', sender)
+    Commands.runCommand('itemcommand', 'ut child', sender)
+    Commands.runCommand('itemcommand', 'ut stop', sender)
+}
 
 export async function main(){
     Commands.registerCommand("unittesting", {aliases: ["ut"], senderCheck: isAdmin, parameters: [
@@ -103,6 +111,9 @@ export async function main(){
 
             ],
             show: [
+
+            ],
+            tools: [
 
             ],
             stop: [
@@ -211,6 +222,7 @@ export async function main(){
                 if(!currentActiveUnitTestingPerPlayer[sender.id]){
                     currentActiveUnitTestingPerPlayer[sender.id] = {player: sender, position: [0]}
                     showOption(unitTestingList, currentActiveUnitTestingPerPlayer[sender.id].position, sender)
+                    getTools(sender)
                 }
                 else{
                     sendMessage('the unit testing is currently active! use !unittesting stop and then run this again to reset', 'cmd - unitTesting', sender)
