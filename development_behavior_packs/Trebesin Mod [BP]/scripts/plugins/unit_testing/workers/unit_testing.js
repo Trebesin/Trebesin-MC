@@ -81,7 +81,6 @@ function showOption(object, positionArray){
 
 
 export async function main(){
-    try{
     Commands.registerCommand("unittesting", {aliases: ["ut"], senderCheck: isAdmin, parameters: [
         {id: 'command', type: "string", optional: true, choice: {
             run: [
@@ -107,6 +106,7 @@ export async function main(){
             ]
         }}
     ], run: (sender, parameters) => {
+        try {
         switch(parameters.command){
             case 'next':
                 if(!currentActiveUnitTestingPerPlayer[sender.id]){
@@ -205,10 +205,9 @@ export async function main(){
                     sendMessage('the unit testing is currently active! use !unittesting stop and then run this again to reset', 'cmd - unitTesting', sender)
                 }
         }
+    }catch(error){
+        logMessage(error)
+    }
     }
 })
-}
-catch(error){
-    logMessage(error)
-}
 }
