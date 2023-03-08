@@ -157,11 +157,9 @@ export async function main() {
     //## Inspector
     Server.events.beforeItemStartUseOn.subscribe((eventData) => {
         try {
-            Debug.sendLogMessage("does this run?")
             const player = eventData.source;
-            Debug.sendLogMessage(player.id)
             const offset = FACE_DIRECTIONS[eventData.blockFace];
-            Debug.sendLogMessage(player.id)
+            Debug.logMessage(`${offset.x} ${offset.y} ${offset.z}${eventData.blockLocation.x} ${eventData.blockLocation.y} ${eventData.blockLocation.z}`)
             const faceBlockLocation = sumVectors(eventData.blockLocation,offset);
             Debug.sendLogMessage(player.id)
             if (player.hasTag('inspector')){
