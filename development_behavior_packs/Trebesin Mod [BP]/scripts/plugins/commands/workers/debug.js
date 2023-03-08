@@ -10,6 +10,11 @@ import { sendMessage } from '../../../mc_modules/players';
 
 export function main(){
   if(!ServerConfig.get('debug-enabled')) return;
+  /*
+
+  ----these feature has been tested and the propability of them beraking is low that's why the code is commented.---
+  ----It's not removed hovewer in case those features unexpactably breaks---
+
   Commands.registerCommand('testArray', { aliases:[], parameters:[
         {type:'pos',id:'location'},
         {type:'string',id:'strArray',array:3},
@@ -37,6 +42,9 @@ export function main(){
       })
     }
   })
+
+  */
+ 
   Commands.registerCommand("databasedisconnect", {aliases: ["dbdisconnect", "dbdis"], parameters: [], senderCheck: isAdmin, run: async (sender) =>  {
       try {
         await DB.disconnect();

@@ -6,6 +6,7 @@ import * as ServerPlugin from './plugins/server/server';
 import * as CommandsPlugin from './plugins/commands/commands';
 import * as Debug from './plugins/debug/debug';
 import * as Backend from './plugins/backend/backend';
+import * as unitTesting from './plugins/unit_testing/unit_testing'
 
 //#This is the main executable file of the script. It loads all imported plugins.
 //#Order of the loading is important, Debug and Backend must be loaded first!
@@ -22,6 +23,7 @@ async function executePlugins() {
     await loadPlugin(BlockHistoryPlugin);
     await loadPlugin(BlockyToolsPlugin);
     await loadPlugin(CommandsPlugin);
+    await loadPlugin(unitTesting)
 }
 
 async function loadPlugin(pluginImport) {
