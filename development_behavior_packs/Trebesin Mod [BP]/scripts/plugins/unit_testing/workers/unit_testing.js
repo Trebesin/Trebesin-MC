@@ -236,7 +236,7 @@ export async function main(){
                 }
         }
     }catch(error){
-        logMessage(error)
+        logMessage(error.lineNumber)
     }
     }
 })
