@@ -114,9 +114,9 @@ export async function main(){
                     sendMessage("there is not a unitTesting session running. Use !unittesting to initiate.", 'cmd - unitTesting', sender)
                     break;
                 }
-                let locationWithoutTheLast = currentActiveUnitTestingPerPlayer[sender.id].location
+                let locationWithoutTheLast = currentActiveUnitTestingPerPlayer[sender.id].position
                 locationWithoutTheLast.pop()
-                if(currentActiveUnitTestingPerPlayer[sender.id].location[ currentActiveUnitTestingPerPlayer[sender.id].location.length - 1] + 1 >= getObjectFromIndex(unitTestingList, locationWithoutTheLast).child.length){
+                if(currentActiveUnitTestingPerPlayer[sender.id].position[ currentActiveUnitTestingPerPlayer[sender.id].position.length - 1] + 1 >= getObjectFromIndex(unitTestingList, position).child.length){
                     //doing the parent navigation
                     if(currentActiveUnitTestingPerPlayer[sender.id]?.position.length <= 1){
                     sendMessage('gj you have finished the unitTesting. If everything is included in the list in \\development_behavior_packs\\Trebesin Mod [BP]\\scripts\\plugins\\debug\\workers\\unit_testing.js you\'re now free to make a pr to stable', 'cmd - unitTesting', sender)
@@ -127,7 +127,7 @@ export async function main(){
                     showOption(unitTestingList, currentActiveUnitTestingPerPlayer[sender.id].position, sender)
                 }
                 else{
-                    currentActiveUnitTestingPerPlayer[sender.id].location[ currentActiveUnitTestingPerPlayer[sender.id].location.length - 1]++
+                    currentActiveUnitTestingPerPlayer[sender.id].position[ currentActiveUnitTestingPerPlayer[sender.id].position.length - 1]++
                 }
                 break;
             case 'previous':
@@ -135,8 +135,8 @@ export async function main(){
                     sendMessage("there is not a unitTesting session running. Use !unittesting to initiate.", 'cmd - unitTesting', sender)
                     break;
                 }
-                if(currentActiveUnitTestingPerPlayer[sender.id].location[ currentActiveUnitTestingPerPlayer[sender.id].location.length - 1 ] !== 0){
-                    currentActiveUnitTestingPerPlayer[sender.id].location[ currentActiveUnitTestingPerPlayer[sender.id].location.length - 1 ]--;
+                if(currentActiveUnitTestingPerPlayer[sender.id].position[ currentActiveUnitTestingPerPlayer[sender.id].position.length - 1 ] !== 0){
+                    currentActiveUnitTestingPerPlayer[sender.id].position[ currentActiveUnitTestingPerPlayer[sender.id].position.length - 1 ]--;
                 }
                 else {
                     sendMessage("you are already at the first feature. To go up the hieararchy use !unittesting parent", 'cmd - unitTesting', sender)
@@ -168,8 +168,8 @@ export async function main(){
                 }
                 const object = getObjectFromIndex(unitTestingList, currentActiveUnitTestingPerPlayer[sender.id].position)
                 if(object.child){
-                    currentActiveUnitTestingPerPlayer[sender.id].location.push(0)
-                    showOption(unitTestingList, currentActiveUnitTestingPerPlayer[sender.id].location, sender)
+                    currentActiveUnitTestingPerPlayer[sender.id].position.push(0)
+                    showOption(unitTestingList, currentActiveUnitTestingPerPlayer[sender.id].position, sender)
                 }
                 else {
                     sendMessage("this option has no children", 'cmd - unitTesting', sender)
