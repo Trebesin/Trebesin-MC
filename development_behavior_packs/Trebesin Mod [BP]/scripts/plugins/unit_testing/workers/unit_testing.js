@@ -159,7 +159,7 @@ export async function main(){
                     sendMessage("there is not a unitTesting session running. Use !unittesting to initiate.", 'cmd - unitTesting', sender)
                     break;
                 }
-                logMessage(currentActiveUnitTestingPerPlayer[sender.id].position)
+                logMessage(`position: ${currentActiveUnitTestingPerPlayer[sender.id].position}`)
                 showOption(unitTestingList, currentActiveUnitTestingPerPlayer[sender.id].position, sender)
                 break;
             case 'child':
