@@ -161,12 +161,12 @@ export async function main() {
             const player = eventData.source;
             Debug.sendLogMessage(player.id)
             const offset = FACE_DIRECTIONS[eventData.blockFace];
-            const faceBlockLocation = sumVectors(eventData.BlockLocation,offset);
+            const faceBlockLocation = sumVectors(eventData.blockLocation,offset);
             Debug.sendLogMessage(player.id)
             if (player.hasTag('inspector')){
                     eventData.cancel = true;
                     if (getEquipedItem(player) != null) BlockHistoryCommandsWorker.inspector(faceBlockLocation, player);
-                    else BlockHistoryCommandsWorker.inspector(eventData.getBlockLocation(), player);
+                    else BlockHistoryCommandsWorker.inspector(eventData.blockLocation(), player);
             }
         }
         catch(error){
