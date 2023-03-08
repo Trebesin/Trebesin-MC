@@ -157,6 +157,7 @@ export async function main() {
     //## Inspector
     Server.events.beforeItemStartUseOn.subscribe((eventData) => {
         try {
+            Debug.sendLogMessage("does this run?")
             const player = eventData.source;
             const offset = FACE_DIRECTIONS[eventData.blockFace];
             const faceBlockLocation = sumVectors(eventData.BlockLocation,offset);
