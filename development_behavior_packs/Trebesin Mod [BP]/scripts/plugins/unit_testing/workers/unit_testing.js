@@ -73,7 +73,7 @@ function getObjectFromIndex(object, positionArray){
     return getObjectFromIndex(newObject, positionArray)
 }
 
-function showOption(object, positionArray){
+function showOption(object, positionArray, sender){
     sendMessage(`unitTesting for: ${getObjectFromIndex(object, positionArray).name}`, 'cmd - unitTesting', sender)
     sendMessage('use !ut run for running or !ut [next|previous|parent|child] for navigating', 'cmd - unitTesting', sender)
     sendMessage(`${getObjectFromIndex(object, positionArray).child? 'this feature does have a child' : 'this feature doesn\'t have a child'}`)
@@ -124,7 +124,7 @@ export async function main(){
                     break;
                     }
                     currentActiveUnitTestingPerPlayer[sender.id].position.pop()
-                    showOption(unitTestingList, currentActiveUnitTestingPerPlayer[sender.id].position)
+                    showOption(unitTestingList, currentActiveUnitTestingPerPlayer[sender.id].position, sender)
                 }
                 else{
                     currentActiveUnitTestingPerPlayer[sender.id].location[ currentActiveUnitTestingPerPlayer[sender.id].location.length - 1]++
@@ -152,14 +152,14 @@ export async function main(){
                     break;
                 }
                 currentActiveUnitTestingPerPlayer[sender.id].position.pop()
-                showOption(unitTestingList, currentActiveUnitTestingPerPlayer[sender.id].position)
+                showOption(unitTestingList, currentActiveUnitTestingPerPlayer[sender.id].position, sender)
                 break;
             case 'show':
                 if(!currentActiveUnitTestingPerPlayer[sender.id]){
                     sendMessage("there is not a unitTesting session running. Use !unittesting to initiate.", 'cmd - unitTesting', sender)
                     break;
                 }
-                showOption(unitTestingList, currentActiveUnitTestingPerPlayer[sender.id].position)
+                showOption(unitTestingList, currentActiveUnitTestingPerPlayer[sender.id].position, sender)
                 break;
             case 'child':
                 if(!currentActiveUnitTestingPerPlayer[sender.id]){
@@ -169,7 +169,7 @@ export async function main(){
                 const object = getObjectFromIndex(unitTestingList, currentActiveUnitTestingPerPlayer[sender.id].position)
                 if(object.child){
                     currentActiveUnitTestingPerPlayer[sender.id].location.push(0)
-                    showOption(unitTestingList, currentActiveUnitTestingPerPlayer[sender.id].location)
+                    showOption(unitTestingList, currentActiveUnitTestingPerPlayer[sender.id].location, sender)
                 }
                 else {
                     sendMessage("this option has no children", 'cmd - unitTesting', sender)
@@ -201,7 +201,7 @@ export async function main(){
                 if(!currentActiveUnitTestingPerPlayer[sender.id]){
                     currentActiveUnitTestingPerPlayer[sender.id] = {player: sender, position: [0]}
                     logMessage("before or after>>>>")
-                    showOption(unitTestingList, currentActiveUnitTestingPerPlayer[sender.id].position)
+                    showOption(unitTestingList, currentActiveUnitTestingPerPlayer[sender.id].position, sender)
                     logMessage("before or after<<<<")
                 }
                 else{
