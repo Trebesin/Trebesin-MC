@@ -59,7 +59,7 @@ export async function main() {
         }
         if (empty) return 0;
         try {
-            Debug.logMessage(await connection.query(request,true));
+            Debug.logMessage(JSON.stringify(await connection.query(request,true)));
         } catch (error) {
             Debug.sendLogMessage(`${error}`);
         }
