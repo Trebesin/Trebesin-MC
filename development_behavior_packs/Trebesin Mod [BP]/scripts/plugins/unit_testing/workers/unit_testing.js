@@ -199,7 +199,9 @@ export async function main(){
             default: 
                 if(!currentActiveUnitTestingPerPlayer[sender.id]){
                     currentActiveUnitTestingPerPlayer[sender.id] = {player: sender, position: [0]}
+                    logMessage("before or after>>>>")
                     showOption(unitTestingList, currentActiveUnitTestingPerPlayer[sender.id].position)
+                    logMessage("before or after<<<<")
                 }
                 else{
                     sendMessage('the unit testing is currently active! use !unittesting stop and then run this again to reset', 'cmd - unitTesting', sender)
