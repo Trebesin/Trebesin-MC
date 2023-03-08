@@ -73,7 +73,7 @@ function getObjectFromIndex(object, positionArray){
     const newArray = [...positionArray]
     const newObject = object.child?.[newArray.shift()]
     if(!newObject)return object
-    return getObjectFromIndex(newObject, positionArray)
+    return getObjectFromIndex(newObject, newArray)
 }
 
 function showOption(object, positionArray, sender){
