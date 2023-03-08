@@ -90,13 +90,13 @@ function createItem(commandName, parameters, name, sender) {
     sender.getComponent('inventory').container.addItem(commandItem);
 }
 function getTools(sender){
-    createItem('itemcommand', 'ut parent', 'parent', sender)
-    createItem('itemcommand', 'ut previous', 'previous', sender)
-    createItem('itemcommand', 'ut run', 'run', sender)
-    createItem('itemcommand', 'ut show', 'show', sender)
-    createItem('itemcommand', 'ut next', 'next', sender)
-    createItem('itemcommand', 'ut child', 'child', sender)
-    createItem('itemcommand', 'ut stop', 'stop', sender)
+    createItem('ut', 'parent', 'parent', sender)
+    createItem('ut', 'previous', 'previous', sender)
+    createItem('ut', 'run', 'run', sender)
+    createItem('ut', 'show', 'show', sender)
+    createItem('ut', 'next', 'next', sender)
+    createItem('ut', 'child', 'child', sender)
+    createItem('ut', 'stop', 'stop', sender)
 }
 
 export async function main(){
