@@ -84,8 +84,7 @@ export async function main() {
             itemId === 'minecraft:lava_bucket' ||
             itemId === 'minecraft:lava' ||
             itemId === 'minecraft:flowing_lava' || 
-            itemId === 'minecraft:dragon_egg' ||
-            itemId === 'minecraft:crimson_planks'
+            itemId === 'minecraft:dragon_egg'
         ) {
             sendMessage(`§cYou are not permitted to use the item ${itemId}!§r`,'SERVER',eventData.source);
             if(isAdmin(eventData.source))sendMessage(`§a You hovewer do have the permissions to place lava buckets. Use !allowbuild @s to grant them§r\n`,'SERVER',eventData.source);

@@ -154,6 +154,12 @@ export async function main() {
         });
     });
     
+    world.events.beforeItemUseOn.subscribe((eventData) => {
+        //this prevents an exploit do not remove!!!!
+        if (player.hasTag('inspector')){
+            eventData.cancel = true;
+        }
+    })
     //## Inspector
     Server.events.beforeItemStartUseOn.subscribe((eventData) => {
         const player = eventData.source;
