@@ -85,7 +85,7 @@ function showOption(object, positionArray, sender){
 
 function createItem(commandName, parameters, name, sender) {
     const commandItem = new ItemStack(ItemTypes.get('trebesin:cmd_universal'),1);
-    commandItem.setLore([commandName,parameters.join(' ')]);
+    commandItem.setLore([commandName,parameters]);
     commandItem.nameTag = name;
     sender.getComponent('inventory').container.addItem(commandItem);
 }
@@ -236,7 +236,7 @@ export async function main(){
                 }
         }
     }catch(error){
-        logMessage(error.lineNumber)
+        logMessage(error)
     }
     }
 })
