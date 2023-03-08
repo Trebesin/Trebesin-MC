@@ -53,8 +53,6 @@ export async function main() {
                     record.blockPlaceType,
                     record.blockPlaceID
                 );
-                    Debug.logMessage(JSON.stringify(record.before.permutation.getAllProperties()))
-                    Debug.logMessage(JSON.stringify(record.after.permutation.getAllProperties()))
                 empty = false;
             }
             actorRecords.length = 0;
