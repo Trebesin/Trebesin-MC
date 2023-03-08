@@ -131,7 +131,9 @@ export async function main(){
                     showOption(unitTestingList, currentActiveUnitTestingPerPlayer[sender.id].position, sender)
                 }
                 else{
+                    logMessage("here?")
                     currentActiveUnitTestingPerPlayer[sender.id].position[ currentActiveUnitTestingPerPlayer[sender.id].position.length - 1]++
+                    logMessage("here????????????????")
                 }
                 break;
             case 'previous':
