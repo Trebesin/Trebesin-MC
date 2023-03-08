@@ -164,8 +164,7 @@ export function main() {
   })
 
   Commands.registerCommand("allowbuild", {description: "allows lava placing for players", aliases: ["allowlava", "lavaplace", "allowwater", "waterplace"], senderCheck: isAdmin, parameters: [{id: "player", type: 'selector', optional: true, playersOnly: true}], run: (sender, parameter) => {
-    try{
-    player = parameter.player[0] ?? sender
+    player = parameter.player?.[0] ?? sender
     if(sender.hasTag("certified_builder")) {
       sender.removeTag("certified_builder");
       sendMessage("you have been rewoked the permision to place lava", "§aCMD§f", player);
@@ -176,10 +175,6 @@ export function main() {
       sendMessage("you are now able to place lava", "§aCMD§f", player);
       sendMessage(`${player.name} is now able to place lava`, "§aCMD§f", sender);
     };
-    }
-    catch(error){
-      logMessage(error)
-    }
   },
 })
 
