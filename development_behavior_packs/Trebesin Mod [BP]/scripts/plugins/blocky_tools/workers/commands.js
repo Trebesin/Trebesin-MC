@@ -37,6 +37,7 @@ export async function main() {
      * @param {*} parameters 
      */
     run(sender,parameters) {
+      try{
       const blocks = [];
       logMessage("1")
       generateBlockArea(parameters.location,parameters.size,(location) => {
@@ -54,6 +55,10 @@ export async function main() {
       logMessage("4")
       }
       sendMessage('Successfully generated the thing!','CMD',sender);
+      }
+      catch(error){
+        logMessage(error)
+      }
     }
   })
 }
