@@ -41,6 +41,8 @@ export async function main() {
       try{
       const blocks = [];
       logMessage("1")
+      logMessage(parameters.location)
+      logMessage(parameters.size)
       generateBlockArea(parameters.location,parameters.size,(location) => {
         blocks.push(location);
       });
