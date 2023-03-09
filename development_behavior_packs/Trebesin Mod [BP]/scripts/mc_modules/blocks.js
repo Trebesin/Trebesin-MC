@@ -1,6 +1,6 @@
 import {Block, BlockPermutation, world, system} from '@minecraft/server';
 import { arrayDifference, find } from '../js_modules/array';
-import { sumVectors, compareVectors } from '../js_modules/vector';
+import { sumVectors, compareVectors, copyVector } from '../js_modules/vector';
 import { logMessage, sendLogMessage } from '../plugins/debug/debug';
 import { DIRECTIONS, TREBESIN_PERMUTATIONS } from './constants';
 
@@ -264,13 +264,13 @@ function generateBlockArea(coord,steps = 10,callback = null) {
                     definition: vectorDefinitions.tertiary[index]
                 });
             }
-            coords.push(location);
+            callback(location);
         }
         for (let index = 0;index < lastLength;index++) {
             const vector = sentVectors[index];
             const location = sumVectors(vector.location,vector.definition.vector);
             vector.location = copyVector(location);
-            coords.push(location);
+            callback(location);
             if (vector.definition.sends) {
                 for (let sendIndex = 0;sendIndex < vector.definition.sends.length;sendIndex++) {
                     sentVectors.push({

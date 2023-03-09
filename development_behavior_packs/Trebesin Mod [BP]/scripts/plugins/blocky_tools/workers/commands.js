@@ -4,10 +4,12 @@ import {CommandResult, MinecraftEffectTypes , system, world, Player, MinecraftBl
 import { setBlockType } from '../../block_history/block_history';
 import { isAdmin } from "../../commands/workers/admin";
 //Modules:
+import { generateBlockArea } from '../../../mc_modules/blocks';
 import { generateBlockPyramid } from '../../../js_modules/geometry';
 import { CommandParser } from '../../../mc_modules/commandParser';
 import { sendMessage } from '../../../mc_modules/players';
 import { copyVector, sumVectors } from '../../../js_modules/vector';
+import { logMessage } from '../../debug/debug';
 
 const Commands = new CommandParser({
   prefix: '.', caseSensitive: false
@@ -36,6 +38,7 @@ export async function main() {
      * @param {*} parameters 
      */
     run(sender,parameters) {
+      try{
       const blocks = [];
       generateBlockArea(parameters.location,parameters.size,(location) => {
         blocks.push(location);
@@ -49,6 +52,10 @@ export async function main() {
         );
       }
       sendMessage('Successfully generated the thing!','CMD',sender);
+      }
+      catch(error){
+        logMessage(error)
+      }
     }
   })
 }

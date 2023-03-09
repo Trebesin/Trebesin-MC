@@ -97,7 +97,7 @@ function getObjectFromIndex(object, positionArray){
 function showOption(object, positionArray, sender){
     sendMessage(`unitTesting for: §c ${getObjectFromIndex(object, positionArray).name}`, 'cmd - unitTesting', sender)
     sendMessage('use !ut run for running or !ut [next|previous|parent|child] for navigating', 'cmd - unitTesting', sender)
-    sendMessage(`${getObjectFromIndex(object, positionArray).child? 'this feature does have a child' : 'this feature doesn\'t have a child'}`)
+    sendMessage(`${getObjectFromIndex(object, positionArray).child? 'this feature §a§ldoes§r have a child' : 'this feature §l§cdoesn\'t§r have a child'}`)
 }
 function getNormalItem(item, sender, name = null){
     const commandItem = new ItemStack(ItemTypes.get(item),1);
@@ -113,18 +113,24 @@ function createItem(commandName, parameters, name, sender) {
 }
 function getTools(sender){
     createItem('ut', 'parent', 'parent', sender)
-    createItem('ut', 'previous', 'previous', sender)
     createItem('ut', 'run', 'run', sender)
-    createItem('ut', 'show', 'show', sender)
     createItem('ut', 'next', 'next', sender)
     createItem('ut', 'child', 'child', sender)
-    createItem('ut', 'stop', 'stop', sender)
+    createItem('ut', 'show', 'show', sender)
+    createItem('ut', 'previous', 'previous', sender)
+    createItem('ut', 'export', 'export state', sender)
 }
 
 export async function main(){
     Commands.registerCommand("unittesting", {aliases: ["ut"], senderCheck: isAdmin, parameters: [
         {id: 'command', type: "string", optional: true, choice: {
             run: [
+
+            ],
+            import: [
+                {type: "int", id: "import", array: Infinity, fullArray: false}
+            ],
+            export: [
 
             ],
             parent: [
@@ -205,7 +211,6 @@ export async function main(){
                     sendMessage("there is not a unitTesting session running. Use !unittesting to initiate.", 'cmd - unitTesting', sender)
                     break;
                 }
-                logMessage(`position: ${currentActiveUnitTestingPerPlayer[sender.id].position}`)
                 showOption(unitTestingList, currentActiveUnitTestingPerPlayer[sender.id].position, sender)
                 break;
             case 'child':
@@ -243,15 +248,25 @@ export async function main(){
                     sendMessage('this unitTesting option doesn\'t have a run feature', 'cmd - unitTesting', sender)
                     break;
                 }
-                sendMessage('running the run option [', "", sender)
+                sendMessage('§arunning the run option', "", sender)
                 runObject.run(sender);
-                sendMessage(']\nfinished the run option', "", sender)
                 break;
+            case 'export':
+                createItem('ut', `import ${currentActiveUnitTestingPerPlayer[sender.id].position.join(' ')}`, 'right click this to get back to testing', sender)
+                sendMessage('created the item to restore this session', 'cmd - unitTesting', sender)
+                break;
+            case 'import':
+                if(!currentActiveUnitTestingPerPlayer[sender.id]){
+                    currentActiveUnitTestingPerPlayer[sender.id] = {player: sender, position: parameters.import}
+                    showOption(unitTestingList, currentActiveUnitTestingPerPlayer[sender.id].position, sender)
+                }
+                else{
+                    sendMessage('the unit testing is currently active! use !unittesting stop and then run this again to import', 'cmd - unitTesting', sender)
+                }
             default: 
                 if(!currentActiveUnitTestingPerPlayer[sender.id]){
                     currentActiveUnitTestingPerPlayer[sender.id] = {player: sender, position: [0]}
                     showOption(unitTestingList, currentActiveUnitTestingPerPlayer[sender.id].position, sender)
-                    getTools(sender)
                 }
                 else{
                     sendMessage('the unit testing is currently active! use !unittesting stop and then run this again to reset', 'cmd - unitTesting', sender)

@@ -5,6 +5,7 @@ import * as BlockHistoryPlugin from "../block_history";
 import { Commands, sendLongMessage, DB } from '../../backend/backend';
 import { isAdmin, isMod } from "../../commands/workers/admin";
 import { logMessage, sendLogMessage } from "../../debug/debug";
+//sdf
 //Modules:
 import { copyBlock, getPermutations, setPermutationFromObject } from "../../../mc_modules/blocks";
 import { sendMessage} from "../../../mc_modules/players";
@@ -14,6 +15,7 @@ import { CommandError } from "../../../mc_modules/commandParser";
 let particlesPerPlayers = {}
 let confirmationPerPlayer = {}
 let lastParticleCall = {}
+let lastCall = {}
 const PARTICLE_LIMIT = 1000//particle limit per player
 
 function main(){
@@ -56,325 +58,416 @@ function main(){
 
 
     async function blockHistoryHandler(sender, parameter){
-        if (isMod(sender) && (parameter.command === "rb" || parameter.command === "reverseblock")) {
-            let pos = parameter.coords ?? sender.location
-            pos.x = Math.floor(pos.x)
-            pos.y = Math.floor(pos.y)
-            pos.z = Math.floor(pos.z)
-            let request = {}
-
-            try{
-                request = sqlRequestHandler(parameter, {type: "block", pos: pos})
-            }
-            catch(error){
-                sendMessage(`invalid until/startingFrom parameter: ${error}`, "blockHistory", sender)
-                return;
-            }
-            try {
-                const response = await DB.query(request);
-                if(!printBlockHistory(response, {type: "block", pos: pos}, sender))return;
-
-                if(parameter.particles ?? false){
-                    getEdgeLocations([pos], (loc,axis) => {
-                        addActiveParticles(loc,axis,sender);
-                    })
+        switch(parameter.command){
+            case 'warp':
+                if(!lastCall[sender.id]){
+                    sendMessage("there is nothing to warp to", "blockHistory", sender)
                 }
-                else{
-                    if(lastParticleCall[sender.id])delete lastParticleCall[sender.id]
-                    sendMessage(`you can use !bh show to see these changes using particles`, "blockHistory", sender)
-                    lastParticleCall[sender.id] = {
-                        callback: () => {
-                            getEdgeLocations([pos], (loc,axis) => {
-                                addActiveParticles(loc,axis,sender);
-                            })
-                        }
+                {
+                    const index = parameter.index ?? 1
+                    if(index < 0 || index >= lastCall[sender.id].length){
+                        sendMessage('invalid index', 'blockHistory', sender)
                     }
+                    sender.teleport(lastCall[sender.id][index-1], sender.dimension, sender.getRotation().x, sender.getRotation().y)
                 }
-                sendMessage(`are you sure you want to reverse these changes?\n - !bh confirm to confirm or !bh cancel to cancel`,'blockHistory',sender);
+                break;
+            case 'rb':
+            case 'reverseblock':
+                if(!isMod(sender)){
+                    sendMessage('sorry you don\'t have permision to use this command. use !bh help for available commands')
+                    break;
+                }
+                {
+                    let pos = parameter.coords ?? sender.location
+                    pos.x = Math.floor(pos.x)
+                    pos.y = Math.floor(pos.y)
+                    pos.z = Math.floor(pos.z)
+                    let request = {}
+                    try{
+                        request = sqlRequestHandler(parameter, {type: "block", pos: pos})
+                    }
+                    catch(error){
+                        sendMessage(`invalid until/startingFrom parameter: ${error}`, "blockHistory", sender)
+                        break;
+                    }
+                    const response = await DB.query(request);
 
-                if(confirmationPerPlayer[sender.id]) delete confirmationPerPlayer[sender.id];
-                confirmationPerPlayer[sender.id] = {
-                    player: sender,
-                    confirmed: false,
-                    callback: () => {
-                        reverseBlocks(response.result, sender)
-                    },
-                    countdown: 1200
-                };
-            }
-            catch (error) {
-                sendMessage(`${error}`,'blockHistory',sender);
-            }
-        }
+                    if(!response.result[0]?.x && response.result != ""){
+                        sendMessage('§c critical Mysql error. Contact admins for fix', 'BlockHistory', sender)
+                        sendLogMessage(JSON.stringify(response.result))
+                        break;
+                    }
 
-        else if(isMod(sender) && (parameter.command === "show")){
-            if(lastParticleCall[sender.id]){
-                lastParticleCall[sender.id].callback()
-                delete lastParticleCall[sender.id]
-                sendMessage("showing particles..", "blockHistory", sender)
-            }
-            else sendMessage("there is nothing to show", "blockHistory", sender)
-        }
+                    if(!printBlockHistory(response, {type: "block", pos: pos}, sender))break;
 
-        else if (isMod(sender) && (parameter.command === "b" || parameter.command === "block")) {
-            let pos = parameter.coords ?? sender.location
-            pos.x = Math.floor(pos.x)
-            pos.y = Math.floor(pos.y)
-            pos.z = Math.floor(pos.z)
-            let request = {}
-            try{
-                request = sqlRequestHandler(parameter, {type: "block", pos: pos})
-            }
-            catch(error){
-                sendMessage(`invalid until/startingFrom parameter: ${error}`, "blockHistory", sender)
-                return;
-            }
-            try {
-                const response = await DB.query(request);
-                sendLogMessage(JSON.stringify(response.result))
+                    lastCall[sender.id] = response.result
+                    sendMessage('You can use !bh warp [index] to warp to a block', "blockHistory", sender)
 
-                if(!printBlockHistory(response, {type: "block", pos: pos}, sender))return;
-
-                else if(parameter.particles ?? false){
+                    if(parameter.particles ?? false){
                         getEdgeLocations([pos], (loc,axis) => {
                             addActiveParticles(loc,axis,sender);
                         })
-                }
-                else{
-                    if(lastParticleCall[sender.id])delete lastParticleCall[sender.id]
-                    sendMessage(`you can use !bh show to see these changes using particles`, "blockHistory", sender)
-                    lastParticleCall[sender.id] = {
+                    }
+                    else{
+                        if(lastParticleCall[sender.id])delete lastParticleCall[sender.id]
+                        sendMessage(`you can use !bh show to see these changes using particles`, "blockHistory", sender)
+                        lastParticleCall[sender.id] = {
+                            callback: () => {
+                                getEdgeLocations([pos], (loc,axis) => {
+                                    addActiveParticles(loc,axis,sender);
+                                })
+                            }
+                        }
+                    }
+                    sendMessage(`are you sure you want to reverse these changes?\n - !bh confirm to confirm or !bh cancel to cancel`,'blockHistory',sender);
+
+                    if(confirmationPerPlayer[sender.id]) delete confirmationPerPlayer[sender.id];
+                    confirmationPerPlayer[sender.id] = {
+                        player: sender,
+                        confirmed: false,
                         callback: () => {
+                            reverseBlocks(response.result, sender)
+                        },
+                        countdown: 1200
+                    };
+                }
+                break;
+            case "show":
+                if(!isMod(sender)){
+                    sendMessage('sorry you don\'t have permision to use this command. use !bh help for available commands')
+                    break;
+                }
+                {
+                    if(lastParticleCall[sender.id]){
+                        lastParticleCall[sender.id].callback()
+                        delete lastParticleCall[sender.id]
+                        sendMessage("showing particles..", "blockHistory", sender)
+                    }
+                    else sendMessage("there is nothing to show", "blockHistory", sender)
+                }
+                break;
+            case 'b':
+            case 'block':
+                if(!isMod(sender)){
+                    sendMessage('sorry you don\'t have permision to use this command. use !bh help for available commands')
+                    break;
+                }
+                {
+                    let pos = parameter.coords ?? sender.location
+                    pos.x = Math.floor(pos.x)
+                    pos.y = Math.floor(pos.y)
+                    pos.z = Math.floor(pos.z)
+                    let request = {}
+                    try{
+                        request = sqlRequestHandler(parameter, {type: "block", pos: pos})
+                    }
+                    catch(error){
+                        sendMessage(`invalid until/startingFrom parameter: ${error}`, "blockHistory", sender)
+                        break;
+                    }
+                    const response = await DB.query(request);
+
+                    if(!response.result[0]?.x && response.result != ""){
+                        sendMessage('§c critical Mysql error. Contact admins for fix', 'BlockHistory', sender)
+                        sendLogMessage(JSON.stringify(response.result))
+                        break;
+                    }
+
+                    if(!printBlockHistory(response, {type: "block", pos: pos}, sender))break;
+
+                    lastCall[sender.id] = response.result
+                    sendMessage('You can use !bh warp [index] to warp to a block', "blockHistory", sender)
+
+                    if(parameter.particles ?? false){
                             getEdgeLocations([pos], (loc,axis) => {
                                 addActiveParticles(loc,axis,sender);
                             })
+                    }
+                    else{
+                        if(lastParticleCall[sender.id])delete lastParticleCall[sender.id]
+                        sendMessage(`you can use !bh show to see these changes using particles`, "blockHistory", sender)
+                        lastParticleCall[sender.id] = {
+                            callback: () => {
+                                getEdgeLocations([pos], (loc,axis) => {
+                                    addActiveParticles(loc,axis,sender);
+                                })
+                            }
                         }
                     }
                 }
-            }
-            catch (error) {
-                sendMessage(`${error}`,'BlockHistory',sender);
-            }
-        }
-
-        else if (isMod(sender) && (parameter.command === "p" || parameter.command === "player")) {
-            const playerName = parameter.player ?? sender.name
-            let request = {}
-            try{
-                request = sqlRequestHandler(parameter, {type: "player", playerName: playerName})
-            }
-            catch(error){
-                sendMessage(`invalid until/startingFrom parameter: ${error}`, "", sender)
-                return;
-            }
-            try {
-                const response = await DB.query(request);
-
-                if(!printBlockHistory(response, {type: "player"}, sender))return;
-
-                else if(parameter.particles ?? false){
-                    getEdgeLocations(response.result, (loc,axis) => {
-                        addActiveParticles(loc,axis,sender);
-                    })
+                break;
+            case 'p':
+            case 'player':
+                if(!isMod(sender)){
+                    sendMessage('sorry you don\'t have permision to use this command. use !bh help for available commands')
+                    break;
                 }
-                else{
-                    if(lastParticleCall[sender.id])delete lastParticleCall[sender.id]
-                    sendMessage(`you can use !bh show to see these changes using particles`, "blockHistory", sender)
-                    lastParticleCall[sender.id] = {
+                {
+                    const playerName = parameter.player ?? sender.name
+                    let request = {}
+                    try{
+                        request = sqlRequestHandler(parameter, {type: "player", playerName: playerName})
+                    }
+                    catch(error){
+                        sendMessage(`invalid until/startingFrom parameter: ${error}`, "", sender)
+                        break;
+                    }
+                    const response = await DB.query(request);
+                    
+                    if(!response.result[0]?.x && response.result != ""){
+                        sendMessage('§c critical Mysql error. Contact admins for fix', 'BlockHistory', sender)
+                        sendLogMessage(JSON.stringify(response.result))
+                        break;
+                    }
+
+
+                    if(!printBlockHistory(response, {type: "player"}, sender))break;
+
+                    lastCall[sender.id] = response.result
+                    sendMessage('You can use !bh warp [index] to warp to a block', "blockHistory", sender)
+
+                    if(parameter.particles ?? false){
+                        getEdgeLocations(response.result, (loc,axis) => {
+                            addActiveParticles(loc,axis,sender);
+                        })
+                    }
+                    else{
+                        if(lastParticleCall[sender.id])delete lastParticleCall[sender.id]
+                        sendMessage(`you can use !bh show to see these changes using particles`, "blockHistory", sender)
+                        lastParticleCall[sender.id] = {
+                            callback: () => {
+                                getEdgeLocations(response.result, (loc,axis) => {
+                                    addActiveParticles(loc,axis,sender);
+                                })
+                            }
+                        }
+                    }
+                }
+                break;
+            case 'redo':
+                if(!isMod(sender)){
+                    sendMessage('sorry you don\'t have permision to use this command. use !bh help for available commands')
+                    break;
+                }
+                {
+                    const playerName = parameter.player ?? sender.name
+                    const request = {
+                        sql : `
+                            SELECT DISTINCT block_history.*, PlayerConnections.PlayerName 
+                            FROM \`block_history\` 
+                            JOIN (SELECT PlayerID, MAX(ID) AS latest_id 
+                                FROM PlayerConnections 
+                                GROUP BY PlayerID) AS latest_connections 
+                            ON block_history.actor_id = latest_connections.PlayerID 
+                            JOIN PlayerConnections 
+                            ON latest_connections.latest_id = PlayerConnections.ID
+                            WHERE PlayerName = ? AND blockPlaceType = 'blockHistory: reverse' AND blockPlaceTypeID = ?
+                            ORDER BY \`block_history\`.\`tick\` DESC
+                        `,
+                        values : [playerName, parameter.id]
+                    }
+                    const response = await DB.query(request);
+
+                    if(!response.result[0]?.x && response.result != ""){
+                        sendMessage('§c critical Mysql error. Contact admins for fix', 'BlockHistory', sender)
+                        sendLogMessage(JSON.stringify(response.result))
+                        break;
+                    }
+
+                    if(!printBlockHistory(response, {type: "reverse"}, sender))break;
+
+                    lastCall[sender.id] = response.result
+                    sendMessage('You can use !bh warp [index] to warp to a block', "blockHistory", sender)
+
+                    if(parameter.particles ?? false){
+                        getEdgeLocations(response.result, (loc,axis) => {
+                            addActiveParticles(loc,axis,sender);
+                        })
+                    }
+                    else{
+                        if(lastParticleCall[sender.id])delete lastParticleCall[sender.id]
+                        sendMessage(`you can use !bh show to see these changes using particles`, "blockHistory", sender)
+                        lastParticleCall[sender.id] = {
+                            callback: () => {
+                                getEdgeLocations(response.result, (loc,axis) => {
+                                    addActiveParticles(loc,axis,sender);
+                                })
+                            }
+                        }
+                    }
+
+                    sendMessage(`are you sure you want to revert these changes?\n - !bh confirm to confirm or !bh cancel to cancel`,'blockHistory',sender);
+
+                    if(confirmationPerPlayer[sender.id]) delete confirmationPerPlayer[sender.id];
+                    confirmationPerPlayer[sender.id] = {
+                        player: sender,
+                        confirmed: false,
                         callback: () => {
-                            getEdgeLocations(response.result, (loc,axis) => {
-                                addActiveParticles(loc,axis,sender);
-                            })
+                            reverseBlocks(response.result, sender)
+                        },
+                        countdown: 1200
+                    };
+                }
+                break;
+            case 'r':
+            case 'reverse':
+                if(!isMod(sender)){
+                    sendMessage('sorry you don\'t have permision to use this command. use !bh help for available commands')
+                    break;
+                }
+                {
+                    const playerName = parameter.player ?? sender.name
+                    let request = {}
+                    try{
+                        request = sqlRequestHandler(parameter, {type: "player", playerName: playerName})
+                    }
+                    catch(error){
+                        sendMessage(`invalid until/startingFrom parameter: ${error}`, "blockHistory", sender)
+                        break;
+                    }
+                    const response = await DB.query(request);
+
+                    if(!response.result[0]?.x && response.result != ""){
+                        sendMessage('§c critical Mysql error. Contact admins for fix', 'BlockHistory', sender)
+                        sendLogMessage(JSON.stringify(response.result))
+                        break;
+                    }
+
+                    if(!printBlockHistory(response, {type: "player"}, sender))break;
+
+                    lastCall[sender.id] = response.result
+                    sendMessage('You can use !bh warp [index] to warp to a block', "blockHistory", sender)
+
+                    if(parameter.particles ?? false){
+                        getEdgeLocations(response.result, (loc,axis) => {
+                            addActiveParticles(loc,axis,sender);
+                        })
+                    }
+                    else{
+                        if(lastParticleCall[sender.id])delete lastParticleCall[sender.id]
+                        sendMessage(`you can use !bh show to see these changes using particles`, "blockHistory", sender)
+                        lastParticleCall[sender.id] = {
+                            callback: () => {
+                                getEdgeLocations(response.result, (loc,axis) => {
+                                    addActiveParticles(loc,axis,sender);
+                                })
+                            }
                         }
                     }
-                }
 
-            }
-            catch (error) {
-                sendMessage(`${error}`,'blockHistory',sender);
-            }
-        }
+                    sendMessage(`are you sure you want to reverse these changes?\n - !bh confirm to confirm or !bh cancel to cancel`,'blockHistory',sender);
 
-        else if(isMod(sender) && (parameter.command === "redo")) {
-            const playerName = parameter.player ?? sender.name
-            const request = {
-                sql : `
-                    SELECT DISTINCT block_history.*, PlayerConnections.PlayerName 
-                    FROM \`block_history\` 
-                    JOIN (SELECT PlayerID, MAX(ID) AS latest_id 
-                        FROM PlayerConnections 
-                        GROUP BY PlayerID) AS latest_connections 
-                    ON block_history.actor_id = latest_connections.PlayerID 
-                    JOIN PlayerConnections 
-                    ON latest_connections.latest_id = PlayerConnections.ID
-                    WHERE PlayerName = ? AND blockPlaceType = 'blockHistory: reverse' AND blockPlaceTypeID = ?
-                    ORDER BY \`block_history\`.\`tick\` DESC
-                `,
-                values : [playerName, parameter.id]
-            }
-            try {
-                const response = await DB.query(request);
-                if(!printBlockHistory(response, {type: "reverse"}, sender))return;
-
-                if(parameter.particles ?? false){
-                    getEdgeLocations(response.result, (loc,axis) => {
-                        addActiveParticles(loc,axis,sender);
-                    })
-                }
-                else{
-                    if(lastParticleCall[sender.id])delete lastParticleCall[sender.id]
-                    sendMessage(`you can use !bh show to see these changes using particles`, "blockHistory", sender)
-                    lastParticleCall[sender.id] = {
+                    if(confirmationPerPlayer[sender.id]) delete confirmationPerPlayer[sender.id];
+                    confirmationPerPlayer[sender.id] = {
+                        player: sender,
+                        confirmed: false,
                         callback: () => {
-                            getEdgeLocations(response.result, (loc,axis) => {
-                                addActiveParticles(loc,axis,sender);
-                            })
-                        }
+                            reverseBlocks(response.result, sender)
+                        },
+                        countdown: 1200
+                    };
+                }
+                break;
+            case 'confirm':
+                if(!isMod(sender)){
+                    sendMessage('sorry you don\'t have permision to use this command. use !bh help for available commands')
+                    break;
+                }
+                {
+                    try {
+                        confirmationPerPlayer[sender.id].confirmed = true
+                    }
+                    catch {
+                        sendMessage('the confirmation has expired!', 'blockHistory', sender)
                     }
                 }
-
-                sendMessage(`are you sure you want to revert these changes?\n - !bh confirm to confirm or !bh cancel to cancel`,'blockHistory',sender);
-
-                if(confirmationPerPlayer[sender.id]) delete confirmationPerPlayer[sender.id];
-                confirmationPerPlayer[sender.id] = {
-                    player: sender,
-                    confirmed: false,
-                    callback: () => {
-                        reverseBlocks(response.result, sender)
-                    },
-                    countdown: 1200
-                };
-            }
-            catch(error) {
-                sendMessage(`${error}`,'blockHistory',sender);
-            }
-        }
-
-        else if(isMod(sender) && (parameter.command === "r" || parameter.command === "reverse")) {
-            const playerName = parameter.player ?? sender.name
-            let request = {}
-            try{
-                request = sqlRequestHandler(parameter, {type: "player", playerName: playerName})
-            }
-            catch(error){
-                sendMessage(`invalid until/startingFrom parameter: ${error}`, "blockHistory", sender)
-                return;
-            }
-            try {
-                const response = await DB.query(request);
-                if(!printBlockHistory(response, {type: "player"}, sender))return;
-
-                if(parameter.particles ?? false){
-                    getEdgeLocations(response.result, (loc,axis) => {
-                        addActiveParticles(loc,axis,sender);
-                    })
+                break;
+            case 'i':
+            case 'inspector':
+                {
+                    if(!sender.hasTag("inspector")) {
+                        sender.addTag("inspector");
+                        sendMessage("inspector is now turned on, right click a block with your hand or place any block to see its history\n", "blockHistory", sender);
+                    }
+                    else {
+                        sender.removeTag("inspector");
+                        sendMessage("inspector is now turned off", "blockHistory", sender);
+                    };
                 }
-                else{
-                    if(lastParticleCall[sender.id])delete lastParticleCall[sender.id]
-                    sendMessage(`you can use !bh show to see these changes using particles`, "blockHistory", sender)
-                    lastParticleCall[sender.id] = {
-                        callback: () => {
-                            getEdgeLocations(response.result, (loc,axis) => {
-                                addActiveParticles(loc,axis,sender);
-                            })
+                break;
+            case 'cancel':
+                if(!confirmationPerPlayer[sender.id]){
+                    sendMessage("there is nothing to be canceled", "blockHistory", sender)
+                    break;
+                }
+                delete confirmationPerPlayer[sender.id]
+                sendMessage("The call is now aborted", "blockHistory", sender)
+                break;
+            case 'c':
+            case 'clear':
+                if(!isMod(sender)){
+                    sendMessage('sorry you don\'t have permision to use this command. use !bh help for available commands')
+                    break;
+                }
+                {
+                    if(parameter.players){
+                        for(let i = 0;i<parameter.players.length; i++){
+                            const player = parameter.players[i]
+                            removeActiveParticles(player)
                         }
+                    } else {
+                        removeActiveParticles(sender);
                     }
                 }
-
-                sendMessage(`are you sure you want to reverse these changes?\n - !bh confirm to confirm or !bh cancel to cancel`,'blockHistory',sender);
-
-                if(confirmationPerPlayer[sender.id]) delete confirmationPerPlayer[sender.id];
-                confirmationPerPlayer[sender.id] = {
-                    player: sender,
-                    confirmed: false,
-                    callback: () => {
-                        reverseBlocks(response.result, sender)
-                    },
-                    countdown: 1200
-                };
-            }
-            catch(error) {
-                sendMessage(`${error}`,'blockHistory',sender);
-            }
-        }
-
-        else if(isMod(sender) && parameter.command === "confirm") {
-            try {
-                confirmationPerPlayer[sender.id].confirmed = true
-            }
-            catch {
-                sendMessage('the confirmation has expired!', 'blockHistory', sender)
-            }
-        }
-
-        else if(parameter.command === "i" || parameter.command === "inspector"){
-            if(!sender.hasTag("inspector")) {
-                sender.addTag("inspector");
-                sendMessage("inspector is now turned on, right click a block with your hand or place any block to see its history\n", "blockHistory", sender);
-            }
-            else {
-                sender.removeTag("inspector");
-                sendMessage("inspector is now turned off", "blockHistory", sender);
-            };
-        }
-
-        else if(parameter.command === "cancel"){
-            delete confirmationPerPlayer[sender.id]
-            sendMessage("The call is now aborted", "blockHistory", sender)
-        }
-
-        else if(isMod(sender) &&(parameter.command === "c" || parameter.command === "clear")) {
-            if(parameter.players){
-                for(let i = 0;i<parameter.players.length; i++){
-                    const player = parameter.players[i]
-                    removeActiveParticles(player)
+                break;
+            case 'ca':
+            case 'clearall':
+                if(!isMod(sender)){
+                    sendMessage('sorry you don\'t have permision to use this command. use !bh help for available commands')
+                    break;
                 }
-            } else {
-                removeActiveParticles(sender);
-            }
-        }
+                removeAllActiveParticles();
+                break;
+            default:
+                if(isAdmin(sender)){
+                    sendLongMessage(`blockHistory: help`,
+                        `
+    b/block - shows the changes made to block on [x], [y], [z] - parameters: until, startingFrom, location: x, location: y, location: z, allowParticles
+    p/player - shows the changes made by a player - parameters: until, startingFrom, player, allowParticles
+    i/inspect - gets you into inspector mode - when you place blocks it doesn't place them and instead shows you the changes made to that block
+    r/reverse - reverses actions of a player in specific time frame - parameters: until, startingFrom, player, allowParticles
+    rb/reverseblock - reverses a block to it's older state - parameters: until, startingFrom, location: x, location: y, location: z, allowParticles
+    bt/blockytools - show history of blockytools edits - parameters: until, startingFrom, player -- not ready yet
+    rbt/reversebt/reverseblockytools - reverses a blockytools edit using its id - parameters: until, startingFrom, player -- not ready yet
+    redo - reverses an action made by this plugin - parameters: ID, player, allowParticles
+    c/clear - clears all the particles generated by this plugin by a player
+    ca/clearall - clears all the particles generated by this plugin by everyone
+                        `,sender);
+                }
 
-        else if(isMod(sender) && (parameter.command === "ca" || parameter.command === "clearall")) {
-            removeAllActiveParticles();
-        }
+                else if(isMod(sender)){
+                    sendMessage(`blockHistory: help`
+                        `
+    b/block - shows the changes made to block on [x], [y], [z] - parameters: until, startingFrom, location: x, location: y, location: z, allowParticles
+    p/player - shows the changes made by a player - parameters: until, startingFrom, player, allowParticles
+    r/reverse - reverses actions of a player in specific time frame - parameters: until, startingFrom, player, allowParticles
+    rb/reverseblock - reverses a block to it's older state - parameters: until, startingFrom, location: x, location: y, location: z, allowParticles
+    bt/blockytools - show history of blockytools edits - parameters: until, startingFrom, player -- not ready yet
+    rbt/reversebt/reverseblockytools - reverses a blockytools edit using its id - parameters: until, startingFrom, player -- not ready yet
+    redo - reverses an action made by this plugin - parameters: ID, player, allowParticles
+    c/clear - clears all the particles generated by this plugin by a player
+    ca/clearall - clears all the particles generated by this plugin by everyone
+                        `, sender);
+                }
 
-        else if(isAdmin(sender)){
-            sendLongMessage(`blockHistory: help`,
-                `
-b/block - shows the changes made to block on [x], [y], [z] - parameters: until, startingFrom, location: x, location: y, location: z, allowParticles
-p/player - shows the changes made by a player - parameters: until, startingFrom, player, allowParticles
-i/inspect - gets you into inspector mode - when you place blocks it doesn't place them and instead shows you the changes made to that block
-r/reverse - reverses actions of a player in specific time frame - parameters: until, startingFrom, player, allowParticles
-rb/reverseblock - reverses a block to it's older state - parameters: until, startingFrom, location: x, location: y, location: z, allowParticles
-bt/blockytools - show history of blockytools edits - parameters: until, startingFrom, player -- not ready yet
-rbt/reversebt/reverseblockytools - reverses a blockytools edit using its id - parameters: until, startingFrom, player -- not ready yet
-redo - reverses an action made by this plugin - parameters: ID, player, allowParticles
-c/clear - clears all the particles generated by this plugin by a player
-ca/clearall - clears all the particles generated by this plugin by everyone
-                `,sender);
-        }
-
-        else if(isMod(sender)){
-            sendMessage(`blockHistory: help`
-                `
-b/block - shows the changes made to block on [x], [y], [z] - parameters: until, startingFrom, location: x, location: y, location: z, allowParticles
-p/player - shows the changes made by a player - parameters: until, startingFrom, player, allowParticles
-r/reverse - reverses actions of a player in specific time frame - parameters: until, startingFrom, player, allowParticles
-rb/reverseblock - reverses a block to it's older state - parameters: until, startingFrom, location: x, location: y, location: z, allowParticles
-bt/blockytools - show history of blockytools edits - parameters: until, startingFrom, player -- not ready yet
-rbt/reversebt/reverseblockytools - reverses a blockytools edit using its id - parameters: until, startingFrom, player -- not ready yet
-redo - reverses an action made by this plugin - parameters: ID, player, allowParticles
-c/clear - clears all the particles generated by this plugin by a player
-ca/clearall - clears all the particles generated by this plugin by everyone
-                `, sender);
-        }
-
-        else {
-            sendLongMessage(`blockHistory: help`
-                `
-i/inspector - gets you into inspector mode: place blocks or right click with hand to see changes
-                `, sender
-            )
+                else {
+                    sendLongMessage(`blockHistory: help`
+                        `
+    i/inspector - gets you into inspector mode: place blocks or right click with hand to see changes
+                        `, sender
+                    )
+                }
+                break;
         }
     }
 
@@ -386,6 +479,9 @@ i/inspector - gets you into inspector mode: place blocks or right click with han
                     {type:'str',id:'startingFrom',optional:true},
                     {type:'pos',id:'coords',optional:true},
                     {type:'bool',id:'particles', optional:true}
+                ],
+                warp: [
+                    {type: 'int', id: 'index', optional: true}
                 ],
                 block: [
                     {type:'str',id:'until',optional:true},
@@ -811,6 +907,11 @@ async function inspector(location, sender){
     }
     try {
         const response = await DB.query(request);
+        if(!response.result[0]?.x && response.result != ""){
+            sendMessage('§c critical Mysql error. Contact admins for fix', 'BlockHistory', sender)
+            sendLogMessage(JSON.stringify(response.result))
+            return;
+        }
         if(printBlockHistory(response, {type: "block", pos: pos}, sender)){
             if(lastParticleCall[sender.id])delete lastParticleCall[sender.id]
             sendMessage(`you can use !bh show to see these changes using particles`, "cmd - BlockHistory", sender)
