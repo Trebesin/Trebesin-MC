@@ -264,13 +264,13 @@ function generateBlockArea(coord,steps = 10,callback = null) {
                     definition: vectorDefinitions.tertiary[index]
                 });
             }
-            coords.push(location);
+            callback(location);
         }
         for (let index = 0;index < lastLength;index++) {
             const vector = sentVectors[index];
             const location = sumVectors(vector.location,vector.definition.vector);
             vector.location = copyVector(location);
-            coords.push(location);
+            callback(location);
             if (vector.definition.sends) {
                 for (let sendIndex = 0;sendIndex < vector.definition.sends.length;sendIndex++) {
                     sentVectors.push({
