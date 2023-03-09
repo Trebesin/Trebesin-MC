@@ -24,13 +24,11 @@ export async function main() {
       },
       {
         type: 'str',
-        id: 'blockId',
-        optional: true
+        id: 'blockId'
       },
       {
         type: 'int',
-        id: 'size',
-        optional: true
+        id: 'size'
       }
     ],
     senderCheck: isAdmin,
@@ -43,7 +41,7 @@ export async function main() {
       try{
       const blocks = [];
       logMessage("1")
-      logMessage(`${parameters.location.x} ${parameters.location.x} ${parameters.location.x}`)
+      logMessage(`${parameters.location.x}${parameters.location.y}${parameters.location.z}`)
       logMessage(parameters.size)
       generateBlockArea(parameters.location,parameters.size,(location) => {
         blocks.push(location);

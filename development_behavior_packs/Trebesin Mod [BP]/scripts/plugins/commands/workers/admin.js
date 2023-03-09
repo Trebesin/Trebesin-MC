@@ -29,7 +29,6 @@ export function main() {
     ],
     run(sender,parameters) {
       try {
-        logMessage(`${parameters.location.x} ${parameters.location.y} ${parameters.location.z}`)
         sender.dimension.spawnEntity(parameters.entity, parameters.location ?? sender.location);
         sendMessage(`Summoned ${parameters.entity}!`,'CMD',sender);
       } catch (error) {
