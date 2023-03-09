@@ -1,6 +1,6 @@
 import {Block, BlockPermutation, world, system} from '@minecraft/server';
 import { arrayDifference, find } from '../js_modules/array';
-import { sumVectors, compareVectors } from '../js_modules/vector';
+import { sumVectors, compareVectors, copyVector } from '../js_modules/vector';
 import { logMessage, sendLogMessage } from '../plugins/debug/debug';
 import { DIRECTIONS, TREBESIN_PERMUTATIONS } from './constants';
 
