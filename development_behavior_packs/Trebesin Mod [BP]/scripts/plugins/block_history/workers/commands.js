@@ -203,7 +203,7 @@ function main(){
                     
                     sendLogMessage(`'${response.result[0]}'`)
 
-                    if(!response.result[0]){
+                    if(response.result[0] == '['){
                         sendMessage('§c critical Mysql error. Contact admins for fix', 'BlockHistory', sender)
                         sendLogMessage(JSON.stringify(response.result))
                     }
