@@ -4,33 +4,34 @@ import { isAdmin } from "../../commands/workers/admin"
 import { logMessage } from "../../debug/debug";
 import { variables as ServerConfig } from '@minecraft/server-admin';
 import {world,ItemTypes, ItemStack} from '@minecraft/server';
+import * as blockyTools from '../../blocky_tools/workers/commands'
 
 const unitTestingList = {child: [
     {name: 'block_history', child: [
         {name: '!co p', run: (sender) => {Commands.runCommand("co", "p", sender)}, child: [
             {name: '!co p 5', run:(sender) => {Commands.runCommand("co", "p 5", sender)}},
             {name: '!co p 5m', run: (sender) => {Commands.runCommand("co", "p 5m", sender)}},
-            {name: '!co p 5m 4m', run: (sender) => {Commands.runCommand("co", "p 5m 4m", sender)}},
-            {name: '!co p 10 4m', run: (sender) => {Commands.runCommand("co", "p 10 4m", sender)}}
+            {name: '!co p 5m 4m', run: (sender) => {Commands.runCommand("co", "p 5m 1m", sender)}},
+            {name: '!co p 10 4m', run: (sender) => {Commands.runCommand("co", "p 10 1m", sender)}}
         ]},
         {name: '!co b', run: (sender) => {Commands.runCommand("co", "b", sender)}, child: [
             {name: '!co b 5', run: (sender) => {Commands.runCommand("co", "b 5", sender)}},
             {name: '!co b 5m', run:(sender) => {Commands.runCommand("co", "b 5m", sender)}},
-            {name: '!co b 5m 4m', run: (sender) => {Commands.runCommand("co", "b 5m 4m", sender)}},
-            {name: '!co b 10 4m', run: (sender) => {Commands.runCommand("co", "b 10 4m", sender)}}
+            {name: '!co b 5m 4m', run: (sender) => {Commands.runCommand("co", "b 5m 1m", sender)}},
+            {name: '!co b 10 4m', run: (sender) => {Commands.runCommand("co", "b 10 1m", sender)}}
         ]},
         {name: '!co rb',run: (sender) => {Commands.runCommand("co", "rb", sender)}, child: [
             {name: '!co rb 5', run: (sender) => {Commands.runCommand("co", "rb 5", sender)}},
             {name: '!co rb 5m', run: (sender) => {Commands.runCommand("co", "rb 5m", sender)}},
-            {name: '!co rb 5m 4m', run: (sender) => {Commands.runCommand("co", "rb 5m 4m", sender)}},
-            {name: '!co rb 10 4m', run: (sender) => {Commands.runCommand("co", "rb 10 4m", sender)}}
+            {name: '!co rb 5m 4m', run: (sender) => {Commands.runCommand("co", "rb 5m 1m", sender)}},
+            {name: '!co rb 10 4m', run: (sender) => {Commands.runCommand("co", "rb 10 1m", sender)}}
         ]},
         {name: "!co confirm", run: (sender) => {Commands.runCommand("co", "confirm", sender)}},
         {name: '!co r',run: (sender) => {Commands.runCommand("co", "r", sender)}, child: [
             {name: '!co r 5', run: (sender) => {Commands.runCommand("co", "r 5", sender)}},
             {name: '!co r 5m', run: (sender) => {Commands.runCommand("co", "r 5m", sender)}},
-            {name: '!co r 5m 4m', run: (sender) => {Commands.runCommand("co", "r 5m 4m", sender)}},
-            {name: '!co r 10 4m', run: (sender) => {Commands.runCommand("co", "r 10 4m", sender)}}
+            {name: '!co r 5m 4m', run: (sender) => {Commands.runCommand("co", "r 5m 1m", sender)}},
+            {name: '!co r 10 4m', run: (sender) => {Commands.runCommand("co", "r 10 1m", sender)}}
         ]},
         {name: '!co show', run: (sender) => {Commands.runCommand("co", "show", sender)}},
         {name: "!co cancel", run: (sender) => {Commands.runCommand("co", "cancel", sender)}},
@@ -39,6 +40,8 @@ const unitTestingList = {child: [
         {name: "!co ca", run: (sender) => {Commands.runCommand("co", "ca", sender)}}
     ]},
     {name: 'commands', child: [
+        {name: '!help', run: (sender) => {Commands.runCommand("help", "", sender)}},
+        {name: '!more 2', run: (sender) => {Commands.runCommand("more", "2", sender)}},
         {name: '!summon minecraft:pig ~ ~ ~', run: (sender) => {Commands.runCommand("summon", "minecraft:pig ~ ~ ~", sender)}},
         {name: '!instakill', run: (sender) => {Commands.runCommand('instakill', "", sender)}},
         {name: '!runas @r tpall', run: (sender) => {Commands.runCommand('runas', "@r tpall", sender)}},
@@ -48,7 +51,7 @@ const unitTestingList = {child: [
         {name: '!deop', run: (sender) => {Commands.runCommand('deop', '', sender)}},
         {name: '!op', run: (sender) => {Commands.runCommand('op', '', sender)}},
         {name: '!gmc', run: (sender) => {Commands.runCommand('gmc', '', sender)}},
-        {name: '!allowbuild', run: (sender) => {Commands.runCommand('allowbuild', '', sender)}},
+        {name: '!allowbuild', run: (sender) => {Commands.runCommand('allowbuild', '@s', sender)}},
         {name: '!log', run: (sender) => {Commands.runCommand('log', '', sender)}},
         {name: '!gms', run: (sender) => {Commands.runCommand('gms', '', sender)}},
         {name: '!gmsp', run: (sender) => {Commands.runCommand('gmsp', '', sender)}},
@@ -64,6 +67,21 @@ const unitTestingList = {child: [
         {name: '!getcoords', debug: true, run: (sender) => {Commands.runCommand('getcoords', '', sender)}},
         {name: '!testselector @e[type=!pig]', debug: true, run: (sender) => {Commands.runCommand('testselector', '@e[type=!pig]', sender)}},
         {name: '!testpos ~ ~ ~', debug: true, run: (sender) => {Commands.runCommand('testpos', '~ ~ ~', sender)}},
+    ]},
+    {name: 'items', child: [
+        {name: 'phaser', run: (sender) => {getNormalItem('trebesin:cmd_phaser', sender)}},
+        {name: 'debug stick', run: (sender) => {getNormalItem('trebesin:bt_debug_stick', sender)}},
+        {name: 'bt axe', run: (sender) => {getNormalItem('trebesin:bt_blocky_axe', sender)}},
+        {name: 'stick', run: (sender) => {getNormalItem('minecraft:stick', sender)}},
+        {name: 'diamond sword', run: (sender) => {getNormalItem('minecraft:diamond_sword', sender)}}
+    ]},
+    {name: 'blocky tools', child: [
+        {name: '.idk ~ ~ ~ minecraft:tnt 5', run: (sender) => {blockyTools.Commands.runCommand('idk', '~ ~ ~ minecraft:tnt 5', sender)}}
+    ]},
+    {name: 'server', child: [
+        {name: 'test if lava can be placed', run: (sender) => {Commands.runCommand('allowbuild', '@s', sender)}},
+        {name: 'test if tnt is fine', run: (sender) => {Commands.runCommand('allowbuild', '@s', sender)}},
+        {name: 'test nv',run: (sender) => {Commands.runCommand('nv', '', sender)}}
     ]}
 ]}
 let currentActiveUnitTestingPerPlayer = {}
@@ -80,6 +98,11 @@ function showOption(object, positionArray, sender){
     sendMessage(`unitTesting for: §c ${getObjectFromIndex(object, positionArray).name}`, 'cmd - unitTesting', sender)
     sendMessage('use !ut run for running or !ut [next|previous|parent|child] for navigating', 'cmd - unitTesting', sender)
     sendMessage(`${getObjectFromIndex(object, positionArray).child? 'this feature does have a child' : 'this feature doesn\'t have a child'}`)
+}
+function getNormalItem(item, sender, name = null){
+    const commandItem = new ItemStack(ItemTypes.get(item),1);
+    if(name)commandItem.nameTag = name;
+    sender.getComponent('inventory').container.addItem(commandItem);
 }
 
 function createItem(commandName, parameters, name, sender) {

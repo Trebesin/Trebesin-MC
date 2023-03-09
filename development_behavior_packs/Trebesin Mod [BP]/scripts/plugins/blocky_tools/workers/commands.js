@@ -48,7 +48,8 @@ export async function main() {
           sender.id
         );
       }
-      sendMessage('Successfully genarated the thing!','CMD',sender);
+      sendMessage('Successfully generated the thing!','CMD',sender);
     }
   })
 }
+export { Commands }

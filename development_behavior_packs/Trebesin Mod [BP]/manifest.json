@@ -2,7 +2,7 @@
     "format_version": 2,
     "metadata": {
         "authors": ["PavelDobCZ23","tpkowastaken"],
-        "url": "https://www.trebesin.cz/",
+        "url": "https://www.trebesin.fun/",
         "license": "GNU GPL v3.0"
     },
     "header": {
@@ -35,7 +35,7 @@
         },
         {
             "module_name": "@minecraft/server",
-            "version": "1.1.0-beta"
+            "version": "1.2.0-beta"
         },
         {
             "module_name": "@minecraft/server-ui",
