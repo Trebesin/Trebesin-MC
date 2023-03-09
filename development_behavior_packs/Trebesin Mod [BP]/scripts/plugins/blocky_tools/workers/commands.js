@@ -4,6 +4,7 @@ import {CommandResult, MinecraftEffectTypes , system, world, Player, MinecraftBl
 import { setBlockType } from '../../block_history/block_history';
 import { isAdmin } from "../../commands/workers/admin";
 //Modules:
+import { generateBlockArea } from '../../../mc_modules/blocks';
 import { generateBlockPyramid } from '../../../js_modules/geometry';
 import { CommandParser } from '../../../mc_modules/commandParser';
 import { sendMessage } from '../../../mc_modules/players';
