@@ -201,6 +201,12 @@ function main(){
                     }
                     const response = await DB.query(request);
 
+                    if(!response.result[0]){
+                        sendMessage('§c critical Mysql error. Contact admins for fix', 'BlockHistory', sender)
+                        sendLogMessage(JSON.stringify(response.result))
+                    }
+
+
                     if(!printBlockHistory(response, {type: "player"}, sender))break;
 
                     lastCall[sender.id] = response.result
