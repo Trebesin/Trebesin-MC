@@ -14,6 +14,7 @@ const unitTestingList = {child: [
             {name: '!co p 5m 4m', run: (sender) => {Commands.runCommand("co", "p 5m 1m", sender)}},
             {name: '!co p 10 4m', run: (sender) => {Commands.runCommand("co", "p 10 1m", sender)}}
         ]},
+        {name: '!co warp', run: (sender) => {Commands.runCommand("co", "warp", sender)}},
         {name: '!co b', run: (sender) => {Commands.runCommand("co", "b", sender)}, child: [
             {name: '!co b 5', run: (sender) => {Commands.runCommand("co", "b 5", sender)}},
             {name: '!co b 5m', run:(sender) => {Commands.runCommand("co", "b 5m", sender)}},
