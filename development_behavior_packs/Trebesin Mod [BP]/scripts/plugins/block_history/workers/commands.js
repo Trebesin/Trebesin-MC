@@ -5,6 +5,7 @@ import * as BlockHistoryPlugin from "../block_history";
 import { Commands, sendLongMessage, DB } from '../../backend/backend';
 import { isAdmin, isMod } from "../../commands/workers/admin";
 import { logMessage, sendLogMessage } from "../../debug/debug";
+//sdf
 //Modules:
 import { copyBlock, getPermutations, setPermutationFromObject } from "../../../mc_modules/blocks";
 import { sendMessage} from "../../../mc_modules/players";
