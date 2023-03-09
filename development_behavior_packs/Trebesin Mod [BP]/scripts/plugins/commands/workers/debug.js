@@ -66,14 +66,14 @@ export function main(){
   })
 
   Commands.registerCommand("block", {parameters: [], senderCheck: isAdmin, run: (sender,parameters) => {
-      const location = new BlockLocation(Math.round(sender.location.x),Math.round(sender.location.y),Math.round(sender.location.z));
+      const location = {x: Math.round(sender.location.x), y: Math.round(sender.location.y), z: Math.round(sender.location.z)}
       sendMessage(`${sender.dimension.getBlock(location).typeId}`, 'cmd - debug', sender);
     }
   })
   //movement commands
 
   Commands.registerCommand("getvector", {
-    aliases: ["vector"], parameters: [],senderCheck: isAdmin, run: (sender) => sendMessage(`${sender.viewVector.x}, ${sender.viewVector.y}, ${sender.viewVector.z}`,'CMD',sender)
+    aliases: ["vector"], parameters: [],senderCheck: isAdmin, run: (sender) => sendMessage(`${sender.getViewDirection().x}, ${sender.getViewDirection().y}, ${sender.getViewDirection().z}`,'CMD',sender)
   });
 
   Commands.registerCommand("getcoords", {
