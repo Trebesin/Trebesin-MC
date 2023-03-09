@@ -201,7 +201,7 @@ function main(){
                     }
                     const response = await DB.query(request);
                     
-                    sendLogMessage(`'response.result[0]'`)
+                    sendLogMessage(`'${response.result[0]}'`)
 
                     if(!response.result[0]){
                         sendMessage('§c critical Mysql error. Contact admins for fix', 'BlockHistory', sender)
