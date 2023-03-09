@@ -6,6 +6,7 @@ import {isAdmin} from "./admin";
 import { Commands, DB } from '../../backend/backend';
 //Modules:
 import { sendMessage } from '../../../mc_modules/players';
+import { logMessage } from "../../debug/debug";
 
 
 export function main(){
@@ -93,7 +94,8 @@ export function main(){
     parameters:[{type:'pos',id:'location'}],
     senderCheck: isAdmin,
     run(sender,parameters) {
-      logMessage(`${parameters.location.x} ${parameters.location.y} ${parameters.location.z}`);
+      logMessage("hey")
+      sendMessage(`${parameters.location.x} ${parameters.location.y} ${parameters.location.z}`, "cmd - debug", sender);
     }
   })
 
