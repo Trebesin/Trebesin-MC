@@ -94,7 +94,6 @@ export function main(){
     parameters:[{type:'pos',id:'location'}],
     senderCheck: isAdmin,
     run(sender,parameters) {
-      logMessage("hey")
       sendMessage(`${parameters.location.x} ${parameters.location.y} ${parameters.location.z}`, "cmd - debug", sender);
     }
   })
