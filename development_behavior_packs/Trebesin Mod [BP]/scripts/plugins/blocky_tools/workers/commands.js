@@ -4,6 +4,7 @@ import {CommandResult, MinecraftEffectTypes , system, world, Player, MinecraftBl
 import { setBlockType } from '../../block_history/block_history';
 import { isAdmin } from "../../commands/workers/admin";
 //Modules:
+import { copyVector } from '../../../js_modules/vector';
 import { generateBlockArea } from '../../../mc_modules/blocks';
 import { generateBlockPyramid } from '../../../js_modules/geometry';
 import { CommandParser } from '../../../mc_modules/commandParser';
@@ -40,21 +41,16 @@ export async function main() {
     run(sender,parameters) {
       try{
       const blocks = [];
-      logMessage("1")
-      logMessage(`${parameters.location.x} ${parameters.location.y} ${parameters.location.z}`)
-      logMessage(parameters.size)
-      blocks.push(generateBlockArea(parameters.location,parameters.size))
-      logMessage("2")
-      logMessage(blocks.length)
+      generateBlockArea(parameters.location,parameters.size,(location) => {
+        blocks.push(location);
+      });
       for (let index = 0;index < blocks.length;index++) {
         const block = blocks[index];
-      logMessage("3")
         setBlockType(
           sender.dimension.getBlock(block),
           MinecraftBlockTypes.get(parameters.blockId),
           sender.id
         );
-      logMessage("4")
       }
       sendMessage('Successfully generated the thing!','CMD',sender);
       }
