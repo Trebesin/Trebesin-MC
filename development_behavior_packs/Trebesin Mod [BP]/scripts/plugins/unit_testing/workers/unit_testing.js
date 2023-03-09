@@ -40,6 +40,8 @@ const unitTestingList = {child: [
         {name: "!co ca", run: (sender) => {Commands.runCommand("co", "ca", sender)}}
     ]},
     {name: 'commands', child: [
+        {name: '!help', run: (sender) => {Commands.runCommand("help", "", sender)}},
+        {name: '!more 2', run: (sender) => {Commands.runCommand("more", "2", sender)}},
         {name: '!summon minecraft:pig ~ ~ ~', run: (sender) => {Commands.runCommand("summon", "minecraft:pig ~ ~ ~", sender)}},
         {name: '!instakill', run: (sender) => {Commands.runCommand('instakill', "", sender)}},
         {name: '!runas @r tpall', run: (sender) => {Commands.runCommand('runas', "@r tpall", sender)}},
