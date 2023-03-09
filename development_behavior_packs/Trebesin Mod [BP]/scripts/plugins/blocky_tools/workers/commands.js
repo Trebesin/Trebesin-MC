@@ -45,6 +45,7 @@ export async function main() {
         blocks.push(location);
       });
       logMessage("2")
+      logMessage(blocks.length)
       for (let index = 0;index < blocks.length;index++) {
         const block = blocks[index];
       logMessage("3")
