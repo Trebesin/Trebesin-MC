@@ -90,6 +90,13 @@ function main(){
                         break;
                     }
                     const response = await DB.query(request);
+
+                    if(!response.result[0]?.x && response.result != ""){
+                        sendMessage('§c critical Mysql error. Contact admins for fix', 'BlockHistory', sender)
+                        sendLogMessage(JSON.stringify(response.result))
+                        break;
+                    }
+
                     if(!printBlockHistory(response, {type: "block", pos: pos}, sender))break;
 
                     lastCall[sender.id] = response.result
@@ -158,7 +165,12 @@ function main(){
                         break;
                     }
                     const response = await DB.query(request);
-                    sendLogMessage(JSON.stringify(response.result))
+
+                    if(!response.result[0]?.x && response.result != ""){
+                        sendMessage('§c critical Mysql error. Contact admins for fix', 'BlockHistory', sender)
+                        sendLogMessage(JSON.stringify(response.result))
+                        break;
+                    }
 
                     if(!printBlockHistory(response, {type: "block", pos: pos}, sender))break;
 
@@ -201,9 +213,10 @@ function main(){
                     }
                     const response = await DB.query(request);
                     
-                    if(!response.result[0]?.x){
+                    if(!response.result[0]?.x && response.result != ""){
                         sendMessage('§c critical Mysql error. Contact admins for fix', 'BlockHistory', sender)
                         sendLogMessage(JSON.stringify(response.result))
+                        break;
                     }
 
 
@@ -253,6 +266,13 @@ function main(){
                         values : [playerName, parameter.id]
                     }
                     const response = await DB.query(request);
+
+                    if(!response.result[0]?.x && response.result != ""){
+                        sendMessage('§c critical Mysql error. Contact admins for fix', 'BlockHistory', sender)
+                        sendLogMessage(JSON.stringify(response.result))
+                        break;
+                    }
+
                     if(!printBlockHistory(response, {type: "reverse"}, sender))break;
 
                     lastCall[sender.id] = response.result
@@ -305,6 +325,13 @@ function main(){
                         break;
                     }
                     const response = await DB.query(request);
+
+                    if(!response.result[0]?.x && response.result != ""){
+                        sendMessage('§c critical Mysql error. Contact admins for fix', 'BlockHistory', sender)
+                        sendLogMessage(JSON.stringify(response.result))
+                        break;
+                    }
+
                     if(!printBlockHistory(response, {type: "player"}, sender))break;
 
                     lastCall[sender.id] = response.result
@@ -879,6 +906,11 @@ async function inspector(location, sender){
     }
     try {
         const response = await DB.query(request);
+        if(!response.result[0]?.x && response.result != ""){
+            sendMessage('§c critical Mysql error. Contact admins for fix', 'BlockHistory', sender)
+            sendLogMessage(JSON.stringify(response.result))
+            return;
+        }
         if(printBlockHistory(response, {type: "block", pos: pos}, sender)){
             if(lastParticleCall[sender.id])delete lastParticleCall[sender.id]
             sendMessage(`you can use !bh show to see these changes using particles`, "cmd - BlockHistory", sender)
