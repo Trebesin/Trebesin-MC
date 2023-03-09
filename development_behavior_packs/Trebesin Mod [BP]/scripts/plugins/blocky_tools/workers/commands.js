@@ -8,6 +8,7 @@ import { generateBlockPyramid } from '../../../js_modules/geometry';
 import { CommandParser } from '../../../mc_modules/commandParser';
 import { sendMessage } from '../../../mc_modules/players';
 import { copyVector, sumVectors } from '../../../js_modules/vector';
+import { logMessage } from '../../debug/debug';
 
 const Commands = new CommandParser({
   prefix: '.', caseSensitive: false
@@ -37,16 +38,20 @@ export async function main() {
      */
     run(sender,parameters) {
       const blocks = [];
+      logMessage("1")
       generateBlockArea(parameters.location,parameters.size,(location) => {
         blocks.push(location);
       });
+      logMessage("2")
       for (let index = 0;index < blocks.length;index++) {
         const block = blocks[index];
+      logMessage("3")
         setBlockType(
           sender.dimension.getBlock(block),
           MinecraftBlockTypes.get(parameters.blockId),
           sender.id
         );
+      logMessage("4")
       }
       sendMessage('Successfully generated the thing!','CMD',sender);
     }
