@@ -196,7 +196,7 @@ function isEmptyObject(object) {
     return true;
 }
 
-function generateBlockArea(coord,steps = 10,callback = null) {
+function generateBlockArea(coord,steps = 10) {
     const coords = [];
     const vectorDefinitions = {};
     //Tertiary vectors are sent at the beginning from the starting coordinate and also from the secondary and primary vectors. Those cover the whole Y axis.
