@@ -113,18 +113,24 @@ function createItem(commandName, parameters, name, sender) {
 }
 function getTools(sender){
     createItem('ut', 'parent', 'parent', sender)
-    createItem('ut', 'previous', 'previous', sender)
     createItem('ut', 'run', 'run', sender)
-    createItem('ut', 'show', 'show', sender)
     createItem('ut', 'next', 'next', sender)
     createItem('ut', 'child', 'child', sender)
-    createItem('ut', 'stop', 'stop', sender)
+    createItem('ut', 'show', 'show', sender)
+    createItem('ut', 'previous', 'previous', sender)
+    createItem('ut', 'export', 'export state', sender)
 }
 
 export async function main(){
     Commands.registerCommand("unittesting", {aliases: ["ut"], senderCheck: isAdmin, parameters: [
         {id: 'command', type: "string", optional: true, choice: {
             run: [
+
+            ],
+            import: [
+                {type: "int", id: "import", array: Infinity, fullArray: false}
+            ],
+            export: [
 
             ],
             parent: [
@@ -245,6 +251,18 @@ export async function main(){
                 sendMessage('§arunning the run option', "", sender)
                 runObject.run(sender);
                 break;
+            case 'export':
+                createItem('ut', `import ${currentActiveUnitTestingPerPlayer[sender.id].position.join(' ')}`, 'right click this to get back to testing', sender)
+                sendMessage('created the item to restore this session', 'cmd - unitTesting', sender)
+                break;
+            case 'import':
+                if(!currentActiveUnitTestingPerPlayer[sender.id]){
+                    currentActiveUnitTestingPerPlayer[sender.id] = {player: sender, position: parameters.import}
+                    showOption(unitTestingList, currentActiveUnitTestingPerPlayer[sender.id].position, sender)
+                }
+                else{
+                    sendMessage('the unit testing is currently active! use !unittesting stop and then run this again to import', 'cmd - unitTesting', sender)
+                }
             default: 
                 if(!currentActiveUnitTestingPerPlayer[sender.id]){
                     currentActiveUnitTestingPerPlayer[sender.id] = {player: sender, position: [0]}
