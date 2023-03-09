@@ -24,11 +24,13 @@ export async function main() {
       },
       {
         type: 'str',
-        id: 'blockId'
+        id: 'blockId',
+        optional: true
       },
       {
         type: 'int',
-        id: 'size'
+        id: 'size',
+        optional: true
       }
     ],
     senderCheck: isAdmin,
