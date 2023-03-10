@@ -234,7 +234,7 @@ function generateBlock(id,packDefinition,languageDefinitions) {
 
     for (const language of languageDefinitions) {
         const languagePath = path.join(packDefinition.resourceFolder,`\\texts\\${language.langId}.lang`);
-        fs.appendFileSync(languagePath,`tile.${packDefinition.namespace}:imageboard_${id}.name=${language.text}`);
+        fs.appendFileSync(languagePath,`\ntile.${packDefinition.namespace}:imageboard_${id}.name=${language.text}`);
     }
 }
 
@@ -265,6 +265,7 @@ async function main() {
     console.log(langDefinitions);
     generateBlock(id,{resourceFolder,behaviorFolder,namespace},langDefinitions);
     process.stdout.write('Block successfully generated!');
+    process.exit()
 }
 
 async function mainAutom() {
@@ -300,4 +301,4 @@ async function mainAutom() {
     }
 }
 
-mainAutom();
+main();
