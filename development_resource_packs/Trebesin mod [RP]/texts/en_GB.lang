@@ -2,3 +2,4 @@ tile.trebesin:imageboard_wall_prague.name=Prague
 tile.trebesin:imageboard_ground_czech_emblem.name=Czech Emblem
 item.trebesin:cmd_phaser=§b§l[CMD] Phaser§r
 commands.generic.unknown=Unknown command: %s. Please check that the command exists and that you have permission to use it. - §aYou can list all the custom commands using !help
+tile.trebesin:imageboard_board.name=board

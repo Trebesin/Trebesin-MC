@@ -96,6 +96,9 @@
     },
     "trebesin.image_white": {
       "textures": "textures/blocks/white"
+    },
+    "trebesin.image_board": {
+      "textures": "textures/blocks/board"
     }
   }
 }

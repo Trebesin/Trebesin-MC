@@ -362,5 +362,16 @@
       "up": "wood_oak",
       "down": "wood_oak"
     }
+  },
+  "trebesin:imageboard_board": {
+    "sounds": "wood",
+    "textures": {
+      "north": "trebesin.image_board",
+      "south": "trebesin.image_board",
+      "west": "wood_oak",
+      "east": "wood_oak",
+      "up": "wood_oak",
+      "down": "wood_oak"
+    }
   }
 }
