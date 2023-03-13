@@ -143,6 +143,9 @@
       "down": "wood_oak"
     }
   },
+	"dell_monitor_553": {
+		"sound": "cloth"
+	},
   "trebesin:imageboard_cnc_poster1_B1": {
     "sounds": "wood",
     "textures": {

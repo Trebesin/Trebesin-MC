@@ -4,6 +4,9 @@
   "padding": 8,
   "num_mip_levels": 4,
   "texture_data": {
+		"dell_monitor_553": {
+			"textures": "textures/blocks/dell_monitor_553.png"
+		},
     "trebesin.image_prague": {
       "textures": "textures/blocks/prague"
     },
