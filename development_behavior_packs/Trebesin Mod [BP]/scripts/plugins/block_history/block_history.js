@@ -166,8 +166,7 @@ export async function main() {
         try{
             const player = eventData.source;
             const offset = FACE_DIRECTIONS[eventData.blockFace];
-            //const faceBlockLocation = sumVectors(eventData.getBlockLocation(),offset); this is a 1.19.80 change
-            const faceBlockLocation = eventData.blockLocation.offset(offset.x,offset.y,offset.z);
+            const faceBlockLocation = sumVectors(eventData.getBlockLocation().offset);
             if (player.hasTag('inspector')){
                 try {
                     eventData.cancel = true;
