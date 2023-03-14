@@ -156,25 +156,26 @@ export async function main() {
     
     world.events.beforeItemUseOn.subscribe((eventData) => {
         //this prevents an exploit do not remove!!!!
+        const player = eventData.source;
         if (player.hasTag('inspector')){
             eventData.cancel = true;
         }
     })
     //## Inspector
     Server.events.beforeItemStartUseOn.subscribe((eventData) => {
-        const player = eventData.source;
-        const offset = FACE_DIRECTIONS[eventData.blockFace];
-        const faceBlockLocation = sumVectors(eventData.getBlockLocation(),offset);
-        if (player.hasTag('inspector')){
-            try {
-                eventData.cancel = true;
-                if (getEquipedItem(player) != null) BlockHistoryCommandsWorker.inspector(faceBlockLocation, player);
-                else BlockHistoryCommandsWorker.inspector(eventData.getBlockLocation(), player);
+            const player = eventData.source;
+            if (player.hasTag('inspector')){
+                try {
+                    eventData.cancel = true;
+                    const offset = FACE_DIRECTIONS[eventData.blockFace];
+                    const faceBlockLocation = sumVectors(eventData.getBlockLocation(), offset);
+                    if (getEquipedItem(player) != null) BlockHistoryCommandsWorker.inspector(faceBlockLocation, player);
+                    else BlockHistoryCommandsWorker.inspector(eventData.getBlockLocation(), player);
+                }
+                catch(error){
+                    Debug.sendLogMessage(error)
+                }
             }
-            catch(error){
-                Debug.sendLogMessage(error)
-            }
-        }
     });
 
     //## Block Placing Detection:
