@@ -378,8 +378,19 @@
   "trebesin:imageboard_board": {
     "sounds": "wood",
     "textures": {
-      "north": "trebesin.image_board",
-      "south": "trebesin.image_board",
+      "north": "trebesin.image_white",
+      "south": "trebesin.image_white",
+      "west": "wood_oak",
+      "east": "wood_oak",
+      "up": "wood_oak",
+      "down": "wood_oak"
+    }
+  },
+  "trebesin:imageboard_logo_trebesin_mc": {
+    "sounds": "wood",
+    "textures": {
+      "north": "trebesin.image_logo_trebesin_mc",
+      "south": "trebesin.image_logo_trebesin_mc",
       "west": "wood_oak",
       "east": "wood_oak",
       "up": "wood_oak",

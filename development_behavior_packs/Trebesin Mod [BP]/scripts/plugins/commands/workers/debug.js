@@ -1,14 +1,21 @@
-import {CommandResult, Location, system, world, Vector, Player, MinecraftEffectTypes} from "@minecraft/server";
-import { sendMessage } from '../../../mc_modules/players';
-import * as Debug from './../../debug/debug';
-import { playerData as serverPlayerData } from '../../server/server';
-import { Commands } from '../../backend/backend';
-import {isAdmin} from "./admin";
-import * as backend from "../../backend/backend"; 
-import * as vectorMath from "../../../js_modules/vector.js";
+//APIs:
+import {} from "@minecraft/server";
 import { variables as ServerConfig } from '@minecraft/server-admin';
-function main(){
+//Plugins:
+import {isAdmin} from "./admin";
+import { Commands, DB } from '../../backend/backend';
+//Modules:
+import { sendMessage } from '../../../mc_modules/players';
+import { logMessage } from "../../debug/debug";
+
+
+export function main(){
   if(!ServerConfig.get('debug-enabled')) return;
+  /*
+
+  ----these feature has been tested and the propability of them beraking is low that's why the code is commented.---
+  ----It's not removed hovewer in case those features unexpactably breaks---
+
   Commands.registerCommand('testArray', { aliases:[], parameters:[
         {type:'pos',id:'location'},
         {type:'string',id:'strArray',array:3},
@@ -31,14 +38,17 @@ function main(){
         z:Math.floor(parameters.location.z)
       }],(loc,axis) => {
         const molang = new MolangVariableMap()
-        .setColorRGBA('variable.colour',new Color(parameters.colour[0]/255,parameters.colour[1]/255,parameters.colour[2]/255,1));
-        sender.dimension.spawnParticle(`trebesin:edge_highlight_${axis}`,new Location(loc.x,loc.y,loc.z),molang)
+        .setColorRGBA('variable.color',new Color(parameters.colour[0]/255,parameters.colour[1]/255,parameters.colour[2]/255,1));
+        sender.dimension.spawnParticle(`trebesin:edge_highlight_${axis}`,loc,molang)
       })
     }
   })
+
+  */
+ 
   Commands.registerCommand("databasedisconnect", {aliases: ["dbdisconnect", "dbdis"], parameters: [], senderCheck: isAdmin, run: async (sender) =>  {
       try {
-        await backend.DB.disconnect();
+        await DB.disconnect();
         sendMessage(`§asuccesfully disconnected from the database.`,'cmd',sender);
       } catch(error) {
         sendMessage(`${error}`,'cmd',sender);
@@ -48,7 +58,7 @@ function main(){
 
   Commands.registerCommand("databaseconnect", {aliases: ["dbconnect", "dbcon"], parameters: [], senderCheck: isAdmin, run: async (sender) => {
       try {
-        await backend.DB.connect();
+        await DB.connect();
         sendMessage(`§asuccesfully connected to the database.`,'cmd',sender);
       } catch(error) {
         sendMessage(`${error}`,'cmd',sender);
@@ -57,14 +67,14 @@ function main(){
   })
 
   Commands.registerCommand("block", {parameters: [], senderCheck: isAdmin, run: (sender,parameters) => {
-      const location = new BlockLocation(Math.round(sender.location.x),Math.round(sender.location.y),Math.round(sender.location.z));
+      const location = {x: Math.round(sender.location.x), y: Math.round(sender.location.y), z: Math.round(sender.location.z)}
       sendMessage(`${sender.dimension.getBlock(location).typeId}`, 'cmd - debug', sender);
     }
   })
   //movement commands
 
   Commands.registerCommand("getvector", {
-    aliases: ["vector"], parameters: [],senderCheck: isAdmin, run: (sender) => sendMessage(`${sender.viewVector.x}, ${sender.viewVector.y}, ${sender.viewVector.z}`,'CMD',sender)
+    aliases: ["vector"], parameters: [],senderCheck: isAdmin, run: (sender) => sendMessage(`${sender.getViewDirection().x}, ${sender.getViewDirection().y}, ${sender.getViewDirection().z}`,'CMD',sender)
   });
 
   Commands.registerCommand("getcoords", {
@@ -84,10 +94,8 @@ function main(){
     parameters:[{type:'pos',id:'location'}],
     senderCheck: isAdmin,
     run(sender,parameters) {
-      logMessage(`${parameters.location.x} ${parameters.location.y} ${parameters.location.z}`);
+      sendMessage(`${parameters.location.x} ${parameters.location.y} ${parameters.location.z}`, "cmd - debug", sender);
     }
   })
 
 }
-
-export {main}

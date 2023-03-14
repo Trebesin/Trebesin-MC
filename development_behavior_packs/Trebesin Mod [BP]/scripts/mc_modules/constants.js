@@ -7,9 +7,11 @@ const FACE_DIRECTIONS = {
     north: {x:0,y:0,z:-1},
     south: {x:0,y:0,z:1}
 };
-const TREBESIN_PERMUTATIONS = [
-    {name:'trebesin:direction'},{name:'trebesin:vertical_direction'},{name:'trebesin:horizontal_direction'}
-];
+const TREBESIN_PERMUTATIONS = {
+    'trebesin:direction': null,
+    'trebesin:vertical_direction': null,
+    'trebesin:horizontal_direction': null
+};
 const DIRECTIONS = [
     {x:-1,y:0,z:0},
     {x:1,y:0,z:0},

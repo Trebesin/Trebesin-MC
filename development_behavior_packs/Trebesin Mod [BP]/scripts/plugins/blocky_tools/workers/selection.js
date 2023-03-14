@@ -1,10 +1,9 @@
-//Base imports
-import { world, MolangVariableMap, MinecraftBlockTypes, Color, system } from '@minecraft/server';
-//MC Modules
-import { spawnBlockSelection } from '../../../mc_modules/particles';
-//JS Modules
+//APIs:
+import { world, MolangVariableMap, MinecraftBlockTypes, system } from '@minecraft/server';
+//Modules:
 import { getGridBlock } from '../../../js_modules/geometry';
 import { insertToArray } from '../../../js_modules/array';
+import { spawnBlockSelection } from '../../../mc_modules/particles';
 
 //# Individual Selection
 class Selection {
@@ -90,11 +89,11 @@ class Selection {
 //# Global Selection
 const Selections = {};
 
-system.runSchedule(() => {
+system.runInterval(() => {
     for (player in Selections) {
         const selection = Selections[player];
         const molang = new MolangVariableMap()
-        .setColorRGB('colour',new Color(1,0,0,1));
+        .setColorRGB('colour',{red:1,green:0,blue:0,alpha:1});
 
         spawnBlockSelection('trebesin:selection_dot',selection.bounds,selection.dimension,molang);
     }

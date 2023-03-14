@@ -1,4 +1,4 @@
-import { world } from "@minecraft/server";
+import { world, Player } from "@minecraft/server";
 function hasItem(entity, typeId, data, amount = { min: 1, max: 64 }) {
     let hasItem = false;
     const inventory = entity.getComponent('inventory');
@@ -96,7 +96,7 @@ function clearItem(entity, typeId, type, data, amount = { min: 1, max: 64 }) {
     return clearAmount
 }
 
-function getEquipedItem(entity) {
+export function getEquipedItem(entity) {
     const container = entity.getComponent('inventory').container;
     return container.getItem(entity.selectedSlot);
 }
@@ -104,21 +104,20 @@ function getEquipedItem(entity) {
 /**
  * 
  * @param {string} message 
- * @param {Player | Player[]} [actor]
+ * @param {Player | Player[]} [player]
  * @param {string} [sender]
  */
-function sendMessage(message,senderName,actor = null) {
-    const messageText = !senderName ? message : `[${senderName}§r] ${message}`;
-    if (!actor) {
-        world.say(messageText);
+export function sendMessage(message,senderName,player = null) {
+    const messageText = senderName == null ? message : `[${senderName}§r] ${message}`;
+    if (!player) {
+        world.sendMessage(messageText);
     } else {
-        if (!Array.isArray(actor)) {
-            actor.tell(messageText);
+        if (!Array.isArray(player)) {
+            player.sendMessage(messageText);
         } else {
-            for (let playerIndex = 0;playerIndex < actor.length;playerIndex++) {
-                actor[playerIndex].tell(messageText);
+            for (let playerIndex = 0;playerIndex < player.length;playerIndex++) {
+                player[playerIndex].sendMessage(messageText);
             }
         }
     }
 }
-export {sendMessage,getEquipedItem}

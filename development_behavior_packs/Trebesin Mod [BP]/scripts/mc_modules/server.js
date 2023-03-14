@@ -1,4 +1,4 @@
-import { world, system, BlockLocation } from "@minecraft/server";
+import { world, system } from "@minecraft/server";
 import { ChunkManager, getSubchunksCoords } from './chunk.js';
 import { randInt } from '../js_modules/random.js';
 import { insertToArray, deleteFromArray } from "../js_modules/array.js";
@@ -8,29 +8,19 @@ import * as Debug from './../plugins/debug/debug'
 /**
  * @description - Class with helper functions that relate to scheduling or backend functioning of the server.
  */
-class Server {
+export class Server {
     constructor(initialTick = 0) {
         this.#tick = initialTick;
 
-        const tickEvent = () => {
-            //Property 'relativeTick'
+        //## Relative Tick, Loaded Players, Custom Events
+        system.runInterval(() => {
             this.#tick++;
-            
-            //Property 'playersLoaded'
+            for (const eventId in this.#eventsRegister) this.#eventsRegister[eventId].execute?.(this);
             if (!this.#playersLoaded && world.getAllPlayers().length) this.#playersLoaded = true;
+        },1);
 
-            //Events
-            for (const eventId in this.#eventsRegister) {
-                this.#eventsRegister[eventId].execute?.(this);
-            }
-
-            //Timeouts
-            executeTimeout(this.#timeouts,this.#tick);
-        }
-
-        system.runSchedule(tickEvent,1);
-
-        system.events.beforeWatchdogTerminate.subscribe(eventData => {
+        //## Cancel Termination:
+        system.events.beforeWatchdogTerminate.subscribe((eventData) => {
             eventData.cancel = this.#watchdogTerminate;
         });
     }
@@ -38,7 +28,6 @@ class Server {
     #eventsRegister = {}
     events = {}
 
-    #timeouts = [];
     #tick = 0;
     #playersLoaded = false;
     #watchdogTerminate = false;
@@ -68,55 +57,56 @@ class Server {
         
     }
 
-    setTimeout(callback, ticks) {
-        return insertToArray(this.#timeouts,[callback, this.#tick + ticks]);
-    }
-    
-    clearTimeout(index) {
-        deleteFromArray(this.#timeouts,index)
-    }
+    /**
+     * @typedef EventWaitOptions Options that define how to wait for the event.
+     * @property {number} tries A variable that changes everytime the event fires depending on the condition return value if it is a number. Getting tires to/below 0 results in rejection of the promise.
+     * @property {number} timeout Number of ticks before rejecting the promise. Enter 0 for infinite timeout (not recommended).
+     * @property {number} amount Number of events to wait for before resolving the promise, it must get there or else the promise times out. 0 will wait until the timeout and resolve everything that met the condition. Negative values will resolve the promise even if it doesn't get to the requested amount.
+     */
 
     /**
      * @param {object} eventObject Object containing `subscribe()` and `unsubscribe()` methods.
      * @param {Function} callback Callback that gets passed event data, it must return an object that contains property `tries` that modifies the tries counter and a property `saveValue` which gets saved and counts the event as success if its value isn't nullish.
-     * @param {number} tries A variable that changes everytime the event fires depending on the condition return value if it is a number. Getting tires to/below 0 results in rejection of the promise.
-     * @param {number} timeout Number of ticks before rejecting the promise. Enter 0 for infinite timeout (not recommended).
-     * @param {number} amount Number of events to wait for before resolving the promise, it must get there or else the promise times out. 0 will wait until the timeout and resolve everything that met the condition. Negative values will resolve the promise even if it doesn't get to the requested amount.
+     * @param {EventWaitOptions} options Options that define how to wait for the event.
      */
-     async waitForEvent(eventObject,callback,tries = 10,timeout = 200,amount = 1) {
+    async waitForEvent(eventObject,callback,options = {}) {
+        const OPTIONS = Object.assign({tries: 10,timeout: 200,amount: 1},options);
         return new Promise((resolve, reject) => {
             let savedEvents = [];
             let timeoutIndex;
             const event = eventObject.subscribe((data) => {
                 const result = callback(data);
-                tries += result.tries;
-                if (tries <= 0) {
-                    if (Number.isFinite(timeoutIndex)) this.clearTimeout(timeoutIndex);
+                OPTIONS.tries += result?.tries ?? 0;
+                if (OPTIONS.tries <= 0) {
+                    if (timeoutIndex != null) system.clearRun(timeoutIndex);
                     eventObject.unsubscribe(event);
                     reject({timeout:false,tries:true});
                 }
                 
-                if (result.saveValue != null) {
+                if (result?.saveValue != null) {
                     savedEvents.push(result.saveValue);
-                    if ((amount > 0 && savedEvents.length === amount) || (amount < 0 && savedEvents.length + amount === 0)) {
-                        if (Number.isFinite(timeoutIndex)) this.clearTimeout(timeoutIndex);
+                    if (
+                        (OPTIONS.amount > 0 && savedEvents.length === OPTIONS.amount) || 
+                        (OPTIONS.amount < 0 && savedEvents.length + OPTIONS.amount === 0)
+                    ) {
+                        if (timeoutIndex != null) system.clearRun(timeoutIndex);
                         eventObject.unsubscribe(event);
                         resolve(savedEvents);
                     }
-                } else console.warn('[Script] Invalid condition return value!');
+                }
             });
 
-            if (timeout > 0) {
-                if (amount > 0) {
-                    timeoutIndex = this.setTimeout(() => {
+            if (OPTIONS.timeout > 0) {
+                if (OPTIONS.amount > 0) {
+                    timeoutIndex = system.runTimeout(() => {
                         eventObject.unsubscribe(event);
                         reject({timeout:true,tries:false});
-                    },timeout)
+                    },OPTIONS.timeout);
                 } else {
-                    timeoutIndex = this.setTimeout(() => {
+                    timeoutIndex = system.runTimeout(() => {
                         eventObject.unsubscribe(event);
                         resolve(savedEvents);
-                    },timeout)
+                    },OPTIONS.timeout);
                 }
             }
         });
@@ -129,18 +119,18 @@ class Server {
      */
     async waitForNextTick(callback) {
         return new Promise((resolve,reject) => {
-            system.run(() => {
+            system.runTimeout(() => {
                 try {
                     resolve(callback());
                 } catch (error) {
                     reject(error)
                 }
-            })
+            },1);
         })
     }
 }
 
-class ServerEventCallback {
+export class ServerEventCallback {
     constructor() {
         this.saved = [];
     }
@@ -162,17 +152,7 @@ class ServerEventCallback {
     saved;
 }
 
-
-function executeTimeout(callbackArray,tick) {
-    for (let index = 0; index < callbackArray.length; index++) {
-        const item = callbackArray[index];
-        if (item && tick === item[1]) {
-            item[0]();
-            deleteFromArray(callbackArray,index);
-        }
-    }
-}
-
+/*
 function executeRandomTick(callbackArray,loadedChunks,tickSpeed) {
     if (callbackArray.length) {
         //!this has terrible performance:
@@ -186,11 +166,11 @@ function executeRandomTick(callbackArray,loadedChunks,tickSpeed) {
                     //!40-45% CPU Usage Getting The Block, 40-45% CPU Usage Generating the Number :/
                     for (let index = 0;index <= tickSpeed;index++) {
                         const subChunk = subChunks[subChunkIndex];
-                        const blockLocation = new BlockLocation(
-                            randInt(subChunk.x,subChunk.x + 15),
-                            randInt(subChunk.y,subChunk.y + 15),
-                            randInt(subChunk.z,subChunk.z + 15)
-                        );
+                        const blockLocation = {
+                            x: randInt(subChunk.x,subChunk.x + 15),
+                            y: randInt(subChunk.y,subChunk.y + 15),
+                            z: randInt(subChunk.z,subChunk.z + 15)
+                        };
                         const block = dimension.getBlock(blockLocation);
                         for (let callbackIndex = 0;callbackIndex < callbackArray.length;callbackIndex++) {
                             callbackArray[callbackIndex](block);
@@ -201,5 +181,4 @@ function executeRandomTick(callbackArray,loadedChunks,tickSpeed) {
         }
     }
 }
-
-export { Server , ServerEventCallback}
+*/

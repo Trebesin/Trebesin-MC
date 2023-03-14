@@ -111,6 +111,9 @@
     },
     "trebesin.image_board": {
       "textures": "textures/blocks/board"
+    },
+    "trebesin.image_logo_trebesin_mc": {
+      "textures": "textures/blocks/logo_trebesin_mc"
     }
   }
 }
