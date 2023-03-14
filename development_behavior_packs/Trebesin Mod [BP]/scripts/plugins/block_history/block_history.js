@@ -156,6 +156,7 @@ export async function main() {
     
     world.events.beforeItemUseOn.subscribe((eventData) => {
         //this prevents an exploit do not remove!!!!
+        const player = eventData.source;
         if (player.hasTag('inspector')){
             eventData.cancel = true;
         }
