@@ -165,11 +165,11 @@ export async function main() {
     Server.events.beforeItemStartUseOn.subscribe((eventData) => {
         try{
             const player = eventData.source;
-            const offset = FACE_DIRECTIONS[eventData.blockFace];
-            const faceBlockLocation = sumVectors(eventData.getBlockLocation(), offset);
             if (player.hasTag('inspector')){
                 try {
                     eventData.cancel = true;
+                    const offset = FACE_DIRECTIONS[eventData.blockFace];
+                    const faceBlockLocation = sumVectors(eventData.getBlockLocation(), offset);
                     if (getEquipedItem(player) != null) BlockHistoryCommandsWorker.inspector(faceBlockLocation, player);
                     else BlockHistoryCommandsWorker.inspector(eventData.getBlockLocation(), player);
                 }
