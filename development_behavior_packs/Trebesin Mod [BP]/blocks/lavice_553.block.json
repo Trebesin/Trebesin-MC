@@ -1,0 +1,25 @@
+{
+	"format_version": "1.19.50",
+	"minecraft:block": {
+		"description": {
+			"identifier": "trebesin:lavice_553",
+			"menu_category": {
+				"category": "construction"
+			}
+		},
+		"components": {
+			"minecraft:collision_box": true,
+			"minecraft:destructible_by_mining": false,
+			"minecraft:destructible_by_explosion": false,
+			"minecraft:geometry": "geometry.lavice_553",
+			"minecraft:material_instances": {
+				"*": {
+					"texture": "lavice_553",
+					"render_method": "alpha_test"
+				}
+			},
+			"minecraft:light_dampening": 5,
+			"minecraft:map_color": "#bdd848"
+		}
+	}
+}

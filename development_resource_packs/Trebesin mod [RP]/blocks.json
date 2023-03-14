@@ -143,6 +143,9 @@
       "down": "wood_oak"
     }
   },
+  	"lavice_553": {
+		"sound": "stone"
+	},
 	"dell_monitor_553": {
 		"sound": "cloth"
 	},

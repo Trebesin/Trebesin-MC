@@ -9,7 +9,7 @@
         "description": "Resource Pack for Třebešín",
         "name": "Třebešín Mód [RP]",
         "uuid": "551d5da1-7964-4bd2-95f3-eeeee720fea0",
-        "version": [ 1, 0, 3 ],
+        "version": [ 1, 0, 4 ],
         "min_engine_version": [ 1, 19, 40 ]
     },
     "modules": [

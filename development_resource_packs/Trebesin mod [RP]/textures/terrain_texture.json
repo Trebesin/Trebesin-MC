@@ -7,6 +7,9 @@
 		"dell_monitor_553": {
 			"textures": "textures/blocks/dell_monitor_553.png"
 		},
+    "lavice_553": {
+			"textures": "textures/blocks/lavice_553.png"
+		},
     "trebesin.image_prague": {
       "textures": "textures/blocks/prague"
     },
