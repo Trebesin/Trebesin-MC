@@ -29,6 +29,13 @@
 			"minecraft:light_dampening": 5,
 			"minecraft:map_color": "#bdd848"
 		},
+		"events": {
+			"trebesin:set_rotation": {
+				"set_block_property": {
+					"trebesin:rotation": "(query.cardinal_facing_2d)"
+				}
+			}
+		},
 		"permutations": [
 			{
 				"condition": "query.block_property('trebesin:rotation') == 5",
