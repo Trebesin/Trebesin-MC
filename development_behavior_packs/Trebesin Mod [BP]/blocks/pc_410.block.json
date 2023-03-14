@@ -5,6 +5,18 @@
 			"identifier": "trebesin:pc_410",
 			"menu_category": {
 				"category": "construction"
+			},
+			"properties": {
+				"trebesin:rotation": [
+					2,3,4,5
+				]
+			}
+		},
+		"events": {
+			"trebesin:set_rotation": {
+				"set_block_property": {
+					"trebesin:rotation": "(query.cardinal_facing_2d)"
+				}
 			}
 		},
 		"components": {
@@ -12,6 +24,9 @@
 			"minecraft:destructible_by_mining": false,
 			"minecraft:destructible_by_explosion": false,
 			"minecraft:geometry": "geometry.pc_410",
+			"minecraft:on_player_placing": {
+				"event": "trebesin:set_rotation"
+			},
 			"minecraft:material_instances": {
 				"*": {
 					"texture": "pc_410",
@@ -20,6 +35,32 @@
 			},
 			"minecraft:light_dampening": 0,
 			"minecraft:map_color": "#ffffff"
-		}
+		},
+		"permutations": [
+			{
+				"condition": "query.block_property('trebesin:rotation') == 3",
+				"components": {
+					"minecraft:rotation": [0, 0, 0]
+				}
+			},
+			{
+				"condition": "query.block_property('trebesin:rotation') == 2",
+				"components": {
+					"minecraft:rotation": [0, 180, 0]
+				}
+			},
+			{
+				"condition": "query.block_property('trebesin:rotation') == 5",
+				"components": {
+					"minecraft:rotation": [0, 90, 0]
+				}
+			},
+			{
+				"condition": "query.block_property('trebesin:rotation') == 4",
+				"components": {
+					"minecraft:rotation": [0, 270, 0]
+				}
+			}
+		]
 	}
 }
