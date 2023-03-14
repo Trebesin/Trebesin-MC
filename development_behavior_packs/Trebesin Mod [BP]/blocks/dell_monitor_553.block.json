@@ -42,13 +42,13 @@
 		},
 		"permutations": [
 			{
-				"condition": "query.block_property('trebesin:rotation') == 4",
+				"condition": "query.block_property('trebesin:rotation') == 5",
 				"components": {
 					"minecraft:rotation": [0, 0, 0]
 				}
 			},
 			{
-				"condition": "query.block_property('trebesin:rotation') == 5",
+				"condition": "query.block_property('trebesin:rotation') == 4",
 				"components": {
 					"minecraft:rotation": [0, 180, 0]
 				}
