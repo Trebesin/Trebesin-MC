@@ -163,7 +163,6 @@ export async function main() {
     })
     //## Inspector
     Server.events.beforeItemStartUseOn.subscribe((eventData) => {
-        try{
             const player = eventData.source;
             if (player.hasTag('inspector')){
                 try {
@@ -177,10 +176,6 @@ export async function main() {
                     Debug.sendLogMessage(error)
                 }
             }
-        }
-        catch(error){
-            Debug.logMessage(error)
-        }
     });
 
     //## Block Placing Detection:
