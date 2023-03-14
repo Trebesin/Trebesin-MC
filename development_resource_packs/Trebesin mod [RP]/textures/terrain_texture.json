@@ -7,6 +7,12 @@
 		"dell_monitor_553": {
 			"textures": "textures/blocks/dell_monitor_553.png"
 		},
+    "pc_410": {
+			"textures": "textures/blocks/pc_410.png"
+		},
+    "asus_410": {
+			"textures": "textures/blocks/asus_410.png"
+		},
     "lavice_553": {
 			"textures": "textures/blocks/lavice_553.png"
 		},

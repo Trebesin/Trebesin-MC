@@ -132,6 +132,12 @@
       "down": "wood_oak"
     }
   },
+  	"asus_410": {
+		"sound": "stone"
+	},
+  	"pc_410": {
+		"sound": "stone"
+	},
   "trebesin:imageboard_cnc_poster1_A1": {
     "sounds": "wood",
     "textures": {

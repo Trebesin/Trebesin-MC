@@ -5,3 +5,4 @@ commands.generic.unknown=Unknown command: %s. Please check that the command exis
 tile.trebesin:imageboard_board.name=board
 tile.trebesin:dell_monitor_553.name=Dell monitor 553
 tile.trebesin:lavice_553.name=lavice 553
+tile.trebesin:pc_410.name=pc 410
