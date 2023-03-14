@@ -38,25 +38,25 @@
 		},
 		"permutations": [
 			{
-				"condition": "query.block_property('trebesin:rotation') == 3",
+				"condition": "query.block_property('trebesin:rotation') == 5",
 				"components": {
 					"minecraft:rotation": [0, 0, 0]
 				}
 			},
 			{
-				"condition": "query.block_property('trebesin:rotation') == 2",
+				"condition": "query.block_property('trebesin:rotation') == 4",
 				"components": {
 					"minecraft:rotation": [0, 180, 0]
 				}
 			},
 			{
-				"condition": "query.block_property('trebesin:rotation') == 5",
+				"condition": "query.block_property('trebesin:rotation') == 3",
 				"components": {
 					"minecraft:rotation": [0, 90, 0]
 				}
 			},
 			{
-				"condition": "query.block_property('trebesin:rotation') == 4",
+				"condition": "query.block_property('trebesin:rotation') == 2",
 				"components": {
 					"minecraft:rotation": [0, 270, 0]
 				}
