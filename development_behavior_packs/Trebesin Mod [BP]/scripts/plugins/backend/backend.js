@@ -23,7 +23,7 @@ export const DB = new DatabaseConnection({
         user: serverAdmin.variables.get('db-connection-username'),
         password: serverAdmin.variables.get('db-connection-password'),
         multipleStatements: true,
-        database: 's835835_Trebesin-DB-Beta'
+        database: serverAdmin.variables.get('db-connection-name')
     },
     server: {
         url: serverAdmin.variables.get('db-server-url'),
