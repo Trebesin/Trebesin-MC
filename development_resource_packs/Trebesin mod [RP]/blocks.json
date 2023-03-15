@@ -132,6 +132,12 @@
       "down": "wood_oak"
     }
   },
+  	"asus_410": {
+		"sound": "stone"
+	},
+  	"pc_410": {
+		"sound": "stone"
+	},
   "trebesin:imageboard_cnc_poster1_A1": {
     "sounds": "wood",
     "textures": {
@@ -143,6 +149,12 @@
       "down": "wood_oak"
     }
   },
+  	"lavice_553": {
+		"sound": "stone"
+	},
+	"dell_monitor_553": {
+		"sound": "cloth"
+	},
   "trebesin:imageboard_cnc_poster1_B1": {
     "sounds": "wood",
     "textures": {
@@ -357,6 +369,28 @@
     "textures": {
       "north": "trebesin.image_white",
       "south": "trebesin.image_white",
+      "west": "wood_oak",
+      "east": "wood_oak",
+      "up": "wood_oak",
+      "down": "wood_oak"
+    }
+  },
+  "trebesin:imageboard_board": {
+    "sounds": "wood",
+    "textures": {
+      "north": "trebesin.image_white",
+      "south": "trebesin.image_white",
+      "west": "wood_oak",
+      "east": "wood_oak",
+      "up": "wood_oak",
+      "down": "wood_oak"
+    }
+  },
+  "trebesin:imageboard_logo_trebesin_mc": {
+    "sounds": "wood",
+    "textures": {
+      "north": "trebesin.image_logo_trebesin_mc",
+      "south": "trebesin.image_logo_trebesin_mc",
       "west": "wood_oak",
       "east": "wood_oak",
       "up": "wood_oak",

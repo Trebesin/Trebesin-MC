@@ -1,7 +1,7 @@
 /**
  * Double Linked List class.
  */
-class LinkedList {
+export class LinkedList {
     constructor() {}
 
     get start() {
@@ -233,5 +233,3 @@ class LinkedListNode {
 
     #listPointers = null;
 }
-
-export {LinkedList}

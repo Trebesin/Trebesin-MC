@@ -1,28 +1,31 @@
-import { world,system, Block, BlockType, BlockLocation, Entity, BlockPermutation} from '@minecraft/server';
-import { sendMessage } from '../../mc_modules/players';
-import { copyBlock, compareBlocks, getPermutations, blockUpdateIteration } from '../../mc_modules/blocks';
-import { sumVectors, copyVector, subVectors } from '../../js_modules/vector';
-import { containsArray, filter, insertToArray, deleteFromArray } from '../../js_modules/array';
+//APIs:
+import { world,system, Block, BlockType, Entity, BlockPermutation} from '@minecraft/server';
+//Plugins:
 import * as BlockHistoryCommandsWorker from './workers/commands';
 import * as Debug from '../debug/debug';
 import { DB, Server } from '../backend/backend';
+//Modules:
+import { getEntityById } from '../../mc_modules/entities';
+import { sumVectors, copyVector, subVectors, floorVector, compareVectors } from '../../js_modules/vector';
+import { containsArray, filter, insertToArray, deleteFromArray } from '../../js_modules/array';
+import { copyBlock, compareBlocks, getPermutations, blockUpdateIteration } from '../../mc_modules/blocks';
 import { DIMENSION_IDS , FACE_DIRECTIONS } from '../../mc_modules/constants';
-import { getEquipedItem } from '../../mc_modules/players';
-const DB_UPDATE_INTERVAL = 100;
+import { getEquipedItem, sendMessage } from '../../mc_modules/players';
 
+
+const DB_UPDATE_INTERVAL = 100;
 const blockUpdates = {};
 const fallingBlocksTracked = [];
-let DatabaseExport = null;
 
-async function main() {
+export const name = 'Block History';
+export async function main() {
     //# Workers:
     loadWorkers();
     
     //# Database:
     const connection = DB;
-    DatabaseExport = connection
     //## DB Save Schedule:
-    system.runSchedule(async () => {
+    system.runInterval(async () => {
         let empty = true;
         const request = {
             sql: 'INSERT INTO block_history (actor_id,tick,dimension_id,x,y,z,before_id,after_id,before_waterlogged,after_waterlogged,before_permutations,after_permutations,blockPlaceType,blockPlaceTypeID) VALUES ',
@@ -45,8 +48,8 @@ async function main() {
                     record.after.typeId,
                     record.before.isWaterlogged,
                     record.after.isWaterlogged,
-                    JSON.stringify(getPermutations(record.before.permutation)),
-                    JSON.stringify(getPermutations(record.after.permutation)),
+                    JSON.stringify(record.before.permutation.getAllProperties()),
+                    JSON.stringify(record.after.permutation.getAllProperties()),
                     record.blockPlaceType,
                     record.blockPlaceID
                 );
@@ -66,8 +69,7 @@ async function main() {
     //## Falling Block Patches:
     world.events.entitySpawn.subscribe((eventData) => {
         if (eventData.entity.typeId === 'minecraft:falling_block') {
-            const location = eventData.entity.location;
-            const blockLocation = new BlockLocation(Math.floor(location.x),Math.floor(location.y),Math.floor(location.z));
+            const blockLocation = floorVector(eventData.entity.location);
             insertToArray(
                 fallingBlocksTracked,
                 {
@@ -88,7 +90,7 @@ async function main() {
         }
     });
 
-    system.runSchedule(() => {
+    system.runInterval(() => {
         for (let index = 0;index < fallingBlocksTracked.length;index++) {
             const fallingBlockData = fallingBlocksTracked[index];
             if (fallingBlockData == null) continue;
@@ -110,11 +112,7 @@ async function main() {
                 )?.nameTag}`);
                 deleteFromArray(fallingBlocksTracked,index);
             } else {
-                fallingBlockData.location.current = new BlockLocation(
-                    Math.floor(fallingBlockEntity.location.x),
-                    Math.floor(fallingBlockEntity.location.y),
-                    Math.floor(fallingBlockEntity.location.z)
-                );
+                fallingBlockData.location.current = floorVector(fallingBlockEntity.location);
                 fallingBlockData.tick.current = system.currentTick;
             }
         }
@@ -156,43 +154,50 @@ async function main() {
         });
     });
     
+    world.events.beforeItemUseOn.subscribe((eventData) => {
+        //this prevents an exploit do not remove!!!!
+        const player = eventData.source;
+        if (player.hasTag('inspector')){
+            eventData.cancel = true;
+        }
+    })
     //## Inspector
     Server.events.beforeItemStartUseOn.subscribe((eventData) => {
-        const player = eventData.source;
-        const offset = FACE_DIRECTIONS[eventData.blockFace];
-        const faceBlockLocation = eventData.blockLocation.offset(offset.x,offset.y,offset.z);
-        if (player.hasTag('inspector')){
-            try {
-                eventData.cancel = true;
-                if (getEquipedItem(player) != null) BlockHistoryCommandsWorker.inspector(faceBlockLocation, player);
-                else BlockHistoryCommandsWorker.inspector(eventData.blockLocation, player);
+            const player = eventData.source;
+            if (player.hasTag('inspector')){
+                try {
+                    eventData.cancel = true;
+                    const offset = FACE_DIRECTIONS[eventData.blockFace];
+                    const faceBlockLocation = sumVectors(eventData.getBlockLocation(), offset);
+                    if (getEquipedItem(player) != null) BlockHistoryCommandsWorker.inspector(faceBlockLocation, player);
+                    else BlockHistoryCommandsWorker.inspector(eventData.getBlockLocation(), player);
+                }
+                catch(error){
+                    Debug.sendLogMessage(error)
+                }
             }
-            catch(error){
-                Debug.sendLogMessage(error)
-            }
-        }
     });
 
     //## Block Placing Detection:
     world.events.itemStartUseOn.subscribe(async(eventData) => {
         const player = eventData.source;
         const offset = FACE_DIRECTIONS[eventData.blockFace];
-        const faceBlockLocation = eventData.blockLocation.offset(offset.x,offset.y,offset.z);
+        const faceBlockLocation = sumVectors(eventData.getBlockLocation(),offset);
         const faceBlock = player.dimension.getBlock(faceBlockLocation);
         const faceBlockOld = copyBlock(faceBlock);
-        const block = player.dimension.getBlock(eventData.blockLocation);
+        const block = player.dimension.getBlock(eventData.getBlockLocation());
         const blockOld = copyBlock(block);
 
         //Those Blocks:
-        system.run(async () => {
-                saveBlockUpdate(faceBlockOld,copyBlock(faceBlock),player.id);
-                saveBlockUpdate(blockOld,copyBlock(block),player.id);
+        system.runTimeout(async () => {
+            saveBlockUpdate(faceBlockOld,copyBlock(faceBlock),player.id);
+            saveBlockUpdate(blockOld,copyBlock(block),player.id);
             //Falling Blocks
-            system.run(() => {
-                const fallObject = fallingBlocksTracked.find((block) => faceBlock.location.equals(block.location.start));
+            system.runTimeout(() => {
+                const fallObject = fallingBlocksTracked.find((block) => compareVectors(faceBlock.location,block.location.start));
                 if (fallObject) fallObject.playerId = player.id;
-            })
-        });
+            },1);
+        },1);
 
         //Updated Blocks:
         await blockUpdateIteration(faceBlockLocation,faceBlockOld.dimension,(blockBefore,blockAfter,tick) => {
@@ -202,19 +207,20 @@ async function main() {
             const fallObject = fallingBlocksTracked.find((block) => blockBefore.location.equals(block.location.start));
             if (fallObject) fallObject.playerId = player.id;
         });
-    });  
+    });
 
     //Debug:
     world.events.itemUseOn.subscribe((eventData) => {
         if (eventData.item.typeId === 'minecraft:stick') {
-            const block = eventData.source.dimension.getBlock(eventData.blockLocation);
+            const block = eventData.source.dimension.getBlock(eventData.getBlockLocation());
             if (block.typeId.startsWith('trebesin')) {
                 Debug.sendLogMessage(`[trebesin:rotation] - ${block.permutation.getProperty('trebesin:rotation')?.value}`);
                 Debug.sendLogMessage(`[trebesin:horizontal_rotation] - ${block.permutation.getProperty('trebesin:horizontal_rotation')?.value}`);
                 Debug.sendLogMessage(`[trebesin:vertical_rotation] - ${block.permutation.getProperty('trebesin:vertical_rotation')?.value}`);    
             } else {
-                for (const permutation of block.permutation.getAllProperties()) {
-                    Debug.sendLogMessage(`[${permutation.name}] - ${permutation.value}`);
+                const properties = block.permutation.getAllProperties();
+                for (const property in properties) {
+                    Debug.sendLogMessage(`[${property}] - ${properties[property]}`);
                 }
             }
         } else if (eventData.item.typeId === 'minecraft:diamond_sword') {
@@ -232,29 +238,13 @@ function loadWorkers() {
 }
 
 /**
- * Function used to get entity with a specified ID from the world.
- * @param {*} id Id of the entity to find.
- * @param {EntityQueryOptions} [queryOptions] Optional query options to further specify the entity to look for.
- * @param {string[]} [dimensionIds] IDs of dimensions to look for. Defaults to all dimensions of the world.
- * @returns {Entity|undefined} Entity with the specified ID or undefined if no entity was found.
- */
-function getEntityById(id,queryOptions = {},dimensionIds = DIMENSION_IDS) {
-    for (let index = 0;index < dimensionIds.length;index++) {
-        const dimension = world.getDimension(DIMENSION_IDS[index]);
-        const entities = [...dimension.getEntities(queryOptions)];
-        const entityWithId = filter(entities,(entity) => entity.id === id)[0]
-        if (entityWithId != null) return entityWithId;
-    }
-}
-
-/**
  * Function for saving block updates into the Block History memory database.
  * @param {object} blockBefore **Copy** of the `Block` class object saved as the block before the update.
  * @param {object} blockAfter **Copy** of the `Block` class object saved as the block after the update.
  * @param {object} actorId ID that is used to identify the cause of the block update, usually an entity ID.
  * @returns {number} Returns a number indicating change to the memory database.
  */
-function saveBlockUpdate(blockBefore,blockAfter,actorId,blockPlaceType = "playerPlace",blockPlaceID = null) {
+export function saveBlockUpdate(blockBefore,blockAfter,actorId,blockPlaceType = "playerPlace",blockPlaceID = null) {
     if (blockUpdates[actorId] == null) blockUpdates[actorId] = [];
     const updateRecord = {
         before: blockBefore,
@@ -289,7 +279,7 @@ function saveBlockUpdate(blockBefore,blockAfter,actorId,blockPlaceType = "player
  * @param {BlockType} blockType `blockType` parameter of the `setType()` method.
  * @param {string} actorId ID that is used to identify the cause of the block update saved to the database, usually an entity ID.
  */
-function setBlockType(block,blockType,actorId) {
+export function setBlockType(block,blockType,actorId) {
     const blockBefore = copyBlock(block);
     block.setType(blockType);
     const blockAfter = copyBlock(block);
@@ -302,19 +292,11 @@ function setBlockType(block,blockType,actorId) {
  * @param {BlockPermutation} permutation `permutation` parameter of the `setpermutation()` method.
  * @param {string} actorId ID that is used to identify the cause of the block update saved to the database, usually an entity ID.
  */
-function setBlockPermutation(block,permutation,actorId) {
+export function setBlockPermutation(block,permutation,actorId) {
     const blockBefore = copyBlock(block);
     block.setPermutation(permutation);
     const blockAfter = copyBlock(block);
     saveBlockUpdate(blockBefore,blockAfter,actorId);
 }
-
-export {
-    main,
-    setBlockType,
-    setBlockPermutation,
-    saveBlockUpdate,
-    DatabaseExport as database
-};
 
 

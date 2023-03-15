@@ -1,10 +1,15 @@
-import {CommandResult, Location, system, world, Vector, Player, MinecraftEffectTypes} from "@minecraft/server";
-import { sendMessage } from '../../../mc_modules/players';
+//APIs:
+import {CommandResult, system, world, Vector, Player, MinecraftEffectTypes} from "@minecraft/server";
+//Plugins:
 import * as Debug from './../../debug/debug';
 import { playerData as serverPlayerData } from '../../server/server';
 import { Commands } from '../../backend/backend';
+//Modules:
 import * as vectorMath from "../../../js_modules/vector.js";
-function main(){
+import { sendMessage } from '../../../mc_modules/players';
+
+
+export function main(){
   Commands.registerCommand("gmsp", {
     aliases: ["gamemodespectator", "gamemodesp", "gm3", "gmspectator", "spectator"], parameters: [], run: async (sender) => {
       await sender.runCommandAsync(`gamerule sendcommandfeedback false`)
@@ -24,7 +29,7 @@ function main(){
       for(let i = 0;i<10000;i++){
         message += '\n'
       }
-      sender.tell(message)
+      sender.sendMessage(message)
     }
   })
 
@@ -44,8 +49,8 @@ function main(){
 
   Commands.registerCommand("phase", {
     parameters: [{id: "distance", type: "int", optional: true}], aliases: ["p","phaser"], run: (sender, parameter) => {
-      const newLocation = Vector.add(sender.location, vectorMath.setVectorLength(sender.viewDirection, parameter.distance ?? 2));
-      sender.teleport(newLocation, sender.dimension, sender.rotation.x, sender.rotation.y);
+      const newLocation = Vector.add(sender.location, vectorMath.setVectorLength(sender.getViewDirection(), parameter.distance ?? 2));
+      sender.teleport(newLocation, sender.dimension, sender.getRotation().x, sender.getRotation().y);
       sendMessage("§l§bWHOOSH!§r", "", sender);
     },
     description: "teleports you in front by [distance] blocks"
@@ -86,4 +91,3 @@ function main(){
       }
   }})
 }
-export {main};

@@ -1,7 +1,11 @@
+//APIs:
 import {CommandResult, MinecraftEffectTypes , system, world} from "@minecraft/server";
-import { sendMessage } from '../../../mc_modules/players';
+//Plugins:
 import {Commands} from "../../backend/backend";
-async function main(){
+//Modules:
+import { sendMessage } from '../../../mc_modules/players';
+
+
+export async function main(){
 
 }
-export {main};

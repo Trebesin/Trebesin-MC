@@ -1,19 +1,18 @@
-import * as AdminWorker from "./workers/admin"
-import * as UserWorker from "./workers/user"
-import * as ItemsWorker from "./workers/items"
-import * as Debug from "../debug/debug"
-import * as DebugCommands from "./workers/debug"
-const debugAllowed = true
+//Plugin Imports:
+import * as Debug from '../debug/debug'
+import * as AdminWorker from './workers/admin'
+import * as UserWorker from './workers/user'
+import * as ItemsWorker from './workers/items'
+import * as DebugCommands from './workers/debug'
 
-async function main(){
+export const name = 'Commands';
+export async function main() {
     AdminWorker.main();
-    Debug.logMessage('   Admin commands set');
+    Debug.sendLogMessage('   Admin commands set');
     UserWorker.main();
-    Debug.logMessage('   User commands set');
+    Debug.sendLogMessage('   User commands set');
     ItemsWorker.main()
-    Debug.logMessage('   item links to commands set');
+    Debug.sendLogMessage('   Item links set');
     DebugCommands.main();
-    Debug.logMessage('   debug commands set');
+    Debug.sendLogMessage('   Debug commands set');
 }
-
-export {main, debugAllowed}

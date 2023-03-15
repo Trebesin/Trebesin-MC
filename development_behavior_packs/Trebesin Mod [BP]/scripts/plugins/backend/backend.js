@@ -1,19 +1,23 @@
+//APIs:
 import { world, system } from '@minecraft/server';
 import * as serverAdmin from '@minecraft/server-admin';
-import { DatabaseConnection } from '../../mc_modules/network/database-api';
-import { Server, ServerEventCallback } from '../../mc_modules/server';
-import { compareItems } from '../../mc_modules/items';
+//Plugins:
 import * as Debug from '../debug/debug';
+//Modules:
+import { DatabaseConnection } from '../../mc_modules/network/database-api';
+import { Server as ServerModule, ServerEventCallback } from '../../mc_modules/server';
+import { compareItems } from '../../mc_modules/items';
 import { CommandParser } from '../../mc_modules/commandParser';
 import { sendMessage } from '../../mc_modules/players';
 
-//Initial Variables:
-const commandParser = new CommandParser({
+
+export const Commands = new CommandParser({
     prefix: "!", caseSensitive: false
-  })
-const server = new Server(0);
-server.cancelTerminations = true;
-const dbConnection = new DatabaseConnection({
+});
+export const Server = new ServerModule(0);
+Server.cancelTerminations = true;
+
+export const DB = new DatabaseConnection({
     connection: {
         host: 'db1.falix.cc',
         user: serverAdmin.variables.get('db-connection-username'),
@@ -28,62 +32,62 @@ const dbConnection = new DatabaseConnection({
     }
 });
 
-    let messages = {}
+const messages = {}
 
-    function more(sender, parameters){
-        if(!messages[sender.id]){
-            sendMessage(`there is nothing to be shown`, "CMD", sender)
-            return
-        }
-        messages.viewedFirst = true
-        if(!parameters.page || parameters.page < 1 || parameters.page > Math.ceil(messages[sender.id].content.length/7)){
-            sendMessage(`invalid page number '${parameters.page}'`, "CMD - error", sender)
-            return;
-        }
-        let message = `§2showing page ${parameters.page} of ${Math.ceil(messages[sender.id].content.length/7)} for ${messages[sender.id].title}:§r \n`
-        for(let i = (parameters.page-1)*7;i<messages[sender.id].content.length && i<parameters.page*7;i++){
-            message += `${messages[sender.id].content[i]}\n`
-        }
-        message += `§2use !more [pageNumber] for other pages`
-        sender.tell(message)
+function more(sender, parameters) {
+    if (!messages[sender.id]){
+        sendMessage(`There is nothing to be shown.`, "CMD", sender);
+        return;
     }
+    messages.viewedFirst = true
+    if (!parameters.page || parameters.page < 1 || parameters.page > Math.ceil(messages[sender.id].content.length/7)){
+        sendMessage(`Invalid page number '${parameters.page}'.`, "CMD - error", sender);
+        return;
+    }
+    let message = `§2Showing page ${parameters.page} of ${Math.ceil(messages[sender.id].content.length/7)} for ${messages[sender.id].title}:§r \n`
+    for (let i = (parameters.page-1)*7;i<messages[sender.id].content.length && i<parameters.page*7;i++) {
+        message += `${messages[sender.id].content[i]}\n`;
+    }
+    message += `§2Use !more [pageNumber] for other pages.`;
+    sender.sendMessage(message);
+}
 
-    commandParser.registerCommand('more',{
+Commands.registerCommand('more',{
         aliases: [],
-        description: ["manages sent messages to player so that chat doesn't become a mess"],
+        description: ['Manages sent messages to player so that chat doesn\'t become a mess.'],
         parameters: [{id:'page', type:'int', optional: false}],
-        run: more})
+        run: more
+});
 
-    function sendLongMessage(title, content, sender, rewriteOld = true){
-        if(rewriteOld && messages[sender.id]){
-            delete messages[sender.id]
-        }
-        if(!messages[sender.id]){
-            messages[sender.id] = {title: title, content: content.split(`\n`), viewedFirst: false}
-        }
-        else{
-            let newContent = content.split('\n')
-            for(let i = 0;i<newContent.length;i++){
-                if(newContent[i] != "")messages[sender.id].content.push(newContent[i])
-            }
-        }
-        if(!messages[sender.id].viewedFirst){
-        more(sender, {page: 1});
+export function sendLongMessage(title, content, sender, rewriteOld = true){
+    if (rewriteOld && messages[sender.id]) {
+        delete messages[sender.id]
+    }
+    if (!messages[sender.id]) {
+        messages[sender.id] = {title: title, content: content.split(`\n`), viewedFirst: false}
+    } else {
+        let newContent = content.split('\n')
+        for (let i = 0;i<newContent.length;i++) {
+            if (newContent[i] != '') messages[sender.id].content.push(newContent[i])
         }
     }
+    if (!messages[sender.id].viewedFirst) {
+        more(sender, {page: 1});
+    }
+}
 
-const PluginName = 'Backend';
-async function PluginMain() {
+export const name = 'Backend';
+export async function main() {
     //# Database
     try {
-        const response = await dbConnection.connect();
+        const response = await DB.connect();
         if (response.status === 200) Debug.logMessage('Successfully connected to the database!');
         else Debug.logMessage(`Couldn't connect to database! [${response.status}]\n${response.body}`);
     } catch (error) {
         Debug.logMessage(error);
     }
     //# Custom Events
-    server.registerEvent('player',{
+    Server.registerEvent('player',{
         callbacks: {
             playerEquip: new ServerEventCallback(),
             playerSneak: new ServerEventCallback()
@@ -138,7 +142,7 @@ async function PluginMain() {
         }
     });
 
-    server.registerEvent('itemStartUseOn',{
+    Server.registerEvent('itemStartUseOn',{
         callbacks: {
             itemStartUseOn: new ServerEventCallback()
         },
@@ -156,7 +160,7 @@ async function PluginMain() {
         data: {}
     });
 
-    server.registerEvent('beforeItemStartUseOn',{
+    Server.registerEvent('beforeItemStartUseOn',{
         callbacks: {
             beforeItemStartUseOn: new ServerEventCallback()
         },
@@ -174,5 +178,3 @@ async function PluginMain() {
         data: {}
     });
 }
-
-export { server as Server, commandParser as Commands, dbConnection as DB , PluginMain as main, PluginName as name, sendLongMessage }

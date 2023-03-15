@@ -1,13 +1,17 @@
-import { BoolBlockProperty, MolangVariableMap, Color, DirectionBlockProperty, IntBlockProperty, StringBlockProperty, world, system, Block} from '@minecraft/server';
-import * as FormUi from '../../../mc_modules/ui';
+//APIs:
+import { MolangVariableMap, BlockPermutation,BlockProperties, world, system, Block} from '@minecraft/server';
+//Plugins:
+import * as Debug from './../../debug/debug';
+import { Server } from '../../backend/backend';
+//Modules:
 import {mapArray,insertToArray} from '../../../js_modules/array';
+import * as FormUi from '../../../mc_modules/ui';
 import {setBlockPermutation,setBlockType} from '../../block_history/block_history';
 import { spawnBlockSelection, spawnLine } from '../../../mc_modules/particles';
 import { getAbsoluteChunkCoord, getOriginChunkCoord} from '../../../mc_modules/chunk';
-import * as Debug from './../../debug/debug';
-import { Server } from '../../backend/backend';
 
-function main() {
+
+export function main() {
     //## Debug Stick:
     const showChunkBorder = {};
     Server.events.playerEquip.subscribe((eventData) => {
@@ -17,7 +21,11 @@ function main() {
     
     Server.events.itemStartUseOn.subscribe(async (eventData) => {
         if (eventData.item.typeId === 'trebesin:bt_debug_stick') {
-            const block = eventData.source.dimension.getBlock(eventData.blockLocation);
+            /**
+             * @type {Block}
+             */
+            const block = eventData.source.dimension.getBlock(eventData.getBlockLocation());
+            const propertyList = block.permutation.getAllProperties();
             const player = eventData.source;
             const menuData = {
                 title: `${block.typeId}`,
@@ -25,63 +33,52 @@ function main() {
                 structure: []
                 
             }
-            for (const permutation of block.permutation.getAllProperties()) {
-                const option = {
-                    id: permutation.name
-                };
 
-                if (permutation instanceof StringBlockProperty) {
-                    option.label = `§2${permutation.name} [String]`;
-                    option.type = 'dropdown';
-                    option.options = mapArray(permutation.validValues,value => value);
-                    option.defaultValueIndex = permutation.validValues.indexOf(permutation.value);
+            for (const propertyName in propertyList) {
+                const option = {
+                    id: propertyName
                 };
-                if (permutation instanceof IntBlockProperty) {
-                    option.label = `§4${permutation.name} [Integer]`;
-                    option.options = mapArray(permutation.validValues, value => value.toString());
-                    option.defaultValueIndex = permutation.validValues.indexOf(permutation.value);
-                    option.type = 'dropdown';
-                };
-                if (permutation instanceof BoolBlockProperty) {
-                    option.label = `§3${permutation.name} [Boolean]`;
+                const propertyDefinition = BlockProperties.get(propertyName);
+                const propertyType = typeof propertyDefinition.validValues[0];
+                option.label = `§2${propertyName} [${propertyType}]`;
+                if (propertyType === 'boolean') {
                     option.type = 'toggle';
-                    option.defaultValue = permutation.value;
-                };
-                if (permutation instanceof DirectionBlockProperty) {
-                    option.label = `§6${permutation.name} [Direction]`;
+                    option.defaultValue = propertyList[propertyName];
+                } else {
                     option.type = 'dropdown';
-                    option.options = mapArray(permutation.validValues,value => value);
-                    option.defaultValueIndex = permutation.validValues.indexOf(permutation.value);
-                };
+                    option.options = propertyDefinition.validValues.map((value) => `${value}`);
+                    option.defaultValueIndex = propertyDefinition.validValues.indexOf(propertyList[propertyName]);
+                }
                 menuData.structure.push(option);
             }
-            if (menuData.structure.length === 0) return
+            if (menuData.structure.length === 0) return;
             const response = await FormUi.modalMenu(menuData,player);
 
             if (block?.typeId == null) return;
-            const permutation = block.permutation;
-            for (const property of permutation.getAllProperties()) {
-                if (property instanceof BoolBlockProperty) {
-                        const value = response.formValues[property.name];
-                        property.value = value;
+            const propertyRecord = {};
+            for (const propertyName in propertyList) {
+                const propertyDefinition = BlockProperties.get(propertyName);
+                const propertyType = typeof propertyDefinition.validValues[0];
+                if (propertyType === 'boolean') {
+                    propertyRecord[propertyName] = response.formValues[propertyName];
                 } else {
-                        const index = response.formValues[property.name];
-                        const value = property.validValues[index];
-                        property.value = value;
+                    const index = response.formValues[propertyName];
+                    propertyRecord[propertyName] = propertyDefinition.validValues[index];
                 }
             }
-            setBlockPermutation(block,permutation,player.id);
+            const updatedPermutations = BlockPermutation.resolve(block.typeId, propertyRecord);
+            setBlockPermutation(block,updatedPermutations,player.id);
         }
     });
 
-    system.runSchedule(() => {
+    system.runInterval(() => {
         const players = world.getAllPlayers();
         for (let playerIndex = 0;playerIndex < players.length;playerIndex++) {
             const player = players[playerIndex];
             if (showChunkBorder[player.id] === 0 || showChunkBorder[player.id] == null) continue; 
             const chunk = getOriginChunkCoord(player.location);
             const molang = new MolangVariableMap()
-                .setColorRGBA('variable.colour',new Color(Math.random(),Math.random(),Math.random(),1));
+            .setColorRGBA('variable.color',{red:Math.random(),green:Math.random(),blue:Math.random(),alpha:1});
             spawnLine('trebesin:selection_dot',[{x:chunk.x,y:player.location.y-20,z:chunk.z},{x:chunk.x,y:player.location.y+20,z:chunk.z}],player.dimension,molang);
             spawnLine('trebesin:selection_dot',[{x:chunk.x+8,y:player.location.y-20,z:chunk.z},{x:chunk.x+8,y:player.location.y+20,z:chunk.z}],player.dimension,molang);
             spawnLine('trebesin:selection_dot',[{x:chunk.x+16,y:player.location.y-20,z:chunk.z+8},{x:chunk.x+16,y:player.location.y+20,z:chunk.z+8}],player.dimension,molang);
@@ -96,5 +93,3 @@ function main() {
     },20);
     //## -- --
 }
-
-export {main}

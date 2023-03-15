@@ -1,12 +1,10 @@
-import { logMessage } from '../plugins/debug/debug';
-
 /**
  * @description Inserts value at the first empty index in the array and returns the index.
  * @param {any[]} array - Array to insert the value into.
  * @param {*} value - Value to insert into the array.
  * @returns {number} Index that the value was inserted to.
  **/
- function insertToArray(array, value) {
+export function insertToArray(array, value) {
     if (!Array.isArray(array)) return null
     for (let index = 0;index <= array.length;index++) {
         if (array[index] == null) {
@@ -22,7 +20,7 @@ import { logMessage } from '../plugins/debug/debug';
  * @param {number} index - Index of the item to delete.
  * @returns {number} New length of the array.
  **/
-function deleteFromArray(array, index) {
+export function deleteFromArray(array, index) {
     let newLength = 0;
     delete array[index];
     for (let index = 0;index < array.length;index++) {
@@ -40,7 +38,7 @@ function deleteFromArray(array, index) {
  * @param {callback} value - Callback that gets passed `value`,`index` and `array`. Its return value is the key inside of the new object.
  * @returns {object} New generated object.
  **/
-function arrayToObject(array, callback) {
+export function arrayToObject(array, callback) {
     const newObject = {};
     for (let index = 0;index < array.length;index++) {
         const value = array[index];
@@ -55,7 +53,7 @@ function arrayToObject(array, callback) {
  * @param {Array} array - Array to get the mode of.
  * @returns {Array} Array of 2 values - first value is array of all the modes found and second is the amount of times each mode is found in the array.
  */
-function getMode(array) {
+export function getMode(array) {
     const items = new Map();
     let mode = [[null],-1];
 
@@ -80,7 +78,7 @@ function getMode(array) {
 }
 
 
-function containsArray(array,item) {
+export function containsArray(array,item) {
     const indexes = item.length;
     let found = false;
     arrayLoop: 
@@ -105,7 +103,7 @@ function subArrays(array1,array2) {
     return newArray;
 }
 
-function range(start,end,step = 1) {
+export function range(start,end,step = 1) {
     if (end == null) {
         end = start;
         start = 0;
@@ -114,25 +112,25 @@ function range(start,end,step = 1) {
     let number = start;
     while (number < end) {
         newArray.push(number);
-        number+=step;
+        number += step;
     }
     return rangeArray
 }
 
-function arrayDifference(array,subArray) {
+export function arrayDifference(array,subArray) {
     return filter(array,(value) => !includes(subArray,value));
 }
 
 //*Built-in JS functions recreated
 //!Faster
-function includes(array,value) {
+export function includes(array,value) {
     for (let index = 0;index < array.length;index++) {
         if (array[index] === value) return true;
     }
     return false
 }
 
-function filter(array,condition) {
+export function filter(array,condition) {
     const filterArray = [];
     for (let index = 0;index < array.length;index++) {
         if (condition(array[index],index,array)) filterArray.push(array[index]);
@@ -141,7 +139,7 @@ function filter(array,condition) {
 }
 
 //!Slower
-function findLast(array,condition,indexRange) {
+export function findLast(array,condition,indexRange) {
     const startIndex = indexRange?.[0] ?? 0;
     const endIndex = indexRange?.[1] ?? array.length;
     for (let index = endIndex;index > startIndex;index--) {
@@ -152,7 +150,7 @@ function findLast(array,condition,indexRange) {
     return null;
 }
 
-function find(array,condition,indexRange) {
+export function find(array,condition,indexRange) {
     const startIndex = indexRange?.[0] ?? 0;
     const endIndex = indexRange?.[1] ?? array.length;
     for (let index = startIndex;index < endIndex;index++) {
@@ -163,12 +161,10 @@ function find(array,condition,indexRange) {
     return null;
 }
 
-function mapArray(array,callback) {
+export function mapArray(array,callback) {
     const mappedArray = [];
     for (let index = 0;index < array.length;index++) {
         mappedArray[index] = callback(array[index],index,array);
     }
     return mappedArray;
 }
-
-export {insertToArray, deleteFromArray, getMode, containsArray, mapArray, arrayDifference, includes, filter, range, find, findLast, arrayToObject }

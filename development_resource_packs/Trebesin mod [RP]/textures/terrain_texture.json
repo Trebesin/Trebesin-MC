@@ -4,6 +4,18 @@
   "padding": 8,
   "num_mip_levels": 4,
   "texture_data": {
+		"dell_monitor_553": {
+			"textures": "textures/blocks/dell_monitor_553.png"
+		},
+    "pc_410": {
+			"textures": "textures/blocks/pc_410.png"
+		},
+    "asus_410": {
+			"textures": "textures/blocks/asus_410.png"
+		},
+    "lavice_553": {
+			"textures": "textures/blocks/lavice_553.png"
+		},
     "trebesin.image_prague": {
       "textures": "textures/blocks/prague"
     },
@@ -96,6 +108,12 @@
     },
     "trebesin.image_white": {
       "textures": "textures/blocks/white"
+    },
+    "trebesin.image_board": {
+      "textures": "textures/blocks/board"
+    },
+    "trebesin.image_logo_trebesin_mc": {
+      "textures": "textures/blocks/logo_trebesin_mc"
     }
   }
 }

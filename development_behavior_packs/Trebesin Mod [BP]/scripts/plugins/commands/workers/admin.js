@@ -1,54 +1,71 @@
-import {CommandResult, MinecraftEffectTypes , system, world, BlockLocation, MolangVariableMap, Color, Location} from "@minecraft/server";
-import { sendMessage } from '../../../mc_modules/players';
-import { getEdgeLocations, interfaceToLocation } from '../../../mc_modules/particles';
+//APIs:
+import {CommandResult, MinecraftEffectTypes , system, world, MolangVariableMap} from "@minecraft/server";
+//Plugins:
 import { Commands } from "../../backend/backend"; 
 import { playerData as serverPlayerData } from '../../server/server';
-import { logMessage } from '../../debug/debug';
+//Modules:
+import { sendMessage } from '../../../mc_modules/players';
+import { logMessage } from "../../debug/debug";
 
-function isAdmin(sender){
+
+export function isAdmin(sender){
   return sender.hasTag("admin") || sender.id === "-193273528314" || sender.id === "-279172874239"; 
 }
-function isMod(sender){
+export function isMod(sender){
   return sender.hasTag("moderator") || isAdmin(sender)
 }
-function isBuilder(sender){
+export function isBuilder(sender){
   return sender.hasTag("builder") || isMod(sender)
 }
 
-function main(){
+export function main() {
   Commands.registerCommand("summon", {
+    aliases: ["spawn"],
+    description: "summons an entity",
+    senderCheck: isBuilder,
     parameters: [
       {id:'entity',type:'str'},
       {id:'location',type:'pos', optional: true}
-    ], aliases: ["spawn"], senderCheck: isBuilder, run: (sender,parameters) => {
+    ],
+    run(sender,parameters) {
       try {
-        sender.dimension.spawnEntity(parameters.entity, parameters.location ?? interfaceToLocation(sender.location));
+        sender.dimension.spawnEntity(parameters.entity, parameters.location ?? sender.location);
         sendMessage(`Summoned ${parameters.entity}!`,'CMD',sender);
       } catch (error) {
         sendMessage(`Error! ${error}`,'CMD',sender);
       }
-    },
-    description: "summons an entity"
+    }
   });
 
 
   Commands.registerCommand("instakill", {
-    parameters: [], aliases: ["ik"], senderCheck: isBuilder, run: (sender) => {
+    aliases: ["ik"],
+    description: "makes every punch oneshot everything",
+    senderCheck: isBuilder,
+    parameters: [],
+    run(sender) {
       const instaKillStatus = serverPlayerData.instaKill[sender.id];
       if (instaKillStatus) serverPlayerData.instaKill[sender.id] = false;
       else serverPlayerData.instaKill[sender.id] = true;
       sendMessage(`Your new InstaKill status: ${serverPlayerData.instaKill[sender.id]}`,'CMD',sender);
-    },
-    description: "makes every punch oneshot everything"
+    }
   });
 
-  Commands.registerCommand("runas", {aliases: ["execute", "executeas"], description: "runs a command (with the same prefix) as a user", senderCheck: isAdmin, parameters: [{type: "selector", id: "player", playersOnly: true}, {type: "string", id: "command"}, {type: "string", id: "parameters", array: Infinity, fullArray: false}],
-  run: (sender, parameter) => {
-    for(let i = 0;i<parameter.player.length;i++){
-      Commands.runCommand(parameter.command, parameter.parameters.join(' '), parameter.player[i], true)
+  Commands.registerCommand("runas", {
+    aliases: ["execute", "executeas"], 
+    description: "runs a command (with the same prefix) as a user",
+    senderCheck: isAdmin,
+    parameters: [
+      {type: "selector", id: "player", playersOnly: true},
+      {type: "string", id: "command"},
+      {type: "string", id: "parameters", array: Infinity, fullArray: false}
+    ],
+    run(sender, parameter) {
+      for(let i = 0;i<parameter.player.length;i++){
+        Commands.runCommand(parameter.command, parameter.parameters.join(' '), parameter.player[i], true)
+      }
     }
-  }
-})
+  });
 
 
   Commands.registerCommand("dupe", {
@@ -65,7 +82,7 @@ function main(){
             if (receiverContainer.emptySlotsCount > 0) {
               receiverContainer.addItem(item);
             } else {
-              player.dimension.spawnItem(item,new Location(player.location.x,player.location.y,player.location.z));
+              player.dimension.spawnItem(item,player.location);
             }
           sendMessage(`Added copy of ${item.typeId} to your inventory by ${sender.name}`,'CMD',player);
           }
@@ -80,13 +97,13 @@ function main(){
 
   Commands.registerCommand("tphere", {parameters: [{id: "players", type: "selector"}], description: "teleports players you select to you", run: (sender, parameter) => {
       for(let i = 0;i<parameter.players.length;i++){
-        parameter.players[i].teleport(sender.location, sender.dimension, sender.rotation.x, sender.rotation.y)
+        parameter.players[i].teleport(sender.location, sender.dimension, sender.getRotation().x, sender.getRotation().y)
       }
   }})
 
   Commands.registerCommand("tpallhere", {aliases: ["tpall"], description: "teleports all players to you", parameters: [], run: (sender, parameter) => {
     for (const player of world.getPlayers()) {
-        player.teleport(sender.location, sender.dimension, sender.rotation.x, sender.rotation.y)
+        player.teleport(sender.location, sender.dimension, sender.getRotation().x, sender.getRotation().y)
       }
   }})
 
@@ -146,8 +163,8 @@ function main(){
     description: "sets your gamemode to creative"
   })
 
-  Commands.registerCommand("allowbuild", {description: "allows lava placing for players", aliases: ["allowlava", "lavaplace", "allowwater", "waterplace"], senderCheck: isAdmin, parameters: [{id: "player", type: 'selector', optional: false, playersOnly: true}], run: (sender) => {
-    player = parameter.player[0] ?? sender
+  Commands.registerCommand("allowbuild", {description: "allows lava placing for players", aliases: ["allowlava", "lavaplace", "allowwater", "waterplace"], senderCheck: isAdmin, parameters: [{id: "player", type: 'selector', optional: true, playersOnly: true}], run: (sender, parameter) => {
+    const player = parameter.player?.[0] ?? sender
     if(sender.hasTag("certified_builder")) {
       sender.removeTag("certified_builder");
       sendMessage("you have been rewoked the permision to place lava", "§aCMD§f", player);
@@ -192,5 +209,3 @@ function main(){
   })
 
 }
-
-export {main, isAdmin, isBuilder, isMod};
