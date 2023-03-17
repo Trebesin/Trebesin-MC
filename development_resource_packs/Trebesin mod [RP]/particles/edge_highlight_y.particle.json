@@ -5,7 +5,7 @@
 			"identifier": "trebesin:edge_highlight_y",
 			"basic_render_parameters": {
 				"material": "particles_alpha",
-				"texture": "textures/particles/edge"
+				"texture": "textures/particles/edge_line"
 			}
 		},
 		"components": {
@@ -34,7 +34,7 @@
 				}
 			},
 			"minecraft:particle_appearance_tinting": {
-				"color": ["v.color.r", "v.color.g", "v.color.b", 1]
+				"color": ["v.color.r", "v.color.g", "v.color.b", "v.color.a"]
 			}
 		}
 	}
