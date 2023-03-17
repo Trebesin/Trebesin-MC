@@ -247,6 +247,7 @@ export function main() {
 			const molangVariables = new Mc.MolangVariableMap();
 			if (parameters?.molang.color) molangVariables.setColorRGBA(molangOptions.color.name,molangOptions.color);
 			sender.dimension.spawnParticle(parameters.particleId,parameters.location,molangVariables);
+			sendMessage(`Summoned particle "${parameters.particleId}"!`,sender);
 		}
 	});
 
