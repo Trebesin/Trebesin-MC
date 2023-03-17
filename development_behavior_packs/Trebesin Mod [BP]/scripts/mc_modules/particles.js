@@ -1,4 +1,4 @@
-import { Dimension, MolangVariableMap, Vector3 } from '@minecraft/server';
+import { Dimension, MolangVariableMap } from '@minecraft/server';
 import {arrayDifference} from '../js_modules/array';
 import {getGridLine} from '../js_modules/geometry';
 import { subVectors, sumVectors } from '../js_modules/vector';
