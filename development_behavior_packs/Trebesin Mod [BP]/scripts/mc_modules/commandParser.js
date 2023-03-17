@@ -602,7 +602,7 @@ class ParameterStringParser {
                         if (nextChar == null && json > 0) throw new CommandError('Unexpected end of JSON!');
                         item += char;
                         if (json === 0) {
-                            if (nextChar !== separator) throw new CommandError('Unexpected end of JSON!');
+                            if (nextChar !== separator && nextChar != null) throw new CommandError('Unexpected end of JSON!');
                             parsePhase = 2;
                         }
                     } else if (selector != null) {

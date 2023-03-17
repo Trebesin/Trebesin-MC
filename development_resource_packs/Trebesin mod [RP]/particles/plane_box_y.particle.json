@@ -2,7 +2,7 @@
 	"format_version": "1.10.0",
 	"particle_effect": {
 		"description": {
-			"identifier": "trebesin:plane_box_x",
+			"identifier": "trebesin:plane_box_y",
 			"basic_render_parameters": {
 				"material": "particles_blend",
 				"texture": "textures/particles/plane_box"
@@ -33,6 +33,7 @@
 					"uv_size": [16, 16]
 				}
 			},
+			"minecraft:particle_appearance_lighting": {},
 			"minecraft:particle_appearance_tinting": {
 				"color": ["v.color.r", "v.color.g", "v.color.b", "v.color.a"]
 			}
