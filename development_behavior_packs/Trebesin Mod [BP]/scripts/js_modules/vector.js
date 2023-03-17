@@ -70,3 +70,23 @@ export function floorVector(vector) {
 export function compareVectors(vectorA,vectorB) {
     return (vectorA.x === vectorB.x && vectorA.y === vectorB.y && vectorA.z === vectorB.z);
 }
+
+export function getAbsoluteVector(vector) {
+    return {x:Math.abs(vector.x),y:Math.abs(vector.y),z:Math.abs(vector.z)}
+}
+
+export function getDirectionFace(vector) {
+    const absVector = getAbsoluteVector(vector);
+    if (absVector.x > absVector.y && absVector.x > absVector.z) {
+        if (vector.x > 0) return 'west'
+        else return 'east'
+    }
+    if (absVector.z > absVector.x && absVector.z > absVector.y) {
+        if (vector.z > 0) return 'north'
+        return 'south';
+    }
+    if (absVector.y > absVector.x && absVector.y > absVector.z) {
+        if (vector.y > 0) return 'down'
+        else return 'up'
+    }
+}

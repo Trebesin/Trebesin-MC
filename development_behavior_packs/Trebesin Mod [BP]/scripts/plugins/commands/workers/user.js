@@ -139,7 +139,7 @@ export function main(){
 				}
 			);
 			sender.dimension.spawnParticle(parameters.particleId,parameters.location,molangVariables);
-			sendMessage(`Summoned particle "${parameters.particleId}"!`,sender);
+			sendMessage(`Summoned particle "${parameters.particleId}"!`,'§aCMD§f',sender);
 		}
 	});
 
