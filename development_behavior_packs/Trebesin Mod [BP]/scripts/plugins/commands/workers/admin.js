@@ -225,57 +225,6 @@ export function main() {
 		description: 'deops a player'
 	});
 
-	Commands.registerCommand('particle',{
-		description: 'Spawns a particle in the world. Optional parameter "molang" is used to define variables for the particle.\n The object is following such format: {"color":{"name":"color","r":0-255,"g":0-255,"b":0-255,"a":0-255},"speed_direction":{"name":"speed_and_dir","speed":1,"x":1,"y":1,"z":1},"vector":{"x":1,"y":1,"z":1}} (anything except "name" can be omitted and may be replaced with default value of 0)',
-		parameters: [
-			{
-				id: 'particleId',
-				type: 'string',
-			},
-			{
-				id: 'location',
-				type: 'position',
-			},
-			{
-				id: 'molang',
-				optional: true,
-				type: 'json'
-			}
-		],
-		run(sender,parameters) {
-			const molangOptions = parameters?.molang;
-			const molangVariables = new Mc.MolangVariableMap();
-			if (molangOptions?.color) molangVariables.setColorRGBA(
-				`variable.${molangOptions.color.name}`,
-				{
-					red: (molangOptions.color.r ?? 0)/255,
-					green: (molangOptions.color.g ?? 0)/255,
-					blue: (molangOptions.color.b ?? 0)/255,
-					alpha: (molangOptions.color.a ?? 0)/255
-				}
-			);
-			if (molangOptions?.speed_direction) molangVariables.setSpeedAndDirection(
-				`variable.${molangOptions.speed_direction.name}`,
-				molangOptions.speed_direction.speed ?? 0,
-				{
-					x: molangOptions.speed_direction.x ?? 0,
-					y: molangOptions.speed_direction.y ?? 0,
-					z: molangOptions.speed_direction.z ?? 0
-				}
-			);
-			if (molangOptions?.vector) molangVariables.setVector3(
-				`variable.${molangOptions.vector.name}`,
-				{
-					x: molangOptions.vector.x ?? 0,
-					y: molangOptions.vector.y ?? 0,
-					z: molangOptions.vector.z ?? 0
-				}
-			);
-			sender.dimension.spawnParticle(parameters.particleId,parameters.location,molangVariables);
-			sendMessage(`Summoned particle "${parameters.particleId}"!`,sender);
-		}
-	});
-
 	//gamemode commmands
 
 	Commands.registerCommand('gmc', {

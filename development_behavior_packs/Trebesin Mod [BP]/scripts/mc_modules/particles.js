@@ -1,5 +1,7 @@
+import { Dimension, MolangVariableMap, Vector3 } from '@minecraft/server';
 import {arrayDifference} from '../js_modules/array';
 import {getGridLine} from '../js_modules/geometry';
+import { subVectors, sumVectors } from '../js_modules/vector';
 import { EDGE_AXES,EDGE_COORDS } from './constants';
 
 export function spawnBlockSelection(particle,coords,dimension,molang) {
@@ -151,6 +153,26 @@ export function drawCorner(origin,corner,callback) {
         staleAxisOffset[otherAxis] = staleAxisStep;
         const particleLocation = sumLocations(particleCoord,staleAxisOffset);
         callback(particleLocation);
+    }
+}
+/**
+ * 
+ * @param {string} particle 
+ * @param {Vector3} coords 
+ * @param {Dimension} dimension 
+ * @param {MolangVariableMap} molang 
+ */
+export function spawnBox(particle,coords,dimension,molang) {
+    for (const axis of ['x','y','z']) {
+        for (const addition of [-0.01,1.01]) {
+            const addedVector = {x:0,y:0,z:0};
+            addedVector[axis] = addition;
+            dimension.spawnParticle(
+                `${particle}${axis}`,
+                sumVectors(coords,addedVector),
+                molang
+            );
+        }
     }
 }
 
