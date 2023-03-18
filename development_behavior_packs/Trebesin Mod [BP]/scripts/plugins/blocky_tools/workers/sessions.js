@@ -5,10 +5,13 @@ import { FACE_DIRECTIONS } from '../../../mc_modules/constants';
 import { spawnBox } from '../../../mc_modules/particles';
 import { getEquipedItem, sendMessage } from '../../../mc_modules/players';
 //Plugins:
+import { CornerSelection } from './selection';
 import { Server } from '../../backend/backend';
 import { logMessage } from '../../debug/debug';
 //Modules:
 
+
+//# 
 const SessionStore = {};
 
 export function main() {
@@ -19,6 +22,7 @@ export function main() {
             sendMessage('No session initialized! Use ".start" command to continue.','§2BT§r', eventData.source);
             return;
         };
+
         logMessage('ItemUse')
     });
 
@@ -61,7 +65,7 @@ export function main() {
                 }
 
                 player.onScreenDisplay.setActionBar(
-                    '[§aBlocky §2Tools§r] - ${\n'+
+                    '[§aBlocky §2Tools§r]\n'+
                     `§cPointer Mode: §l${PointerModeNames[session.pointerMode]}§r\n`+
                     `§bSelection Type: §l${SelectionTypeNames[session.selectionType]}§r\n`
                 );
@@ -72,6 +76,56 @@ export function main() {
     },4);
 }
 
+//# Base functions
+/**
+ * Initializes the Blocky Tools session for a player.
+ * @param {Mc.Player} player 
+ */
+export function initialize(player) {
+    const defaultSelection = new CornerSelection(player,player.dimension);
+
+    SessionStore[player.id] = {
+        player: player,
+        pointerBlockLocation: null,
+        pointerMode: PointerMode.BLOCK,
+        selectionType: SelectionType.CORNER,
+        selections: [defaultSelection,null,null],
+        clipboard: null,
+        config: {
+            pointer: {
+                range: 3,
+                selectLiquids: false
+            }
+        }
+    };
+    sendMessage(`§aInitialized the Block Tools session!`,'§2BT§r',player);
+}
+
+//#User Interface functions
+export function actionMenu(player,pointerMode) {
+
+}
+
+//#Session State functions
+export function switchPointer(player,pointerMode = null) {
+    const session = SessionStore[player.id];
+    if (session == null) {
+        sendMessage('No session initialized! Use ".start" command to continue.','§2BT§r', player);
+        return;
+    };
+    if (pointerMode == null) {
+        if (session.pointerMode < 3) session.pointerMode++;
+        else session.pointerMode = 0;
+    } else {
+        session.pointerMode = pointerMode;
+    }
+}
+
+export function switchSelection(player,selectionType) {
+
+}
+
+//# Additional Constants
 /**
  * Enum for the messages defining state of a tool.
  * @readonly
@@ -123,45 +177,4 @@ export const SelectionType = {
  * @readonly
  * @enum {number}
  */
-export const SelectionTypeNames = ['Corner','Elipse','Point']
-
-/**
- * Initializes the Blocky Tools session for a player.
- * @param {Mc.Player} player 
- */
-export function initialize(player) {
-    SessionStore[player.id] = {
-        player: player,
-        pointerBlockLocation: null,
-        pointerMode: PointerMode.BLOCK,
-        selectionType: SelectionType.CORNER,
-        selections: [],
-        clipboard: null,
-        config: {
-            pointer: {
-                range: 3,
-                selectLiquids: false
-            }
-        }
-    };
-    sendMessage(`§aInitialized the Block Tools session!`,'§2BT§r',player);
-}
-
-export function actionMenu(player,pointerMode) {
-
-}
-
-export function switchPointer(player,pointerMode = null) {
-    const session = SessionStore[player.id];
-    if (session == null) {
-        sendMessage('No session initialized! Use ".start" command to continue.','§2BT§r', player);
-        return;
-    };
-    if (pointerMode == null) {
-        if (session.pointerMode < 3) session.pointerMode++;
-        else session.pointerMode = 0;
-    } else {
-        session.pointerMode = pointerMode;
-    }
-    logMessage(JSON.stringify(session));
-}
+export const SelectionTypeNames = ['Corner','Elipse','Point'];

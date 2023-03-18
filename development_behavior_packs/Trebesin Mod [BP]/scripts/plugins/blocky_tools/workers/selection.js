@@ -62,7 +62,7 @@ class BaseSelection {
 /**
  * Selection with basic 2 corner definition.
  */
-class CornerSelection extends BaseSelection {
+export class CornerSelection extends BaseSelection {
     /**
      * Sets corner of the selection.
      * @param {number} index Index of the corner 0 or 1.
@@ -100,18 +100,28 @@ class CornerSelection extends BaseSelection {
         if (notEquals.x && notEquals.z) allCorners.push({x:corners[0].x,y:corners[1].y,z:corners[1].z});
         if (!(!notEquals.x && !notEquals.y && !notEquals.z)) allCorners.push({x:corners[1].x,y:corners[1].y,z:corners[1].z});
 
-        //const allCorners = [
-        //    {x:corners[0].x,y:corners[0].y,z:corners[0].z},
-        //    {x:corners[1].x,y:corners[0].y,z:corners[0].z},
-        //    {x:corners[0].x,y:corners[0].y,z:corners[1].z},
-        //    {x:corners[1].x,y:corners[0].y,z:corners[1].z},
-        //    {x:corners[0].x,y:corners[1].y,z:corners[0].z},
-        //    {x:corners[1].x,y:corners[1].y,z:corners[0].z},
-        //    {x:corners[0].x,y:corners[1].y,z:corners[1].z},
-        //    {x:corners[1].x,y:corners[1].y,z:corners[1].z}
-        //];
-
         return allCorners;
+    }
+    /**
+     * Returns if a block coordinate is contained within the selection area.
+     * @param {Vector3} coordinate 
+     * @returns {boolean}
+     */
+    includes(coordinate) {
+
+    }
+    /**
+     * Returns all block coorinates contained within the selection area.
+     * @returns {Vector3[]}
+     */
+    getAllBlocks() {
+
+    }
+    /**
+     * Generates all coordinates of edge particles to get a preview of the selection.
+     */
+    generateParticlePreview(callback) {
+
     }
  
     #corners = [];
@@ -176,18 +186,3 @@ class ExtendedSelection {
     #links = []
     #bounds = []
 }
- 
-//# Global Selection
-const Selections = {};
- 
-system.runSchedule(() => {
-    for (player in Selections) {
-        const selection = Selections[player];
-        const molang = new MolangVariableMap()
-        .setColorRGB('colour',new Color(1,0,0,1));
- 
-        spawnBlockSelection('trebesin:selection_dot',selection.bounds,selection.dimension,molang);
-    }
-},1);
- 
-export {Selection, Selections}
