@@ -24,6 +24,126 @@ export async function main() {
 		run: Sessions.initialize
 	});
 
+	Commands.registerCommand('menu', {
+		description: 'Open action menu with all possible actions.',
+		parameters: [
+			{
+				id:'submenu',
+				type: 'string',
+				optional:true
+			}
+		],
+		run: Sessions.actionMenu
+	});
+
+	Commands.registerCommand('pointer', {
+		description: 'Switches the current pointer mode.',
+		parameters: [
+			{
+				id:'mode',
+				type:'string',
+				optional: true,
+			}
+		],
+		run(sender,parameters) {
+			const modeInput = parameters?.mode?.toUpperCase();
+			let pointerMode = Sessions.PointerMode[modeInput];
+			if (modeInput != null && pointerMode == null) {
+				sendMessage('§cInvalid choice of pointer mode!§r Options are: §c"BLOCK","FACE","FREE","ACTION"§r.','§2BT§r',sender);
+				return;
+			}
+			Sessions.switchPointer(sender,pointerMode);
+		}
+	})
+
+	Commands.registerCommand('selection', {
+		description: '',
+		parameters: [
+			{
+				type: 'string',
+				choice: {
+					clear: [],
+					translate: [
+						{
+							id: 'x',
+							type: 'number'
+						},
+						{
+							id: 'y',
+							type: 'number'
+						},
+						{
+							id: 'z',
+							type: 'number'
+						}
+					],
+					extend: [
+						{
+							id: 'x',
+							type: 'number'
+						},
+						{
+							id: 'y',
+							type: 'number'
+						},
+						{
+							id: 'z',
+							type: 'number'
+						},
+						{
+							id:'bothWays',
+							type: 'boolean',
+							optional: true
+						}
+					],
+					shrink: [
+						{
+							id: 'x',
+							type: 'number'
+						},
+						{
+							id: 'y',
+							type: 'number'
+						},
+						{
+							id: 'z',
+							type: 'number'
+						},
+						{
+							id:'bothWays',
+							type: 'boolean',
+							optional: true
+						}
+					],
+					rotate: [
+						{
+							id: 'x',
+							type: 'number'
+						},
+						{
+							id: 'y',
+							type: 'number'
+						},
+						{
+							id: 'z',
+							type: 'number'
+						}
+					]
+				}
+			}
+		],
+		run(sender, parameters) {
+			Sessions.clearSelections(sender);
+		}
+	});
+
+	Commands.registerCommand('config', {
+		description: '',
+		parameters: [
+		],
+		run: Sessions.userConfig
+	});
+
 	Commands.registerCommand('idk', {
 		parameters: [
 			{

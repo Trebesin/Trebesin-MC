@@ -18,6 +18,17 @@ class BaseSelection {
     constructor(player, dimension) {
         this.#player = player;
         this.#dimension = dimension;
+        this.#empty = true;
+        this.#maxCoords = {
+            x: null,
+            y: null,
+            z: null
+        }
+        this.#minCoords = {
+            x: null,
+            y: null,
+            z: null
+        }
     }
     /**
      * Returns the player associated with the selection.
@@ -33,6 +44,17 @@ class BaseSelection {
     getDimension() {
         return this.#dimension;
     }
+    /**
+     * Returns if the selection is empty of any blocks. Selection isn't considered empty once it's defined enough to contain blocks in its volume.
+     * @returns {boolean}
+     */
+    isEmpty() {
+        return this.#empty;
+    }
+
+    #maxCoords
+    #minCoords
+    #empty
     #dimension
     #player
 }
