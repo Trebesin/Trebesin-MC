@@ -157,22 +157,32 @@ export function main(){
 		}
 	});
 
-  Commands.registerCommand('bigParticleBox',{
+  Commands.registerCommand('particlebigbox',{
 		parameters: [
 			{
 				id: 'location',
 				type: 'position'
 			},
-      {
+      		{
 				id: 'size',
 				type: 'number'
 			}
 		],
 		run(sender,parameters) {
+			sendMessage('ANYTHING')
 			const molang = new Mc.MolangVariableMap();
+			sendMessage('MVM')
 			molang.setColorRGBA(`variable.color`,{red:0,green:0,blue:1,alpha:1});
-      molang.setVector3(`variable.size`,{x:10,y:10,z:10})
-			spawnBigBox('trebesin:plane_box_flex_',parameters.location,sender.dimension,molang,{x:10,y:10,z:10});
+			sendMessage('COLOR')
+      		molang.setVector3(`variable.size`,new Mc.Vector(parameters.size,parameters.size,parameters.size));
+			sendMessage('BIG')
+			spawnBigBox(
+        		'trebesin:plane_box_flex_',
+        		parameters.location,
+        		sender.dimension,
+        		molang,
+        		{x:parameters.size,y:parameters.size,z:parameters.size}
+      		);
 		}
 	})
 

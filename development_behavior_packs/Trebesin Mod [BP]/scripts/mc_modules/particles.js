@@ -2,6 +2,7 @@ import { Dimension, MolangVariableMap } from '@minecraft/server';
 import {arrayDifference} from '../js_modules/array';
 import {getGridLine} from '../js_modules/geometry';
 import { subVectors, sumVectors } from '../js_modules/vector';
+import { logMessage } from '../plugins/debug/debug';
 import { EDGE_AXES,EDGE_COORDS } from './constants';
 
 export function spawnBlockSelection(particle,coords,dimension,molang) {
@@ -184,15 +185,16 @@ export function spawnBox(particle,coords,dimension,molang) {
  * @param {MolangVariableMap} molang 
  */
 export function spawnBigBox(particle,coords,dimension,molang,span) {
+    const additions = [-0.005,1.005];
     for (const axis of ['x','y','z']) {
         for (let i = 0;i < 2;i++) {
-            const additions = [-0.005,1.005];
             let addition = additions[i];
             if (i === 1) {
                 addition = addition+span[axis];
             }
             const addedVector = {x:0,y:0,z:0};
             addedVector[axis] = addition;
+            logMessage(JSON.stringify(sumVectors(coords,addedVector)))
             dimension.spawnParticle(
                 `${particle}${axis}`,
                 sumVectors(coords,addedVector),
