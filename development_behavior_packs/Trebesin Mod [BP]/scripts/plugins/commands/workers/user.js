@@ -124,19 +124,19 @@ export function main(){
 			if (molangOptions?.speed_direction) molangVariables.setSpeedAndDirection(
 				`variable.${molangOptions.speed_direction.name}`,
 				molangOptions.speed_direction.speed ?? 0,
-				{
-					x: molangOptions.speed_direction.x ?? 0,
-					y: molangOptions.speed_direction.y ?? 0,
-					z: molangOptions.speed_direction.z ?? 0
-				}
+        new Mc.Vector(
+          molangOptions.speed_direction.x ?? 0,
+          molangOptions.speed_direction.y ?? 0,
+          molangOptions.speed_direction.z ?? 0
+        )
 			);
 			if (molangOptions?.vector) molangVariables.setVector3(
 				`variable.${molangOptions.vector.name}`,
-				{
-					x: molangOptions.vector.x ?? 0,
-					y: molangOptions.vector.y ?? 0,
-					z: molangOptions.vector.z ?? 0
-				}
+        new Mc.Vector(
+          molangOptions.vector.x ?? 0,
+          molangOptions.vector.y ?? 0,
+          molangOptions.vector.z ?? 0
+        )
 			);
 			sender.dimension.spawnParticle(parameters.particleId,parameters.location,molangVariables);
 			sendMessage(`Summoned particle "${parameters.particleId}"!`,'§aCMD§f',sender);
@@ -153,13 +153,7 @@ export function main(){
 		run(sender,parameters) {
 			const molang = new Mc.MolangVariableMap();
 			molang.setColorRGBA(`variable.color`,{red:0,green:0,blue:1,alpha:1});
-      molang.setVector3(`variable.size`,{x:10,y:10,z:10});
-      dimension.spawnParticle(
-        `${particle}${axis}`,
-        sumVectors(coords,addedVector),
-        molang
-    );
-			spawnBox('trebesin:plane_box_flex_',parameters.location,sender.dimension,molang);
+			spawnBox('trebesin:plane_box_',parameters.location,sender.dimension,molang);
 		}
 	})
 
