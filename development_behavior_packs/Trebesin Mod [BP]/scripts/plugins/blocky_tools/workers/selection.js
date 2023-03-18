@@ -1,5 +1,5 @@
 //Base imports
-import { world, MolangVariableMap, MinecraftBlockTypes, Vector3, system, Dimension, Player } from '@minecraft/server';
+import { world, MolangVariableMap, MinecraftBlockTypes, system, Dimension, Player } from '@minecraft/server';
 //MC Modules
 import { spawnBlockSelection } from '../../../mc_modules/particles';
 //JS Modules
