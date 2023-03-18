@@ -104,11 +104,11 @@ export function getEquipedItem(entity) {
 /**
  * 
  * @param {string} message 
- * @param {Player | Player[]} [player]
- * @param {string} [sender]
+ * @param {string} [senderText]
+ * @param {Player|Player[]} [player]
  */
-export function sendMessage(message,senderName,player = null) {
-    const messageText = senderName == null ? message : `[${senderName}§r] ${message}`;
+export function sendMessage(message,senderText = null,player = null) {
+    const messageText = senderText == null ? message : `[${senderText}§r] ${message}`;
     if (!player) {
         world.sendMessage(messageText);
     } else {
