@@ -7,7 +7,7 @@ import { Commands } from '../../backend/backend';
 //Modules:
 import * as vectorMath from "../../../js_modules/vector.js";
 import { sendMessage } from '../../../mc_modules/players';
-import { spawnBox, spawnBigBox } from '../../../mc_modules/particles';
+import { spawnBox, spawnBigBox, spawnLineBox} from '../../../mc_modules/particles';
 
 
 export function main(){
@@ -198,7 +198,7 @@ export function main(){
 				type: 'position'
 			},
 			{
-				id: 'length',
+				id: 'lineLength',
 				type: 'int'
 			},
       		{
@@ -210,15 +210,47 @@ export function main(){
 				type: 'int'
 			},
 			{
-				id: 'dirX',
+				id: 'dirZ',
 				type: 'int'
 			}
 		],
 		run(sender,parameters) {
 			const molang = new Mc.MolangVariableMap();
 			molang.setColorRGBA(`variable.color`,{red:0,green:0,blue:1,alpha:0.5});
-      		molang.setSpeedAndDirection(`variable.size`,parameters.length,new Mc.Vector(parameters.dirX,parameters.dirY,parameters.dirZ));
+      		molang.setSpeedAndDirection(`variable.size`,parameters.lineLength,new Mc.Vector(parameters.dirX,parameters.dirY,parameters.dirZ));
 			sender.dimension.spawnParticle(`trebesin:line_flex`,vectorMath.floorVector(parameters.location),molang);
+		}
+	})
+
+	Commands.registerCommand('particlelinebox',{
+		parameters: [
+			{
+				id: 'location',
+				type: 'position'
+			},
+      		{
+				id: 'sizeX',
+				type: 'int'
+			},
+			{
+				id: 'sizeY',
+				type: 'int'
+			},
+			{
+				id: 'sizeZ',
+				type: 'int'
+			}
+		],
+		run(sender,parameters) {
+			const molang = new Mc.MolangVariableMap();
+			molang.setColorRGBA(`variable.color`,{red:0,green:0,blue:1,alpha:0.5});
+			spawnLineBox(
+        		'trebesin:line_flex',
+        		vectorMath.floorVector(parameters.location),
+        		sender.dimension,
+        		molang,
+        		{x:parameters.sizeX,y:parameters.sizeY,z:parameters.sizeZ}
+      		);
 		}
 	})
 

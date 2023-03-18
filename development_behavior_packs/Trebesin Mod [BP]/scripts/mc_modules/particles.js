@@ -1,4 +1,4 @@
-import { Dimension, MolangVariableMap } from '@minecraft/server';
+import { Dimension, MolangVariableMap, Vector } from '@minecraft/server';
 import {arrayDifference} from '../js_modules/array';
 import {getGridLine} from '../js_modules/geometry';
 import { subVectors, sumVectors } from '../js_modules/vector';
@@ -196,6 +196,36 @@ export function spawnBigBox(particle,coords,dimension,molang,span,edgeOffset) {
             addedVector[axis] = addition;
             dimension.spawnParticle(
                 `${particle}${axis}`,
+                sumVectors(coords,addedVector),
+                molang
+            );
+        }
+    }
+}
+
+/**
+ * !! FINISHLATER
+ * @param {string} particle 
+ * @param {Vector3} coords 
+ * @param {Dimension} dimension 
+ * @param {MolangVariableMap} molang 
+ */
+export function spawnLineBox(particle,coords,dimension,molang,span) {
+    for (const axis of ['x','y','z']) {
+        for (let i = 0;i < 2;i++) {
+            let addedVector = {x:0,y:0,z:0};
+            if (i === 1) addedVector[axis] = span[axis];
+            molang.setSpeedAndDirection(
+                `variable.size`,
+                span[axis],
+                new Vector(
+                    axis === 'x' ? 1 : 0,
+                    axis === 'y' ? 1 : 0,
+                    axis === 'z' ? 1 : 0
+                )
+            )
+            dimension.spawnParticle(
+                particle,
                 sumVectors(coords,addedVector),
                 molang
             );
