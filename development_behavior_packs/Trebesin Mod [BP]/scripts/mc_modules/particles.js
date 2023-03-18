@@ -164,7 +164,7 @@ export function drawCorner(origin,corner,callback) {
  */
 export function spawnBox(particle,coords,dimension,molang) {
     for (const axis of ['x','y','z']) {
-        for (const addition of [-0.01,1.01]) {
+        for (const addition of [-0.005,1.005]) {
             const addedVector = {x:0,y:0,z:0};
             addedVector[axis] = addition;
             dimension.spawnParticle(
