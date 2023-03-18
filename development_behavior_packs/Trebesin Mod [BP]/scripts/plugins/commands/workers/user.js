@@ -165,17 +165,13 @@ export function main(){
 			},
       		{
 				id: 'size',
-				type: 'number'
+				type: 'int'
 			}
 		],
-		run(sender,parameters) {
-			sendMessage('ANYTHING')
+		async run(sender,parameters) {
 			const molang = new Mc.MolangVariableMap();
-			sendMessage('MVM')
 			molang.setColorRGBA(`variable.color`,{red:0,green:0,blue:1,alpha:1});
-			sendMessage('COLOR')
       		molang.setVector3(`variable.size`,new Mc.Vector(parameters.size,parameters.size,parameters.size));
-			sendMessage('BIG')
 			spawnBigBox(
         		'trebesin:plane_box_flex_',
         		parameters.location,

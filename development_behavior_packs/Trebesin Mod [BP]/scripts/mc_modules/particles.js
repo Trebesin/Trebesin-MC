@@ -194,7 +194,6 @@ export function spawnBigBox(particle,coords,dimension,molang,span) {
             }
             const addedVector = {x:0,y:0,z:0};
             addedVector[axis] = addition;
-            logMessage(JSON.stringify(sumVectors(coords,addedVector)))
             dimension.spawnParticle(
                 `${particle}${axis}`,
                 sumVectors(coords,addedVector),
