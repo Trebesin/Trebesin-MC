@@ -176,6 +176,33 @@ export function spawnBox(particle,coords,dimension,molang) {
     }
 }
 
+/**
+ * 
+ * @param {string} particle 
+ * @param {Vector3} coords 
+ * @param {Dimension} dimension 
+ * @param {MolangVariableMap} molang 
+ */
+export function spawnBigBox(particle,coords,dimension,molang,span) {
+    for (const axis of ['x','y','z']) {
+        for (let i = 0;i < 2;i++) {
+            const additions = [-0.005,1.005];
+            let addition = additions[i];
+            if (i === 1) {
+                addition = addition+span[axis];
+            }
+            const addedVector = {x:0,y:0,z:0};
+            addedVector[axis] = addition;
+            dimension.spawnParticle(
+                `${particle}${axis}`,
+                sumVectors(coords,addedVector),
+                molang
+            );
+        }
+    }
+}
+
+
 
 export function createLocationSet(locations) {
     const locationSet = new Set();

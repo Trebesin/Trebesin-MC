@@ -7,7 +7,7 @@ import { Commands } from '../../backend/backend';
 //Modules:
 import * as vectorMath from "../../../js_modules/vector.js";
 import { sendMessage } from '../../../mc_modules/players';
-import { spawnBox } from '../../../mc_modules/particles';
+import { spawnBox, spawnBigBox } from '../../../mc_modules/particles';
 
 
 export function main(){
@@ -154,6 +154,25 @@ export function main(){
 			const molang = new Mc.MolangVariableMap();
 			molang.setColorRGBA(`variable.color`,{red:0,green:0,blue:1,alpha:1});
 			spawnBox('trebesin:plane_box_',parameters.location,sender.dimension,molang);
+		}
+	});
+
+  Commands.registerCommand('bigParticleBox',{
+		parameters: [
+			{
+				id: 'location',
+				type: 'position'
+			},
+      {
+				id: 'size',
+				type: 'number'
+			}
+		],
+		run(sender,parameters) {
+			const molang = new Mc.MolangVariableMap();
+			molang.setColorRGBA(`variable.color`,{red:0,green:0,blue:1,alpha:1});
+      molang.setVector3(`variable.size`,{x:10,y:10,z:10})
+			spawnBigBox('trebesin:plane_box_flex_',parameters.location,sender.dimension,molang,{x:10,y:10,z:10});
 		}
 	})
 
