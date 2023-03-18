@@ -163,9 +163,9 @@ export function drawCorner(origin,corner,callback) {
  * @param {Dimension} dimension 
  * @param {MolangVariableMap} molang 
  */
-export function spawnBox(particle,coords,dimension,molang) {
+export function spawnBox(particle,coords,dimension,molang,edgeOffset = 0.005) {
     for (const axis of ['x','y','z']) {
-        for (const addition of [-0.005,1.005]) {
+        for (const addition of [-edgeOffset,1+edgeOffset]) {
             const addedVector = {x:0,y:0,z:0};
             addedVector[axis] = addition;
             dimension.spawnParticle(
@@ -184,8 +184,8 @@ export function spawnBox(particle,coords,dimension,molang) {
  * @param {Dimension} dimension 
  * @param {MolangVariableMap} molang 
  */
-export function spawnBigBox(particle,coords,dimension,molang,span) {
-    const additions = [-0.005,1.005];
+export function spawnBigBox(particle,coords,dimension,molang,span,edgeOffset) {
+    const additions = [-edgeOffset,edgeOffset];
     for (const axis of ['x','y','z']) {
         for (let i = 0;i < 2;i++) {
             let addition = additions[i];

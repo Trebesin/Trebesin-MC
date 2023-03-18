@@ -5,7 +5,7 @@
 			"identifier": "trebesin:plane_box_flex_x",
 			"basic_render_parameters": {
 				"material": "particles_blend",
-				"texture": "textures/particles/plane_box"
+				"texture": "textures/particles/plane_box_flex"
 			}
 		},
 		"components": {

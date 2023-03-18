@@ -60,8 +60,8 @@ export function main() {
                 if (session.pointerBlockLocation != null) {
                     // ## Pointer Preview
                     const molang = new Mc.MolangVariableMap();
-                    molang.setColorRGBA('variable.color',{red:0,green:0,blue:1,alpha:1});
-                    spawnBox(`trebesin:plane_box_`,session.pointerBlockLocation,player.dimension,molang);
+                    molang.setColorRGBA('variable.color',{red:1,green:0,blue:0,alpha:1});
+                    spawnBox(`trebesin:plane_box_`,session.pointerBlockLocation,player.dimension,molang,0.006);
                 }
 
                 player.onScreenDisplay.setActionBar(

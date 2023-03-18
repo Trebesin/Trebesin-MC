@@ -153,7 +153,7 @@ export function main(){
 		run(sender,parameters) {
 			const molang = new Mc.MolangVariableMap();
 			molang.setColorRGBA(`variable.color`,{red:0,green:0,blue:1,alpha:1});
-			spawnBox('trebesin:plane_box_',parameters.location,sender.dimension,molang);
+			spawnBox('trebesin:plane_box_',parameters.location,sender.dimension,molang,0.005);
 		}
 	});
 
@@ -164,20 +164,29 @@ export function main(){
 				type: 'position'
 			},
       		{
-				id: 'size',
+				id: 'sizeX',
+				type: 'int'
+			},
+			{
+				id: 'sizeY',
+				type: 'int'
+			},
+			{
+				id: 'sizeZ',
 				type: 'int'
 			}
 		],
 		async run(sender,parameters) {
 			const molang = new Mc.MolangVariableMap();
-			molang.setColorRGBA(`variable.color`,{red:0,green:0,blue:1,alpha:1});
-      		molang.setVector3(`variable.size`,new Mc.Vector(parameters.size,parameters.size,parameters.size));
+			molang.setColorRGBA(`variable.color`,{red:0,green:0,blue:1,alpha:0.5});
+      		molang.setVector3(`variable.size`,new Mc.Vector(parameters.sizeX/2,parameters.sizeY/2,parameters.sizeZ/2));
 			spawnBigBox(
         		'trebesin:plane_box_flex_',
-        		parameters.location,
+        		vectorMath.floorVector(parameters.location),
         		sender.dimension,
         		molang,
-        		{x:parameters.size,y:parameters.size,z:parameters.size}
+        		{x:parameters.sizeX,y:parameters.sizeY,z:parameters.sizeZ},
+				0.003
       		);
 		}
 	})
