@@ -1,5 +1,5 @@
 //APIs:
-import {CommandResult, system, world, Vector, Player, MinecraftEffectTypes, MolangVariableMap} from "@minecraft/server";
+import * as Mc from '@minecraft/server';
 //Plugins:
 import * as Debug from './../../debug/debug';
 import { playerData as serverPlayerData } from '../../server/server';
@@ -50,7 +50,7 @@ export function main(){
 
   Commands.registerCommand("phase", {
     parameters: [{id: "distance", type: "int", optional: true}], aliases: ["p","phaser"], run: (sender, parameter) => {
-      const newLocation = Vector.add(sender.location, vectorMath.setVectorLength(sender.getViewDirection(), parameter.distance ?? 2));
+      const newLocation = Mc.Vector.add(sender.location, vectorMath.setVectorLength(sender.getViewDirection(), parameter.distance ?? 2));
       sender.teleport(newLocation, sender.dimension, sender.getRotation().x, sender.getRotation().y);
       sendMessage("§l§bWHOOSH!§r", "", sender);
     },
@@ -151,9 +151,15 @@ export function main(){
 			}
 		],
 		run(sender,parameters) {
-			const molang = new MolangVariableMap();
+			const molang = new Mc.MolangVariableMap();
 			molang.setColorRGBA(`variable.color`,{red:0,green:0,blue:1,alpha:1});
-			spawnBox('trebesin:plane_box_',parameters.location,sender.dimension,molang);
+      molang.setVector3(`variable.size`,{x:10,y:10,z:10});
+      dimension.spawnParticle(
+        `${particle}${axis}`,
+        sumVectors(coords,addedVector),
+        molang
+    );
+			spawnBox('trebesin:plane_box_flex_',parameters.location,sender.dimension,molang);
 		}
 	})
 

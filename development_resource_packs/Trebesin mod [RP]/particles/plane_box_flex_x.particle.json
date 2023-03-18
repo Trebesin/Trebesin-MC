@@ -9,6 +9,9 @@
 			}
 		},
 		"components": {
+			"minecraft:emitter_initialization": {
+				"creation_expression": "v.size.x = 10;v.size.y = 10;v.size.z = 10;v.color.r = 1;v.color.g = 0;v.color.b = 0;v.color.a = 1;"
+			},
 			"minecraft:emitter_rate_instant": {
 				"num_particles": 1
 			},
