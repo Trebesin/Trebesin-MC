@@ -78,7 +78,7 @@ export function main() {
             if (showChunkBorder[player.id] === 0 || showChunkBorder[player.id] == null) continue; 
             const chunk = getOriginChunkCoord(player.location);
             const verticalMolang = new MolangVariableMap();
-            verticalMolang.setColorRGBA('variable.color',{red:Math.random(),green:Math.random(),blue:Math.random(),alpha:1});
+            verticalMolang.setColorRGBA('variable.color',{red:1,green:0,blue:0,alpha:1});
             verticalMolang.setSpeedAndDirection('variable.size',384,new Vector(0,1,0));
 
             player.dimension.spawnParticle('trebesin:line_flex',{x:chunk.x,y:-64,z:chunk.z},verticalMolang);
@@ -86,7 +86,8 @@ export function main() {
             player.dimension.spawnParticle('trebesin:line_flex',{x:chunk.x,y:-64,z:chunk.z+16},verticalMolang);
             player.dimension.spawnParticle('trebesin:line_flex',{x:chunk.x+16,y:-64,z:chunk.z+16},verticalMolang);
 
-            const randomColor = {red:Math.random(),green:Math.random(),blue:Math.random(),alpha:1};
+            const randomColor = {red:1,green:1,blue:1,alpha:1};
+
             const diagonalMolangPositiveZ = new MolangVariableMap();
             diagonalMolangPositiveZ.setSpeedAndDirection('variable.size',384.3331887829,new Vector(0,384,16));
             diagonalMolangPositiveZ.setColorRGBA('variable.color',randomColor);
