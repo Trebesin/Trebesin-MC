@@ -1,5 +1,5 @@
 //APIs:
-import {} from "@minecraft/server";
+import { BlockPermutation } from "@minecraft/server";
 import { variables as ServerConfig } from '@minecraft/server-admin';
 //Plugins:
 import {isAdmin} from "./admin";
@@ -7,6 +7,7 @@ import { Commands, DB } from '../../backend/backend';
 //Modules:
 import { sendMessage } from '../../../mc_modules/players';
 import { logMessage } from "../../debug/debug";
+import { setBlockType } from '../../block_history/block_history';
 
 
 export function main(){
@@ -89,6 +90,19 @@ export function main(){
       }
     }
   });
+
+  Commands.registerCommand('testBlockType', {
+    parameters: [
+      {
+        id: 'blockType',
+        type:'blockType'
+      }
+    ],
+    run(sender, parameters) {
+      logMessage(JSON.stringify(parameters.blockType));
+      setBlockType(sender.dimension.getBlock(sender.location),parameters.blockType,sender.id);
+    }
+  })
 
   Commands.registerCommand('testpos', {
     parameters:[{type:'pos',id:'location'}],

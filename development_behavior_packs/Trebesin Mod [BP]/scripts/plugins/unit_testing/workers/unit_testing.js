@@ -68,6 +68,7 @@ const unitTestingList = {child: [
         {name: '!getcoords', debug: true, run: (sender) => {Commands.runCommand('getcoords', '', sender)}},
         {name: '!testselector @e[type=!pig]', debug: true, run: (sender) => {Commands.runCommand('testselector', '@e[type=!pig]', sender)}},
         {name: '!testpos ~ ~ ~', debug: true, run: (sender) => {Commands.runCommand('testpos', '~ ~ ~', sender)}},
+        {name: '!testblocktype ~ ~ ~', debug: true, run: (sender) => {Commands.runCommand('testblocktype', 'air', sender)}}
     ]},
     {name: 'items', child: [
         {name: 'phaser', run: (sender) => {getNormalItem('trebesin:cmd_phaser', sender)}},

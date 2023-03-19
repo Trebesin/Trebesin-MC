@@ -17,12 +17,10 @@ const SessionStore = {};
 export function main() {
     Mc.world.events.itemUse.subscribe((eventData) => {
         if (eventData.item.typeId !== 'trebesin:bt_blocky_axe') return;
-        const session = SessionStore[eventData.source.id];
-        if (session == null) {
-            sendMessage('No session initialized! Use ".start" command to continue.','§2BT§r', eventData.source);
-            return;
-        };
+        let session = SessionStore[eventData.source.id];
+        if (session == null) session = initialize(eventData.source);
 
+        if (eventData.source)
         logMessage('ItemUse')
     });
 
@@ -62,7 +60,7 @@ export function main() {
                     }
                 }
                 if (session.pointerBlockLocation != null) {
-                    // ## Pointer Preview
+                    //## Pointer Preview
                     const molang = new Mc.MolangVariableMap();
                     molang.setColorRGBA('variable.color',{red:1,green:0,blue:0,alpha:1});
                     spawnBox(`trebesin:plane_box_`,session.pointerBlockLocation,player.dimension,molang,0.01);
@@ -103,6 +101,8 @@ export function initialize(player) {
         }
     };
     sendMessage(`§aInitialized the Block Tools session!`,'§2BT§r',player);
+
+    return SessionStore[player.id];
 }
 
 //#User Interface functions
@@ -112,11 +112,8 @@ export function actionMenu(player,pointerMode) {
 
 //#Session State functions
 export function switchPointer(player,pointerMode = null) {
-    const session = SessionStore[player.id];
-    if (session == null) {
-        sendMessage('No session initialized! Use ".start" command to continue.','§2BT§r', player);
-        return;
-    };
+    let session = SessionStore[player.id];
+    if (session == null) session = initialize(player);
     if (pointerMode == null) {
         if (session.pointerMode < 3) session.pointerMode++;
         else session.pointerMode = 0;

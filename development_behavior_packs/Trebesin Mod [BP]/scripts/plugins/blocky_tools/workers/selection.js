@@ -124,7 +124,7 @@ export class CornerSelection extends BaseSelection {
 
     }
     /**
-     * 
+     * G
      */
     generatePlaneParticlePreview(callback) {
         callback(location,axis,size)

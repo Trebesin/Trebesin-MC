@@ -22,11 +22,12 @@ import { sendLongMessage } from '../plugins/backend/backend';
 /**
 * @typedef CommandDefinitionParameter
 * @property {string} id ID of the parameter.
-* @property {('string'|'integer'|'float'|'boolean'|'position'|'selector'|'json')} type - Type of the parameter defining what the user input should look like.
+* @property {('string'|'integer'|'float'|'boolean'|'position'|'selector'|'json'|'blockType')} type - Type of the parameter defining what the user input should look like.
 * @property {number} [array] Number defining an array of parameters, the value corresponds to its length.
 * @property {boolean} [optional] Defines that the command will successfully execute even without this and following parameters specified by the user.
 * @property {boolean} [fullArray] Only for `array: <number>`, allows the array to be returned even if it doesn't contain the same amount of elements as specified by the property.
 * @property {boolean} [playersOnly] Only for `type: 'selector'`, sets the selector to only allow `@a`,`@p` and `@r(type: 'minecraft:player')`
+* @property {Object.<string,CommandDefinitionParameter[]>} [choice] Makes parameter only allow values that correspond to keys of this object and then starts parsing the following parameters according to its value.
 */
 
 /**
@@ -138,7 +139,9 @@ class CommandParser {
             }
 
             const parameterParser = new ParameterStringParser(parameterString,this.#options.parameterChars);
+            logMessage(JSON.stringify(parameterParser));
             const parameters = this.#getParameterChain(parameterParser,command.parameters,sender);
+            logMessage('Gotta run')
             await command.run(sender, parameters, ...command.arguments);
         } catch (error) {
             if (error instanceof CommandError) {
@@ -226,7 +229,7 @@ class CommandParser {
                 parsedParameter = value;
                 break;
             case 'blockType':
-                blockTypeId = parameter.match(':') == null ? `minecraft:${parameter}` : parameter;
+                const blockTypeId = parameter.match(':') == null ? `minecraft:${parameter}` : parameter;
                 parsedParameter = MinecraftBlockTypes.get(blockTypeId);
                 if (parsedParameter == null) throw new CommandError(`Block type with the id '${blockTypeId}' doesn't exist!`);
                 break;

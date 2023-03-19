@@ -1,5 +1,5 @@
 //APIs:
-import { MolangVariableMap, BlockPermutation,BlockProperties, world, system, Block} from '@minecraft/server';
+import { MolangVariableMap, BlockPermutation,BlockProperties, world, system, Block, Vector} from '@minecraft/server';
 //Plugins:
 import * as Debug from './../../debug/debug';
 import { Server } from '../../backend/backend';
@@ -77,18 +77,41 @@ export function main() {
             const player = players[playerIndex];
             if (showChunkBorder[player.id] === 0 || showChunkBorder[player.id] == null) continue; 
             const chunk = getOriginChunkCoord(player.location);
-            const molang = new MolangVariableMap()
-            .setColorRGBA('variable.color',{red:Math.random(),green:Math.random(),blue:Math.random(),alpha:1});
-            spawnLine('trebesin:selection_dot',[{x:chunk.x,y:player.location.y-20,z:chunk.z},{x:chunk.x,y:player.location.y+20,z:chunk.z}],player.dimension,molang);
-            spawnLine('trebesin:selection_dot',[{x:chunk.x+8,y:player.location.y-20,z:chunk.z},{x:chunk.x+8,y:player.location.y+20,z:chunk.z}],player.dimension,molang);
-            spawnLine('trebesin:selection_dot',[{x:chunk.x+16,y:player.location.y-20,z:chunk.z+8},{x:chunk.x+16,y:player.location.y+20,z:chunk.z+8}],player.dimension,molang);
-            spawnLine('trebesin:selection_dot',[{x:chunk.x+8,y:player.location.y-20,z:chunk.z+16},{x:chunk.x+8,y:player.location.y+20,z:chunk.z+16}],player.dimension,molang);
-            spawnLine('trebesin:selection_dot',[{x:chunk.x,y:player.location.y-20,z:chunk.z+8},{x:chunk.x,y:player.location.y+20,z:chunk.z+8}],player.dimension,molang);
+            Debug.logMessage('hmmmm')
+            const verticalMolang = new MolangVariableMap();
+            verticalMolang.setColorRGBA('variable.color',{red:Math.random(),green:Math.random(),blue:Math.random(),alpha:1});
+            verticalMolang.setSpeedAndDirection('variable.size',384,new Vector(0,1,0));
 
-            spawnLine('trebesin:selection_dot',[{x:chunk.x,y:player.location.y-20,z:chunk.z},{x:chunk.x,y:player.location.y+20,z:chunk.z}],player.dimension,molang);
-            spawnLine('trebesin:selection_dot',[{x:chunk.x+16,y:player.location.y-20,z:chunk.z},{x:chunk.x+16,y:player.location.y+20,z:chunk.z}],player.dimension,molang);
-            spawnLine('trebesin:selection_dot',[{x:chunk.x+16,y:player.location.y-20,z:chunk.z+16},{x:chunk.x+16,y:player.location.y+20,z:chunk.z+16}],player.dimension,molang);
-            spawnLine('trebesin:selection_dot',[{x:chunk.x,y:player.location.y-20,z:chunk.z+16},{x:chunk.x,y:player.location.y+20,z:chunk.z+16}],player.dimension,molang);
+            player.dimension.spawnParticle('trebesin:line_flex',{x:chunk.x,y:-64,z:chunk.z},verticalMolang);
+            player.dimension.spawnParticle('trebesin:line_flex',{x:chunk.x+16,y:-64,z:chunk.z},verticalMolang);
+            player.dimension.spawnParticle('trebesin:line_flex',{x:chunk.x,y:-64,z:chunk.z+16},verticalMolang);
+            player.dimension.spawnParticle('trebesin:line_flex',{x:chunk.x+16,y:-64,z:chunk.z+16},verticalMolang);
+
+            const diagonalMolangPositiveZ = new MolangVariableMap();
+            diagonalMolangPositiveZ.setSpeedAndDirection('variable.size',384.3331887829,new Vector(0,384,16));
+            diagonalMolangPositiveZ.setColorRGBA('variable.color',{red:Math.random(),green:Math.random(),blue:Math.random(),alpha:1});
+            const diagonalMolangPositiveX = new MolangVariableMap();
+            diagonalMolangPositiveX.setSpeedAndDirection('variable.size',384.3331887829,new Vector(16,384,0));
+            diagonalMolangPositiveX.setColorRGBA('variable.color',{red:Math.random(),green:Math.random(),blue:Math.random(),alpha:1});
+            const diagonalMolangNegativeZ = new MolangVariableMap();
+            diagonalMolangNegativeZ.setSpeedAndDirection('variable.size',384.3331887829,new Vector(0,384,-16));
+            diagonalMolangNegativeZ.setColorRGBA('variable.color',{red:Math.random(),green:Math.random(),blue:Math.random(),alpha:1});
+            const diagonalMolangNegativeX = new MolangVariableMap();
+            diagonalMolangNegativeX.setSpeedAndDirection('variable.size',384.3331887829,new Vector(-16,384,0));
+            diagonalMolangNegativeX.setColorRGBA('variable.color',{red:Math.random(),green:Math.random(),blue:Math.random(),alpha:1});
+
+            player.dimension.spawnParticle('trebesin:line_flex',{x:chunk.x,y:-64,z:chunk.z},diagonalMolangPositiveX);
+            player.dimension.spawnParticle('trebesin:line_flex',{x:chunk.x,y:-64,z:chunk.z+16},diagonalMolangPositiveX);
+
+            player.dimension.spawnParticle('trebesin:line_flex',{x:chunk.x,y:-64,z:chunk.z},diagonalMolangPositiveZ);
+            player.dimension.spawnParticle('trebesin:line_flex',{x:chunk.x+16,y:-64,z:chunk.z},diagonalMolangPositiveZ);
+
+            
+            player.dimension.spawnParticle('trebesin:line_flex',{x:chunk.x+16,y:-64,z:chunk.z},diagonalMolangNegativeX);
+            player.dimension.spawnParticle('trebesin:line_flex',{x:chunk.x+16,y:-64,z:chunk.z+16},diagonalMolangNegativeX);
+
+            player.dimension.spawnParticle('trebesin:line_flex',{x:chunk.x,y:-64,z:chunk.z+16},diagonalMolangNegativeZ);
+            player.dimension.spawnParticle('trebesin:line_flex',{x:chunk.x+16,y:-64,z:chunk.z+16},diagonalMolangPositiveZ);
         }
     },20);
     //## -- --
