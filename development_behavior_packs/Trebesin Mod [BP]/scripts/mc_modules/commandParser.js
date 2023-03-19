@@ -1,4 +1,4 @@
-import { world, BlockAreaSize, Player } from '@minecraft/server';
+import { world, BlockAreaSize, Player, MinecraftBlockTypes } from '@minecraft/server';
 import { setVectorLength } from './../js_modules/vector';
 import { filter } from '../js_modules/array';
 import { randInt } from '../js_modules/random';
@@ -209,6 +209,13 @@ class CommandParser {
         return output
     }   
 
+    /**
+     * 
+     * @param {string} parameter 
+     * @param {Player} sender 
+     * @param {} option 
+     * @returns 
+     */
     #parseParameterType(parameter,sender,option) {
         let parsedParameter, value;
 
@@ -218,34 +225,29 @@ class CommandParser {
                 value = parameter;
                 parsedParameter = value;
                 break;
+            case 'blockType':
+                blockTypeId = parameter.match(':') == null ? `minecraft:${parameter}` : parameter;
+                parsedParameter = MinecraftBlockTypes.get(blockTypeId);
+                if (parsedParameter == null) throw new CommandError(`Block type with the id '${blockTypeId}' doesn't exist!`);
+                break;
             case 'integer':
             case 'int':
                 value = parseInt(parameter);
-                if (!isNaN(value)) {
-                    parsedParameter = value;
-                } else {
-                    throw new CommandError(`Value of '${option.id}' couldn't be parsed as integer number!`);
-                }
+                if (!isNaN(value)) parsedParameter = value;
+                else throw new CommandError(`Value of '${option.id}' couldn't be parsed as integer number!`);
                 break;
             case 'float':
             case 'flt':
                 value = parseFloat(parameter);
-                if (!isNaN(value)) {
-                    parsedParameter = value;
-                } else {
-                    throw new CommandError(`Value of '${option.id}' couldn't be parsed as floating-point number!`);
-                }
+                if (!isNaN(value)) parsedParameter = value;
+                else throw new CommandError(`Value of '${option.id}' couldn't be parsed as floating-point number!`);
                 break;
             case 'boolean':
             case 'bool':
                 value = parameter.toLowerCase();
-                if (value === 'true' || value === '1') {
-                    parsedParameter = true;
-                } else if (value === 'false' || value === '0') {
-                    parsedParameter = false;
-                } else {
-                    throw new CommandError(`Value of '${option.id}' couldn't be parsed as boolean value!`);
-                }
+                if (value === 'true' || value === '1') parsedParameter = true;
+                else if (value === 'false' || value === '0') parsedParameter = false;
+                else throw new CommandError(`Value of '${option.id}' couldn't be parsed as boolean value!`);
                 break;
             case 'json':
                 try {

@@ -26,6 +26,10 @@ export function main() {
         logMessage('ItemUse')
     });
 
+    Mc.world.events.entityHit.subscribe((eventData) => {
+        logMessage('EntityHit')
+    });
+
     //Server.events.itemStartUseOn.subscribe(() => {
     //    logMessage('ItemUseOn')
     //});
@@ -65,7 +69,7 @@ export function main() {
                 }
 
                 player.onScreenDisplay.setActionBar(
-                    '[§aBlocky §2Tools§r]\n'+
+                    `[§aBlocky §2Tools§r] ${ session.pointerBlockLocation != null ? `[${session.pointerBlockLocation.x},${session.pointerBlockLocation.y},${session.pointerBlockLocation.z}]` : ''}\n`+
                     `§cPointer Mode: §l${PointerModeNames[session.pointerMode]}§r\n`+
                     `§bSelection Type: §l${SelectionTypeNames[session.selectionType]}§r\n`
                 );

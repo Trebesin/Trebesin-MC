@@ -1,7 +1,7 @@
 import { Dimension, MolangVariableMap, Vector } from '@minecraft/server';
 import {arrayDifference} from '../js_modules/array';
 import {getGridLine} from '../js_modules/geometry';
-import { subVectors, sumVectors } from '../js_modules/vector';
+import { subVectors, sumVectors, copyVector } from '../js_modules/vector';
 import { logMessage } from '../plugins/debug/debug';
 import { EDGE_AXES,EDGE_COORDS } from './constants';
 
@@ -203,6 +203,39 @@ export function spawnBigBox(particle,coords,dimension,molang,span,edgeOffset) {
     }
 }
 
+function maxIndex(array,callback) {
+    let maxIndex = 0;
+    for (let index = 1;index < array.length;index++) {
+        const item = callback(array[index]);
+        if (item > callback(array[maxIndex])) maxIndex = index;
+    }
+    return maxIndex;
+}
+
+/**
+ * 
+ * @param {number[]} locations 
+ * @param {number[]} expansionAmount 
+ */
+function expandArea(locations,expansionAmounts) {
+    let newLocations = [];
+    const maxIndexes = {
+        x: maxIndex(locations,(item) => item.x),
+        y: maxIndex(locations,(item) => item.y),
+        z: maxIndex(locations,(item) => item.z)
+    }
+    logMessage(JSON.stringify(maxIndexes));
+    for (let locationIndex = 0;locationIndex<locations.length;locationIndex++) {
+        const location = locations[locationIndex];
+        const newLocation = {};
+        for (const axis in location) {
+            newLocation[axis] = location[axis] + expansionAmounts[(maxIndexes[axis] === locationIndex ? 1 : 0)];
+        }
+        newLocations.push(newLocation);
+    }
+    return newLocations;
+}
+
 /**
  * !! FINISHLATER
  * @param {string} particle 
@@ -212,35 +245,45 @@ export function spawnBigBox(particle,coords,dimension,molang,span,edgeOffset) {
  */
 export function spawnLineBox(particleName,corners,dimension,molang) {
     const axisIndexMap = {x:0,y:1,z:2};
+    const appliedCorners = expandArea(corners,[0,1]);
+    const span = subVectors(appliedCorners[0],appliedCorners[1]);
     const corner1 = {
-        corner: corners[0],
-        span: subVectors(corners[0],corners[1]),
-    }
-    const corner2 = {
-        location: corners[1],
-        span: subVectors(corners[1],corners[0]),
-    }
-    for (const axis in corner2.span) {
-        const newMolang = molang;
-        const span = Math.abs(corner2.span[axis]) + 1;
-        const direction = corner2.span[axis] < 0 ? -1 : 1;
-        const vectorDirection = [0,0,0];
-        vectorDirection[axisIndexMap[axis]] = direction;
-        const vector = new Vector(...vectorDirection);
-        newMolang.setSpeedAndDirection(`variable.size`,span,vector);
-        dimension.spawnParticle(particleName,corner2.location,newMolang);
+        location: appliedCorners[0],
+        span: subVectors(appliedCorners[0],appliedCorners[1]),
     }
 
-    for (const axis in corner1.span) {
+    for (const axis in axisIndexMap) {
         const newMolang = molang;
-        const span = Math.abs(corner1.span[axis]) + 1;
-        const direction = corner1.span[axis] < 0 ? -1 : 1;
+        const span = Math.abs(corner1.span[axis]);
+        const direction = corner1.span[axis] < 0 ? 1 : -1;
         const vectorDirection = [0,0,0];
         vectorDirection[axisIndexMap[axis]] = direction;
         const vector = new Vector(...vectorDirection);
+
+        let finalLocation =  copyVector(appliedCorners[1]);
+        finalLocation[axis] = corner1.location[axis];
+        for (let spawnAxis in axisIndexMap) {
+            let spawnLocation = copyVector(corner1.location);
+            if (spawnAxis != axis) {
+                spawnLocation[spawnAxis] = appliedCorners[1][spawnAxis];
+            }
+            newMolang.setSpeedAndDirection(`variable.size`,span,vector);
+            dimension.spawnParticle(particleName,spawnLocation,newMolang);
+        }
         newMolang.setSpeedAndDirection(`variable.size`,span,vector);
-        dimension.spawnParticle(particleName,corner1.location,newMolang);
+        dimension.spawnParticle(particleName,finalLocation,newMolang);
     }
+
+    //for (const axis in corner2.span) {
+    //    const newMolang = molang;
+    //    const span = Math.abs(corner2.span[axis]);
+    //    const direction = corner2.span[axis] < 0 ? 1 : -1;
+    //    const vectorDirection = [0,0,0];
+    //    vectorDirection[axisIndexMap[axis]] = direction;
+    //    const vector = new Vector(...vectorDirection);
+    //    newMolang.setSpeedAndDirection(`variable.size`,span,vector);
+    //    dimension.spawnParticle(particleName,corner2.location,newMolang);
+    //}
 }
 
 
