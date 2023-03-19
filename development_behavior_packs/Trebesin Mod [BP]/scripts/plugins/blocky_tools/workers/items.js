@@ -77,7 +77,6 @@ export function main() {
             const player = players[playerIndex];
             if (showChunkBorder[player.id] === 0 || showChunkBorder[player.id] == null) continue; 
             const chunk = getOriginChunkCoord(player.location);
-            Debug.logMessage('hmmmm')
             const verticalMolang = new MolangVariableMap();
             verticalMolang.setColorRGBA('variable.color',{red:Math.random(),green:Math.random(),blue:Math.random(),alpha:1});
             verticalMolang.setSpeedAndDirection('variable.size',384,new Vector(0,1,0));
@@ -87,18 +86,19 @@ export function main() {
             player.dimension.spawnParticle('trebesin:line_flex',{x:chunk.x,y:-64,z:chunk.z+16},verticalMolang);
             player.dimension.spawnParticle('trebesin:line_flex',{x:chunk.x+16,y:-64,z:chunk.z+16},verticalMolang);
 
+            const randomColor = {red:Math.random(),green:Math.random(),blue:Math.random(),alpha:1};
             const diagonalMolangPositiveZ = new MolangVariableMap();
             diagonalMolangPositiveZ.setSpeedAndDirection('variable.size',384.3331887829,new Vector(0,384,16));
-            diagonalMolangPositiveZ.setColorRGBA('variable.color',{red:Math.random(),green:Math.random(),blue:Math.random(),alpha:1});
+            diagonalMolangPositiveZ.setColorRGBA('variable.color',randomColor);
             const diagonalMolangPositiveX = new MolangVariableMap();
             diagonalMolangPositiveX.setSpeedAndDirection('variable.size',384.3331887829,new Vector(16,384,0));
-            diagonalMolangPositiveX.setColorRGBA('variable.color',{red:Math.random(),green:Math.random(),blue:Math.random(),alpha:1});
+            diagonalMolangPositiveX.setColorRGBA('variable.color',randomColor);
             const diagonalMolangNegativeZ = new MolangVariableMap();
             diagonalMolangNegativeZ.setSpeedAndDirection('variable.size',384.3331887829,new Vector(0,384,-16));
-            diagonalMolangNegativeZ.setColorRGBA('variable.color',{red:Math.random(),green:Math.random(),blue:Math.random(),alpha:1});
+            diagonalMolangNegativeZ.setColorRGBA('variable.color',randomColor);
             const diagonalMolangNegativeX = new MolangVariableMap();
             diagonalMolangNegativeX.setSpeedAndDirection('variable.size',384.3331887829,new Vector(-16,384,0));
-            diagonalMolangNegativeX.setColorRGBA('variable.color',{red:Math.random(),green:Math.random(),blue:Math.random(),alpha:1});
+            diagonalMolangNegativeX.setColorRGBA('variable.color',randomColor);
 
             player.dimension.spawnParticle('trebesin:line_flex',{x:chunk.x,y:-64,z:chunk.z},diagonalMolangPositiveX);
             player.dimension.spawnParticle('trebesin:line_flex',{x:chunk.x,y:-64,z:chunk.z+16},diagonalMolangPositiveX);
@@ -111,7 +111,7 @@ export function main() {
             player.dimension.spawnParticle('trebesin:line_flex',{x:chunk.x+16,y:-64,z:chunk.z+16},diagonalMolangNegativeX);
 
             player.dimension.spawnParticle('trebesin:line_flex',{x:chunk.x,y:-64,z:chunk.z+16},diagonalMolangNegativeZ);
-            player.dimension.spawnParticle('trebesin:line_flex',{x:chunk.x+16,y:-64,z:chunk.z+16},diagonalMolangPositiveZ);
+            player.dimension.spawnParticle('trebesin:line_flex',{x:chunk.x+16,y:-64,z:chunk.z+16},diagonalMolangNegativeZ);
         }
     },20);
     //## -- --
