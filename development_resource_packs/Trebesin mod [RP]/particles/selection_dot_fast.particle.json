@@ -32,7 +32,7 @@
 				}
 			},
 			"minecraft:particle_appearance_tinting": {
-				"color": ["v.color.r", "v.color.g", "v.color.b", 1]
+				"color": ["v.color.r ?? 0", "v.color.g ?? 0", "v.color.b ?? 0", "v.color.a ?? 1"]
 			}
 		}
 	}

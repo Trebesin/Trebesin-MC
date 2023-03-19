@@ -244,9 +244,10 @@ export function main(){
 		run(sender,parameters) {
 			const molang = new Mc.MolangVariableMap();
 			molang.setColorRGBA(`variable.color`,{red:0,green:0,blue:1,alpha:0.5});
+			molang.setSpeedAndDirection(`variable.time`,4,new Mc.Vector(0,0,0));
 			Debug.logMessage(JSON.stringify([vectorMath.floorVector(parameters.location),vectorMath.sumVectors(vectorMath.floorVector(parameters.location),{x:parameters.sizeX,y:parameters.sizeY,z:parameters.sizeZ})]))
 			spawnLineBox(
-        		'trebesin:line_flex',
+        		'trebesin:line_flex2',
         		[vectorMath.floorVector(parameters.location),vectorMath.sumVectors(vectorMath.floorVector(parameters.location),{x:parameters.sizeX,y:parameters.sizeY,z:parameters.sizeZ})],
         		sender.dimension,
         		molang

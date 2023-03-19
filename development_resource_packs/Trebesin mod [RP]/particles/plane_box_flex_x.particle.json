@@ -13,16 +13,16 @@
 				"num_particles": 1
 			},
 			"minecraft:emitter_lifetime_once": {
-				"active_time": 21
+				"active_time": "v.time.speed ?? 0.21"
 			},
 			"minecraft:emitter_shape_point": {
-				"offset": [0, "v.size.y", "v.size.z"]
+				"offset": [0, "v.size.y ?? 0.5", "v.size.z ?? 0.5"]
 			},
 			"minecraft:particle_lifetime_expression": {
-				"max_lifetime": 21
+				"max_lifetime": "v.time.speed ?? 0.21"
 			},
 			"minecraft:particle_appearance_billboard": {
-				"size": ["v.size.z", "v.size.y"],
+				"size": ["v.size.z ?? 0.5", "v.size.y ?? 0.5"],
 				"facing_camera_mode": "emitter_transform_yz",
 				"uv": {
 					"texture_width": 16,
@@ -32,7 +32,7 @@
 				}
 			},
 			"minecraft:particle_appearance_tinting": {
-				"color": ["v.color.r", "v.color.g", "v.color.b", "v.color.a"]
+				"color": ["v.color.r ?? 0", "v.color.g ?? 0", "v.color.b ?? 0", "v.color.a ?? 1"]
 			}
 		}
 	}
