@@ -1,7 +1,7 @@
 //Base imports
 import { world, MolangVariableMap, MinecraftBlockTypes, system, Dimension, Player } from '@minecraft/server';
 //MC Modules
-import { spawnBlockSelection } from '../../../mc_modules/particles';
+import { spawnBlockSelection, spawnBox, spawnLineBox } from '../../../mc_modules/particles';
 //JS Modules
 import { getGridBlock } from '../../../js_modules/geometry';
 import { insertToArray } from '../../../js_modules/array';
@@ -118,10 +118,27 @@ export class CornerSelection extends BaseSelection {
 
     }
     /**
-     * Generates all coordinates of edge particles to get a preview of the selection.
+     * Creates particles for the outline of the selection in the world.
      */
-    generateParticlePreview(callback) {
+    createParticleOutline(color = null,duration = null) {
+        const corners = this.getSelectionCorners();
+        if (corners[0] == null || corners[1] == null) return;
 
+        const molangVariables = new MolangVariableMap();
+        molangVariables.setColorRGBA('variables.color',{red:0,green:0,blue:1,alpha:1});
+        spawnLineBox('trebesin:line_flex',corners,this.getDimension(),molangVariables);
+    }
+
+    /**
+     * Creates particles for the functional blocks of the selection in the world.
+     */
+    createParticleBlocks(color = null,duration = null) {
+        const molangVariables = new MolangVariableMap();
+        molangVariables.setColorRGBA('variables.color',{red:0,green:1,blue:0,alpha:1});
+        for (const cornerCoordinate of this.getSelectionCorners()) {
+            if (cornerCoordinate == null) continue;
+            spawnBox('trebesin:line_flex',cornerCoordinate,this.getDimension(),molangVariables,0.004);
+        }
     }
     /**
      * G

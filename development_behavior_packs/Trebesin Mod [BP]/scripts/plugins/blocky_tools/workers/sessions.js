@@ -20,7 +20,12 @@ export function main() {
         let session = SessionStore[eventData.source.id];
         if (session == null) session = initialize(eventData.source);
 
-        if (eventData.source)
+        const cornerIndex = eventData.source.isSneaking ? 1 : 0;
+
+        /** @type {CornerSelection} */
+        const selection = session.selections[session.selectionType];
+        selection.setCorner(cornerIndex,session.pointerBlockLocation);
+
         logMessage('ItemUse')
     });
 
@@ -37,6 +42,11 @@ export function main() {
             const session = SessionStore[playerId];
             /** @type {Mc.Player} */
             const player = session.player;
+            
+            const selection = session.selections[session.selectionType];
+            selection.createParticleOutline();
+            selection.createParticleBlocks();
+
             if (getEquipedItem(player)?.typeId === 'trebesin:bt_blocky_axe') {
                 //## Updating Pointer Block
                 switch (session.pointerMode) {
@@ -125,6 +135,13 @@ export function switchPointer(player,pointerMode = null) {
 export function switchSelection(player,selectionType) {
 
 }
+
+class Session {
+    constructor(player) {
+
+    }
+}
+
 
 //# Additional Constants
 /**
