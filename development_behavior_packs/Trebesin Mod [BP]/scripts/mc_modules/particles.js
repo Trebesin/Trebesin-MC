@@ -224,7 +224,6 @@ function expandArea(locations,expansionAmounts) {
         y: maxIndex(locations,(item) => item.y),
         z: maxIndex(locations,(item) => item.z)
     }
-    logMessage(JSON.stringify(maxIndexes));
     for (let locationIndex = 0;locationIndex<locations.length;locationIndex++) {
         const location = locations[locationIndex];
         const newLocation = {};
@@ -247,31 +246,26 @@ export function spawnLineBox(particleName,corners,dimension,molang) {
     const axisIndexMap = {x:0,y:1,z:2};
     const appliedCorners = expandArea(corners,[0,1]);
     const span = subVectors(appliedCorners[0],appliedCorners[1]);
-    const corner1 = {
-        location: appliedCorners[0],
-        span: subVectors(appliedCorners[0],appliedCorners[1]),
-    }
 
     for (const axis in axisIndexMap) {
-        const newMolang = molang;
-        const span = Math.abs(corner1.span[axis]);
-        const direction = corner1.span[axis] < 0 ? 1 : -1;
+        const absoluteSpan = Math.abs(span[axis]);
+        const direction = span[axis] < 0 ? 1 : -1;
         const vectorDirection = [0,0,0];
         vectorDirection[axisIndexMap[axis]] = direction;
         const vector = new Vector(...vectorDirection);
 
         let finalLocation =  copyVector(appliedCorners[1]);
-        finalLocation[axis] = corner1.location[axis];
+        finalLocation[axis] = appliedCorners[0][axis];
         for (let spawnAxis in axisIndexMap) {
-            let spawnLocation = copyVector(corner1.location);
+            let spawnLocation = copyVector(appliedCorners[0]);
             if (spawnAxis != axis) {
                 spawnLocation[spawnAxis] = appliedCorners[1][spawnAxis];
             }
-            newMolang.setSpeedAndDirection(`variable.size`,span,vector);
-            dimension.spawnParticle(particleName,spawnLocation,newMolang);
+            molang.setSpeedAndDirection(`variable.size`,absoluteSpan,vector);
+            dimension.spawnParticle(particleName,spawnLocation,molang);
         }
-        newMolang.setSpeedAndDirection(`variable.size`,span,vector);
-        dimension.spawnParticle(particleName,finalLocation,newMolang);
+        molang.setSpeedAndDirection(`variable.size`,absoluteSpan,vector);
+        dimension.spawnParticle(particleName,finalLocation,molang);
     }
 
     //for (const axis in corner2.span) {

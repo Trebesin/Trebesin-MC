@@ -1,5 +1,5 @@
 //Base imports
-import { world, MolangVariableMap, MinecraftBlockTypes, system, Dimension, Player } from '@minecraft/server';
+import { world, MolangVariableMap, MinecraftBlockTypes, system, Vector, Dimension, Player } from '@minecraft/server';
 //MC Modules
 import { spawnBlockSelection, spawnBox, spawnLineBox } from '../../../mc_modules/particles';
 //JS Modules
@@ -125,8 +125,9 @@ export class CornerSelection extends BaseSelection {
         if (corners[0] == null || corners[1] == null) return;
 
         const molangVariables = new MolangVariableMap();
-        molangVariables.setColorRGBA('variables.color',{red:0,green:0,blue:1,alpha:1});
-        spawnLineBox('trebesin:line_flex',corners,this.getDimension(),molangVariables);
+        molangVariables.setColorRGBA(`variable.color`,{red:0,green:0,blue:1,alpha:0.85});
+        molangVariables.setSpeedAndDirection(`variable.time`,0.21,new Vector(0,0,0));
+        spawnLineBox('trebesin:line_flex2',corners,this.getDimension(),molangVariables);
     }
 
     /**
@@ -134,10 +135,11 @@ export class CornerSelection extends BaseSelection {
      */
     createParticleBlocks(color = null,duration = null) {
         const molangVariables = new MolangVariableMap();
-        molangVariables.setColorRGBA('variables.color',{red:0,green:1,blue:0,alpha:1});
+        molangVariables.setColorRGBA('variable.color',{red:0,green:1,blue:0,alpha:1});
+        molangVariables.setSpeedAndDirection(`variable.time`,0.21,new Vector(0,0,0));
         for (const cornerCoordinate of this.getSelectionCorners()) {
             if (cornerCoordinate == null) continue;
-            spawnBox('trebesin:line_flex',cornerCoordinate,this.getDimension(),molangVariables,0.004);
+            spawnBox('trebesin:plane_box_',cornerCoordinate,this.getDimension(),molangVariables,0.005);
         }
     }
     /**

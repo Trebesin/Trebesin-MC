@@ -1,6 +1,6 @@
 //APIs:
 import * as Mc from '@minecraft/server';
-import { floorVector, setVectorLength, sumVectors, getDirectionFace} from '../../../js_modules/vector';
+import { floorVector, setVectorLength, sumVectors, getDirectionFace, multiplyVector, subVectors} from '../../../js_modules/vector';
 import { FACE_DIRECTIONS } from '../../../mc_modules/constants';
 import { spawnBox } from '../../../mc_modules/particles';
 import { getEquipedItem, sendMessage } from '../../../mc_modules/players';
@@ -8,6 +8,7 @@ import { getEquipedItem, sendMessage } from '../../../mc_modules/players';
 import { CornerSelection } from './selection';
 import { Server } from '../../backend/backend';
 import { logMessage } from '../../debug/debug';
+import { setBlockType } from '../../block_history/block_history';
 //Modules:
 
 
@@ -25,6 +26,7 @@ export function main() {
         /** @type {CornerSelection} */
         const selection = session.selections[session.selectionType];
         selection.setCorner(cornerIndex,session.pointerBlockLocation);
+        logMessage(JSON.stringify(selection.getSelectionCorners()));
 
         logMessage('ItemUse')
     });
@@ -54,10 +56,18 @@ export function main() {
                         session.pointerBlockLocation = player.getBlockFromViewDirection().location;
                     }   break;
                     case PointerMode.FACE: {
-                        session.pointerBlockLocation = sumVectors(
+                        const targetLocation = player.getBlockFromViewDirection().location;
+                        const viewVector = player.getViewDirection();
+                        const relativeVector = subVectors(
+                            player.getHeadLocation(),targetLocation
+                        );
+                        sumVectors(
                             player.getBlockFromViewDirection().location,
                             FACE_DIRECTIONS[getDirectionFace(player.getViewDirection())]
                         );
+                        //session.pointerBlockLocation = floorVector(
+                        //    sumVectors(sumVectors(targetLocation,{x:0.5,y:0.5,z:0.5}),multiplyVector(viewVector,-1))
+                        //);
                     }   break;
                     case PointerMode.FREE: {
                         session.pointerBlockLocation = floorVector(sumVectors(
@@ -86,6 +96,18 @@ export function main() {
             }
         }
     },4);
+}
+
+export function fillCorner(player,blockType) {
+    let session = SessionStore[player.id];
+    if (session == null) session = initialize(player);
+
+    /** @type {CornerSelection} */
+    const selection = session.selections[session.selectionType];
+    for (const blockLocation of selection.getAllCorners()) {
+        sendMessage(`§mX:${blockLocation.x} §qY:${blockLocation.y} §tZ:${blockLocation.z}`,'§2BT§r',player);
+        setBlockType(player.dimension.getBlock(blockLocation),blockType);
+    }
 }
 
 //# Base functions

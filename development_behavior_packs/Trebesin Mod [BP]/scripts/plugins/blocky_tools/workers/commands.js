@@ -54,6 +54,16 @@ export async function main() {
 			}
 			Sessions.switchPointer(sender,pointerMode);
 		}
+	});
+
+	Commands.registerCommand('fillCorners',{
+		parameters: [			{
+			id:'blockType',
+			type:'blockType'
+		}],
+		run(sender,parameters) {
+			Sessions.fillCorner(sender,parameters.blockType);
+		}
 	})
 
 	Commands.registerCommand('selection', {
