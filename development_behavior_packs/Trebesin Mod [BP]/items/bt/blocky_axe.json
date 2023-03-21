@@ -3,13 +3,12 @@
     "minecraft:item": {
       "description": {
         "identifier": "trebesin:bt_blocky_axe",
-        "category": "Equipment",
-        "is_experimental": true
+        "category": "Equipment"
       },
       "components": {
         "minecraft:icon": {
           "texture": "axe",
-          "frame": "4"
+          "frame": "5"
         },
         "minecraft:foil": true,
         "minecraft:hand_equipped": true,
