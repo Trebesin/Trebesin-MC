@@ -15,7 +15,7 @@ import { setBlockType } from '../../block_history/block_history';
 //# 
 const SessionStore = {};
 
-class RightClickDetect {
+class LeftClickDetect {
     constructor() {}
 
     /**
@@ -27,7 +27,7 @@ class RightClickDetect {
         /** @type {Mc.Entity} */
         let playerEntity = this.#playerData[player.id];
         if (playerEntity == null) {
-            playerEntity = player.dimension.spawnEntity('trebesin:right_click_detect',entityLocation);
+            playerEntity = player.dimension.spawnEntity('trebesin:left_click_detect',entityLocation);
             this.#playerData[player.id] = playerEntity;
         } else {
             playerEntity.teleport(entityLocation,player.dimension,0,0,false);
@@ -46,7 +46,7 @@ class RightClickDetect {
     #playerData = {}
 }
 
-const rightClickDetector = new RightClickDetect();
+const leftClickDetector = new LeftClickDetect();
 
 export function main() {
 
@@ -139,8 +139,8 @@ export function main() {
             const session = SessionStore[playerId];
             const player = session.player;
 
-            if (getEquipedItem(player)?.typeId === 'trebesin:bt_blocky_axe') rightClickDetector.run(player);
-            else rightClickDetector.stop(player);
+            if (getEquipedItem(player)?.typeId === 'trebesin:bt_blocky_axe') leftClickDetector.run(player);
+            else leftClickDetector.stop(player);
         }
     },1);
 }

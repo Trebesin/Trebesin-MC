@@ -2,7 +2,7 @@
     "format_version": "1.19.50",
     "minecraft:entity": {
         "description": {
-            "identifier": "trebesin:right_click_detect",
+            "identifier": "trebesin:left_click_detect",
             "is_summonable": true,
             "is_spawnable": false,
             "is_experimental": false
