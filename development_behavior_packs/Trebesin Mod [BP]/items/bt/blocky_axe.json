@@ -8,7 +8,7 @@
     "components": {
       "minecraft:icon": {
         "texture": "axe",
-        "frame": "4"
+        "frame": 5
       },
       "minecraft:foil": true,
       "minecraft:hand_equipped": true,
