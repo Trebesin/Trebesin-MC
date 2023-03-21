@@ -27,20 +27,28 @@ class LeftClickDetect {
         /** @type {Mc.Entity} */
         let playerEntity = this.#playerData[player.id];
         if (playerEntity == null) {
-            playerEntity = player.dimension.spawnEntity('trebesin:left_click_detect',entityLocation);
-            this.#playerData[player.id] = playerEntity;
+            this.#spawnEntity(player,entityLocation);
         } else {
-            playerEntity.teleport(entityLocation,player.dimension,0,0,false);
+            try {
+                playerEntity.teleport(entityLocation,player.dimension,0,0,false);
+            } catch {
+                this.#spawnEntity(player,entityLocation);
+            }
         }
 
     }
 
-    stop(player) {
-        let playerEntity = this.#playerData[player.id];
+    stop(playerId) {
+        let playerEntity = this.#playerData[playerId];
         if (playerEntity !== null) {
             playerEntity.triggerEvent('trebesin:make_despawn');
-            this.#playerData[player.id] = null;
+            this.#playerData[playerId] = null;
         }
+    }
+
+    #spawnEntity(player,location) {
+        const playerEntity = player.dimension.spawnEntity('trebesin:left_click_detect',location);
+        this.#playerData[player.id] = playerEntity;
     }
 
     #playerData = {}
@@ -50,6 +58,10 @@ const leftClickDetector = new LeftClickDetect();
 
 export function main() {
 
+    Mc.world.events.playerJoin.subscribe((eventData) => {
+        leftClickDetector.stop(eventData.playerId);
+    });
+
     Mc.world.events.itemUse.subscribe((eventData) => {
         if (eventData.item.typeId !== 'trebesin:bt_blocky_axe') return;
         let session = SessionStore[eventData.source.id];
@@ -58,11 +70,11 @@ export function main() {
         const selection = session.selections[session.selectionType];
         selection.setCorner(0,session.pointerBlockLocation);
 
-        logMessage('ItemUse')
+        logMessage('ItemUse');
     });
 
     Mc.world.events.entityHit.subscribe((eventData) => {
-        logMessage(`EntityHit ${eventData.entity.name} - E:${eventData?.hitEntity?.typeId} B:${eventData?.hitBlock?.typeId}`);
+        logMessage(`EntityHit ${eventData.entity.name} - E:${eventData?.hitEntity?.typeId} B:${eventData?.hitBlock?.typeId} T:${Mc.system.currentTick}`);
         const itemHolding = getEquipedItem(eventData.entity);
         if (itemHolding?.typeId !== 'trebesin:bt_blocky_axe') return;
         let session = SessionStore[eventData.entity.id];
@@ -140,9 +152,13 @@ export function main() {
             const player = session.player;
 
             if (getEquipedItem(player)?.typeId === 'trebesin:bt_blocky_axe') leftClickDetector.run(player);
-            else leftClickDetector.stop(player);
+            else leftClickDetector.stop(player.id);
         }
     },1);
+
+    //Mc.system.runInterval(() => {
+    //    for (const playerId in SessionStore) leftClickDetector.stop(playerId);
+    //},6000);
 }
 
 export function fillCorner(player,blockType) {
