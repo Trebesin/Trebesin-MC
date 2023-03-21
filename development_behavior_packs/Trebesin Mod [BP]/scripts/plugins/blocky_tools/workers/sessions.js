@@ -14,16 +14,41 @@ import { setBlockType } from '../../block_history/block_history';
 
 //# 
 const SessionStore = {};
-const rightClickDetect = {};
+
+class RightClickDetect {
+    constructor() {}
+
+    /**
+     * Teleports entity in front of the player's cursor and creates it if it doesn't exist.
+     * @param {Mc.Player} player
+     */
+    run(player) {
+        const entityLocation = sumVectors(player.getHeadLocation(),multiplyVector(player.getViewDirection(),0.5));
+        /** @type {Mc.Entity} */
+        let playerEntity = this.#playerData[player.id];
+        if (playerEntity == null) {
+            playerEntity = player.dimension.spawnEntity('trebesin:right_click_detect',entityLocation);
+            this.#playerData[player.id] = playerEntity;
+        } else {
+            playerEntity.teleport(entityLocation,player.dimension,0,0,false);
+        }
+
+    }
+
+    stop(player) {
+        let playerEntity = this.#playerData[player.id];
+        if (playerEntity !== null) {
+            playerEntity.triggerEvent('trebesin:make_despawn');
+            this.#playerData[player.id] = null;
+        }
+    }
+
+    #playerData = {}
+}
+
+const rightClickDetector = new RightClickDetect();
 
 export function main() {
-    Server.events.playerEquip.subscribe((eventData) => {
-        if (eventData.item.typeId === 'trebesin:bt_blocky_axe') {
-
-        } else {
-
-        }
-    });
 
     Mc.world.events.itemUse.subscribe((eventData) => {
         if (eventData.item.typeId !== 'trebesin:bt_blocky_axe') return;
@@ -41,7 +66,7 @@ export function main() {
     });
 
     Mc.world.events.entityHit.subscribe((eventData) => {
-        logMessage('EntityHit')
+        logMessage(`EntityHit ${eventData.entity.name} - E:${eventData?.hitEntity?.typeId} B:${eventData?.hitBlock?.typeId}`);
     });
 
     //Server.events.itemStartUseOn.subscribe(() => {
@@ -105,6 +130,16 @@ export function main() {
             }
         }
     },4);
+
+    Mc.system.runInterval(() => {
+        for (const playerId in SessionStore) {
+            const session = SessionStore[playerId];
+            const player = session.player;
+
+            if (getEquipedItem(player)?.typeId === 'trebesin:bt_blocky_axe') rightClickDetector.run(player);
+            else rightClickDetector.stop(player);
+        }
+    },1);
 }
 
 export function fillCorner(player,blockType) {
