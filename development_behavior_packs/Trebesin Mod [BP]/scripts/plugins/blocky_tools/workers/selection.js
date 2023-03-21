@@ -127,7 +127,7 @@ export class CornerSelection extends BaseSelection {
 
         const molangVariables = new MolangVariableMap();
         molangVariables.setColorRGBA(`variable.color`,{red:0,green:0,blue:1,alpha:0.85});
-        molangVariables.setSpeedAndDirection(`variable.time`,0.21,new Vector(0,0,0));
+        molangVariables.setSpeedAndDirection(`variable.time`,0.051,new Vector(0,0,0));
         spawnLineBox('trebesin:line_flex2',corners,this.getDimension(),molangVariables);
     }
 
@@ -137,7 +137,7 @@ export class CornerSelection extends BaseSelection {
     createParticleBlocks(color = null,duration = null) {
         const molangVariables = new MolangVariableMap();
         molangVariables.setColorRGBA('variable.color',{red:0,green:1,blue:0,alpha:1});
-        molangVariables.setSpeedAndDirection(`variable.time`,0.21,new Vector(0,0,0));
+        molangVariables.setSpeedAndDirection(`variable.time`,0.051,new Vector(0,0,0));
         for (const cornerCoordinate of this.getSelectionCorners()) {
             if (cornerCoordinate == null) continue;
             spawnBox('trebesin:plane_box_',cornerCoordinate,this.getDimension(),molangVariables,0.005);

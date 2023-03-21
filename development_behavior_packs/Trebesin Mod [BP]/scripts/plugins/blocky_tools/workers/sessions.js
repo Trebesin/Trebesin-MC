@@ -32,6 +32,7 @@ class LeftClickDetect {
             try {
                 playerEntity.teleport(entityLocation,player.dimension,0,0,false);
             } catch {
+                logMessage('Caught')
                 this.#spawnEntity(player,entityLocation);
             }
         }
@@ -110,7 +111,7 @@ export function main() {
                         const relativeVector = subVectors(
                             player.getHeadLocation(),targetLocation
                         );
-                        sumVectors(
+                        session.pointerBlockLocation = sumVectors(
                             player.getBlockFromViewDirection().location,
                             FACE_DIRECTIONS[getDirectionFace(player.getViewDirection())]
                         );
@@ -144,7 +145,7 @@ export function main() {
                 session.pointerBlockLocation = null;
             }
         }
-    },4);
+    },1);
 
     Mc.system.runInterval(() => {
         for (const playerId in SessionStore) {
