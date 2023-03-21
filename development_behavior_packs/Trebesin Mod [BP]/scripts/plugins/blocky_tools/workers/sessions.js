@@ -1,7 +1,7 @@
 //APIs:
 import * as Mc from '@minecraft/server';
 import { floorVector, setVectorLength, sumVectors, getDirectionFace, multiplyVector, subVectors} from '../../../js_modules/vector';
-import { FACE_DIRECTIONS } from '../../../mc_modules/constants';
+import { DIMENSION_IDS, FACE_DIRECTIONS } from '../../../mc_modules/constants';
 import { spawnBox } from '../../../mc_modules/particles';
 import { getEquipedItem, sendMessage } from '../../../mc_modules/players';
 //Plugins:
@@ -32,7 +32,6 @@ class LeftClickDetect {
             try {
                 playerEntity.teleport(entityLocation,player.dimension,0,0,false);
             } catch {
-                logMessage('Caught')
                 this.#spawnEntity(player,entityLocation);
             }
         }
@@ -99,7 +98,10 @@ export function main() {
             selection.createParticleOutline();
             selection.createParticleBlocks();
 
+
             if (getEquipedItem(player)?.typeId === 'trebesin:bt_blocky_axe') {
+                leftClickDetector.run(player);
+
                 //## Updating Pointer Block
                 switch (session.pointerMode) {
                     case PointerMode.BLOCK: {
@@ -143,23 +145,18 @@ export function main() {
                 );
             } else {
                 session.pointerBlockLocation = null;
+                leftClickDetector.stop(player.id);
             }
         }
     },1);
 
     Mc.system.runInterval(() => {
-        for (const playerId in SessionStore) {
-            const session = SessionStore[playerId];
-            const player = session.player;
-
-            if (getEquipedItem(player)?.typeId === 'trebesin:bt_blocky_axe') leftClickDetector.run(player);
-            else leftClickDetector.stop(player.id);
+        for (const dimensionId of DIMENSION_IDS) {
+            for (const entity of Mc.world.getDimension(dimensionId).getEntities({type:'trebesin:left_click_detect'})) {
+                entity.triggerEvent('trebesin:make_despawn');
+            }
         }
-    },1);
-
-    //Mc.system.runInterval(() => {
-    //    for (const playerId in SessionStore) leftClickDetector.stop(playerId);
-    //},6000);
+    },6000);
 }
 
 export function fillCorner(player,blockType) {

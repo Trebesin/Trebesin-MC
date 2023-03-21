@@ -139,9 +139,7 @@ class CommandParser {
             }
 
             const parameterParser = new ParameterStringParser(parameterString,this.#options.parameterChars);
-            logMessage(JSON.stringify(parameterParser));
             const parameters = this.#getParameterChain(parameterParser,command.parameters,sender);
-            logMessage('Gotta run')
             await command.run(sender, parameters, ...command.arguments);
         } catch (error) {
             if (error instanceof CommandError) {
