@@ -104,7 +104,7 @@ export async function main() {
                     data.playerEquip[player.id] ??= {};
                     const itemBefore = data.playerEquip[player.id].item;
                     const slotBefore = data.playerEquip[player.id].slot;
-                    const itemAfter = player.getComponent('inventory').container.getSlot(player.selectedSlot).getItem();
+                    const itemAfter = player.getComponent('inventory').container?.getSlot(player.selectedSlot).clone();
                     const slotAfter = player.selectedSlot;
                     if (!compareItems(itemAfter,itemBefore) || slotBefore != slotAfter) {
                         data.playerEquip[player.id].item = itemAfter;
@@ -119,7 +119,6 @@ export async function main() {
                     }
                 }
                 //## playerSneak event:
-                //!needs testing
                 const playerSneakCallbacks = callbacks.playerSneak;
                 if (playerSneakCallbacks.saved.length) {
                     data.playerSneak[player.id] ??= player.isSneaking;
@@ -132,7 +131,6 @@ export async function main() {
                             sneaking: player.isSneaking
                         });
                     }
-                    
                 }
             }
         },

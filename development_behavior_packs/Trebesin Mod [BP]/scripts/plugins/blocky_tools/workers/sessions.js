@@ -14,8 +14,17 @@ import { setBlockType } from '../../block_history/block_history';
 
 //# 
 const SessionStore = {};
+const rightClickDetect = {};
 
 export function main() {
+    Server.events.playerEquip.subscribe((eventData) => {
+        if (eventData.item.typeId === 'trebesin:bt_blocky_axe') {
+
+        } else {
+
+        }
+    });
+
     Mc.world.events.itemUse.subscribe((eventData) => {
         if (eventData.item.typeId !== 'trebesin:bt_blocky_axe') return;
         let session = SessionStore[eventData.source.id];
