@@ -55,18 +55,21 @@ export function main() {
         let session = SessionStore[eventData.source.id];
         if (session == null) session = initialize(eventData.source);
 
-        const cornerIndex = eventData.source.isSneaking ? 1 : 0;
-
-        /** @type {CornerSelection} */
         const selection = session.selections[session.selectionType];
-        selection.setCorner(cornerIndex,session.pointerBlockLocation);
-        logMessage(JSON.stringify(selection.getSelectionCorners()));
+        selection.setCorner(0,session.pointerBlockLocation);
 
         logMessage('ItemUse')
     });
 
     Mc.world.events.entityHit.subscribe((eventData) => {
         logMessage(`EntityHit ${eventData.entity.name} - E:${eventData?.hitEntity?.typeId} B:${eventData?.hitBlock?.typeId}`);
+        const itemHolding = getEquipedItem(eventData.entity);
+        if (itemHolding?.typeId !== 'trebesin:bt_blocky_axe') return;
+        let session = SessionStore[eventData.entity.id];
+        if (session == null) session = initialize(eventData.entity);
+
+        const selection = session.selections[session.selectionType];
+        selection.setCorner(1,session.pointerBlockLocation);
     });
 
     //Server.events.itemStartUseOn.subscribe(() => {

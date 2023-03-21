@@ -236,7 +236,7 @@ function expandArea(locations,expansionAmounts) {
 }
 
 /**
- * !! FINISHLATER
+ * 
  * @param {string} particle 
  * @param {Vector3} coords 
  * @param {Dimension} dimension 

@@ -5,6 +5,7 @@ import { spawnBlockSelection, spawnBox, spawnLineBox } from '../../../mc_modules
 //JS Modules
 import { getGridBlock } from '../../../js_modules/geometry';
 import { insertToArray } from '../../../js_modules/array';
+import { logMessage } from '../../debug/debug';
  
 /**
  * A selection class that the blocky tools plugin works with.
