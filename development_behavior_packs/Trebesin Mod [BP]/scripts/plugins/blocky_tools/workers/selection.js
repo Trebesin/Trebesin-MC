@@ -6,6 +6,7 @@ import { spawnBlockSelection, spawnBox, spawnLineBox } from '../../../mc_modules
 import { getGridBlock } from '../../../js_modules/geometry';
 import { insertToArray } from '../../../js_modules/array';
 import { logMessage } from '../../debug/debug';
+import { copyVector } from '../../../js_modules/vector';
  
 /**
  * A selection class that the blocky tools plugin works with.
@@ -20,12 +21,12 @@ class BaseSelection {
         this.#player = player;
         this.#dimension = dimension;
         this.#empty = true;
-        this.#maxCoords = {
+        this.maxCoordinates = {
             x: null,
             y: null,
             z: null
         }
-        this.#minCoords = {
+        this.minCoordinates = {
             x: null,
             y: null,
             z: null
@@ -53,8 +54,8 @@ class BaseSelection {
         return this.#empty;
     }
 
-    #maxCoords
-    #minCoords
+    maxCoords
+    minCoords
     #empty
     #dimension
     #player
@@ -67,11 +68,12 @@ export class CornerSelection extends BaseSelection {
     /**
      * Sets corner of the selection.
      * @param {number} index Index of the corner 0 or 1.
-     * @param {Vector3} coord Coordinate of the selection corner.
+     * @param {Vector3} [coord] Coordinate of the selection corner. If omitted resets the coord to null.
      */
-    setCorner(index,coord) {
+    setCorner(index,coord = null) {
         if (index !== 1 && index !== 0) throw new Error('Invalid Index');
         this.#corners[index] = coord;
+        this.updateMinMax();
     }
     /**
      * Returns the corners that are currently selected to define the selection.
@@ -108,16 +110,56 @@ export class CornerSelection extends BaseSelection {
      * @param {Vector3} coordinate 
      * @returns {boolean}
      */
-    includes(coordinate) {
+    includes(coord) {
+        const max = this.maxCoordinates;
+        const min = this.minCoordinates;
 
+        return !(
+            coord.x < min.x || coord.x > max.x ||
+            coord.y < min.y || coord.y > max.y ||
+            coord.z < min.z || coord.z > max.z
+        )
     }
+
     /**
-     * Returns all block coorinates contained within the selection area.
-     * @returns {Vector3[]}
+     * Calls the callback for every single block that is within the selection area.
+     * @arg {function} callback
+     * @returns 
      */
-    getAllBlocks() {
-
+    getAllBlocks(callback) {
+        getGridBlock(this.getSelectionCorners(),{},callback);
     }
+
+    updateMinMax() {
+        const corners = this.getSelectionCorners();
+        if (corners[0] == null && corners[1] == null) {
+            this.maxCoords = {x:null,y:null,z:null};
+            this.minCoords = {x:null,y:null,z:null};
+        } else if (corners[0] == null) {
+            const copyOfVector = copyVector(corners[1]);
+            this.maxCoords = copyOfVector;
+            this.minCoords = copyOfVector;
+        } else if (corners[1] == null) {
+            const copyOfVector = copyVector(corners[0]);
+            this.maxCoords = copyOfVector;
+            this.minCoords = copyOfVector;
+        } else {
+            const maxCoord = {};
+            const minCoord = {};
+            for (const axis of ['x','y','z']) {
+                if (corners[0][axis] > corners[1][axis]) {
+                    maxCoord[axis] = corners[0][axis];
+                    minCoord[axis] = corners[1][axis];
+                } else {
+                    maxCoord[axis] = corners[1][axis];
+                    minCoord[axis] = corners[0][axis];
+                }
+            }
+            this.maxCoordinates = maxCoords;
+            this.minCoordinates = minCoords;
+        }
+    }
+
     /**
      * Creates particles for the outline of the selection in the world.
      */
@@ -151,6 +193,7 @@ export class CornerSelection extends BaseSelection {
     }
  
     #corners = [];
+    #definedCorners = 0;
 }
  
 class ExtendedSelection {
