@@ -17,6 +17,7 @@ const Commands = new CommandParser({
 	caseSensitive: false
 });
 
+
 export async function main() {
 	Commands.registerCommand('restart', {
 		description: 'Initializes the Blocky Tools session for the player that invokes the command. §c!! Required to use Blocky Tools !!§r',
