@@ -183,14 +183,24 @@ export function fillSelection(player,blockType) {
     });
 }
 
+export function getSelectionMinMax(player) {
+    let session = SessionStore[player.id];
+    if (session == null) session = initialize(player);
+
+    /** @type {CornerSelection} */
+    const selection = session.selections[session.selectionType];
+    sendMessage(`MAX: §mX:${selection.maxCoordinates.x} §qY:${selection.maxCoordinates.y} §tZ:${selection.maxCoordinates.z}`,'§2BT§r',player);
+    sendMessage(`MIN: §mX:${selection.minCoordinates.x} §qY:${selection.minCoordinates.y} §tZ:${selection.minCoordinates.z}`,'§2BT§r',player);
+}
+
 export function insideSelection(player) {
     let session = SessionStore[player.id];
     if (session == null) session = initialize(player);
 
     /** @type {CornerSelection} */
     const selection = session.selections[session.selectionType];
-    const location = selection.pointerBlockLocation;
-    sendMessage(`§m ${selection.includes(location)} X:${location.x} §qY:${location.y} §tZ:${location.z}`,'§2BT§r',player);
+    const location = session.pointerBlockLocation;
+    sendMessage(`${selection.includes(location)} §mX:${location.x} §qY:${location.y} §tZ:${location.z}`,'§2BT§r',player);
 }
 
 //# Base functions

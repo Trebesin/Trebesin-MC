@@ -67,6 +67,13 @@ export async function main() {
 		}
 	});
 
+	Commands.registerCommand('selectionMinMax',{
+		parameters: [],
+		run(sender) {
+			Sessions.getSelectionMinMax(sender);
+		}
+	});
+
 	Commands.registerCommand('fillSelection',{
 		parameters: [			{
 			id:'blockType',

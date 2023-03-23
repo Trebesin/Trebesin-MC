@@ -92,7 +92,7 @@ export class CornerSelection extends BaseSelection {
             x: corners[0].x !== corners[1].x,
             y: corners[0].y !== corners[1].y,
             z: corners[0].z !== corners[1].z
-        }
+        };
         const allCorners = [];
         allCorners.push({x:corners[0].x,y:corners[0].y,z:corners[0].z});
         if (notEquals.x && notEquals.z) allCorners.push({x:corners[1].x,y:corners[0].y,z:corners[0].z});
@@ -155,8 +155,8 @@ export class CornerSelection extends BaseSelection {
                     minCoord[axis] = corners[0][axis];
                 }
             }
-            this.maxCoordinates = maxCoords;
-            this.minCoordinates = minCoords;
+            this.maxCoordinates = maxCoord;
+            this.minCoordinates = minCoord;
         }
     }
 
