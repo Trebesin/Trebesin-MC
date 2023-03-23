@@ -159,7 +159,7 @@ export function main() {
     },6000);
 }
 
-export function fillCorner(player,blockType) {
+export function fillSelectionCorners(player,blockType) {
     let session = SessionStore[player.id];
     if (session == null) session = initialize(player);
 
@@ -169,6 +169,28 @@ export function fillCorner(player,blockType) {
         sendMessage(`§mX:${blockLocation.x} §qY:${blockLocation.y} §tZ:${blockLocation.z}`,'§2BT§r',player);
         setBlockType(player.dimension.getBlock(blockLocation),blockType);
     }
+}
+
+export function fillSelection(player,blockType) {
+    let session = SessionStore[player.id];
+    if (session == null) session = initialize(player);
+
+    /** @type {CornerSelection} */
+    const selection = session.selections[session.selectionType];
+
+    selection.getAllBlocks((blockLocation) => {
+        setBlockType(player.dimension.getBlock(blockLocation),blockType);
+    });
+}
+
+export function insideSelection(player) {
+    let session = SessionStore[player.id];
+    if (session == null) session = initialize(player);
+
+    /** @type {CornerSelection} */
+    const selection = session.selections[session.selectionType];
+    const location = selection.pointerBlockLocation;
+    sendMessage(`§m ${selection.includes(location)} X:${location.x} §qY:${location.y} §tZ:${location.z}`,'§2BT§r',player);
 }
 
 //# Base functions

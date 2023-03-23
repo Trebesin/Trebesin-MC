@@ -56,15 +56,32 @@ export async function main() {
 		}
 	});
 
-	Commands.registerCommand('fillCorners',{
+	Commands.registerCommand('fillSelectionCorners',{
 		parameters: [			{
 			id:'blockType',
 			type:'blockType'
 		}],
 		run(sender,parameters) {
-			Sessions.fillCorner(sender,parameters.blockType);
+			Sessions.fillSelectionCorners(sender,parameters.blockType);
 		}
-	})
+	});
+
+	Commands.registerCommand('fillSelection',{
+		parameters: [			{
+			id:'blockType',
+			type:'blockType'
+		}],
+		run(sender,parameters) {
+			Sessions.fillSelection(sender,parameters.blockType);
+		}
+	});
+
+	Commands.registerCommand('includesInSelection',{
+		parameters: [],
+		run(sender) {
+			Sessions.insideSelection(sender);
+		}
+	});
 
 	Commands.registerCommand('selection', {
 		description: '',
