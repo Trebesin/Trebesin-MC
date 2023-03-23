@@ -75,12 +75,51 @@ export async function main() {
 	});
 
 	Commands.registerCommand('fillSelection',{
-		parameters: [			{
+		parameters: [{
 			id:'blockType',
 			type:'blockType'
 		}],
 		run(sender,parameters) {
 			Sessions.fillSelection(sender,parameters.blockType);
+		}
+	});
+
+	Commands.registerCommand('fillReplaceSelection',{
+		parameters: [
+			{
+				id:'fillBlockType',
+				type:'blockType'
+			},
+			{
+				id:'replaceMode',
+				type:'string',
+				choice: {
+					'include': [
+						{
+							id: 'replaceBlockTypes',
+							type: 'blockType',
+							array: Infinity,
+							fullArray: false
+						}
+					],
+					'exclude': [
+						{
+							id: 'replaceBlockTypes',
+							type: 'blockType',
+							array: Infinity,
+							fullArray: false
+						}
+					]
+				}
+			}
+		],
+		run(sender,parameters) {
+			Sessions.fillReplaceSelection(
+				sender,
+				parameters.fillBlockType,
+				parameters.replaceBlockTypes,
+				parameters.replaceMode === 'exclude',
+			);
 		}
 	});
 

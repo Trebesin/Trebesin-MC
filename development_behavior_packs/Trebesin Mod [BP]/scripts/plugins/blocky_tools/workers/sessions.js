@@ -9,6 +9,7 @@ import { CornerSelection } from './selection';
 import { Server } from '../../backend/backend';
 import { logMessage } from '../../debug/debug';
 import { setBlockType } from '../../block_history/block_history';
+import { find } from '../../../js_modules/array';
 //Modules:
 
 
@@ -180,6 +181,31 @@ export function fillSelection(player,blockType) {
 
     selection.getAllBlocks((blockLocation) => {
         setBlockType(player.dimension.getBlock(blockLocation),blockType);
+    });
+}
+
+/**
+ * 
+ * @param {Mc.Player} player 
+ * @param {Mc.BlockType} blockType 
+ * @param {Mc.BlockType[]} replaceTypes 
+ * @param {boolean} exclusion 
+ */
+export function fillReplaceSelection(player,blockType,replaceTypes,exclusion) {
+    let session = SessionStore[player.id];
+    if (session == null) session = initialize(player);
+
+    /** @type {CornerSelection} */
+    const selection = session.selections[session.selectionType];
+    const dimension = selection.getDimension();
+
+    selection.getAllBlocks((blockLocation) => {
+        const block = dimension.getBlock(blockLocation);
+        const typeIdMatch = replaceTypes.find((replaceType) => block.typeId === replaceType.id) != null;
+        logMessage(`Exclude: ${exclusion}, ID Match: ${typeIdMatch}`);
+        if (
+            (exclusion && !typeIdMatch) || (!exclusion && typeIdMatch)
+        ) setBlockType(block,blockType);
     });
 }
 

@@ -139,7 +139,7 @@ export function filter(array,condition) {
 }
 
 //!Slower
-export function findLast(array,condition,indexRange) {
+export function findLast(array,condition,indexRange = null) {
     const startIndex = indexRange?.[0] ?? 0;
     const endIndex = indexRange?.[1] ?? array.length;
     for (let index = endIndex;index > startIndex;index--) {
@@ -150,7 +150,7 @@ export function findLast(array,condition,indexRange) {
     return null;
 }
 
-export function find(array,condition,indexRange) {
+export function find(array,condition,indexRange = null) {
     const startIndex = indexRange?.[0] ?? 0;
     const endIndex = indexRange?.[1] ?? array.length;
     for (let index = startIndex;index < endIndex;index++) {
