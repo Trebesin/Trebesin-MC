@@ -1,5 +1,5 @@
 //APIs:
-import { BlockPermutation } from "@minecraft/server";
+import { Block, BlockPermutation } from "@minecraft/server";
 import { variables as ServerConfig } from '@minecraft/server-admin';
 //Plugins:
 import {isAdmin} from "./admin";
@@ -7,7 +7,7 @@ import { Commands, DB } from '../../backend/backend';
 //Modules:
 import { sendMessage } from '../../../mc_modules/players';
 import { logMessage } from "../../debug/debug";
-import { setBlockType } from '../../block_history/block_history';
+import { setBlockPermutation, setBlockType } from '../../block_history/block_history';
 
 
 export function main(){
@@ -101,6 +101,26 @@ export function main(){
     run(sender, parameters) {
       logMessage(JSON.stringify(parameters.blockType));
       setBlockType(sender.dimension.getBlock(sender.location),parameters.blockType,sender.id);
+    }
+  });
+
+  Commands.registerCommand('testBlockPermutation', {
+    parameters: [
+      {
+        id: 'permutation',
+        type:'blockPermutation'
+      }
+    ],
+    run(sender, parameters) {
+      /** @type {BlockPermutation} */
+      const permutation = parameters.permutation;
+      const allStates = permutation.getAllProperties();
+      logMessage(permutation.type.id);
+      logMessage(JSON.stringify(permutation.getTags()));
+      for (const state in allStates) {
+        logMessage(`${state} = ${allStates[state]}`);
+      }
+      setBlockPermutation(sender.dimension.getBlock(sender.location),permutation,sender.id);
     }
   })
 

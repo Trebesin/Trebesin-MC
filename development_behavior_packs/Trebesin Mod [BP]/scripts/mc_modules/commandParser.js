@@ -1,4 +1,4 @@
-import { world, BlockAreaSize, Player, MinecraftBlockTypes } from '@minecraft/server';
+import { world, BlockAreaSize, Player, MinecraftBlockTypes, BlockPermutation } from '@minecraft/server';
 import { setVectorLength } from './../js_modules/vector';
 import { filter } from '../js_modules/array';
 import { randInt } from '../js_modules/random';
@@ -22,7 +22,7 @@ import { sendLongMessage } from '../plugins/backend/backend';
 /**
 * @typedef CommandDefinitionParameter
 * @property {string} id ID of the parameter.
-* @property {('string'|'integer'|'float'|'boolean'|'position'|'selector'|'json'|'blockType')} type - Type of the parameter defining what the user input should look like.
+* @property {('string'|'integer'|'float'|'boolean'|'position'|'selector'|'json'|'blockPermutation')} type - Type of the parameter defining what the user input should look like.
 * @property {number} [array] Number defining an array of parameters, the value corresponds to its length.
 * @property {boolean} [optional] Defines that the command will successfully execute even without this and following parameters specified by the user.
 * @property {boolean} [fullArray] Only for `array: <number>`, allows the array to be returned even if it doesn't contain the same amount of elements as specified by the property.
@@ -232,8 +232,15 @@ class CommandParser {
                 if (parsedParameter == null) throw new CommandError(`Block type with the id '${blockTypeId}' doesn't exist!`);
                 break;
             case 'blockPermutation':
-                const blockTypeId = parameter.match(':') == null ? `minecraft:${parameter}` : parameter;
-                parsedParameter = MinecraftBlockTypes.get(blockTypeId);
+                const typeId = parameter.type.match(':') == null ? `minecraft:${parameter.type}` : parameter.type;
+                let blockStates;
+                try {
+                    const stateJsonString = parameter.states === '' ? '{}' : parameter.states;
+                    blockStates = JSON.parse(stateJsonString);
+                } catch (error) {
+                    throw new CommandError(`Failed parsing of '${option.id}' block states as JSON! Error: ${error}`);
+                }
+                parsedParameter = BlockPermutation.resolve(typeId,blockStates);
                 if (parsedParameter == null) throw new CommandError(`Block type with the id '${blockTypeId}' doesn't exist!`);
                 break;
             case 'integer':
@@ -545,7 +552,8 @@ class ParameterStringParser {
         let item = null;
         let escaped = false;
         let quoted = false;
-        //Json
+        //Json / Block Permutation
+        let blockPhase = null;
         let json = null;
         //Selector
         let selector = null
@@ -585,16 +593,22 @@ class ParameterStringParser {
                         selector = 0;
                         continue;
                     }
+                } else if (option.type === 'blockPermutation') {
+                    item = {
+                        type: '',
+                        states: ''
+                    }
+                    blockPhase = 0;
                 } else {
                     item = '';
                 }
 
                 if (option.type === 'json') {
-                    if (char !== '{' || escaped) throw new CommandError('Unexpected start of JSON!');
+                    if (char !== '{' || escaped) throw new Error('Unexpected start of JSON!');
                     json = 0;
                 }
 
-                if (!escaped && char === quoteChar) {
+                if (!escaped && char === quoteChar && blockPhase == null) {
                     quoted = true;
                     continue;
                 }
@@ -605,24 +619,40 @@ class ParameterStringParser {
                     parsePhase = 2;
                 } else {
                     if (json != null) {
+                        //## JSON / Block Permutation State
                         if (!escaped && char === '{') json++;
                         if (!escaped && char === '}') json--;
-                        if (nextChar == null && json > 0) throw new CommandError('Unexpected end of JSON!');
-                        item += char;
+                        if (nextChar == null && json > 0) throw new Error('Unexpected end of JSON!');
+
+                        if (blockPhase === 1) item.states += char;
+                        else item += char;
+
                         if (json === 0) {
-                            if (nextChar !== separator && nextChar != null) throw new CommandError('Unexpected end of JSON!');
+                            if (nextChar !== separator && nextChar != null) throw new Error('Unexpected end of JSON!');
                             parsePhase = 2;
                         }
+                    } else if (blockPhase === 0) {
+                        //## Block Permutation Type
+                        if (!escaped && char === '{') {
+                            blockPhase = 1;
+                            json = 1;
+                            item.states += char;
+                        } else if (!escaped && char === separator) {
+                            parsePhase = 2;
+                        } else {
+                            item.type += char;
+                        }
                     } else if (selector != null) {
+                        //## Selector
                         if (char === ']' && selector === 2) parsePhase = 2;
                         //Name Selector:
                         if (selector === -1) {
                             if (quoted) {
                                 if (!escaped && char === quoteChar) {
                                     if (nextChar === separator || nextChar == null) parsePhase = 2;
-                                    else throw new CommandError('Unescaped quote inside the parameters!');
+                                    else throw new Error('Unescaped quote inside the parameters!');
                                 } else {
-                                    if (nextChar == null) throw new CommandError('Unfinished quoted parameter!');
+                                    if (nextChar == null) throw new Error('Unfinished quoted parameter!');
                                     item.values.name[0] += char;
                                 }
                             } else {
@@ -646,7 +676,7 @@ class ParameterStringParser {
                             }
                         }
                         if (selector === 1) {
-                            if (char == null) throw new CommandError(`Unexpected end of selector at parameter '${option.id}'!`);
+                            if (char == null) throw new Error(`Unexpected end of selector at parameter '${option.id}'!`);
                             if (!escaped && char === selectorSeparator) {
                                 if (item.values[selectorName] == null) item.values[selectorName] = [];
                                 selectorName = '';
@@ -661,7 +691,7 @@ class ParameterStringParser {
                             if (char !== separator) selectorName += char;
                         }
                         if (selector === 2) {
-                            if (char == null) throw new CommandError(`Unexpected end of selector at parameter '${option.id}'!`);
+                            if (char == null) throw new Error(`Unexpected end of selector at parameter '${option.id}'!`);
                             const itemIndex = item.values[selectorName].length - 1;
                             if (!escaped && char === quoteChar) {
                                 if (!quoted && item.values[selectorName][itemIndex].length <= 1) {
@@ -681,12 +711,13 @@ class ParameterStringParser {
                             if (quoted || (char !== separator)) item.values[selectorName][itemIndex] += char;
                         }
                     } else {
+                        //# Other types
                         if (quoted) {
                             if (!escaped && char === quoteChar) {
                                 if (nextChar === separator || nextChar == null) parsePhase = 2;
-                                else throw new CommandError('Unescaped quote inside the parameters!');
+                                else throw new Error('Unescaped quote inside the parameters!');
                             } else {
-                                if (nextChar == null) throw new CommandError('Unfinished quoted parameter!');
+                                if (nextChar == null) throw new Error('Unfinished quoted parameter!');
                                 item += char;
                             }
                         } else {
@@ -886,6 +917,9 @@ function normalizeParameterType(type) {
         case 'selector':
         case 'select':
             normalizedType = 'selector';
+            break;
+        case 'blockPermutation':
+            normalizedType = 'blockPermutation';
             break;
     }
     return normalizedType;
