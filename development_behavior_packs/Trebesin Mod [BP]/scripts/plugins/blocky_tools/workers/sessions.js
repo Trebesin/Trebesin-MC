@@ -70,8 +70,6 @@ export function main() {
 
         const selection = session.selections[session.selectionType];
         selection.setCorner(0,session.pointerBlockLocation);
-
-        logMessage('ItemUse');
     });
 
     Mc.world.events.entityHit.subscribe((eventData) => {
@@ -199,10 +197,12 @@ export function fillReplaceSelection(player,blockType,replaceTypes,exclusion) {
     const selection = session.selections[session.selectionType];
     const dimension = selection.getDimension();
 
+    //const perm = Mc.BlockPermutation.resolve(blockType)
+    //perm.
+
     selection.getAllBlocks((blockLocation) => {
         const block = dimension.getBlock(blockLocation);
         const typeIdMatch = replaceTypes.find((replaceType) => block.typeId === replaceType.id) != null;
-        logMessage(`Exclude: ${exclusion}, ID Match: ${typeIdMatch}`);
         if (
             (exclusion && !typeIdMatch) || (!exclusion && typeIdMatch)
         ) setBlockType(block,blockType);

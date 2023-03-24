@@ -231,6 +231,11 @@ class CommandParser {
                 parsedParameter = MinecraftBlockTypes.get(blockTypeId);
                 if (parsedParameter == null) throw new CommandError(`Block type with the id '${blockTypeId}' doesn't exist!`);
                 break;
+            case 'blockPermutation':
+                const blockTypeId = parameter.match(':') == null ? `minecraft:${parameter}` : parameter;
+                parsedParameter = MinecraftBlockTypes.get(blockTypeId);
+                if (parsedParameter == null) throw new CommandError(`Block type with the id '${blockTypeId}' doesn't exist!`);
+                break;
             case 'integer':
             case 'int':
                 value = parseInt(parameter);
