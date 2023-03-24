@@ -17,8 +17,6 @@ import { find } from '../../../js_modules/array';
 const SessionStore = {};
 
 class LeftClickDetect {
-    constructor() {}
-
     /**
      * Teleports entity in front of the player's cursor and creates it if it doesn't exist.
      * @param {Mc.Player} player
@@ -242,7 +240,7 @@ export function insideSelection(player) {
  * Initializes the Blocky Tools session for a player.
  * @param {Mc.Player} player 
  */
-export function initialize(player) {
+export function initializeSession(player) {
     const defaultSelection = new CornerSelection(player,player.dimension);
 
     SessionStore[player.id] = {
@@ -261,8 +259,17 @@ export function initialize(player) {
     };
     sendMessage(`§aInitialized the Block Tools session!`,'§2BT§r',player);
 
-    return SessionStore[player.id];
+    const session = new Session(player);
+    //other session
+
+    return getSession(player.id);
 }
+
+
+export function getSession(playerId) {
+    return SessionStore[playerId];
+}
+
 
 //#User Interface functions
 export function actionMenu(player,pointerMode) {
@@ -290,12 +297,32 @@ class Session {
 
     }
 
+    switchPointer(pointerMode = null) {
+        if (pointerMode == null) {
+            if (this.pointerMode < 3) this.pointerMode++;
+            else this.pointerMode = 0;
+        } else {
+            this.pointerMode = pointerMode;
+        }
+    }
+
+    insideSelection() {
+        const selection = this.selections[session.selectionType];
+        const location = this.pointerBlockLocation;
+        sendMessage(`${selection.includes(location)} §mX:${location.x} §qY:${location.y} §tZ:${location.z}`,'§2BT§r',player);
+    }
+
+    //Metadata
     player
 
+    //Configurations
     pointerMode
     selectionType
-}
 
+    //State
+    pointerBlockLocation
+    selections = [];
+}
 
 //# Additional Constants
 /**
