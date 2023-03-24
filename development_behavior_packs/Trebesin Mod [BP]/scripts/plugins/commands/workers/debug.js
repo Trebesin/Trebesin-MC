@@ -112,10 +112,10 @@ export function main(){
       }
     ],
     run(sender, parameters) {
-      /** @type {BlockPermutation} */
-      const permutation = parameters.permutation;
+      const {permutation,userStates} = parameters.permutation;
       const allStates = permutation.getAllProperties();
       logMessage(permutation.type.id);
+      logMessage(userStates);
       logMessage(JSON.stringify(permutation.getTags()));
       for (const state in allStates) {
         logMessage(`${state} = ${allStates[state]}`);

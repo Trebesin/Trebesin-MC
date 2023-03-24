@@ -240,7 +240,10 @@ class CommandParser {
                 } catch (error) {
                     throw new CommandError(`Failed parsing of '${option.id}' block states as JSON! Error: ${error}`);
                 }
-                parsedParameter = BlockPermutation.resolve(typeId,blockStates);
+                parsedParameter = {
+                    userStates: parameter.states !== '',
+                    permutation: BlockPermutation.resolve(typeId,blockStates)
+                };
                 if (parsedParameter == null) throw new CommandError(`Block type with the id '${blockTypeId}' doesn't exist!`);
                 break;
             case 'integer':
