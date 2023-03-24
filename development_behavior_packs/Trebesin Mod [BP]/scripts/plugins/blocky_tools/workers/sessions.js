@@ -281,6 +281,11 @@ class Session {
     constructor(player) {
 
     }
+
+    player
+
+    pointerMode
+    selectionType
 }
 
 
