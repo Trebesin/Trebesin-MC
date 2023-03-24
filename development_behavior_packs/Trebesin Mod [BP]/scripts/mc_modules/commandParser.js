@@ -604,7 +604,7 @@ class ParameterStringParser {
                 }
 
                 if (option.type === 'json') {
-                    if (char !== '{' || escaped) throw new Error('Unexpected start of JSON!');
+                    if (char !== '{' || escaped) throw new CommandError('Unexpected start of JSON!');
                     json = 0;
                 }
 
@@ -622,13 +622,13 @@ class ParameterStringParser {
                         //## JSON / Block Permutation State
                         if (!escaped && char === '{') json++;
                         if (!escaped && char === '}') json--;
-                        if (nextChar == null && json > 0) throw new Error('Unexpected end of JSON!');
+                        if (nextChar == null && json > 0) throw new CommandError('Unexpected end of JSON!');
 
                         if (blockPhase === 1) item.states += char;
                         else item += char;
 
                         if (json === 0) {
-                            if (nextChar !== separator && nextChar != null) throw new Error('Unexpected end of JSON!');
+                            if (nextChar !== separator && nextChar != null) throw new CommandError('Unexpected end of JSON!');
                             parsePhase = 2;
                         }
                     } else if (blockPhase === 0) {
@@ -650,9 +650,9 @@ class ParameterStringParser {
                             if (quoted) {
                                 if (!escaped && char === quoteChar) {
                                     if (nextChar === separator || nextChar == null) parsePhase = 2;
-                                    else throw new Error('Unescaped quote inside the parameters!');
+                                    else throw new CommandError('Unescaped quote inside the parameters!');
                                 } else {
-                                    if (nextChar == null) throw new Error('Unfinished quoted parameter!');
+                                    if (nextChar == null) throw new CommandError('Unfinished quoted parameter!');
                                     item.values.name[0] += char;
                                 }
                             } else {
@@ -676,7 +676,7 @@ class ParameterStringParser {
                             }
                         }
                         if (selector === 1) {
-                            if (char == null) throw new Error(`Unexpected end of selector at parameter '${option.id}'!`);
+                            if (char == null) throw new CommandError(`Unexpected end of selector at parameter '${option.id}'!`);
                             if (!escaped && char === selectorSeparator) {
                                 if (item.values[selectorName] == null) item.values[selectorName] = [];
                                 selectorName = '';
@@ -691,7 +691,7 @@ class ParameterStringParser {
                             if (char !== separator) selectorName += char;
                         }
                         if (selector === 2) {
-                            if (char == null) throw new Error(`Unexpected end of selector at parameter '${option.id}'!`);
+                            if (char == null) throw new CommandError(`Unexpected end of selector at parameter '${option.id}'!`);
                             const itemIndex = item.values[selectorName].length - 1;
                             if (!escaped && char === quoteChar) {
                                 if (!quoted && item.values[selectorName][itemIndex].length <= 1) {
@@ -715,9 +715,9 @@ class ParameterStringParser {
                         if (quoted) {
                             if (!escaped && char === quoteChar) {
                                 if (nextChar === separator || nextChar == null) parsePhase = 2;
-                                else throw new Error('Unescaped quote inside the parameters!');
+                                else throw new CommandError('Unescaped quote inside the parameters!');
                             } else {
-                                if (nextChar == null) throw new Error('Unfinished quoted parameter!');
+                                if (nextChar == null) throw new CommandError('Unfinished quoted parameter!');
                                 item += char;
                             }
                         } else {
