@@ -87,8 +87,8 @@ export async function main() {
 	Commands.registerCommand('fillReplaceSelection',{
 		parameters: [
 			{
-				id:'fillBlockType',
-				type:'blockType'
+				id:'fillBlock',
+				type:'blockPermutation'
 			},
 			{
 				id:'replaceMode',
@@ -96,16 +96,16 @@ export async function main() {
 				choice: {
 					'include': [
 						{
-							id: 'replaceBlockTypes',
-							type: 'blockType',
+							id: 'replacePermutations',
+							type: 'blockPermutation',
 							array: Infinity,
 							fullArray: false
 						}
 					],
 					'exclude': [
 						{
-							id: 'replaceBlockTypes',
-							type: 'blockType',
+							id: 'replacePermutations',
+							type: 'blockPermutation',
 							array: Infinity,
 							fullArray: false
 						}
@@ -116,8 +116,8 @@ export async function main() {
 		run(sender,parameters) {
 			Sessions.fillReplaceSelection(
 				sender,
-				parameters.fillBlockType,
-				parameters.replaceBlockTypes,
+				parameters.fillBlock,
+				parameters.replacePermutations,
 				parameters.replaceMode === 'exclude',
 			);
 		}

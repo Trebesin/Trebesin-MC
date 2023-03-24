@@ -8,7 +8,7 @@ import { getEquipedItem, sendMessage } from '../../../mc_modules/players';
 import { CornerSelection } from './selection';
 import { Server } from '../../backend/backend';
 import { logMessage } from '../../debug/debug';
-import { setBlockType } from '../../block_history/block_history';
+import { setBlockPermutation, setBlockType } from '../../block_history/block_history';
 import { find } from '../../../js_modules/array';
 //Modules:
 
@@ -185,11 +185,13 @@ export function fillSelection(player,blockType) {
 /**
  * 
  * @param {Mc.Player} player 
- * @param {Mc.BlockType} blockType 
- * @param {Mc.BlockType[]} replaceTypes 
+ * @param {Mc.BlockPermutation} blockType 
+ * @param {object[]} replacePermutations 
+ * @param {Mc.BlockPermutation} replacePermutations[].permutation
+ * @param {boolean} replacePermutations[].userStates
  * @param {boolean} exclusion 
  */
-export function fillReplaceSelection(player,blockType,replaceTypes,exclusion) {
+export function fillReplaceSelection(player,fillPermutation,replacePermutations,exclusion) {
     let session = SessionStore[player.id];
     if (session == null) session = initialize(player);
 
@@ -197,15 +199,21 @@ export function fillReplaceSelection(player,blockType,replaceTypes,exclusion) {
     const selection = session.selections[session.selectionType];
     const dimension = selection.getDimension();
 
-    //const perm = Mc.BlockPermutation.resolve(blockType)
-    //perm.
-
     selection.getAllBlocks((blockLocation) => {
         const block = dimension.getBlock(blockLocation);
-        const typeIdMatch = replaceTypes.find((replaceType) => block.typeId === replaceType.id) != null;
+        const blockMatch = replacePermutations.find(
+            ({userStates,permutation}) => {
+                return ((
+                    userStates && block.permutation === permutation
+                ) || (
+                    !userStates && block.typeId === permutation.type.id
+                ));
+            }
+        ) != null;
         if (
-            (exclusion && !typeIdMatch) || (!exclusion && typeIdMatch)
-        ) setBlockType(block,blockType);
+            (exclusion && !blockMatch) || (!exclusion && blockMatch)
+        ) setBlockPermutation(block,fillPermutation.permutation,player.id);
+
     });
 }
 
@@ -240,7 +248,7 @@ export function initialize(player) {
     SessionStore[player.id] = {
         player: player,
         pointerBlockLocation: null,
-        pointerMode: PointerMode.BLOCK,
+        pointerMode: PointerMode.FREE,
         selectionType: SelectionType.CORNER,
         selections: [defaultSelection,null,null],
         clipboard: null,
@@ -342,3 +350,26 @@ export const SelectionType = {
  * @enum {number}
  */
 export const SelectionTypeNames = ['Corner','Elipse','Point'];
+
+/* 
+# LEFTOVERS
+export function fillReplaceSelection(player,blockType,replaceTypes,exclusion) {
+    let session = SessionStore[player.id];
+    if (session == null) session = initialize(player);
+
+    const selection = session.selections[session.selectionType];
+    const dimension = selection.getDimension();
+
+    selection.getAllBlocks((blockLocation) => {
+        const block = dimension.getBlock(blockLocation);
+        const typeIdMatch = replaceTypes.find(
+            (replaceType) =>{
+                block.typeId === replaceType.id
+            }
+        ) != null;
+        if (
+            (exclusion && !typeIdMatch) || (!exclusion && typeIdMatch)
+        ) setBlockType(block,blockType,player.id);
+    });
+}
+*/

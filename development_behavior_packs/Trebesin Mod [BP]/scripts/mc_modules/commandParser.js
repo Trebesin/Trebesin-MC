@@ -140,6 +140,7 @@ class CommandParser {
 
             const parameterParser = new ParameterStringParser(parameterString,this.#options.parameterChars);
             const parameters = this.#getParameterChain(parameterParser,command.parameters,sender);
+
             await command.run(sender, parameters, ...command.arguments);
         } catch (error) {
             if (error instanceof CommandError) {
@@ -186,9 +187,7 @@ class CommandParser {
             }
             //Array type
             if (option.array > 0) {
-                const parameterArray = parameter.map((value) => this.#parseParameterType(value,sender,option));
-
-                output[option.id] = parameterArray;
+                output[option.id] = parameter.map((value) => this.#parseParameterType(value,sender,option));
                 continue;
             }
 
@@ -227,6 +226,7 @@ class CommandParser {
                 parsedParameter = value;
                 break;
             case 'blockType':
+                //! DEPRECATED - left for compatibility, will remove later
                 const blockTypeId = parameter.match(':') == null ? `minecraft:${parameter}` : parameter;
                 parsedParameter = MinecraftBlockTypes.get(blockTypeId);
                 if (parsedParameter == null) throw new CommandError(`Block type with the id '${blockTypeId}' doesn't exist!`);
@@ -240,11 +240,14 @@ class CommandParser {
                 } catch (error) {
                     throw new CommandError(`Failed parsing of '${option.id}' block states as JSON! Error: ${error}`);
                 }
-                parsedParameter = {
-                    userStates: parameter.states !== '',
-                    permutation: BlockPermutation.resolve(typeId,blockStates)
-                };
-                if (parsedParameter == null) throw new CommandError(`Block type with the id '${blockTypeId}' doesn't exist!`);
+                try {
+                    parsedParameter = {
+                        userStates: parameter.states !== '',
+                        permutation: BlockPermutation.resolve(typeId,blockStates)
+                    };
+                } catch {
+                    throw new CommandError(`Failed resolving block with id '${typeId}' and its states!`);
+                }
                 break;
             case 'integer':
             case 'int':
