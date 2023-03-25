@@ -27,8 +27,16 @@ export function main() {
             const block = eventData.source.dimension.getBlock(eventData.getBlockLocation());
             const propertyList = block.permutation.getAllProperties();
             const player = eventData.source;
+
+            let blockTagText = '';
+            const blockTags = block.getTags();
+            for (let tagIndex = 0;tagIndex < blockTags.length;tagIndex++) {
+                blockTagText += `${blockTags[tagIndex]}`;
+                if (tagIndex != blockTags.length - 1) blockTagText += ',';
+            }
+            
             const menuData = {
-                title: `${block.typeId}`,
+                title: `${block.typeId}\n[${blockTagText}]`,
                 withIds: true,
                 structure: []
                 

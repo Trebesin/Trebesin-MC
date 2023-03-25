@@ -1,6 +1,24 @@
-import {world, Vector} from "mojang-minecraft";
-import { includes } from '../js_modules/array';
-import { sumVectors } from '../js_modules/vector';
+/*
+    "dimension.js" - Helper functions to work with MC dimensions.
+    Copyright (C) 2023  PavelDobCZ23
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+
+import * as Mc from "@minecraft/server";
+import * as ArrayOps from '../js_modules/array';
+import * as VectorMath from '../js_modules/vectormath';
 
 //!remove all usage of arrays to store locations/vectors
 
@@ -12,7 +30,7 @@ export function getTopBlock(x, z, dimension, solid = false) {
     );
 }
 
-function getClosestBlock(coordinate, dimension = world.getDimension('overworld'), typeId = 'minecraft:air', options = {}) {
+export function getClosestBlock(coordinate, dimension = Mc.world.getDimension('overworld'), typeId = 'minecraft:air', options = {}) {
     const OPTIONS = Object.assign({vectorMap:[{x:0,y:1,z:0},{x:0,y:-1,z:0}],maxDistance:256},options)
     let emptyBlock = null;
     const checkedBlocks = new Set();
@@ -30,7 +48,7 @@ function getClosestBlock(coordinate, dimension = world.getDimension('overworld')
                 checkedBlocks.add(locationToString(coord));
                 for (let vectorIndex = 0;vectorIndex < OPTIONS.vectorMap.length;vectorIndex++) {
                     const vector = OPTIONS.vectorMap[vectorIndex];
-                    const newCoord = sumVectors(vector,coord);
+                    const newCoord = VectorMath.sum(vector,coord);
                     if (!checkedBlocks.has(locationToString(newCoord))) {
                         newCoords.push(newCoord);
                     }
@@ -53,7 +71,7 @@ function getClosestBlock(coordinate, dimension = world.getDimension('overworld')
    * @arg {number[]} vectorMap.y - Array of two Integers, it defines the range of random coordinate shift to occur for spread on Y axis.
    * @arg {number[]} vectorMap.z - Array of two Integers, it defines the range of random coordinate shift to occur for spread on Z axis.
 **/
-function createRandomSpread(coordinate, options, vectorMap = { x: [-1, 1], y: [-1, 1], z: [-1, 1] }, callback) {
+export function createRandomSpread(coordinate, options, vectorMap = { x: [-1, 1], y: [-1, 1], z: [-1, 1] }, callback) {
     const blocks = new Set();
     let coords = [coordinate];
     let currentSpread = 0;
@@ -105,7 +123,7 @@ function createRandomSpread(coordinate, options, vectorMap = { x: [-1, 1], y: [-
    * @arg {number[][]} options.vectorMap - Array of vector coordinates defined as Arrays of 3 Numbers that the function attempts to fill.
    * @returns {undefined}
 **/
-function getAreaFill(origin, dimension, options, innerCallback, outerCallback) {
+export function getAreaFill(origin, dimension, options, innerCallback, outerCallback) {
     const fill = Object.assign({
         whitelist: ['minecraft:air'],
         maxDistance: 256,
@@ -118,10 +136,10 @@ function getAreaFill(origin, dimension, options, innerCallback, outerCallback) {
         const coord = coords.shift();
         if (outsideDistance(coord,origin,fill.maxDistance)) continue;
         const currentBlock = dimension.getBlock(coord);
-        if (includes(fill.whitelist,currentBlock.typeId)) {
+        if (ArrayOps.includes(fill.whitelist,currentBlock.typeId)) {
             innerCallback(coord);
             for (const vector of fill.vectorMap) {
-                const newCoord = sumVectors(coord,vector);
+                const newCoord = VectorMath.sum(coord,vector);
                 const newCoordString = locationToString(newCoord)
                 if (!checkedBlocks.has(newCoordString)) {
                     coords.push(newCoord);
@@ -133,8 +151,6 @@ function getAreaFill(origin, dimension, options, innerCallback, outerCallback) {
         checkedBlocks.add(locationToString(coord));
     }
 }
-
-export {getTopBlock, getTopSolidBlock, getClosestEmptyBlock, getAreaFill, createRandomSpread}
 
 function containsArray(array,item) {
     const indexes = item.length;

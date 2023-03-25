@@ -1,5 +1,5 @@
 /*
-    "vector.js" - Helper functions to work with vectors.
+    "vectorMath.js" - Helper functions to work with vectors.
     Copyright (C) 2023  PavelDobCZ23
 
     This program is free software: you can redistribute it and/or modify
@@ -15,20 +15,27 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-//!DEPRECATED - Left for backwards compatibility. Use vectorMath.js!
 
 /**
- * @param {object} vector 
+ * @typedef Vector3
+ * @property {number} x Value of the vector on the X axis.
+ * @property {number} y Value of the vector on the Y axis.
+ * @property {number} z Value of the vector on the Z axis.
+ */
+
+/**
+ * @param {Vector3} vector 
+ * @returns {number}
  **/
-export function getVectorLength(vector) {
+export function getLength(vector) {
     return Math.sqrt(vector.x**2+vector.y**2+vector.z**2);
 }
 /**
- * @param {object} vector
+ * @param {Vector3} vector
  * @param {number} length
  **/
-export function setVectorLength(vector, length) {
-    const vectorLength = getVectorLength(vector);
+export function setLength(vector, length) {
+    const vectorLength = getLength(vector);
     const ratio = length/vectorLength;
     vector.x *= ratio;
     vector.y *= ratio;
@@ -39,59 +46,69 @@ export function setVectorLength(vector, length) {
 
 /**
  * Sums 2 vectors together.
- * @param {object} vectorA First vector to sum.
- * @param {object} vectorB Second vector to sum.
- * @returns {object} New object with the result of the sum of the vector.
+ * @param {Vector3} vectorA First vector to sum.
+ * @param {Vector3} vectorB Second vector to sum.
+ * @returns {Vector3} New object with the result of the sum of the vector.
  */
-export function sumVectors(vectorA,vectorB) {
+export function sum(vectorA,vectorB) {
     return {x:vectorA.x+vectorB.x,y:vectorA.y+vectorB.y,z:vectorA.z+vectorB.z};
 }
 
 /**
  * Subs 2 vectors together.
- * @param {object} vectorA First vector to sub.
- * @param {object} vectorB Second vector to sub.
- * @returns {object} New object with the result of the sub of the vector.
+ * @param {Vector3} vectorA First vector to sub.
+ * @param {Vector3} vectorB Second vector to sub.
+ * @returns {Vector3} New object with the result of the sub of the vector.
  */
-export function subVectors(vectorA,vectorB) {
+export function sub(vectorA,vectorB) {
     return {x:vectorA.x-vectorB.x,y:vectorA.y-vectorB.y,z:vectorA.z-vectorB.z};
 }
 
 /**
  * Multiply vector.
- * @param {object} vector Vector to multiply.
+ * @param {Vector3} vector Vector to multiply.
  * @param {number} amount Multiplication.
- * @returns {object} Result of the vector multiplication.
+ * @returns {Vector3} Result of the vector multiplication.
  */
-export function multiplyVector(vector,amount) {
+export function multiply(vector,amount) {
     return {x:vector.x*amount,y:vector.y*amount,z:vector.z*amount};
 }
 
 /**
  * Copies a vector into a new object.
- * @param {object} vector Vector to copy.
- * @returns {object} New object of the same vector.
+ * @param {Vector3} vector Vector to copy.
+ * @returns {Vector3} New object of the same vector.
  */
-export function copyVector(vector) {
+export function copy(vector) {
     return {x:vector.x,y:vector.y,z:vector.z};
 }
 
 /**
- * Floors the vector.
- * @param {object} vector Vector to floor.
- * @returns {object} Result of flooring all axis of the vector.
+ * Floors all the axis of the vector.
+ * @param {Vector3} vector Vector to floor.
+ * @returns {Vector3} Result of flooring all axis of the vector.
  */
-export function floorVector(vector) {
+export function floor(vector) {
     return {x:Math.floor(vector.x),y:Math.floor(vector.y),z:Math.floor(vector.z)};
 }
 
-
-export function compareVectors(vectorA,vectorB) {
-    return (vectorA.x === vectorB.x && vectorA.y === vectorB.y && vectorA.z === vectorB.z);
+/**
+ *  Changes all axis of the vector to their absolute values.
+ * @param {Vector3} vector Vector to get absolute value of.
+ * @returns {Vector3} Result of absolute values of all the axis of the vector.
+ */
+export function absolute(vector) {
+    return {x:Math.abs(vector.x),y:Math.abs(vector.y),z:Math.abs(vector.z)}
 }
 
-export function getAbsoluteVector(vector) {
-    return {x:Math.abs(vector.x),y:Math.abs(vector.y),z:Math.abs(vector.z)}
+/**
+ * Returns a value that indicates if the vectors are both the exact same or not.
+ * @param {Vector3} vectorA 
+ * @param {Vector3} vectorB 
+ * @returns {boolean}
+ */
+export function compare(vectorA,vectorB) {
+    return (vectorA.x === vectorB.x && vectorA.y === vectorB.y && vectorA.z === vectorB.z);
 }
 
 export function getDirectionFace(vector) {

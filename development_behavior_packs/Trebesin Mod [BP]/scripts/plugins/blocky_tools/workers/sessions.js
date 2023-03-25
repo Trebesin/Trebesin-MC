@@ -6,10 +6,8 @@ import { spawnBox } from '../../../mc_modules/particles';
 import { getEquipedItem, sendMessage } from '../../../mc_modules/players';
 //Plugins:
 import { CornerSelection } from './selection';
-import { Server } from '../../backend/backend';
 import { logMessage } from '../../debug/debug';
 import { setBlockPermutation, setBlockType } from '../../block_history/block_history';
-import { find } from '../../../js_modules/array';
 //Modules:
 
 
@@ -259,7 +257,7 @@ export function initializeSession(player) {
     };
     sendMessage(`§aInitialized the Block Tools session!`,'§2BT§r',player);
 
-    const session = new Session(player);
+    //const session = new Session(player);
     //other session
 
     return getSession(player.id);
@@ -307,7 +305,7 @@ class Session {
     }
 
     insideSelection() {
-        const selection = this.selections[session.selectionType];
+        const selection = this.selections[this.selectionType];
         const location = this.pointerBlockLocation;
         sendMessage(`${selection.includes(location)} §mX:${location.x} §qY:${location.y} §tZ:${location.z}`,'§2BT§r',player);
     }

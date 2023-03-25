@@ -1,3 +1,21 @@
+/*
+    "random.js" - Helper functions to generate pseudo-random numbers/values.
+    Copyright (C) 2023  PavelDobCZ23
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+
 /**
  * @param {number} min Minimal number to be chosen, inclusive.
  * @param {number} max maximal number to be chosen, inclusive.
@@ -43,6 +61,9 @@ function randomTriFloat() {
     
 }
 
+/*
+    !! License terms defined in the first line of the file do not apply to the parts of the file that come after this comment.
+*/
 //! None of this is mine:
 //const f = 0.5;
 //const n = 0.5;
