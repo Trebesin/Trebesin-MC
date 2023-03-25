@@ -62,7 +62,7 @@ export function main() {
     Mc.world.events.itemUse.subscribe((eventData) => {
         if (eventData.item.typeId !== 'trebesin:bt_blocky_axe') return;
         let session = SessionStore[eventData.source.id];
-        if (session == null) session = initialize(eventData.source);
+        if (session == null) session = initializeSession(eventData.source);
 
         const selection = session.selections[session.selectionType];
         selection.setCorner(0,session.pointerBlockLocation);
@@ -73,7 +73,7 @@ export function main() {
         const itemHolding = getEquipedItem(eventData.entity);
         if (itemHolding?.typeId !== 'trebesin:bt_blocky_axe') return;
         let session = SessionStore[eventData.entity.id];
-        if (session == null) session = initialize(eventData.entity);
+        if (session == null) session = initializeSession(eventData.entity);
 
         const selection = session.selections[session.selectionType];
         selection.setCorner(1,session.pointerBlockLocation);
@@ -156,7 +156,7 @@ export function main() {
 
 export function fillSelectionCorners(player,blockType) {
     let session = SessionStore[player.id];
-    if (session == null) session = initialize(player);
+    if (session == null) session = initializeSession(player);
 
     /** @type {CornerSelection} */
     const selection = session.selections[session.selectionType];
@@ -168,7 +168,7 @@ export function fillSelectionCorners(player,blockType) {
 
 export function fillSelection(player,blockType) {
     let session = SessionStore[player.id];
-    if (session == null) session = initialize(player);
+    if (session == null) session = initializeSession(player);
 
     /** @type {CornerSelection} */
     const selection = session.selections[session.selectionType];
@@ -189,7 +189,7 @@ export function fillSelection(player,blockType) {
  */
 export function fillReplaceSelection(player,fillPermutation,replacePermutations,exclusion) {
     let session = SessionStore[player.id];
-    if (session == null) session = initialize(player);
+    if (session == null) session = initializeSession(player);
 
     /** @type {CornerSelection} */
     const selection = session.selections[session.selectionType];
@@ -215,7 +215,7 @@ export function fillReplaceSelection(player,fillPermutation,replacePermutations,
 
 export function getSelectionMinMax(player) {
     let session = SessionStore[player.id];
-    if (session == null) session = initialize(player);
+    if (session == null) session = initializeSession(player);
 
     /** @type {CornerSelection} */
     const selection = session.selections[session.selectionType];
@@ -225,7 +225,7 @@ export function getSelectionMinMax(player) {
 
 export function insideSelection(player) {
     let session = SessionStore[player.id];
-    if (session == null) session = initialize(player);
+    if (session == null) session = initializeSession(player);
 
     /** @type {CornerSelection} */
     const selection = session.selections[session.selectionType];
@@ -260,7 +260,8 @@ export function initializeSession(player) {
     //const session = new Session(player);
     //other session
 
-    return getSession(player.id);
+    //return getSession(player.id);
+    return SessionStore[player.id];
 }
 
 
@@ -277,7 +278,7 @@ export function actionMenu(player,pointerMode) {
 //#Session State functions
 export function switchPointer(player,pointerMode = null) {
     let session = SessionStore[player.id];
-    if (session == null) session = initialize(player);
+    if (session == null) session = initializeSession(player);
     if (pointerMode == null) {
         if (session.pointerMode < 3) session.pointerMode++;
         else session.pointerMode = 0;

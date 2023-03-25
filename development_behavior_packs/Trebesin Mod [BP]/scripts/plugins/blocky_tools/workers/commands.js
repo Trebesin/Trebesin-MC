@@ -22,7 +22,7 @@ export async function main() {
 	Commands.registerCommand('restart', {
 		description: 'Initializes the Blocky Tools session for the player that invokes the command. §c!! Required to use Blocky Tools !!§r',
 		parameters: [],
-		run: Sessions.initialize
+		run: Sessions.initializeSession
 	});
 
 	Commands.registerCommand('menu', {

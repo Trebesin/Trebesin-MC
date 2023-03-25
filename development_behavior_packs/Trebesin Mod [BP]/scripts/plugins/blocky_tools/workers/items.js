@@ -21,22 +21,20 @@ export function main() {
     
     Server.events.itemStartUseOn.subscribe(async (eventData) => {
         if (eventData.item.typeId === 'trebesin:bt_debug_stick') {
-            /**
-             * @type {Block}
-             */
+            /*** @type {Block} */
             const block = eventData.source.dimension.getBlock(eventData.getBlockLocation());
             const propertyList = block.permutation.getAllProperties();
             const player = eventData.source;
 
-            let blockTagText = '';
-            const blockTags = block.getTags();
-            for (let tagIndex = 0;tagIndex < blockTags.length;tagIndex++) {
-                blockTagText += `${blockTags[tagIndex]}`;
-                if (tagIndex != blockTags.length - 1) blockTagText += ',';
-            }
+            //let blockTagText = '';
+            //const blockTags = block.getTags();
+            //for (let tagIndex = 0;tagIndex < blockTags.length;tagIndex++) {
+            //    blockTagText += `${blockTags[tagIndex]}`;
+            //    if (tagIndex != blockTags.length - 1) blockTagText += ',';
+            //}
             
             const menuData = {
-                title: `${block.typeId}\n[${blockTagText}]`,
+                title: `${block.typeId}`,
                 withIds: true,
                 structure: []
                 
@@ -88,39 +86,44 @@ export function main() {
             const verticalMolang = new MolangVariableMap();
             verticalMolang.setColorRGBA('variable.color',{red:1,green:0,blue:0,alpha:1});
             verticalMolang.setSpeedAndDirection('variable.size',384,new Vector(0,1,0));
+            verticalMolang.setSpeedAndDirection('variable.time',1.01,new Vector(0,0,0));
 
-            player.dimension.spawnParticle('trebesin:line_flex',{x:chunk.x,y:-64,z:chunk.z},verticalMolang);
-            player.dimension.spawnParticle('trebesin:line_flex',{x:chunk.x+16,y:-64,z:chunk.z},verticalMolang);
-            player.dimension.spawnParticle('trebesin:line_flex',{x:chunk.x,y:-64,z:chunk.z+16},verticalMolang);
-            player.dimension.spawnParticle('trebesin:line_flex',{x:chunk.x+16,y:-64,z:chunk.z+16},verticalMolang);
+            player.dimension.spawnParticle('trebesin:line_flex2',{x:chunk.x,y:-64,z:chunk.z},verticalMolang);
+            player.dimension.spawnParticle('trebesin:line_flex2',{x:chunk.x+16,y:-64,z:chunk.z},verticalMolang);
+            player.dimension.spawnParticle('trebesin:line_flex2',{x:chunk.x,y:-64,z:chunk.z+16},verticalMolang);
+            player.dimension.spawnParticle('trebesin:line_flex2',{x:chunk.x+16,y:-64,z:chunk.z+16},verticalMolang);
 
             const randomColor = {red:1,green:1,blue:1,alpha:1};
 
             const diagonalMolangPositiveZ = new MolangVariableMap();
             diagonalMolangPositiveZ.setSpeedAndDirection('variable.size',384.3331887829,new Vector(0,384,16));
+            diagonalMolangPositiveZ.setSpeedAndDirection('variable.time',1.01,new Vector(0,0,0));
             diagonalMolangPositiveZ.setColorRGBA('variable.color',randomColor);
             const diagonalMolangPositiveX = new MolangVariableMap();
             diagonalMolangPositiveX.setSpeedAndDirection('variable.size',384.3331887829,new Vector(16,384,0));
+            diagonalMolangPositiveX.setSpeedAndDirection('variable.time',1.01,new Vector(0,0,0));
             diagonalMolangPositiveX.setColorRGBA('variable.color',randomColor);
             const diagonalMolangNegativeZ = new MolangVariableMap();
             diagonalMolangNegativeZ.setSpeedAndDirection('variable.size',384.3331887829,new Vector(0,384,-16));
+            diagonalMolangNegativeZ.setSpeedAndDirection('variable.time',1.01,new Vector(0,0,0));
             diagonalMolangNegativeZ.setColorRGBA('variable.color',randomColor);
             const diagonalMolangNegativeX = new MolangVariableMap();
             diagonalMolangNegativeX.setSpeedAndDirection('variable.size',384.3331887829,new Vector(-16,384,0));
+            diagonalMolangNegativeX.setSpeedAndDirection('variable.time',1.01,new Vector(0,0,0));
             diagonalMolangNegativeX.setColorRGBA('variable.color',randomColor);
 
-            player.dimension.spawnParticle('trebesin:line_flex',{x:chunk.x,y:-64,z:chunk.z},diagonalMolangPositiveX);
-            player.dimension.spawnParticle('trebesin:line_flex',{x:chunk.x,y:-64,z:chunk.z+16},diagonalMolangPositiveX);
+            player.dimension.spawnParticle('trebesin:line_flex2',{x:chunk.x,y:-64,z:chunk.z},diagonalMolangPositiveX);
+            player.dimension.spawnParticle('trebesin:line_flex2',{x:chunk.x,y:-64,z:chunk.z+16},diagonalMolangPositiveX);
 
-            player.dimension.spawnParticle('trebesin:line_flex',{x:chunk.x,y:-64,z:chunk.z},diagonalMolangPositiveZ);
-            player.dimension.spawnParticle('trebesin:line_flex',{x:chunk.x+16,y:-64,z:chunk.z},diagonalMolangPositiveZ);
+            player.dimension.spawnParticle('trebesin:line_flex2',{x:chunk.x,y:-64,z:chunk.z},diagonalMolangPositiveZ);
+            player.dimension.spawnParticle('trebesin:line_flex2',{x:chunk.x+16,y:-64,z:chunk.z},diagonalMolangPositiveZ);
 
             
-            player.dimension.spawnParticle('trebesin:line_flex',{x:chunk.x+16,y:-64,z:chunk.z},diagonalMolangNegativeX);
-            player.dimension.spawnParticle('trebesin:line_flex',{x:chunk.x+16,y:-64,z:chunk.z+16},diagonalMolangNegativeX);
+            player.dimension.spawnParticle('trebesin:line_flex2',{x:chunk.x+16,y:-64,z:chunk.z},diagonalMolangNegativeX);
+            player.dimension.spawnParticle('trebesin:line_flex2',{x:chunk.x+16,y:-64,z:chunk.z+16},diagonalMolangNegativeX);
 
-            player.dimension.spawnParticle('trebesin:line_flex',{x:chunk.x,y:-64,z:chunk.z+16},diagonalMolangNegativeZ);
-            player.dimension.spawnParticle('trebesin:line_flex',{x:chunk.x+16,y:-64,z:chunk.z+16},diagonalMolangNegativeZ);
+            player.dimension.spawnParticle('trebesin:line_flex2',{x:chunk.x,y:-64,z:chunk.z+16},diagonalMolangNegativeZ);
+            player.dimension.spawnParticle('trebesin:line_flex2',{x:chunk.x+16,y:-64,z:chunk.z+16},diagonalMolangNegativeZ);
         }
     },20);
     //## -- --
