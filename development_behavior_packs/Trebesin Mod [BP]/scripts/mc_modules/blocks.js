@@ -16,7 +16,7 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-import {Block, BlockPermutation, world, system} from '@minecraft/server';
+import {Block, BlockPermutation, world, system, BlockInventoryComponent} from '@minecraft/server';
 import { arrayDifference, find } from '../js_modules/array';
 import { sumVectors, compareVectors, copyVector } from '../js_modules/vector';
 import { logMessage, sendLogMessage } from '../plugins/debug/debug';
@@ -112,6 +112,39 @@ function copyBlock(block) {
         isWaterlogged: block.isWaterlogged,
         permutation: block.permutation.clone()
     }
+}
+
+/**
+ * @typedef BlockComponentCopy
+ */
+
+/**
+ * Function to copy all components of a block.
+ * @param {Block} block Block to copy.
+ * @returns {BlockComponentCopy} Object containing copies of selected properties of the block.
+ */
+function copyBlockComponents(block) {
+    const blockComponents = {};
+    /** @type {BlockInventoryComponent} */
+    const inventoryComponent = block.getComponent('minecraft:inventory');
+    if (inventoryComponent != null) {
+        blockComponents['minecraft:inventory'] = [];
+        const {container} = inventoryComponent;
+        for (let slotIndex = 0;slotIndex < container.size;slotIndex++) {
+            blockComponents['minecraft:inventory'][slotIndex] = container.getSlot(slotIndex).clone();
+        }
+    }
+
+
+}
+
+/**
+ * Function to apply components from a co.
+ * @param {Block} block Affected block.
+ * @param {BlockComponentCopy} components Block components to apply.
+ */
+function applyBlockComponents(block,blockComponents) {
+    block.getComponent('')
 }
 
 function getAdjecentBlockCopies(coord,dimension) {
