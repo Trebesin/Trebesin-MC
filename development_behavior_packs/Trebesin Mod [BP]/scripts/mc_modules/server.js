@@ -57,14 +57,8 @@ export class Server {
         
     }
 
-    /**
-     * @typedef EventWaitOptions Options that define how to wait for the event.
-     * @property {number} tries A variable that changes everytime the event fires depending on the condition return value if it is a number. Getting tires to/below 0 results in rejection of the promise.
-     * @property {number} timeout Number of ticks before rejecting the promise. Enter 0 for infinite timeout (not recommended).
-     * @property {number} amount Number of events to wait for before resolving the promise, it must get there or else the promise times out. 0 will wait until the timeout and resolve everything that met the condition. Negative values will resolve the promise even if it doesn't get to the requested amount.
-     */
-
-    /**
+    //! The following functions are DEPRECATED and left only for compatibility. Use other exports instead.
+    /** !!DEPRECATED!! use other exports instead
      * @param {object} eventObject Object containing `subscribe()` and `unsubscribe()` methods.
      * @param {Function} callback Callback that gets passed event data, it must return an object that contains property `tries` that modifies the tries counter and a property `saveValue` which gets saved and counts the event as success if its value isn't nullish.
      * @param {EventWaitOptions} options Options that define how to wait for the event.
@@ -113,11 +107,11 @@ export class Server {
     }
 
     /**
-     * Retruns promise that executes the callback function and gets resolved/rejected on the next tick.
+     * !!DEPRECATED!! use other exports instead
      * @param {Function} callback Callback that runs on the next tick,its return value is resolved or its error is rejected.
      * @returns {Promise}
      */
-    async waitForNextTick(callback) {
+     async waitForNextTick(callback) {
         return new Promise((resolve,reject) => {
             system.runTimeout(() => {
                 try {
@@ -128,6 +122,79 @@ export class Server {
             },1);
         })
     }
+}
+
+/**
+ * Returns promise that executes the callback function and gets resolved/rejected on the defined following tick.
+ * @param {Function} callback Callback that runs on the defined tick, its return value is resolved or its error is rejected.
+ * @param {number} ticks Amount of ticks to wait for. Defaults to the next tick (1).
+ * @returns {Promise}
+ */
+export async function waitForTick(callback,ticks = 1) {
+    return new Promise((resolve,reject) => {
+        system.runTimeout(() => {
+            try {
+                resolve(callback());
+            } catch (error) {
+                reject(error)
+            }
+        },ticks);
+    })
+}
+
+/**
+ * @typedef EventWaitOptions Options that define how to wait for the event.
+ * @property {number} tries A variable that changes everytime the event fires depending on the condition return value if it is a number. Getting tires to/below 0 results in rejection of the promise.
+ * @property {number} timeout Number of ticks before rejecting the promise. Enter 0 for infinite timeout (not recommended).
+ * @property {number} amount Number of events to wait for before resolving the promise, it must get there or else the promise times out. 0 will wait until the timeout and resolve everything that met the condition. Negative values will resolve the promise even if it doesn't get to the requested amount.
+ */
+
+/**
+ * @param {object} eventObject Object containing `subscribe()` and `unsubscribe()` methods.
+ * @param {Function} callback Callback that gets passed event data, it must return an object that contains property `tries` that modifies the tries counter and a property `saveValue` which gets saved and counts the event as success if its value isn't nullish.
+ * @param {EventWaitOptions} options Options that define how to wait for the event.
+ */
+export async function waitForEvent(eventObject,callback,options = {}) {
+    const OPTIONS = Object.assign({tries: 10,timeout: 200,amount: 1},options);
+    return new Promise((resolve, reject) => {
+        let savedEvents = [];
+        let timeoutIndex;
+        const event = eventObject.subscribe((data) => {
+            const result = callback(data);
+            OPTIONS.tries += result?.tries ?? 0;
+            if (OPTIONS.tries <= 0) {
+                if (timeoutIndex != null) system.clearRun(timeoutIndex);
+                eventObject.unsubscribe(event);
+                reject({timeout:false,tries:true});
+            }
+            
+            if (result?.saveValue != null) {
+                savedEvents.push(result.saveValue);
+                if (
+                    (OPTIONS.amount > 0 && savedEvents.length === OPTIONS.amount) || 
+                    (OPTIONS.amount < 0 && savedEvents.length + OPTIONS.amount === 0)
+                ) {
+                    if (timeoutIndex != null) system.clearRun(timeoutIndex);
+                    eventObject.unsubscribe(event);
+                    resolve(savedEvents);
+                }
+            }
+        });
+
+        if (OPTIONS.timeout > 0) {
+            if (OPTIONS.amount > 0) {
+                timeoutIndex = system.runTimeout(() => {
+                    eventObject.unsubscribe(event);
+                    reject({timeout:true,tries:false});
+                },OPTIONS.timeout);
+            } else {
+                timeoutIndex = system.runTimeout(() => {
+                    eventObject.unsubscribe(event);
+                    resolve(savedEvents);
+                },OPTIONS.timeout);
+            }
+        }
+    });
 }
 
 export class ServerEventCallback {
@@ -152,10 +219,16 @@ export class ServerEventCallback {
     saved;
 }
 
-/*
-function executeRandomTick(callbackArray,loadedChunks,tickSpeed) {
-    if (callbackArray.length) {
-        //!this has terrible performance:
+//! TESTING
+import * as VectorMath from '../js_modules/vectorMath.js';
+/**
+ * !! TESTING !!
+ * @param {*} callback 
+ * @param {*} loadedChunks 
+ * @param {*} tickSpeed 
+ */
+function executeRandomTick(callback/*Array*/,loadedChunks,tickSpeed) {
+    //if (callbackArray.length) {
         for (const dimensionId in loadedChunks) {
             const dimension = world.getDimension(dimensionId);
             const chunks = loadedChunks[dimensionId];
@@ -166,19 +239,18 @@ function executeRandomTick(callbackArray,loadedChunks,tickSpeed) {
                     //!40-45% CPU Usage Getting The Block, 40-45% CPU Usage Generating the Number :/
                     for (let index = 0;index <= tickSpeed;index++) {
                         const subChunk = subChunks[subChunkIndex];
-                        const blockLocation = {
-                            x: randInt(subChunk.x,subChunk.x + 15),
-                            y: randInt(subChunk.y,subChunk.y + 15),
-                            z: randInt(subChunk.z,subChunk.z + 15)
-                        };
-                        const block = dimension.getBlock(blockLocation);
-                        for (let callbackIndex = 0;callbackIndex < callbackArray.length;callbackIndex++) {
-                            callbackArray[callbackIndex](block);
-                        }
+                        const subChunkEnd = VectorMath.sum(subChunk,{x:15,y:15,z:15});
+                        callback(dimension.getBlock({
+                            x: randInt(subChunk.x,subChunkEnd.x),
+                            y: randInt(subChunk.y,subChunkEnd.y),
+                            z: randInt(subChunk.z,subChunkEnd.z)
+                        }));
+                        //for (let callbackIndex = 0;callbackIndex < callbackArray.length;callbackIndex++) {
+                        //    callbackArray[callbackIndex](block);
+                        //}
                     }
                 }
             }
         }
-    }
+    //}
 }
-*/

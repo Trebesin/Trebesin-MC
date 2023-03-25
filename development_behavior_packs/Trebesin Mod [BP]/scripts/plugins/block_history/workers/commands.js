@@ -7,7 +7,7 @@ import { isAdmin, isMod } from "../../commands/workers/admin";
 import { logMessage, sendLogMessage } from "../../debug/debug";
 //sdf
 //Modules:
-import { copyBlock, getPermutations, setPermutationFromObject } from "../../../mc_modules/blocks";
+import { copyBlock } from "../../../mc_modules/blocks";
 import { sendMessage} from "../../../mc_modules/players";
 import { getEdgeLocations, locationToString, stringToLocation } from "../../../mc_modules/particles";
 import { CommandError } from "../../../mc_modules/commandParser";
@@ -833,7 +833,7 @@ async function getMaxIDPerPlayer(blockPlaceType, player){
 function revertBlockChange(blockOld, blockNew, sender){
     const block = sender.dimension.getBlock(blockNew.location);
     block.setType(MinecraftBlockTypes.get(blockOld.typeId));
-    block.setPermutation(setPermutationFromObject(block.permutation, getPermutations(blockOld.permutation)));
+    block.setPermutation(BlockPermutation.resolve(blockOld.typeId,JSON.parse(blockOld.permutation)));
 }
 
 function parseToRealTime(input){

@@ -1,7 +1,7 @@
 import { Dimension, MolangVariableMap, Vector } from '@minecraft/server';
 import {arrayDifference} from '../js_modules/array';
 import {getGridLine} from '../js_modules/geometry';
-import { subVectors, sumVectors, copyVector } from '../js_modules/vector';
+import * as VectorMath from '../js_modules/vectorMath';
 import { logMessage } from '../plugins/debug/debug';
 import { EDGE_AXES,EDGE_COORDS } from './constants';
 
@@ -170,7 +170,7 @@ export function spawnBox(particle,coords,dimension,molang,edgeOffset = 0.005) {
             addedVector[axis] = addition;
             dimension.spawnParticle(
                 `${particle}${axis}`,
-                sumVectors(coords,addedVector),
+                VectorMath.sum(coords,addedVector),
                 molang
             );
         }
@@ -196,7 +196,7 @@ export function spawnBigBox(particle,coords,dimension,molang,span,edgeOffset) {
             addedVector[axis] = addition;
             dimension.spawnParticle(
                 `${particle}${axis}`,
-                sumVectors(coords,addedVector),
+                VectorMath.sum(coords,addedVector),
                 molang
             );
         }
@@ -245,7 +245,7 @@ function expandArea(locations,expansionAmounts) {
 export function spawnLineBox(particleName,corners,dimension,molang) {
     const axisIndexMap = {x:0,y:1,z:2};
     const appliedCorners = expandArea(corners,[0,1]);
-    const span = subVectors(appliedCorners[0],appliedCorners[1]);
+    const span = VectorMath.sub(appliedCorners[0],appliedCorners[1]);
 
     for (const axis in axisIndexMap) {
         const absoluteSpan = Math.abs(span[axis]);
@@ -254,10 +254,10 @@ export function spawnLineBox(particleName,corners,dimension,molang) {
         vectorDirection[axisIndexMap[axis]] = direction;
         const vector = new Vector(...vectorDirection);
 
-        let finalLocation =  copyVector(appliedCorners[1]);
+        let finalLocation =  VectorMath.copy(appliedCorners[1]);
         finalLocation[axis] = appliedCorners[0][axis];
         for (let spawnAxis in axisIndexMap) {
-            let spawnLocation = copyVector(appliedCorners[0]);
+            let spawnLocation = VectorMath.copy(appliedCorners[0]);
             if (spawnAxis != axis) {
                 spawnLocation[spawnAxis] = appliedCorners[1][spawnAxis];
             }
@@ -267,17 +267,6 @@ export function spawnLineBox(particleName,corners,dimension,molang) {
         molang.setSpeedAndDirection(`variable.size`,absoluteSpan,vector);
         dimension.spawnParticle(particleName,finalLocation,molang);
     }
-
-    //for (const axis in corner2.span) {
-    //    const newMolang = molang;
-    //    const span = Math.abs(corner2.span[axis]);
-    //    const direction = corner2.span[axis] < 0 ? 1 : -1;
-    //    const vectorDirection = [0,0,0];
-    //    vectorDirection[axisIndexMap[axis]] = direction;
-    //    const vector = new Vector(...vectorDirection);
-    //    newMolang.setSpeedAndDirection(`variable.size`,span,vector);
-    //    dimension.spawnParticle(particleName,corner2.location,newMolang);
-    //}
 }
 
 

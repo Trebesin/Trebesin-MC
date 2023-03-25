@@ -15,21 +15,19 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-
-import {Block, BlockPermutation, world, system, BlockInventoryComponent} from '@minecraft/server';
-import { arrayDifference, find } from '../js_modules/array';
-import { sumVectors, compareVectors, copyVector } from '../js_modules/vector';
+import * as Mc from '@minecraft/server'
+import * as VectorMath from './../js_modules/vectorMath';
 import { logMessage, sendLogMessage } from '../plugins/debug/debug';
 import { DIRECTIONS, TREBESIN_PERMUTATIONS } from './constants';
 
 /**
  * Function for comparing 2 `Block` class objects.
- * @param {Block} blockA 1st block to compare the other with.
- * @param {Block} blockB The other block to compare with.
+ * @param {Mc.Block} blockA 1st block to compare the other with.
+ * @param {Mc.Block} blockB The other block to compare the 1st with.
  * @param {boolean} checkLocation If the location of the block should be checked as well.
  * @returns {boolean} Boolean that is equal to `true` if the blocks are identical, otherwise `false`.
  */
-function compareBlocks(blockA,blockB,checkLocation = false) {
+export function compareBlocks(blockA,blockB,checkLocation = false) {
     if (
         blockA == null || blockB == null ||
         blockA.typeId !== blockB.typeId || 
@@ -47,7 +45,7 @@ function compareBlocks(blockA,blockB,checkLocation = false) {
 
     const permutationA = blockA.permutation;
     const permutationB = blockB.permutation;
-    const properties = blockA.typeId.startsWith('trebesin:') ? TREBESIN_PERMUTATIONS : permutationA.getAllProperties();
+    const properties = /*blockA.typeId.startsWith('trebesin:') ? TREBESIN_PERMUTATIONS :*/ permutationA.getAllProperties();
     for (const property in properties) {
         const valueA = permutationA.getProperty(property);
         const valueB = permutationB.getProperty(property);
@@ -57,40 +55,12 @@ function compareBlocks(blockA,blockB,checkLocation = false) {
 }
 
 /**
- * Returns all properties of a permutation in an object.
- * @param {BlockPermutation} permutation Permutation.
- * @returns {object}
- */
-function getPermutations(permutation) {
-    const permutationObject = {};
-    const properties = permutation.type.id.startsWith('trebesin:') ? TREBESIN_PERMUTATIONS : permutation.getAllProperties();
-    for (let index = 0;index < properties.length;index++) {
-        const permutationName = properties[index].name;
-        permutationObject[permutationName] = permutation.getProperty(permutationName)?.value;
-    }
-    return permutationObject
-}
-
-/**
- * 
- * @param {BlockPermutation} permutation 
- * @param {object} object 
- */
-function setPermutationFromObject(permutation,object) {
-    for (const property in object) {
-        const value = object[property];
-        permutation.getProperty(property).value = value;
-    }
-    return permutation;
-}
-
-/**
  * Function for comparing location of 2 `Block` class objects.
- * @param {Block} blockA 1st block to compare the other with.
- * @param {Block} blockB The other block to compare with.
+ * @param {Mc.Block} blockA 1st block to compare the other with.
+ * @param {Mc.Block} blockB The other block to compare with.
  * @returns {boolean} Boolean that is equal to `true` if the blocks at the exact same place, otherwise `false`.
  */
- function compareBlockLocations(blockA,blockB) {
+export function compareBlockLocations(blockA,blockB) {
     return (
         blockA.dimension.id === blockB.dimension.id &&
         blockA.location.x === blockB.location.x &&
@@ -101,66 +71,151 @@ function setPermutationFromObject(permutation,object) {
 
 /**
  * Function to copy `Block` class objects.
- * @param {Block} block Block to copy.
+ * @param {Mc.Block} block Block to copy.
  * @returns {object} Object containing copies of selected properties of the block.
  */
-function copyBlock(block) {
+export function copyBlock(block) {
     return {
         typeId: block.typeId,
         dimension: block.dimension,
         location: block.location,
         isWaterlogged: block.isWaterlogged,
-        permutation: block.permutation.clone()
+        permutation: block.permutation.clone(),
+        components: copyBlockComponents(block)
     }
 }
 
 /**
- * @typedef BlockComponentCopy
+ * Function to copy `Block` class objects with data that only generally define its state.
+ * @param {Mc.Block} block Block to copy.
+ * @returns {object} Object containing copies of selected properties of the block.
+ */
+export function copyBlockState(block) {
+    return {
+        typeId: block.typeId,
+        isWaterlogged: block.isWaterlogged,
+        permutation: block.permutation.clone(),
+        components: copyBlockComponents(block)
+    }
+}
+
+/**
+ * Function to apply block state data to an existing block.
+ * @param {Mc.Block} block Block to apply the state onto.
+ * @param {object} blockState Block state data to apply.
+ * @returns {undefined}
+ */
+export function applyBlockState(block,blockState) {
+    if (blockState.typeId) block.setType(Mc.MinecraftBlockTypes.get(blockState.typeId));
+    if (blockState.isWaterlogged) block.isWaterlogged = blockState.isWaterlogged;
+    if (blockState.permutation) block.setPermutation(blockState.permutation);
+    if (blockState.components) applyBlockComponents(blockState.components);
+}
+
+/**
+ * @typedef BlockState
+ * @prop {string} typeId ID of the type the block is.
+ * @prop {boolean} isWaterlogged Waterlog state of the block.
+ * @prop {Mc.BlockPermutation} permutation Block permutation.
+ * @prop {BlockComponentState} components State of the block components.
+ */
+
+/**
+ * @typedef BlockSignComponentState Contains data of block sign component saved in a simple object.
+ * @prop {string} text The sign text.
+ * @prop {Mc.RawText} rawText The sign text if defined as a `RawMessage`.
+ * @prop {Mc.DyeColor} dyeColor Dye color of the sign text.
+ */
+
+/**
+ * @typedef BlockComponentState Contains data of block components saved in a simple object.
+ * @prop {Mc.ItemStack[]} inventory Array of `ItemStack` or `null`/`undefined` values which's index coresponds to the slot they are contained in inside the container.
+ * @prop {BlockSignComponentState} sign Sign component data.
  */
 
 /**
  * Function to copy all components of a block.
- * @param {Block} block Block to copy.
- * @returns {BlockComponentCopy} Object containing copies of selected properties of the block.
+ * @param {Mc.Block} block Block to copy.
+ * @returns {BlockComponentState} Object containing copies of selected properties of the block.
  */
-function copyBlockComponents(block) {
+export function copyBlockComponents(block) {
     const blockComponents = {};
-    /** @type {BlockInventoryComponent} */
-    const inventoryComponent = block.getComponent('minecraft:inventory');
-    if (inventoryComponent != null) {
-        blockComponents['minecraft:inventory'] = [];
-        const {container} = inventoryComponent;
+
+    /** @type {Mc.BlockInventoryComponent} */
+    const inventory = block.getComponent('inventory');
+    if (inventory != null) {
+        blockComponents['inventory'] = [];
+        const {container} = inventory;
         for (let slotIndex = 0;slotIndex < container.size;slotIndex++) {
-            blockComponents['minecraft:inventory'][slotIndex] = container.getSlot(slotIndex).clone();
+            blockComponents['inventory'][slotIndex] = container.getSlot(slotIndex).clone();
         }
     }
 
+    /** @type {Mc.BlockSignComponent} */
+    const sign = block.getComponent('sign');
+    if (sign != null) {
+        blockComponents['sign'] = {
+            text: sign.getText(),
+            rawText: sign.getRawText(),
+            dyeColor: sign.getTextDyeColor()
+        }
+    }
 
+    //!These components do not have getter functions:
+    //const lavaContainer = block.getComponent('lavaContainer');
+    //
+    //const potionContainer = block.getComponent('potionContainer');
+    //
+    //const snowContainer = block.getComponent('snowContainer');
+    //
+    //const waterContainer = block.getComponent('waterContainer');
+    //
+    //const piston = block.getComponent('piston');
+    //
+    //const recordPlayer = block.getComponent('recordPlayer');
 }
 
 /**
  * Function to apply components from a co.
- * @param {Block} block Affected block.
- * @param {BlockComponentCopy} components Block components to apply.
+ * @param {Mc.Block} block Affected block.
+ * @param {BlockComponentState} blockComponents Block components to apply.
  */
-function applyBlockComponents(block,blockComponents) {
-    block.getComponent('')
+export function applyBlockComponents(block,blockComponents) {
+    for (let componentId in blockComponents) {
+        const componentData = blockComponents[componentId];
+        const component = block.getComponent(componentId);
+        if (component == null) continue;
+        switch (componentId) {
+            case 'inventory': {
+                const container = component.container;
+                for (let slotIndex = 0;slotIndex < componentData.length;slotIndex++) {
+                    container.setItem(slotIndex,componentData[slotIndex]);
+                }
+            }   break;
+            case 'sign': {
+                component.setText(componentData.text ?? componentData.rawText);
+                component.setTextDyeColor(componentData.dyeColor);
+            }   break;
+        }
+    }
 }
 
-function getAdjecentBlockCopies(coord,dimension) {
+
+//# Block Update Functions:
+export function getAdjecentBlockCopies(coord,dimension) {
     const blockArray = [];
     for (let index = 0;index < DIRECTIONS.length;index++) {
         const face = DIRECTIONS[index];
-        blockArray.push(copyBlock(dimension.getBlock(sumVectors(coord,face))));
+        blockArray.push(copyBlock(dimension.getBlock(VectorMath.sum(coord,face))));
     }
     return blockArray;
 }
 
-function getAdjecentBlocks(coord,dimension) {
+export function getAdjecentBlocks(coord,dimension) {
     const blockArray = [];
     for (let index = 0;index < DIRECTIONS.length;index++) {
         const face = DIRECTIONS[index];
-        blockArray.push(dimension.getBlock(sumVectors(coord,face)));
+        blockArray.push(dimension.getBlock(VectorMath.sum(coord,face)));
     }
     return blockArray;
 }
@@ -168,13 +223,13 @@ function getAdjecentBlocks(coord,dimension) {
 function getAdjecentBlockCoords(coord) {
     const coordArray = [];
     for (let index = 0;index < DIRECTIONS.length;index++) {
-        coordArray.push(sumVectors(coord,DIRECTIONS[index]));
+        coordArray.push(VectorMath.sum(coord,DIRECTIONS[index]));
     }
     return coordArray;
 }
 
-async function blockUpdateIteration(location,dimension,callback) {
-    sendLogMessage(`starting block update iteration @ ${location.x},${location.y},${location.z} [${system.currentTick}]`);
+export async function blockUpdateIteration(location,dimension,callback) {
+    sendLogMessage(`starting block update iteration @ ${location.x},${location.y},${location.z} [${Mc.system.currentTick}]`);
     let blockUpdateSignal = [];
     blockUpdateSignal.push(...getAdjecentBlockCopies(location,dimension));
     while (blockUpdateSignal.length !== 0) {
@@ -188,17 +243,17 @@ async function blockUpdateIteration(location,dimension,callback) {
                     const adjecentBlocks = getAdjecentBlockCopies(blockLocation,dimension);
                     for (let adjecentIndex = 0;adjecentIndex < adjecentBlocks.length;adjecentIndex++) {
                         const adjecentBlock = adjecentBlocks[adjecentIndex];
-                        if (newBlockUpdates.find((block) => compareVectors(block.location,adjecentBlock.location)) == null) {
+                        if (newBlockUpdates.find((block) => VectorMath.compare(block.location,adjecentBlock.location)) == null) {
                             newBlockUpdates.push(adjecentBlock);
                         }
                     }
-                    callback(blockBefore,blockAfter,system.currentTick);
+                    callback(blockBefore,blockAfter,Mc.system.currentTick);
                 }
             }
             return newBlockUpdates;
         });
     }
-    logMessage(`ending block update iteration [${system.currentTick}]`);
+    logMessage(`ending block update iteration [${Mc.system.currentTick}]`);
 }
 
 async function blockUpdateIterationObject(location,dimension,callback) {
@@ -222,7 +277,7 @@ async function blockUpdateIterationObject(location,dimension,callback) {
                         const adjecentBlockId = `${adjecentBlock.location.x},${adjecentBlock.location.y},${adjecentBlock.location.z}`;
                         newBlockUpdates[adjecentBlockId] = adjecentBlock;
                     }
-                    callback(blockBefore,blockAfter,system.currentTick);
+                    callback(blockBefore,blockAfter,Mc.system.currentTick);
                 }
             }
             return newBlockUpdates;
@@ -232,7 +287,7 @@ async function blockUpdateIterationObject(location,dimension,callback) {
 
 async function waitForNextTick(callback) {
     return new Promise((resolve,reject) => {
-        system.runTimeout(() => {
+        Mc.system.runTimeout(() => {
             try {
                 resolve(callback());
             } catch (error) {
@@ -247,7 +302,7 @@ function isEmptyObject(object) {
     return true;
 }
 
-function generateBlockArea(coord,steps = 10,callback = null) {
+export function generateBlockArea(coord,steps = 10,callback = null) {
     const coords = [];
     const vectorDefinitions = {};
     //Tertiary vectors are sent at the beginning from the starting coordinate and also from the secondary and primary vectors. Those cover the whole Y axis.
@@ -302,16 +357,16 @@ function generateBlockArea(coord,steps = 10,callback = null) {
     for (let step = 0;step <= steps;step++) {
         const lastLength = sentVectors.length;
         if (step === 0) {
-            const location = copyVector(coord);
+            const location = VectorMath.copy(coord);
             for (let index = 0;index < vectorDefinitions.primary.length;index++) {
                 sentVectors.push({
-                    location: copyVector(location),
+                    location: VectorMath.copy(location),
                     definition: vectorDefinitions.primary[index]
                 });
             }
             for (let index = 0;index < vectorDefinitions.tertiary.length;index++) {
                 sentVectors.push({
-                    location: copyVector(location),
+                    location: VectorMath.copy(location),
                     definition: vectorDefinitions.tertiary[index]
                 });
             }
@@ -319,13 +374,13 @@ function generateBlockArea(coord,steps = 10,callback = null) {
         }
         for (let index = 0;index < lastLength;index++) {
             const vector = sentVectors[index];
-            const location = sumVectors(vector.location,vector.definition.vector);
-            vector.location = copyVector(location);
+            const location = VectorMath.sum(vector.location,vector.definition.vector);
+            vector.location = VectorMath.copy(location);
             callback(location);
             if (vector.definition.sends) {
                 for (let sendIndex = 0;sendIndex < vector.definition.sends.length;sendIndex++) {
                     sentVectors.push({
-                        location: copyVector(location),
+                        location: VectorMath.copy(location),
                         definition: vector.definition.sends[sendIndex]
                     });
                 }
@@ -334,5 +389,3 @@ function generateBlockArea(coord,steps = 10,callback = null) {
     }
     return coords;
 }
-
-export {compareBlocks, compareBlockLocations, setPermutationFromObject, copyBlock, getPermutations, getAdjecentBlocks, getAdjecentBlockCopies, blockUpdateIteration, generateBlockArea}

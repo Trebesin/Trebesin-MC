@@ -8,7 +8,7 @@ import { DB, Server } from '../backend/backend';
 import { getEntityById } from '../../mc_modules/entities';
 import { sumVectors, copyVector, subVectors, floorVector, compareVectors } from '../../js_modules/vector';
 import { containsArray, filter, insertToArray, deleteFromArray } from '../../js_modules/array';
-import { copyBlock, compareBlocks, getPermutations, blockUpdateIteration } from '../../mc_modules/blocks';
+import { copyBlock, compareBlocks, blockUpdateIteration } from '../../mc_modules/blocks';
 import { DIMENSION_IDS , FACE_DIRECTIONS } from '../../mc_modules/constants';
 import { getEquipedItem, sendMessage } from '../../mc_modules/players';
 
@@ -272,6 +272,13 @@ export function saveBlockUpdate(blockBefore,blockAfter,actorId,blockPlaceType = 
     }
 }
 
+/**
+ * @typedef BlockHistoryEntry
+ * @prop {string} actorId ID of the player or entity that will be defined as the cause.
+ * @prop {string} blockPlaceType Type of the block place.
+ * @prop {number} blockPlaceId ID for the block place.
+ */
+
 //## Exported Functions:
 /**
  * Custom set block type function, does the same as `Block.setType()` method but also records the update to the block hisory database.
@@ -294,6 +301,20 @@ export function setBlockType(block,blockType,actorId) {
  */
 export function setBlockPermutation(block,permutation,actorId) {
     const blockBefore = copyBlock(block);
+    block.setPermutation(permutation);
+    const blockAfter = copyBlock(block);
+    saveBlockUpdate(blockBefore,blockAfter,actorId);
+}
+
+/**
+ * Custom set block permutation function, does the same as `Block.setpermutation()` method but also records the update to the block hisory database.
+ * @param {Block} block `Block` class object to invoke `setpermutation()` method on.
+ * @param {BlockPermutation} permutation `permutation` parameter of the `setpermutation()` method.
+ * @param {string} actorId ID that is used to identify the cause of the block update saved to the database, usually an entity ID.
+ */
+export function editBlock(block,permutation,actorId) {
+    const blockBefore = copyBlock(block);
+    a
     block.setPermutation(permutation);
     const blockAfter = copyBlock(block);
     saveBlockUpdate(blockBefore,blockAfter,actorId);
