@@ -161,7 +161,7 @@ export function copyBlockComponents(block) {
         }
     }
 
-    return blockComponents
+    return blockComponents;
 
     //!These components do not have getter functions:
     //const lavaContainer = block.getComponent('lavaContainer');

@@ -65,23 +65,43 @@ export function sub(vectorA,vectorB) {
 }
 
 /**
- * Multiply vector.
+ * Scalar vector multiplication.
  * @param {Vector3} vector Vector to multiply.
- * @param {number} amount Multiplication.
- * @returns {Vector3} Result of the vector multiplication.
+ * @param {number} amount Scalar multiplicator.
+ * @returns {Vector3} Result of the scalar multiplication.
  */
 export function multiply(vector,amount) {
     return {x:vector.x*amount,y:vector.y*amount,z:vector.z*amount};
 }
 
 /**
- * Divide vector.
+ * Scalar vector division.
  * @param {Vector3} vector Vector to divide.
- * @param {number} amount Division.
- * @returns {Vector3} Result of the vector division.
+ * @param {number} amount Scalar divider.
+ * @returns {Vector3} Result of the scalar division.
  */
 export function divide(vector,amount) {
     return {x:vector.x/amount,y:vector.y/amount,z:vector.z/amount};
+}
+
+/**
+ * Vector multiplication.
+ * @param {Vector3} vectorA Vector to multiply.
+ * @param {Vector3} vectorB vector multiplicator.
+ * @returns {Vector3} Result of the vector multiplication.
+ */
+export function vectorMultiply(vectorA,vectorB) {
+    return {x:vectorA.x*vectorB.x,y:vectorA.y*vectorB.y,z:vectorA.z*vectorB.z};
+}
+
+/**
+ * Vector division.
+ * @param {Vector3} vector Vector to divide.
+ * @param {Vector3} vectorB Vector divider.
+ * @returns {Vector3} Result of the vector division.
+ */
+export function vectorDivide(vectorA,vectorB) {
+    return {x:vectorA.x/vectorB.x,y:vectorA.y/vectorB.y,z:vectorA.z/vectorB.z};
 }
 
 /**

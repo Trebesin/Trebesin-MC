@@ -226,15 +226,19 @@ export function copySelection(player) {
     /** @type {CornerSelection} */
     const selection = session.selections[session.selectionType];
     const dimension = selection.getDimension();
+    const clipboard = {
+        data: [],
+        bounds: selection.getBounds()
+    };
 
-    const clipboardData = [];
     selection.getAllBlocks((blockLocation) => {
-        clipboardData.push({
+        clipboard.data.push({
             coordinates: subVectors(blockLocation,selection.minCoordinates),
             blockState: copyBlockState(dimension.getBlock(blockLocation))
         });
     });
-    session.clipboard = clipboardData;
+
+    session.clipboard = clipboard;
 }
 
 /**
@@ -251,10 +255,10 @@ export function pasteSelection(player) {
 
     const baseLocation = VectorMath.copy(session.pointerBlockLocation);
 
-    for (let clipboardIndex = 0;clipboardIndex < session.clipboard.length;clipboardIndex++) {
-        const clipboardItem = session.clipboard[clipboardIndex];
-        const block = dimension.getBlock(VectorMath.sum(baseLocation,clipboardItem.coordinates));
-        editBlock(block,clipboardItem.blockState,{actorId:player.id,updateType:'blockyTools: player'});
+    for (let clipboardIndex = 0;clipboardIndex < session.clipboard.data.length;clipboardIndex++) {
+        const clipboardBlock = session.clipboard.data[clipboardIndex];
+        const block = dimension.getBlock(VectorMath.sum(baseLocation,clipboardBlock.coordinates));
+        editBlock(block,clipboardBlock.blockState,{actorId:player.id,updateType:'blockyTools: player'});
     }
 }
 

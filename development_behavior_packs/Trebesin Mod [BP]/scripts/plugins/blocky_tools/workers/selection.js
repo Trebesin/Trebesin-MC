@@ -44,6 +44,7 @@ class BaseSelection {
             z: null
         };
     }
+
     /**
      * Returns the player associated with the selection.
      * @returns {Player}
@@ -65,13 +66,27 @@ class BaseSelection {
     isEmpty() {
         return this.#empty;
     }
+    /**
+     * Returns bounding information for the selection area.
+     * @returns {SelectionBounds}
+     */
+    getBounds() {
+        return {
+            min: VectorMath.copy(this.minCoordinates),
+            max: VectorMath.copy(this.maxCoordinates),
+            center: VectorMath.copy(this.centerCoordinates)
+        }
+    }    
 
     updateCenter() {
         this.centerCoordinates = VectorMath.divide(VectorMath.sum(this.minCoordinates,this.maxCoordinates),2);
     }
 
+    /** @protected */
     maxCoordinates
+    /** @protected */
     minCoordinates
+    /** @protected */
     centerCoordinates
     
     #empty
@@ -274,3 +289,12 @@ class ExtendedSelection {
     #links = []
     #bounds = []
 }
+
+//# Types / Constants
+
+/**
+ * @typedef SelectionBounds
+ * @property {Vector3} max Maximal coordinate value for each axis the selection area spans.
+ * @property {Vector3} min Minimal coordinate value for each axis the selection area spans.
+ * @property {Vector3} center Average coordinate value for each axis the selection area spans.
+ */
