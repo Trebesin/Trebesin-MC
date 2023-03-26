@@ -100,7 +100,7 @@ export function main(){
     ],
     run(sender, parameters) {
       logMessage(JSON.stringify(parameters.blockType));
-      setBlockType(sender.dimension.getBlock(sender.location),parameters.blockType,sender.id);
+      setBlockType(sender.dimension.getBlock(sender.location),parameters.blockType,{actorId:player.id,placeType:'blockyTools: player'});
     }
   });
 
@@ -120,7 +120,7 @@ export function main(){
       for (const state in allStates) {
         logMessage(`${state} = ${allStates[state]}`);
       }
-      setBlockPermutation(sender.dimension.getBlock(sender.location),permutation,sender.id);
+      setBlockPermutation(sender.dimension.getBlock(sender.location),permutation,{actorId:player.id,placeType:'blockyTools: player'});
     }
   })
 

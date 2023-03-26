@@ -51,7 +51,7 @@ export function deleteFromArray(array, index) {
 }
 
 /**
- * @description Creates an object from an array. Values are each corresponding items of the array and keys are the return values of the callback.
+ * Creates an object from an array. Values are each corresponding items of the array and keys are the return values of the callback.
  * @param {any[]} array - Array to convert into an object.
  * @param {callback} value - Callback that gets passed `value`,`index` and `array`. Its return value is the key inside of the new object.
  * @returns {object} New generated object.

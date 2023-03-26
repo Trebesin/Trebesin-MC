@@ -8,6 +8,8 @@ import { getEquipedItem, sendMessage } from '../../../mc_modules/players';
 import { CornerSelection } from './selection';
 import { logMessage } from '../../debug/debug';
 import { setBlockPermutation, setBlockType } from '../../block_history/block_history';
+import { copyBlockState } from '../../../mc_modules/blocks';
+import * as VectorMath from '../../../js_modules/vectorMath';
 //Modules:
 
 
@@ -162,7 +164,7 @@ export function fillSelectionCorners(player,blockType) {
     const selection = session.selections[session.selectionType];
     for (const blockLocation of selection.getAllCorners()) {
         sendMessage(`§mX:${blockLocation.x} §qY:${blockLocation.y} §tZ:${blockLocation.z}`,'§2BT§r',player);
-        setBlockType(player.dimension.getBlock(blockLocation),blockType);
+        setBlockType(player.dimension.getBlock(blockLocation),blockType,{actorId:player.id,placeType:'blockyTools: player'});
     }
 }
 
@@ -174,7 +176,7 @@ export function fillSelection(player,blockType) {
     const selection = session.selections[session.selectionType];
 
     selection.getAllBlocks((blockLocation) => {
-        setBlockType(player.dimension.getBlock(blockLocation),blockType);
+        setBlockType(player.dimension.getBlock(blockLocation),blockType,{actorId:player.id,placeType:'blockyTools: player'});
     });
 }
 
@@ -208,9 +210,50 @@ export function fillReplaceSelection(player,fillPermutation,replacePermutations,
         ) != null;
         if (
             (exclusion && !blockMatch) || (!exclusion && blockMatch)
-        ) setBlockPermutation(block,fillPermutation.permutation,player.id);
+        ) setBlockPermutation(block,fillPermutation.permutation,{actorId:player.id,placeType:'blockyTools: player'});
 
     });
+}
+
+/**
+ * 
+ * @param {Mc.Player} player
+ */
+export function copySelection(player) {
+    let session = SessionStore[player.id];
+    if (session == null) session = initializeSession(player);
+
+    /** @type {CornerSelection} */
+    const selection = session.selections[session.selectionType];
+    const dimension = selection.getDimension();
+
+    const clipboardData = [];
+    selection.getAllBlocks((blockLocation) => {
+        clipboardData.push({
+            coordinates: subVectors(blockLocation,selection.minCoordinates),
+            blockState: copyBlockState(dimension.getBlock(blockLocation))
+        });
+    });
+    session.clipboard = clipboardData;
+}
+
+/**
+ * 
+ * @param {Mc.Player} player
+ */
+export function pasteSelection(player) {
+    let session = SessionStore[player.id];
+    if (session == null) session = initializeSession(player);
+
+    /** @type {CornerSelection} */
+    const selection = session.selections[session.selectionType];
+    const dimension = selection.getDimension();
+
+    const baseLocation = VectorMath.copy(session.pointerBlockLocation);
+
+    for (let clipboardIndex = 0;clipboardIndex < session.clipboard.length;clipboardIndex++) {
+        
+    }
 }
 
 export function getSelectionMinMax(player) {

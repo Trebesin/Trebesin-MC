@@ -938,7 +938,11 @@ async function reverseBlocks(blocks, sender) {
         const permutationsBefore = BlockPermutation.resolve(blocks[i].before_id, JSON.parse(blocks[i].before_permutations))
         block.setType(MinecraftBlockTypes.get(blocks[i].before_id));
         block.setPermutation(permutationsBefore);
-        BlockHistoryPlugin.saveBlockUpdate(blockOld,copyBlock(block),playerId, "blockHistory: reverse", callID);
+        BlockHistoryPlugin.saveBlockUpdate(blockOld,copyBlock(block),{
+            actorId: playerId,
+            placeType: "blockHistory: reverse",
+            placeId: callID
+        });
     }
     sendMessage(`succesfully reversed blocks - callID: ${callID}`, "BlockHistory: reverse",sender)
 }

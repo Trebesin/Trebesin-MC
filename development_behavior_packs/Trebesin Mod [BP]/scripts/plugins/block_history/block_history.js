@@ -8,7 +8,7 @@ import { DB, Server } from '../backend/backend';
 import { getEntityById } from '../../mc_modules/entities';
 import { sumVectors, copyVector, subVectors, floorVector, compareVectors } from '../../js_modules/vector';
 import { containsArray, filter, insertToArray, deleteFromArray } from '../../js_modules/array';
-import { copyBlock, compareBlocks, blockUpdateIteration } from '../../mc_modules/blocks';
+import { copyBlock, compareBlocks, blockUpdateIteration, applyBlockState } from '../../mc_modules/blocks';
 import { DIMENSION_IDS , FACE_DIRECTIONS } from '../../mc_modules/constants';
 import { getEquipedItem, sendMessage } from '../../mc_modules/players';
 
@@ -141,7 +141,7 @@ export async function main() {
             }
         }
         else{*/
-            saveBlockUpdate(blockOld,copyBlock(eventData.block),playerId);
+            saveBlockUpdate(blockOld,copyBlock(eventData.block),{actorId:playerId});
         //}
 
         //Updated Blocks:
@@ -190,8 +190,8 @@ export async function main() {
 
         //Those Blocks:
         system.runTimeout(async () => {
-            saveBlockUpdate(faceBlockOld,copyBlock(faceBlock),player.id);
-            saveBlockUpdate(blockOld,copyBlock(block),player.id);
+            saveBlockUpdate(faceBlockOld,copyBlock(faceBlock),{actorId:player.id});
+            saveBlockUpdate(blockOld,copyBlock(block),{actorId:player.id});
             //Falling Blocks
             system.runTimeout(() => {
                 const fallObject = fallingBlocksTracked.find((block) => compareVectors(faceBlock.location,block.location.start));
@@ -241,21 +241,21 @@ function loadWorkers() {
  * Function for saving block updates into the Block History memory database.
  * @param {object} blockBefore **Copy** of the `Block` class object saved as the block before the update.
  * @param {object} blockAfter **Copy** of the `Block` class object saved as the block after the update.
- * @param {object} actorId ID that is used to identify the cause of the block update, usually an entity ID.
+ * @param {BlockHistoryOptions} blockHistoryEntry Information regarding the block history database entry for the block update.
  * @returns {number} Returns a number indicating change to the memory database.
  */
-export function saveBlockUpdate(blockBefore,blockAfter,actorId,blockPlaceType = "playerPlace",blockPlaceID = null) {
-    if (blockUpdates[actorId] == null) blockUpdates[actorId] = [];
+export function saveBlockUpdate(blockBefore,blockAfter,blockHistoryEntry) {
+    if (blockUpdates[blockHistoryEntry.actorId] == null) blockUpdates[blockHistoryEntry.actorId] = [];
     const updateRecord = {
         before: blockBefore,
         after: blockAfter,
         tick: system.currentTick,
-        blockPlaceType: blockPlaceType,
-        blockPlaceID: blockPlaceID
+        blockPlaceType: blockHistoryEntry.placeType ?? "playerPlace",
+        blockPlaceID: blockHistoryEntry.placeId
     };
     if (compareBlocks(updateRecord.before,updateRecord.after)) return 0;
     
-    const records = blockUpdates[actorId]
+    const records = blockUpdates[blockHistoryEntry.actorId]
     const lastRecord = records[records.length - 1];
     if (
         lastRecord &&
@@ -273,10 +273,10 @@ export function saveBlockUpdate(blockBefore,blockAfter,actorId,blockPlaceType = 
 }
 
 /**
- * @typedef BlockHistoryEntry
+ * @typedef BlockHistoryOptions
  * @prop {string} actorId ID of the player or entity that will be defined as the cause.
- * @prop {string} blockPlaceType Type of the block place.
- * @prop {number} blockPlaceId ID for the block place.
+ * @prop {string} placeType Type of the block place.
+ * @prop {number} placeId ID for the block place.
  */
 
 //## Exported Functions:
@@ -284,40 +284,39 @@ export function saveBlockUpdate(blockBefore,blockAfter,actorId,blockPlaceType = 
  * Custom set block type function, does the same as `Block.setType()` method but also records the update to the block hisory database.
  * @param {Block} block `Block` class object to invoke `setType()` method on.
  * @param {BlockType} blockType `blockType` parameter of the `setType()` method.
- * @param {string} actorId ID that is used to identify the cause of the block update saved to the database, usually an entity ID.
+ * @param {BlockHistoryOptions} blockHistoryEntry Information used to store the entry in the database.
  */
-export function setBlockType(block,blockType,actorId) {
+export function setBlockType(block,blockType,blockHistoryEntry) {
     const blockBefore = copyBlock(block);
     block.setType(blockType);
     const blockAfter = copyBlock(block);
-    saveBlockUpdate(blockBefore,blockAfter,actorId);
+    saveBlockUpdate(blockBefore,blockAfter,blockHistoryEntry);
 }
 
 /**
  * Custom set block permutation function, does the same as `Block.setpermutation()` method but also records the update to the block hisory database.
  * @param {Block} block `Block` class object to invoke `setpermutation()` method on.
  * @param {BlockPermutation} permutation `permutation` parameter of the `setpermutation()` method.
- * @param {string} actorId ID that is used to identify the cause of the block update saved to the database, usually an entity ID.
+ * @param {BlockHistoryOptions} blockHistoryEntry Information used to store the entry in the database.
  */
-export function setBlockPermutation(block,permutation,actorId) {
+export function setBlockPermutation(block,permutation,blockHistoryEntry) {
     const blockBefore = copyBlock(block);
     block.setPermutation(permutation);
     const blockAfter = copyBlock(block);
-    saveBlockUpdate(blockBefore,blockAfter,actorId);
+    saveBlockUpdate(blockBefore,blockAfter,blockHistoryEntry);
 }
 
 /**
- * Custom set block permutation function, does the same as `Block.setpermutation()` method but also records the update to the block hisory database.
+ * Updates the block state and records the update to the block hisory database.
  * @param {Block} block `Block` class object to invoke `setpermutation()` method on.
- * @param {BlockPermutation} permutation `permutation` parameter of the `setpermutation()` method.
- * @param {string} actorId ID that is used to identify the cause of the block update saved to the database, usually an entity ID.
+ * @param {import('../../mc_modules/blocks').BlockState} blockState Block state to apply.
+ * @param {BlockHistoryOptions} blockHistoryEntry Information used to store the entry in the database.
  */
-export function editBlock(block,permutation,actorId) {
+export function editBlock(block,blockState,blockHistoryEntry) {
     const blockBefore = copyBlock(block);
-    a
-    block.setPermutation(permutation);
+    applyBlockState(block,blockState)
     const blockAfter = copyBlock(block);
-    saveBlockUpdate(blockBefore,blockAfter,actorId);
+    saveBlockUpdate(blockBefore,blockAfter,blockHistoryEntry);
 }
 
 

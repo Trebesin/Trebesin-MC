@@ -254,7 +254,7 @@ export async function main() {
 					setBlockType(
 						sender.dimension.getBlock(block),
 						Mc.MinecraftBlockTypes.get(parameters.blockId),
-						sender.id
+						{actorId:sender.id}
 					);
 				}
 				sendMessage('Successfully generated the thing!', 'CMD', sender);

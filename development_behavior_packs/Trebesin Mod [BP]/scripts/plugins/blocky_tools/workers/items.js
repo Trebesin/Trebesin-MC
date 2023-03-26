@@ -6,7 +6,7 @@ import { Server } from '../../backend/backend';
 //Modules:
 import {mapArray,insertToArray} from '../../../js_modules/array';
 import * as FormUi from '../../../mc_modules/ui';
-import {setBlockPermutation,setBlockType} from '../../block_history/block_history';
+import {setBlockPermutation} from '../../block_history/block_history';
 import { spawnBlockSelection, spawnLine } from '../../../mc_modules/particles';
 import { getAbsoluteChunkCoord, getOriginChunkCoord} from '../../../mc_modules/chunk';
 
@@ -73,7 +73,7 @@ export function main() {
                 }
             }
             const updatedPermutations = BlockPermutation.resolve(block.typeId, propertyRecord);
-            setBlockPermutation(block,updatedPermutations,player.id);
+            setBlockPermutation(block,updatedPermutations,{actorId:player.id,placeType:'blockyTools: player'});
         }
     });
 

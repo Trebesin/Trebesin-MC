@@ -88,7 +88,7 @@ export function copyBlock(block) {
 /**
  * Function to copy `Block` class objects with data that only generally define its state.
  * @param {Mc.Block} block Block to copy.
- * @returns {object} Object containing copies of selected properties of the block.
+ * @returns {BlockState} Object containing copies of selected properties of the block.
  */
 export function copyBlockState(block) {
     return {
@@ -102,7 +102,7 @@ export function copyBlockState(block) {
 /**
  * Function to apply block state data to an existing block.
  * @param {Mc.Block} block Block to apply the state onto.
- * @param {object} blockState Block state data to apply.
+ * @param {BlockState} blockState Block state data to apply.
  * @returns {undefined}
  */
 export function applyBlockState(block,blockState) {
@@ -298,7 +298,7 @@ async function waitForNextTick(callback) {
 }
 
 function isEmptyObject(object) {
-    for (const property in object) return false;
+    for (const _ in object) return false;
     return true;
 }
 
