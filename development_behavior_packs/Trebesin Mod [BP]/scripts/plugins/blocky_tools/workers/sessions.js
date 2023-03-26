@@ -7,7 +7,7 @@ import { getEquipedItem, sendMessage } from '../../../mc_modules/players';
 //Plugins:
 import { CornerSelection } from './selection';
 import { logMessage } from '../../debug/debug';
-import { setBlockPermutation, setBlockType } from '../../block_history/block_history';
+import { editBlock, setBlockPermutation, setBlockType } from '../../block_history/block_history';
 import { copyBlockState } from '../../../mc_modules/blocks';
 import * as VectorMath from '../../../js_modules/vectorMath';
 //Modules:
@@ -164,7 +164,7 @@ export function fillSelectionCorners(player,blockType) {
     const selection = session.selections[session.selectionType];
     for (const blockLocation of selection.getAllCorners()) {
         sendMessage(`§mX:${blockLocation.x} §qY:${blockLocation.y} §tZ:${blockLocation.z}`,'§2BT§r',player);
-        setBlockType(player.dimension.getBlock(blockLocation),blockType,{actorId:player.id,placeType:'blockyTools: player'});
+        setBlockType(player.dimension.getBlock(blockLocation),blockType,{actorId:player.id,updateType:'blockyTools: player'});
     }
 }
 
@@ -176,7 +176,7 @@ export function fillSelection(player,blockType) {
     const selection = session.selections[session.selectionType];
 
     selection.getAllBlocks((blockLocation) => {
-        setBlockType(player.dimension.getBlock(blockLocation),blockType,{actorId:player.id,placeType:'blockyTools: player'});
+        setBlockType(player.dimension.getBlock(blockLocation),blockType,{actorId:player.id,updateType:'blockyTools: player'});
     });
 }
 
@@ -210,7 +210,7 @@ export function fillReplaceSelection(player,fillPermutation,replacePermutations,
         ) != null;
         if (
             (exclusion && !blockMatch) || (!exclusion && blockMatch)
-        ) setBlockPermutation(block,fillPermutation.permutation,{actorId:player.id,placeType:'blockyTools: player'});
+        ) setBlockPermutation(block,fillPermutation.permutation,{actorId:player.id,updateType:'blockyTools: player'});
 
     });
 }
@@ -252,7 +252,9 @@ export function pasteSelection(player) {
     const baseLocation = VectorMath.copy(session.pointerBlockLocation);
 
     for (let clipboardIndex = 0;clipboardIndex < session.clipboard.length;clipboardIndex++) {
-        
+        const clipboardItem = session.clipboard[clipboardIndex];
+        const block = dimension.getBlock(VectorMath.sum(baseLocation,clipboardItem.coordinates));
+        editBlock(block,clipboardItem.blockState,{});
     }
 }
 
@@ -366,7 +368,7 @@ class Session {
     selections = [];
 }
 
-//# Additional Constants
+//# Types / Constants
 /**
  * Enum for the messages defining state of a tool.
  * @readonly

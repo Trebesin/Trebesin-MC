@@ -250,8 +250,8 @@ export function saveBlockUpdate(blockBefore,blockAfter,blockHistoryEntry) {
         before: blockBefore,
         after: blockAfter,
         tick: system.currentTick,
-        blockPlaceType: blockHistoryEntry.placeType ?? "playerPlace",
-        blockPlaceID: blockHistoryEntry.placeId
+        blockPlaceType: blockHistoryEntry.updateType ?? "playerPlace",
+        blockPlaceID: blockHistoryEntry.updateId
     };
     if (compareBlocks(updateRecord.before,updateRecord.after)) return 0;
     
@@ -272,14 +272,7 @@ export function saveBlockUpdate(blockBefore,blockAfter,blockHistoryEntry) {
     }
 }
 
-/**
- * @typedef BlockHistoryOptions
- * @prop {string} actorId ID of the player or entity that will be defined as the cause.
- * @prop {string} placeType Type of the block place.
- * @prop {number} placeId ID for the block place.
- */
-
-//## Exported Functions:
+//# Exported Functions:
 /**
  * Custom set block type function, does the same as `Block.setType()` method but also records the update to the block hisory database.
  * @param {Block} block `Block` class object to invoke `setType()` method on.
@@ -319,4 +312,33 @@ export function editBlock(block,blockState,blockHistoryEntry) {
     saveBlockUpdate(blockBefore,blockAfter,blockHistoryEntry);
 }
 
+//# Types / Constants
+/**
+ * @typedef BlockHistoryOptions
+ * @prop {string} actorId ID of the player or entity that will be defined as the cause.
+ * @prop {string} updateType Type of the block update.
+ * @prop {number} updateId ID for the block update.
+ */
+
+/**
+ * Object with defining IDs for `BlockHistoryOptions` `updateType` entries.
+ */
+export const BlockHistoryUpdateTypes = {
+    /** Block updated by a player in a usual vanilla MC interaction. */
+    playerUpdate: 0,
+    /** Block updated by a player using block history plugin reverse feature. */
+    blockHistoryReverse: 1,
+    /** Block updated by a player using blocky tools plugin. */
+    blockyTools: 2,
+    /** Block updated by the system for a technical reason in an automated fashion. */
+    system: 3
+
+};
+
+export const BlockHistoryUpdateTypeNames = [
+    'Player Update',
+    'Block History: Reverse',
+    'Blocky Tools: Player',
+    'System'
+];
 

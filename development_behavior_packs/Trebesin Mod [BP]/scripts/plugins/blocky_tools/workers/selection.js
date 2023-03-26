@@ -7,7 +7,14 @@ import { getGridBlock } from '../../../js_modules/geometry';
 import { insertToArray } from '../../../js_modules/array';
 import { logMessage } from '../../debug/debug';
 import { copyVector } from '../../../js_modules/vector';
- 
+
+/**
+ * @typedef Vector3
+ * @property {number} x Value of the vector on the X axis.
+ * @property {number} y Value of the vector on the Y axis.
+ * @property {number} z Value of the vector on the Z axis.
+ */
+
 /**
  * A selection class that the blocky tools plugin works with.
  */

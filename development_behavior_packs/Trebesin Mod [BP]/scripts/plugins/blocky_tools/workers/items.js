@@ -73,7 +73,7 @@ export function main() {
                 }
             }
             const updatedPermutations = BlockPermutation.resolve(block.typeId, propertyRecord);
-            setBlockPermutation(block,updatedPermutations,{actorId:player.id,placeType:'blockyTools: player'});
+            setBlockPermutation(block,updatedPermutations,{actorId:player.id,updateType:'blockyTools: player'});
         }
     });
 

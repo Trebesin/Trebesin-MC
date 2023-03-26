@@ -940,8 +940,8 @@ async function reverseBlocks(blocks, sender) {
         block.setPermutation(permutationsBefore);
         BlockHistoryPlugin.saveBlockUpdate(blockOld,copyBlock(block),{
             actorId: playerId,
-            placeType: "blockHistory: reverse",
-            placeId: callID
+            updateType: "blockHistory: reverse",
+            updateId: callID
         });
     }
     sendMessage(`succesfully reversed blocks - callID: ${callID}`, "BlockHistory: reverse",sender)
