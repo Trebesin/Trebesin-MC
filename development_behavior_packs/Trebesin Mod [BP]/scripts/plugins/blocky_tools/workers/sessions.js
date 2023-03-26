@@ -254,7 +254,7 @@ export function pasteSelection(player) {
     for (let clipboardIndex = 0;clipboardIndex < session.clipboard.length;clipboardIndex++) {
         const clipboardItem = session.clipboard[clipboardIndex];
         const block = dimension.getBlock(VectorMath.sum(baseLocation,clipboardItem.coordinates));
-        editBlock(block,clipboardItem.blockState,{});
+        editBlock(block,clipboardItem.blockState,{actorId:player.id,updateType:'blockyTools: player'});
     }
 }
 

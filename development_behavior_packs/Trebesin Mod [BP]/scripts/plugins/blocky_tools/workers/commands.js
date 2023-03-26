@@ -130,6 +130,20 @@ export async function main() {
 		}
 	});
 
+	Commands.registerCommand('paste',{
+		parameters: [],
+		run(sender) {
+			Sessions.pasteSelection(sender);
+		}
+	});
+
+	Commands.registerCommand('copy',{
+		parameters: [],
+		run(sender) {
+			Sessions.copySelection(sender);
+		}
+	});
+
 	Commands.registerCommand('selection', {
 		description: '',
 		parameters: [
