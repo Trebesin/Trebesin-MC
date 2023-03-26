@@ -268,8 +268,10 @@ export function getSelectionMinMax(player) {
 
     /** @type {CornerSelection} */
     const selection = session.selections[session.selectionType];
-    sendMessage(`MAX: §mX:${selection.maxCoordinates.x} §qY:${selection.maxCoordinates.y} §tZ:${selection.maxCoordinates.z}`,'§2BT§r',player);
-    sendMessage(`MIN: §mX:${selection.minCoordinates.x} §qY:${selection.minCoordinates.y} §tZ:${selection.minCoordinates.z}`,'§2BT§r',player);
+    const bounds = selection.getBounds()
+    sendMessage(`MAX: §mX:${bounds.max.x} §qY:${bounds.max.y} §tZ:${bounds.max.z}`,'§2BT§r',player);
+    sendMessage(`CENTER: §mX:${bounds.center.x} §qY:${bounds.center.y} §tZ:${bounds.center.z}`,'§2BT§r',player);
+    sendMessage(`MIN: §mX:${bounds.min.x} §qY:${bounds.min.y} §tZ:${bounds.min.z}`,'§2BT§r',player);
 }
 
 export function insideSelection(player) {
