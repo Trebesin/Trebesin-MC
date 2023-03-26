@@ -1,5 +1,5 @@
 //Base imports
-import { world, MolangVariableMap, MinecraftBlockTypes, system, Vector, Dimension, Player } from '@minecraft/server';
+import * as Mc from '@minecraft/server';
 //MC Modules
 import { spawnBlockSelection, spawnBox, spawnLineBox } from '../../../mc_modules/particles';
 //JS Modules
@@ -23,8 +23,8 @@ import { editBlock } from '../../block_history/block_history';
 class BaseSelection {
     /**
      * 
-     * @param {Player} player The player associated with the slection.
-     * @param {Dimension} dimension The dimension the selection is contained within.
+     * @param {Mc.Player} player The player associated with the slection.
+     * @param {Mc.Dimension} dimension The dimension the selection is contained within.
      */
     constructor(player, dimension) {
         this.#player = player;
@@ -49,14 +49,14 @@ class BaseSelection {
 
     /**
      * Returns the player associated with the selection.
-     * @returns {Player}
+     * @returns {Mc.Player}
      */
     getPlayer() {
         return this.#player;
     }
     /**
      * Returns the dimension the selection is contained within.
-     * @returns {Dimension}
+     * @returns {Mc.Dimension}
      */
     getDimension() {
         return this.#dimension;
@@ -78,7 +78,19 @@ class BaseSelection {
             max: VectorMath.copy(this.maxCoordinates),
             center: VectorMath.copy(this.centerCoordinates)
         }
-    }    
+    }
+
+    universalGetAllBlocks(callback) {
+        const bounds = this.getBounds();
+        for (let x = bounds.min.x;x <= bounds.max.x;x++) {
+            for (let y = bounds.min.y;y <= bounds.max.y;y++) {
+                for (let z = bounds.min.z;z <= bounds.max.z;z++) {
+                    const coordinates = {x,y,z};
+                    if (this.includes(coordinates)) callback(coordinates);
+                }
+            }
+        }
+    }
 
     updateCenter() {
         this.centerCoordinates = VectorMath.divide(VectorMath.sum(this.minCoordinates,this.maxCoordinates),2);
@@ -130,11 +142,11 @@ export class CornerSelection extends BaseSelection {
     /**
      * Sets corner of the selection.
      * @param {number} index Index of the corner 0 or 1.
-     * @param {Vector3} [coord] Coordinate of the selection corner. If omitted resets the coord to null.
+     * @param {Vector3} [coord] Coordinates of the selection corner. If omitted resets the coord to null.
      */
-    setCorner(index,coord = null) {
+    setCorner(index,coords = null) {
         if (index !== 1 && index !== 0) throw new Error('Invalid Index');
-        this.#corners[index] = coord;
+        this.#corners[index] = coords;
         this.updateMinMax();
     }
     /**
@@ -168,18 +180,18 @@ export class CornerSelection extends BaseSelection {
         return allCorners;
     }
     /**
-     * Returns if a block coordinate is contained within the selection area.
-     * @param {Vector3} coordinate 
+     * Returns if a block coordinates are contained within the selection area.
+     * @param {Vector3} coordinates
      * @returns {boolean}
      */
-    includes(coord) {
+    includes(coordinates) {
         const max = this.maxCoordinates;
         const min = this.minCoordinates;
 
         return !(
-            coord.x < min.x || coord.x > max.x ||
-            coord.y < min.y || coord.y > max.y ||
-            coord.z < min.z || coord.z > max.z
+            coordinates.x < min.x || coordinates.x > max.x ||
+            coordinates.y < min.y || coordinates.y > max.y ||
+            coordinates.z < min.z || coordinates.z > max.z
         )
     }
 
@@ -230,9 +242,9 @@ export class CornerSelection extends BaseSelection {
         const corners = this.getSelectionCorners();
         if (corners[0] == null || corners[1] == null) return;
 
-        const molangVariables = new MolangVariableMap();
+        const molangVariables = new Mc.MolangVariableMap();
         molangVariables.setColorRGBA(`variable.color`,{red:0,green:0,blue:1,alpha:0.85});
-        molangVariables.setSpeedAndDirection(`variable.time`,0.051,new Vector(0,0,0));
+        molangVariables.setSpeedAndDirection(`variable.time`,0.051,new Mc.Vector(0,0,0));
         spawnLineBox('trebesin:line_flex2',corners,this.getDimension(),molangVariables);
     }
 
@@ -240,9 +252,9 @@ export class CornerSelection extends BaseSelection {
      * Creates particles for the functional blocks of the selection in the world.
      */
     createParticleBlocks(color = null,duration = null) {
-        const molangVariables = new MolangVariableMap();
+        const molangVariables = new Mc.MolangVariableMap();
         molangVariables.setColorRGBA('variable.color',{red:0,green:1,blue:0,alpha:1});
-        molangVariables.setSpeedAndDirection(`variable.time`,0.051,new Vector(0,0,0));
+        molangVariables.setSpeedAndDirection(`variable.time`,0.051,new Mc.Vector(0,0,0));
         for (const cornerCoordinate of this.getSelectionCorners()) {
             if (cornerCoordinate == null) continue;
             spawnBox('trebesin:plane_box_',cornerCoordinate,this.getDimension(),molangVariables,0.005);
@@ -301,7 +313,7 @@ class ExtendedSelection {
     }
  
     fillBounds(blockId,options = {stepBy:1,hollow:true,width:1}) {
-        const block = MinecraftBlockTypes.get(blockId);
+        const block = Mc.MinecraftBlockTypes.get(blockId);
         const dimension = this.dimension;
         getGridBlock(this.#bounds,options,(coord) => {
             const location = new BlockLocation(coord.x,coord.y,coord.z);
