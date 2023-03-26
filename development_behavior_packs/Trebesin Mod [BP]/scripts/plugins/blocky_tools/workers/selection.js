@@ -7,6 +7,8 @@ import { getGridBlock } from '../../../js_modules/geometry';
 import { insertToArray } from '../../../js_modules/array';
 import { logMessage } from '../../debug/debug';
 import * as VectorMath from '../../../js_modules/vectorMath';
+import { copyBlockState } from '../../../mc_modules/blocks';
+import { editBlock } from '../../block_history/block_history';
 
 /**
  * @typedef Vector3
@@ -81,6 +83,33 @@ class BaseSelection {
     updateCenter() {
         this.centerCoordinates = VectorMath.divide(VectorMath.sum(this.minCoordinates,this.maxCoordinates),2);
     }
+
+    /**
+     * Flips all the blocks in the selection on the chosen axis.
+     * @param {'x'|'y'|'z'} axis Axis to flip.
+     */
+    flip(axis) {
+        const bounds = this.getBounds();
+        const dimension = this.getDimension();
+        const player = this.getPlayer();
+
+        const updatedBlocks = [];
+        this.getAllBlocks((blockLocation) => {
+            const block = dimension.getBlock(blockLocation);
+            const flippedBlockLocation = VectorMath.copy(blockLocation);
+            flippedBlockLocation[axis] = (bounds.center[axis]-(blockLocation[axis]-bounds.center[axis]));
+            updatedBlocks.push({
+                blockState: copyBlockState(block),
+                blockLocation: flippedBlockLocation
+            })
+        })
+
+        for (const newBlock of updatedBlocks) {
+            const block = dimension.getBlock(newBlock.blockLocation);
+            editBlock(block,newBlock.blockState,{actorId:player.id,updateType:'blockyTools: player'});
+        }
+        //center-(cordinate-center)
+    } 
 
     /** @protected */
     maxCoordinates

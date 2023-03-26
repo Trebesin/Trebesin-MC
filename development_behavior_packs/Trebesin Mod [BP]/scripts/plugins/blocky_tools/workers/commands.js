@@ -130,6 +130,23 @@ export async function main() {
 		}
 	});
 
+	Commands.registerCommand('flip',{
+		parameters: [
+			{
+				id:'axis',
+				type:'string',
+				choice: {
+					'x':[],
+					'y':[],
+					'z':[]
+				}
+			}
+		],
+		run(sender,parameters) {
+			Sessions.flipSelection(sender,parameters.axis);
+		}
+	});
+
 	Commands.registerCommand('paste',{
 		parameters: [],
 		run(sender) {

@@ -226,14 +226,19 @@ export function copySelection(player) {
     /** @type {CornerSelection} */
     const selection = session.selections[session.selectionType];
     const dimension = selection.getDimension();
+    const bounds = selection.getBounds();
     const clipboard = {
         data: [],
-        bounds: selection.getBounds()
+        bounds: {
+            min: {x:0,y:0,z:0},
+            max: VectorMath.sub(bounds.max,bounds.min),
+            center: VectorMath.sub(bounds.center,bounds.min)
+        }
     };
 
     selection.getAllBlocks((blockLocation) => {
         clipboard.data.push({
-            coordinates: subVectors(blockLocation,selection.minCoordinates),
+            coordinates: VectorMath.sub(blockLocation,selection.minCoordinates),
             blockState: copyBlockState(dimension.getBlock(blockLocation))
         });
     });
@@ -260,6 +265,15 @@ export function pasteSelection(player) {
         const block = dimension.getBlock(VectorMath.sum(baseLocation,clipboardBlock.coordinates));
         editBlock(block,clipboardBlock.blockState,{actorId:player.id,updateType:'blockyTools: player'});
     }
+}
+
+export function flipSelection(player,axis) {
+    let session = SessionStore[player.id];
+    if (session == null) session = initializeSession(player);
+
+    /** @type {CornerSelection} */
+    const selection = session.selections[session.selectionType];
+    selection.flip(axis);
 }
 
 export function getSelectionMinMax(player) {
