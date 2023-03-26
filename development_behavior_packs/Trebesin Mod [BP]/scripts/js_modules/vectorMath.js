@@ -75,6 +75,16 @@ export function multiply(vector,amount) {
 }
 
 /**
+ * Divide vector.
+ * @param {Vector3} vector Vector to divide.
+ * @param {number} amount Division.
+ * @returns {Vector3} Result of the vector division.
+ */
+export function divide(vector,amount) {
+    return {x:vector.x/amount,y:vector.y/amount,z:vector.z/amount};
+}
+
+/**
  * Copies a vector into a new object.
  * @param {Vector3} vector Vector to copy.
  * @returns {Vector3} New object of the same vector.

@@ -6,7 +6,7 @@ import { spawnBlockSelection, spawnBox, spawnLineBox } from '../../../mc_modules
 import { getGridBlock } from '../../../js_modules/geometry';
 import { insertToArray } from '../../../js_modules/array';
 import { logMessage } from '../../debug/debug';
-import { copyVector } from '../../../js_modules/vector';
+import * as VectorMath from '../../../js_modules/vectorMath';
 
 /**
  * @typedef Vector3
@@ -32,12 +32,17 @@ class BaseSelection {
             x: null,
             y: null,
             z: null
-        }
+        };
         this.minCoordinates = {
             x: null,
             y: null,
             z: null
-        }
+        };
+        this.centerCoordinates = {
+            x: null,
+            y: null,
+            z: null
+        };
     }
     /**
      * Returns the player associated with the selection.
@@ -61,8 +66,14 @@ class BaseSelection {
         return this.#empty;
     }
 
-    maxCoords
-    minCoords
+    updateCenter() {
+        this.centerCoordinates = VectorMath.divide(VectorMath.sum(this.minCoordinates,this.maxCoordinates),2);
+    }
+
+    maxCoordinates
+    minCoordinates
+    centerCoordinates
+    
     #empty
     #dimension
     #player
@@ -143,11 +154,11 @@ export class CornerSelection extends BaseSelection {
             this.maxCoords = {x:null,y:null,z:null};
             this.minCoords = {x:null,y:null,z:null};
         } else if (corners[0] == null) {
-            const copyOfVector = copyVector(corners[1]);
+            const copyOfVector = VectorMath.copy(corners[1]);
             this.maxCoords = copyOfVector;
             this.minCoords = copyOfVector;
         } else if (corners[1] == null) {
-            const copyOfVector = copyVector(corners[0]);
+            const copyOfVector = VectorMath.copy(corners[0]);
             this.maxCoords = copyOfVector;
             this.minCoords = copyOfVector;
         } else {
@@ -164,6 +175,7 @@ export class CornerSelection extends BaseSelection {
             }
             this.maxCoordinates = maxCoord;
             this.minCoordinates = minCoord;
+            this.updateCenter();
         }
     }
 

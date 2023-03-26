@@ -109,7 +109,7 @@ export function applyBlockState(block,blockState) {
     if (blockState.typeId) block.setType(Mc.MinecraftBlockTypes.get(blockState.typeId));
     if (blockState.isWaterlogged) block.isWaterlogged = blockState.isWaterlogged;
     if (blockState.permutation) block.setPermutation(blockState.permutation);
-    if (blockState.components) applyBlockComponents(blockState.components);
+    if (blockState.components) applyBlockComponents(block,blockState.components);
 }
 
 /**
@@ -160,6 +160,8 @@ export function copyBlockComponents(block) {
             dyeColor: sign.getTextDyeColor()
         }
     }
+
+    return blockComponents
 
     //!These components do not have getter functions:
     //const lavaContainer = block.getComponent('lavaContainer');
