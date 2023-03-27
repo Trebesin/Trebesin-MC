@@ -150,7 +150,21 @@ export async function main() {
 	Commands.registerCommand('paste',{
 		parameters: [],
 		run(sender) {
-			Sessions.pasteSelection(sender);
+			Sessions.beforePasteSelection(sender);
+		}
+	});
+
+	Commands.registerCommand('confirm',{
+		parameters: [],
+		run(sender) {
+			Sessions.confirmAction(sender,true);
+		}
+	});
+
+	Commands.registerCommand('cancel',{
+		parameters: [],
+		run(sender) {
+			Sessions.confirmAction(sender,false);
 		}
 	});
 

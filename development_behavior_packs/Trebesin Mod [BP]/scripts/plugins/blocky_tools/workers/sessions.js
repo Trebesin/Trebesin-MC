@@ -2,7 +2,7 @@
 import * as Mc from '@minecraft/server';
 import { floorVector, setVectorLength, sumVectors, getDirectionFace, multiplyVector, subVectors} from '../../../js_modules/vector';
 import { DIMENSION_IDS, FACE_DIRECTIONS } from '../../../mc_modules/constants';
-import { spawnBox } from '../../../mc_modules/particles';
+import { spawnBox, spawnLineBox } from '../../../mc_modules/particles';
 import { getEquipedItem, sendMessage } from '../../../mc_modules/players';
 //Plugins:
 import { CornerSelection } from './selection';
@@ -250,15 +250,46 @@ export function copySelection(player) {
  * 
  * @param {Mc.Player} player
  */
-export function pasteSelection(player) {
+export function beforePasteSelection(player) {
+    let session = SessionStore[player.id];
+    if (session == null) return initializeSession(player);
+
+    sendMessage(`Use the commands ".confirm" or ".cancel" to confirm or cancel the paste.`,'§2BT§r',player);
+
+    const pasteDimension = player.dimension;
+    const pasteBounds = [
+        VectorMath.copy(session.pointerBlockLocation),
+        VectorMath.sum(session.pointerBlockLocation,session.clipboard.bounds.max)
+    ];
+
+    requestActionConfirmation(player);
+
+    const intervalCheckId = Mc.system.runInterval(() => {
+        const molangVariables = new Mc.MolangVariableMap();
+        molangVariables.setColorRGBA(`variable.color`,{red:0,green:1,blue:1,alpha:0.85});
+        molangVariables.setSpeedAndDirection(`variable.time`,0.051,new Mc.Vector(0,0,0));
+        spawnLineBox('trebesin:line_flex2',pasteBounds,pasteDimension,molangVariables);
+
+        const confirm = recieveActionConfirmation(player);
+        if (confirm != null) {
+            Mc.system.clearRun(intervalCheckId);
+            if (confirm) pasteSelection(player,pasteBounds[0],pasteDimension);
+        }
+    });
+}
+
+/**
+ * 
+ * @param {Mc.Player} player
+ */
+export function pasteSelection(player,baseLocation,dimension) {
     let session = SessionStore[player.id];
     if (session == null) session = initializeSession(player);
 
-    /** @type {CornerSelection} */
-    const selection = session.selections[session.selectionType];
-    const dimension = selection.getDimension();
-
-    const baseLocation = VectorMath.copy(session.pointerBlockLocation);
+    ///** @type {CornerSelection} */
+    //const selection = session.selections[session.selectionType];
+    //const dimension = selection.getDimension();
+    //const baseLocation = VectorMath.copy(session.pointerBlockLocation);
 
     for (let clipboardIndex = 0;clipboardIndex < session.clipboard.data.length;clipboardIndex++) {
         const clipboardBlock = session.clipboard.data[clipboardIndex];
@@ -313,6 +344,10 @@ export function initializeSession(player) {
         selectionType: SelectionType.CORNER,
         selections: [defaultSelection,null,null],
         clipboard: null,
+        actionConfirmState: {
+            pending: false,
+            confirmation: false
+        },
         config: {
             pointer: {
                 range: 3,
@@ -332,6 +367,41 @@ export function initializeSession(player) {
 
 export function getSession(playerId) {
     return SessionStore[playerId];
+}
+
+//# Action State functions
+export function confirmAction(player,confirm) {
+    let session = SessionStore[player.id];
+    if (session == null) session = initializeSession(player);
+
+    if (session.actionConfirmState.pending === 1) {
+        session.actionConfirmState.confirmation = confirm;
+        session.actionConfirmState.pending = 2;
+        if (confirm) sendMessage('§qConfirmed action!','§2BT§r',player);
+        else sendMessage('§mCancelled action!','§2BT§r',player);
+    } else sendMessage('§nNo action currently pending confirmation!','§2BT§r',player);
+}
+
+export function recieveActionConfirmation(player) {
+    let session = SessionStore[player.id];
+    if (session == null) throw new Error('Session doesn\'t exist and can\'t be created from this call!');
+
+    if (session.actionConfirmState.pending === 0) throw new Error('No action currently pending confirmation!');
+    if (session.actionConfirmState.pending === 1) return null;
+    if (session.actionConfirmState.pending === 2) {
+        const confirmValue = session.actionConfirmState.confirmation;
+        session.actionConfirmState.pending = 0;
+        session.actionConfirmState.confirmation = null;
+        return confirmValue;
+    }
+}
+
+export function requestActionConfirmation(player) {
+    let session = SessionStore[player.id];
+    if (session == null) session = initializeSession(player);
+
+    if (session.actionConfirmState.pending > 0) throw new Error('There is an already pending confirmation for the session!');
+    else session.actionConfirmState.pending = 1;
 }
 
 
