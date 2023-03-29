@@ -301,11 +301,6 @@ export function pasteSelection(player,baseLocation,dimension) {
     let session = SessionStore[player.id];
     if (session == null) session = initializeSession(player);
 
-    ///** @type {CornerSelection} */
-    const selection = session.selections[session.selectionType];
-    const dimension = selection.getDimension();
-    const baseLocation = VectorMath.copy(session.pointerBlockLocation);
-
     for (let clipboardIndex = 0;clipboardIndex < session.clipboard.locationData.length;clipboardIndex++) {
         const clipboardBlock = session.clipboard.locationData[clipboardIndex];
         const block = dimension.getBlock(VectorMath.sum(baseLocation,clipboardBlock[0]));
