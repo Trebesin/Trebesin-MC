@@ -240,7 +240,8 @@ export function copySelection(player) {
 
     selection.getAllBlocks((blockLocation) => {
         const blockStateIndex = clipboardGetBlockStateIndex(copyBlockState(dimension.getBlock(blockLocation)),clipboard);
-        clipboard.data.push([
+        logMessage(`${blockStateIndex},${JSON.stringify(blockLocation)}`);
+        clipboard.locationData.push([
             VectorMath.sub(blockLocation,selection.minCoordinates),blockStateIndex
         ]);
     });
@@ -273,6 +274,8 @@ export function beforePasteSelection(player) {
         spawnLineBox('trebesin:line_flex2',pasteBounds,pasteDimension,molangVariables);
 
         const confirm = recieveActionConfirmation(player);
+        
+        logMessage(`${confirm} confirm`);
         if (confirm != null) {
             Mc.system.clearRun(intervalCheckId);
             if (confirm) pasteSelection(player,pasteBounds[0],pasteDimension);
@@ -299,9 +302,13 @@ export function pasteSelection(player,baseLocation,dimension) {
     if (session == null) session = initializeSession(player);
 
     ///** @type {CornerSelection} */
-    //const selection = session.selections[session.selectionType];
-    //const dimension = selection.getDimension();
-    //const baseLocation = VectorMath.copy(session.pointerBlockLocation);
+    const selection = session.selections[session.selectionType];
+    const dimension = selection.getDimension();
+    const baseLocation = VectorMath.copy(session.pointerBlockLocation);
+
+    for (const blockState of session.clipboard.blockStateData) {
+        logMessage(JSON.stringify(blockState));
+    }
 
     for (let clipboardIndex = 0;clipboardIndex < session.clipboard.data.length;clipboardIndex++) {
         const clipboardBlock = session.clipboard.locationData[clipboardIndex];
