@@ -113,6 +113,48 @@ export function applyBlockState(block,blockState) {
 }
 
 /**
+ * Function to compare if 2 block states are matching.
+ * @param {BlockState} blockStateA First block state data to compare.
+ * @param {BlockState} blockStateB Second block state data to compare/
+ * @returns {boolean}
+ */
+export function compareBlockStates(blockStateA,blockStateB) {
+    return !(
+        blockStateA.typeId !== blockStateB.typeId ||
+        blockStateA.isWaterlogged !== blockStateB.typeId ||
+        blockStateA.permutation !== blockStateB.permutation ||
+        !compareBlockComponents(blockStateA.components,blockStateB.components)
+    )
+}
+
+/**
+ * Function to compare if 2 block component states are matching.
+ * @param {BlockComponentState} componentsA First block component state data to compare.
+ * @param {BlockComponentState} componentsB Second block component state data to compare.
+ * @returns {boolean}
+ */
+export function compareBlockComponents(componentsA,componentsB) {
+    for (const componentId in BLOCK_STATE_COMPONENTS) {
+        if (componentsA[componentId] != null && componentsB[componentId] != null) {
+            switch (componentId) {
+                case 'inventory': {
+                    return false
+                }   break;
+                case 'sign': {
+                    const signCheck = (
+                        componentsA[componentId].text === componentsB[componentId].text && 
+                        componentsA[componentId].dyeColor === componentsB[componentId].dyeColor && 
+                        !(componentsA[componentId].rawText != null || componentsB[componentId].rawText != null)
+                    );
+                    if (!signCheck) return false;
+                }   break;
+            }
+        }
+    }
+    return true;
+}
+
+/**
  * @typedef BlockState
  * @prop {string} typeId ID of the type the block is.
  * @prop {boolean} isWaterlogged Waterlog state of the block.

@@ -228,7 +228,9 @@ export function copySelection(player) {
     const dimension = selection.getDimension();
     const bounds = selection.getBounds();
     const clipboard = {
-        data: [],
+        data: [], //DEPRECATED
+        locationData: [],
+        blockStateData: [],
         bounds: {
             min: {x:0,y:0,z:0},
             max: VectorMath.sub(bounds.max,bounds.min),
