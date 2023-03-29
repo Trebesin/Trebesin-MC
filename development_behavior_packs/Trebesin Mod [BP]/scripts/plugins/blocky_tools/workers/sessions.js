@@ -273,8 +273,6 @@ export function beforePasteSelection(player) {
         spawnLineBox('trebesin:line_flex2',pasteBounds,pasteDimension,molangVariables);
 
         const confirm = recieveActionConfirmation(player);
-        
-        logMessage(`${confirm} confirm`);
         if (confirm != null) {
             Mc.system.clearRun(intervalCheckId);
             if (confirm) pasteSelection(player,pasteBounds[0],pasteDimension);

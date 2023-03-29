@@ -18,7 +18,7 @@
 import * as Mc from '@minecraft/server'
 import * as VectorMath from './../js_modules/vectorMath';
 import { logMessage, sendLogMessage } from '../plugins/debug/debug';
-import { DIRECTIONS, TREBESIN_PERMUTATIONS } from './constants';
+import { DIRECTIONS, TREBESIN_PERMUTATIONS, BLOCK_STATE_COMPONENTS } from './constants';
 
 /**
  * Function for comparing 2 `Block` class objects.
@@ -121,7 +121,7 @@ export function applyBlockState(block,blockState) {
 export function compareBlockStates(blockStateA,blockStateB) {
     return !(
         blockStateA.typeId !== blockStateB.typeId ||
-        blockStateA.isWaterlogged !== blockStateB.typeId ||
+        blockStateA.isWaterlogged !== blockStateB.isWaterlogged ||
         blockStateA.permutation !== blockStateB.permutation ||
         !compareBlockComponents(blockStateA.components,blockStateB.components)
     )
@@ -149,7 +149,7 @@ export function compareBlockComponents(componentsA,componentsB) {
                     if (!signCheck) return false;
                 }   break;
             }
-        }
+        } else if ((componentsA[componentId] != null && componentsB[componentId] == null) || (componentsA[componentId] == null && componentsB[componentId] != null)) return false;
     }
     return true;
 }
