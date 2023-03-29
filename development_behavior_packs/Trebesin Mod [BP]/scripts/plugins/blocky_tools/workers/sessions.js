@@ -228,7 +228,6 @@ export function copySelection(player) {
     const dimension = selection.getDimension();
     const bounds = selection.getBounds();
     const clipboard = {
-        data: [], //DEPRECATED
         locationData: [],
         blockStateData: [],
         bounds: {
@@ -239,7 +238,7 @@ export function copySelection(player) {
     };
 
     selection.getAllBlocks((blockLocation) => {
-        const blockStateIndex = clipboardGetBlockStateIndex(copyBlockState(dimension.getBlock(blockLocation)),clipboard);
+        const blockStateIndex = clipboardGetBlockStateIndex(copyBlockState(dimension.getBlock(blockLocation)),clipboard.blockStateData);
         logMessage(`${blockStateIndex},${JSON.stringify(blockLocation)}`);
         clipboard.locationData.push([
             VectorMath.sub(blockLocation,selection.minCoordinates),blockStateIndex
@@ -286,11 +285,12 @@ export function beforePasteSelection(player) {
 /**
  * 
  * @param {import('../../../mc_modules/blocks').BlockState} blockState 
+ * @param {import('../../../mc_modules/blocks').BlockState[]} dataArray 
  */
-function clipboardGetBlockStateIndex(blockState,clipboard) {
-    const indexInArray = clipboard.blockStateData.findIndex((savedBlockState) => compareBlockStates(blockState,savedBlockState));
+function clipboardGetBlockStateIndex(blockState,dataArray) {
+    const indexInArray = dataArray.findIndex((savedBlockState) => compareBlockStates(blockState,savedBlockState));
     if (indexInArray >= 0) return indexInArray;
-    else return (clipboard.blockStateData.push(blockState) - 1);
+    else return (dataArray.push(blockState) - 1);
 }
 
 /**
@@ -306,11 +306,7 @@ export function pasteSelection(player,baseLocation,dimension) {
     const dimension = selection.getDimension();
     const baseLocation = VectorMath.copy(session.pointerBlockLocation);
 
-    for (const blockState of session.clipboard.blockStateData) {
-        logMessage(JSON.stringify(blockState));
-    }
-
-    for (let clipboardIndex = 0;clipboardIndex < session.clipboard.data.length;clipboardIndex++) {
+    for (let clipboardIndex = 0;clipboardIndex < session.clipboard.locationData.length;clipboardIndex++) {
         const clipboardBlock = session.clipboard.locationData[clipboardIndex];
         const block = dimension.getBlock(VectorMath.sum(baseLocation,clipboardBlock[0]));
         editBlock(block,session.clipboard.blockStateData[clipboardBlock[1]],{actorId:player.id,updateType:'blockyTools: player'});
