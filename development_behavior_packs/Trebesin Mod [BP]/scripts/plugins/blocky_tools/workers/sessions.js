@@ -589,11 +589,10 @@ class Session {
     //State
     pointerBlockLocation
     selections = [];
-    actionConfirmation = {};
 
     //Other
     #clipboard
-    #actionConfirmState
+    #actionConfirmation = {};
 }
 
 
