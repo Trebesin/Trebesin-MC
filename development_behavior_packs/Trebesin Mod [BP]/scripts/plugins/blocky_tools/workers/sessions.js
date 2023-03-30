@@ -434,9 +434,14 @@ export function switchSelection(player,selectionType) {
 
 }
 
+//# Sessions:
+
+/**
+ * Class used for storing sessions of Blocky Tools plugin bound to a player. It keeps track of configurations, selections and other states of player interaction with the plugin.
+ */
 class Session {
     /**
-     * 
+     * Creates a new session bound to a player that can be stored and accessed for purposes of Blocky Tools plugin.
      * @param {Mc.Player} player 
      */
     constructor(player) {
@@ -456,12 +461,19 @@ class Session {
         }
     }
 
-    insideSelection() {
+    sendSelectionBounds() {
+        const selection = this.getCurrentSelection();
+        const bounds = selection.getBounds();
+        sendMessage(`MAX: §mX:${bounds.max.x} §qY:${bounds.max.y} §tZ:${bounds.max.z}`,'§2BT§r',player);
+        sendMessage(`CENTER: §mX:${bounds.center.x} §qY:${bounds.center.y} §tZ:${bounds.center.z}`,'§2BT§r',player);
+        sendMessage(`MIN: §mX:${bounds.min.x} §qY:${bounds.min.y} §tZ:${bounds.min.z}`,'§2BT§r',player);
+    }
+
+    sendSelectionInside() {
         const selection = this.getCurrentSelection();
         const location = this.pointerBlockLocation;
         sendMessage(`${selection.includes(location)} §mX:${location.x} §qY:${location.y} §tZ:${location.z}`,'§2BT§r',player);
     }
-
 
     copySelection() {
         const clipboard = this.getClipboard();
@@ -528,6 +540,37 @@ class Session {
         },0);
     }
 
+    /**
+     * 
+     * @param {Mc.BlockPermutation} fillPermutation 
+     * @param {object[]} replacePermutations 
+     * @param {Mc.BlockPermutation} replacePermutations[].permutation
+     * @param {boolean} replacePermutations[].userStates
+     * @param {boolean} exclusion 
+     */
+    fillReplaceSelection(fillPermutation,replacePermutations,exclusion) {
+        const player = this.getPlayer();
+        const selection = this.getCurrentSelection();
+        const dimension = selection.getDimension();
+
+        selection.getAllBlocks((blockLocation) => {
+            const block = dimension.getBlock(blockLocation);
+            const blockMatch = replacePermutations.find(
+                ({userStates,permutation}) => {
+                    return ((
+                        userStates && block.permutation === permutation
+                    ) || (
+                        !userStates && block.typeId === permutation.type.id
+                    ));
+                }
+            ) != null;
+            if (
+                (exclusion && !blockMatch) || (!exclusion && blockMatch)
+            ) setBlockPermutation(block,fillPermutation.permutation,{actorId:player.id,updateType:'blockyTools: player'});
+
+        });
+    }
+
     //## Action Confirm
     requestActionConfirmation() {
         if (this.#actionConfirmation.pending > ActionPendingState.NONE) throw new Error('There is an already pending confirmation for the session!');
@@ -556,41 +599,38 @@ class Session {
 
     //## Getters
     /**
-     * 
+     * Player whom the session belongs to.
      * @returns {Mc.Player}
      */
     getPlayer() {
         return this.#player;
     }
-
     /**
-     * 
+     * Clipboard instance bound to the session.
      * @returns {ClipboardInstance}
      */
     getClipboard() {
         return this.#clipboard;
     }
-
     /**
-     * 
+     * Single function that returns the current selection the player is using.
      * @returns {CornerSelection}
      */
     getCurrentSelection() {
         return this.selections[this.selectionType];
     }
-    //Metadata
+
+    //## Properties
+    //### Metadata:
     id
     #player
-
-    //Configurations
+    //### Configurations:
     pointerMode
     selectionType
-
-    //State
+    //### State:
     pointerBlockLocation
     selections = [];
-
-    //Other
+    //### Other:
     #clipboard
     #actionConfirmation = {};
 }
