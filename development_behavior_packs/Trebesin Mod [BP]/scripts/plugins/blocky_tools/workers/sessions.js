@@ -444,7 +444,7 @@ class Session {
         this.id = player.id;
         this.#clipboard = new ClipboardInstance();
         this.#actionConfirmation.pending = 0;
-        this.#actionConfirmation.confirm = null;
+        this.#actionConfirmation.confirm = false;
     }
 
     switchPointer(pointerMode = null) {
@@ -488,10 +488,61 @@ class Session {
         clipboard.structureData.push(copiedData);
     }
 
+    flip(axis) {
+        const selection = this.getCurrentSelection();
+        selection.flip(axis);
+    }
+
+    beforePasteSelection(index = 0) {
+        sendMessage(`Use the commands ".confirm" or ".cancel" to confirm or cancel the paste.`,'§2BT§r',player);
+
+        const pasteDimension = player.dimension;
+        const clipboard = this.getClipboard();
+        const pasteBounds = [
+            VectorMath.copy(this.pointerBlockLocation),
+            VectorMath.sum(this.pointerBlockLocation,clipboard.structureData[index].bounds.max)
+        ];
+
+        this.requestActionConfirmation();
+
+        const intervalCheckId = Mc.system.runInterval(() => {
+            const molangVariables = new Mc.MolangVariableMap();
+            molangVariables.setColorRGBA(`variable.color`,{red:0,green:1,blue:1,alpha:0.85});
+            molangVariables.setSpeedAndDirection(`variable.time`,0.051,new Mc.Vector(0,0,0));
+            spawnLineBox('trebesin:line_flex2',pasteBounds,pasteDimension,molangVariables);
+
+            const confirm = this.getActionCofirmation();
+            if (confirm != null) {
+                Mc.system.clearRun(intervalCheckId);
+                if (confirm) this.pasteSelection(player,pasteBounds[0],pasteDimension);
+            }
+        });
+    }
+
     //## Action Confirm
     requestActionConfirmation() {
-        if (this.actionConfirmation.pending > 0) throw new Error('There is an already pending confirmation for the session!');
-        else session.actionConfirmState.pending = 1;
+        if (this.#actionConfirmation.pending > ActionPendingState.NONE) throw new Error('There is an already pending confirmation for the session!');
+        else this.#actionConfirmation.pending = ActionPendingState.WAIT;
+    }
+
+    getActionCofirmation() {
+        if (this.#actionConfirmation.pending === ActionPendingState.NONE) throw new Error('No action currently pending confirmation!');
+        if (this.#actionConfirmation.pending === ActionPendingState.WAIT) return null;
+        if (this.#actionConfirmation.pending === ActionPendingState.DONE) {
+            this.#actionConfirmation.pending = ActionPendingState.NONE;
+            return this.#actionConfirmation.confirm;
+        }
+    }
+
+    setActionConfirmation(confirmValue) {
+        if (this.#actionConfirmation.pending !== ActionPendingState.WAIT) {
+            sendMessage('§nNo action currently pending confirmation!','§2BT§r',player)
+            return;
+        }
+        this.#actionConfirmation.confirm = confirmValue;
+        this.#actionConfirmation.pending = ActionPendingState.DONE;
+        if (confirmValue) sendMessage('§qConfirmed action!','§2BT§r',player);
+        else sendMessage('§mCancelled action!','§2BT§r',player);
     }
 
     //## Getters
@@ -581,6 +632,20 @@ export const StateMessages = {
  * @readonly
  * @enum {number}
  */
+export const ActionPendingState = {
+    /** No action is pending confirmation. */
+    NONE: 0,
+    /** The session is currently waiting for user to confirm the action. */
+    WAIT: 1,
+    /** The session has got confirmation from its player and is pending to be recieved by the plugin.*/
+    DONE: 2
+};
+
+/**
+ * Enum for the pointer modes that the player can use.
+ * @readonly
+ * @enum {number}
+ */
 export const PointerMode = {
     /** The first block the player view intersects with gets selected. */
     BLOCK: 0,
@@ -619,26 +684,3 @@ export const SelectionType = {
  * @enum {number}
  */
 export const SelectionTypeNames = ['Corner','Elipse','Point'];
-
-/* 
-# LEFTOVERS
-export function fillReplaceSelection(player,blockType,replaceTypes,exclusion) {
-    let session = SessionStore[player.id];
-    if (session == null) session = initialize(player);
-
-    const selection = session.selections[session.selectionType];
-    const dimension = selection.getDimension();
-
-    selection.getAllBlocks((blockLocation) => {
-        const block = dimension.getBlock(blockLocation);
-        const typeIdMatch = replaceTypes.find(
-            (replaceType) =>{
-                block.typeId === replaceType.id
-            }
-        ) != null;
-        if (
-            (exclusion && !typeIdMatch) || (!exclusion && typeIdMatch)
-        ) setBlockType(block,blockType,player.id);
-    });
-}
-*/
