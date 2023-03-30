@@ -443,8 +443,8 @@ class Session {
         this.#player = player;
         this.id = player.id;
         this.#clipboard = new ClipboardInstance();
-        this.#actionConfirmation.pending = 0;
-        this.#actionConfirmation.confirm = false;
+        this.#actionConfirmation.pending = ActionPendingState.NONE;
+        this.#actionConfirmation.confirm = null;
     }
 
     switchPointer(pointerMode = null) {
@@ -485,7 +485,8 @@ class Session {
             ]);
         });
     
-        clipboard.structureData.push(copiedData);
+        clipboard.structureData[0] = copiedData;
+        //clipboard.structureData.push(copiedData);
     }
 
     flip(axis) {
@@ -514,9 +515,17 @@ class Session {
             const confirm = this.getActionCofirmation();
             if (confirm != null) {
                 Mc.system.clearRun(intervalCheckId);
-                if (confirm) this.pasteSelection(player,pasteBounds[0],pasteDimension);
+                if (confirm) this.pasteSelection(pasteBounds[0],pasteDimension);
             }
         });
+    }
+
+    pasteSelection(baseLocation,dimension) {
+        const clipboard = this.getClipboard();
+        clipboard.getAllBlocks((clipboardLocation,blockState) => {
+            const block = dimension.getBlock(VectorMath.sum(baseLocation,clipboardLocation));
+            editBlock(block,blockState,{actorId:player.id,updateType:'blockyTools: player'});
+        },0);
     }
 
     //## Action Confirm
