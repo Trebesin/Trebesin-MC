@@ -435,8 +435,14 @@ export function switchSelection(player,selectionType) {
 }
 
 class Session {
+    /**
+     * 
+     * @param {Mc.Player} player 
+     */
     constructor(player) {
-
+        this.#player = player;
+        this.id = player.id;
+        this.#clipboard = new ClipboardInstance();
     }
 
     switchPointer(pointerMode = null) {
@@ -454,8 +460,59 @@ class Session {
         sendMessage(`${selection.includes(location)} §mX:${location.x} §qY:${location.y} §tZ:${location.z}`,'§2BT§r',player);
     }
 
+
+    copySelection() {
+        const clipboard = this.getClipboard();
+        const selection = this.getCurrentSelection();
+        const dimension = selection.getDimension();
+        const bounds = selection.getBounds();
+        const copiedData = {
+            locations: [],
+            bounds: {
+                min: {x:0,y:0,z:0},
+                max: VectorMath.sub(bounds.max,bounds.min),
+                center: VectorMath.sub(bounds.center,bounds.min)
+            }
+        };
+    
+        selection.getAllBlocks((blockLocation) => {
+            const blockStateIndex = clipboard.getBlockStateIndex(copyBlockState(dimension.getBlock(blockLocation)));
+            logMessage(`${blockStateIndex},${JSON.stringify(blockLocation)}`);
+            copiedData.locations.push([
+                VectorMath.sub(blockLocation,selection.minCoordinates),blockStateIndex
+            ]);
+        });
+    
+        clipboard.structureData.push(copiedData);
+    }
+
+    // Getters
+    /**
+     * 
+     * @returns {Mc.Player}
+     */
+    getPlayer() {
+        return this.#player;
+    }
+
+    /**
+     * 
+     * @returns {ClipboardInstance}
+     */
+    getClipboard() {
+        return this.#clipboard;
+    }
+
+    /**
+     * 
+     * @returns {CornerSelection}
+     */
+    getCurrentSelection() {
+        return this.selections[this.selectionType];
+    }
     //Metadata
-    player
+    id
+    #player
 
     //Configurations
     pointerMode
@@ -464,9 +521,41 @@ class Session {
     //State
     pointerBlockLocation
     selections = [];
+
+    //Other
+    #clipboard
+    #actionConfirmState
+}
+
+class ClipboardInstance {
+    constructor() {}
+
+    blockStateData = []
+    structureData = []
+
+    getBlockStateIndex(blockState) {
+        const indexInArray = this.blockStateData.findIndex((savedBlockState) => compareBlockStates(blockState,savedBlockState));
+        if (indexInArray >= 0) return indexInArray;
+        else return (this.blockStateData.push(blockState) - 1);
+    }
+
+    getAllBlocks(callback,index) {
+        for (let index = clipboard)
+    }
+}
+
+class ActionConfirmInstance {
+    constructor() {}
 }
 
 //# Types / Constants
+
+/**
+ * @typedef ClipboardStructureData
+ * @property {import('./selection').Vector3 | number [][]} locations
+ * @property {import('./selection').SelectionBounds} bounds
+*/
+
 /**
  * Enum for the messages defining state of a tool.
  * @readonly
