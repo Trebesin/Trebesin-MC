@@ -443,6 +443,8 @@ class Session {
         this.#player = player;
         this.id = player.id;
         this.#clipboard = new ClipboardInstance();
+        this.#actionConfirmation.pending = 0;
+        this.#actionConfirmation.confirm = null;
     }
 
     switchPointer(pointerMode = null) {
@@ -455,7 +457,7 @@ class Session {
     }
 
     insideSelection() {
-        const selection = this.selections[this.selectionType];
+        const selection = this.getCurrentSelection();
         const location = this.pointerBlockLocation;
         sendMessage(`${selection.includes(location)} §mX:${location.x} §qY:${location.y} §tZ:${location.z}`,'§2BT§r',player);
     }
@@ -486,7 +488,13 @@ class Session {
         clipboard.structureData.push(copiedData);
     }
 
-    // Getters
+    //## Action Confirm
+    requestActionConfirmation() {
+        if (this.actionConfirmation.pending > 0) throw new Error('There is an already pending confirmation for the session!');
+        else session.actionConfirmState.pending = 1;
+    }
+
+    //## Getters
     /**
      * 
      * @returns {Mc.Player}
@@ -521,12 +529,15 @@ class Session {
     //State
     pointerBlockLocation
     selections = [];
+    actionConfirmation = {};
 
     //Other
     #clipboard
     #actionConfirmState
 }
 
+
+//# Clipboard:
 class ClipboardInstance {
     constructor() {}
 
@@ -540,12 +551,12 @@ class ClipboardInstance {
     }
 
     getAllBlocks(callback,index) {
-        for (let index = clipboard)
+        const locations = this.structureData[index];
+        if (locations == null) return null;
+        for (let index = 0;index < locations.length;index++) {
+            callback(...locations[index]);
+        }
     }
-}
-
-class ActionConfirmInstance {
-    constructor() {}
 }
 
 //# Types / Constants
