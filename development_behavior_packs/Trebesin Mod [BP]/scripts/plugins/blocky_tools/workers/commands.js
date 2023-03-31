@@ -114,10 +114,19 @@ export async function main() {
 			}
 		],
 		run(sender,parameters) {
+			// Changes userStates to exactMatch.
+			const replacePermutations = [];
+			for (let index = 0;index < parameters.replacePermutations.length; index++) {
+				const replaceData = parameters.replacePermutations[index];
+				replacePermutations.push({
+					permutation: replaceData.permutation,
+					exactMatch: replaceData.userStates
+				});
+			}
 			Sessions.fillReplaceSelection(
 				sender,
 				parameters.fillBlock,
-				parameters.replacePermutations,
+				replacePermutations,
 				parameters.replaceMode === 'exclude',
 			);
 		}

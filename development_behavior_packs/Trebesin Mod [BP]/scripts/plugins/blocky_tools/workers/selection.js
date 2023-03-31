@@ -26,9 +26,9 @@ class BaseSelection {
      * @param {Mc.Player} player The player associated with the slection.
      * @param {Mc.Dimension} dimension The dimension the selection is contained within.
      */
-    constructor(player, dimension) {
+    constructor(player) {
         this.#player = player;
-        this.#dimension = dimension;
+        this.#dimension = player.dimension;
         this.#empty = true;
         this.maxCoordinates = {
             x: null,

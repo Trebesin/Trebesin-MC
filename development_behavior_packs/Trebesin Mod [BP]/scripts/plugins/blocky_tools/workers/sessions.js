@@ -450,6 +450,10 @@ class Session {
         this.#clipboard = new ClipboardInstance();
         this.#actionConfirmation.pending = ActionPendingState.NONE;
         this.#actionConfirmation.confirm = null;
+
+        this.pointerMode = PointerMode.FREE;
+        this.selectionType = SelectionType.CORNER
+        this.selections[SelectionType.CORNER] = new CornerSelection(player);
     }
 
     switchPointer(pointerMode = null) {
@@ -536,16 +540,36 @@ class Session {
         const clipboard = this.getClipboard();
         clipboard.getAllBlocks((clipboardLocation,blockState) => {
             const block = dimension.getBlock(VectorMath.sum(baseLocation,clipboardLocation));
-            editBlock(block,blockState,{actorId:player.id,updateType:'blockyTools: player'});
+            editBlock(
+                block,
+                blockState,
+                {actorId:player.id,updateType:'blockyTools: player'}
+            );
         },0);
     }
 
     /**
-     * 
+     * Sets the permutation of all blocks contained inside the area of the selection.
+     * @param {Mc.BlockPermutation} fillPermutation 
+     */
+    fillSelection(fillPermutation) {
+        const selection = this.getCurrentSelection();
+
+        selection.getAllBlocks((blockLocation) => {
+            setBlockPermutation(
+                player.dimension.getBlock(blockLocation),
+                fillPermutation,
+                {actorId:player.id,updateType:'blockyTools: player'}
+            );
+        });
+    }
+
+    /**
+     * Sets the permutation of all blocks contained inside the area of the selection follow replace rules that allow to only include/exclude specific blockTypes or permutations.
      * @param {Mc.BlockPermutation} fillPermutation 
      * @param {object[]} replacePermutations 
      * @param {Mc.BlockPermutation} replacePermutations[].permutation
-     * @param {boolean} replacePermutations[].userStates
+     * @param {boolean} replacePermutations[].exactMatch
      * @param {boolean} exclusion 
      */
     fillReplaceSelection(fillPermutation,replacePermutations,exclusion) {
@@ -556,11 +580,11 @@ class Session {
         selection.getAllBlocks((blockLocation) => {
             const block = dimension.getBlock(blockLocation);
             const blockMatch = replacePermutations.find(
-                ({userStates,permutation}) => {
+                ({exactMatch,permutation}) => {
                     return ((
-                        userStates && block.permutation === permutation
+                        exactMatch && block.permutation === permutation
                     ) || (
-                        !userStates && block.typeId === permutation.type.id
+                        !exactMatch && block.typeId === permutation.type.id
                     ));
                 }
             ) != null;
@@ -627,6 +651,12 @@ class Session {
     //### Configurations:
     pointerMode
     selectionType
+    config = {
+        pointer: {
+            range: 3,
+            selectLiquids: false
+        }
+    };
     //### State:
     pointerBlockLocation
     selections = [];
