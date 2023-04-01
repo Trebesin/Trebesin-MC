@@ -87,11 +87,11 @@ export function main() {
 
     Mc.system.runInterval(() => {
         for (const playerId in SessionStore) {
+            /** @type {Session} */
             const session = SessionStore[playerId];
-            /** @type {Mc.Player} */
-            const player = session.player;
+            const player = session.getPlayer();
             
-            const selection = session.selections[session.selectionType];
+            const selection = session.getCurrentSelection();
             selection.createParticleOutline();
             selection.createParticleBlocks();
 
@@ -105,11 +105,11 @@ export function main() {
                         session.pointerBlockLocation = player.getBlockFromViewDirection().location;
                     }   break;
                     case PointerMode.FACE: {
-                        const targetLocation = player.getBlockFromViewDirection().location;
-                        const viewVector = player.getViewDirection();
-                        const relativeVector = subVectors(
-                            player.getHeadLocation(),targetLocation
-                        );
+                        //const targetLocation = player.getBlockFromViewDirection().location;
+                        //const viewVector = player.getViewDirection();
+                        //const relativeVector = subVectors(
+                        //    player.getHeadLocation(),targetLocation
+                        //);
                         session.pointerBlockLocation = sumVectors(
                             player.getBlockFromViewDirection().location,
                             FACE_DIRECTIONS[getDirectionFace(player.getViewDirection())]
@@ -374,16 +374,44 @@ export function initializeSession(player) {
 
 
 /**
+ * Starts a new session to a player.
+ * @param {Mc.Player} player 
+ * @returns {Session}
+ */
+export function startSession(player) {
+    const session = new Session(player);
+    SessionStore[player.id] = session;
+    return session;
+}
+
+/**
+ * Gets a selection associated with a player. Creates a new session if the player doesn't have one yet.
+ * @param {Mc.Player} player 
+ * @returns {Session}
+ */
+export function getSession(player) {
+    let session = SessionStore[player.id];
+    if (session == null) session = startSession(player);
+    return session;
+}
+
+/**
+ * Gets a selection by its Id.
+ * @param {Mc.Player} player 
+ * @returns {Session}
+ */
+export function getSessionById(id) {
+    return SessionStore[id];
+}
+
+/**
  * 
  * @param {Mc.Player} player 
  * @returns {Session}
  */
 export function getSession(player) {
     let session = SessionStore[player.id];
-    if (session == null) {
-        session = new Session(player);
-        SessionStore[player.id] = session;
-    }
+    if (session == null) session = startSession(player);
     return session;
 }
 
@@ -705,6 +733,7 @@ class Session {
     selectionType
     config = {}
     //### State:
+    /** @type {import('./selection').Vector3} */
     pointerBlockLocation
     selections = [];
     //### Other:

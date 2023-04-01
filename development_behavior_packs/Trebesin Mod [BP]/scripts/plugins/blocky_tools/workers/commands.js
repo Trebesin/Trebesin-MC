@@ -22,7 +22,9 @@ export async function main() {
 	Commands.registerCommand('restart', {
 		description: 'Initializes the Blocky Tools session for the player that invokes the command.',
 		parameters: [],
-		run: Sessions.initializeSession
+		run(sender) {
+			Sessions.startSession(sender);
+		}
 	});
 
 	Commands.registerCommand('menu', {
@@ -287,7 +289,7 @@ export async function main() {
 			}
 		],
 		run(sender, parameters) {
-			Sessions.clearSelections(sender);
+			//Sessions.clearSelections(sender);
 			const session = Sessions.getSession(sender);
 		}
 	});
