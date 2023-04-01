@@ -57,19 +57,17 @@ export async function main() {
 			}
 			const session = Sessions.getSession(sender);
 			session.switchPointer(pointerMode);
-			//Sessions.switchPointer(sender,pointerMode);
 		}
 	});
 
 	Commands.registerCommand('fillSelectionCorners',{
 		parameters: [{
-			id:'blockPermutation',
+			id:'fillBlock',
 			type:'blockPermutation'
 		}],
 		run(sender,parameters) {
 			const session = Sessions.getSession(sender);
-			session.fillSelectionCorners(parameters.blockPermutation);
-			//Sessions.fillSelectionCorners(sender,parameters.blockType);
+			session.fillSelectionCorners(parameters.fillBlock.permutation);
 		}
 	});
 
@@ -78,19 +76,17 @@ export async function main() {
 		run(sender) {
 			const session = Sessions.getSession(sender);
 			session.sendSelectionBounds();
-			//Sessions.getSelectionMinMax(sender);
 		}
 	});
 
 	Commands.registerCommand('fillSelection',{
 		parameters: [{
-			id:'blockPermutation',
+			id:'fillBlock',
 			type:'blockPermutation'
 		}],
 		run(sender,parameters) {
 			const session = Sessions.getSession(sender);
-			session.fillSelection(parameters.blockPermutation);
-			//Sessions.fillSelection(sender,parameters.blockType);
+			session.fillSelection(parameters.fillBlock.permutation);
 		}
 	});
 
@@ -133,12 +129,6 @@ export async function main() {
 					exactMatch: replaceData.userStates
 				});
 			}
-			//Sessions.fillReplaceSelection(
-			//	sender,
-			//	parameters.fillBlock,
-			//	replacePermutations,
-			//	parameters.replaceMode === 'exclude',
-			//);
 			const session = Sessions.getSession(sender);
 			session.fillReplaceSelection(
 				parameters.fillBlock,
@@ -153,7 +143,6 @@ export async function main() {
 		run(sender) {
 			const session = Sessions.getSession(sender);
 			session.sendSelectionInside();
-			//Sessions.insideSelection(sender);
 		}
 	});
 
@@ -171,8 +160,7 @@ export async function main() {
 		],
 		run(sender,parameters) {
 			const session = Sessions.getSession(sender);
-			session.fillSelection();
-			//Sessions.flipSelection(sender,parameters.axis);
+			session.flip(parameters.axis);
 		}
 	});
 
@@ -181,7 +169,6 @@ export async function main() {
 		run(sender) {
 			const session = Sessions.getSession(sender);
 			session.preparePasteSelection();
-			//Sessions.beforePasteSelection(sender);
 		}
 	});
 
@@ -190,7 +177,6 @@ export async function main() {
 		run(sender) {
 			const session = Sessions.getSession(sender);
 			session.setActionConfirmation(true);
-			//Sessions.confirmAction(sender,true);
 		}
 	});
 
@@ -199,7 +185,6 @@ export async function main() {
 		run(sender) {
 			const session = Sessions.getSession(sender);
 			session.setActionConfirmation(false);
-			//Sessions.confirmAction(sender,false);
 		}
 	});
 
@@ -208,7 +193,6 @@ export async function main() {
 		run(sender) {
 			const session = Sessions.getSession(sender);
 			session.copySelection();
-			//Sessions.copySelection(sender);
 		}
 	});
 
@@ -289,7 +273,6 @@ export async function main() {
 			}
 		],
 		run(sender, parameters) {
-			//Sessions.clearSelections(sender);
 			const session = Sessions.getSession(sender);
 		}
 	});

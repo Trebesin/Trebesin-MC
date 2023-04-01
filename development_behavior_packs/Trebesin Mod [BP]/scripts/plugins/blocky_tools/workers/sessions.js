@@ -63,21 +63,17 @@ export function main() {
 
     Mc.world.events.itemUse.subscribe((eventData) => {
         if (eventData.item.typeId !== 'trebesin:bt_blocky_axe') return;
-        let session = SessionStore[eventData.source.id];
-        if (session == null) session = initializeSession(eventData.source);
-
-        const selection = session.selections[session.selectionType];
+        const session = getSession(eventData.source);
+        const selection = session.getCurrentSelection();
         selection.setCorner(0,session.pointerBlockLocation);
     });
 
     Mc.world.events.entityHit.subscribe((eventData) => {
-        logMessage(`EntityHit ${eventData.entity.name} - E:${eventData?.hitEntity?.typeId} B:${eventData?.hitBlock?.typeId} T:${Mc.system.currentTick}`);
+        //logMessage(`EntityHit ${eventData.entity.name} - E:${eventData?.hitEntity?.typeId} B:${eventData?.hitBlock?.typeId} T:${Mc.system.currentTick}`);
         const itemHolding = getEquipedItem(eventData.entity);
         if (itemHolding?.typeId !== 'trebesin:bt_blocky_axe') return;
-        let session = SessionStore[eventData.entity.id];
-        if (session == null) session = initializeSession(eventData.entity);
-
-        const selection = session.selections[session.selectionType];
+        const session = getSession(eventData.entity);
+        const selection = session.getCurrentSelection();
         selection.setCorner(1,session.pointerBlockLocation);
     });
 
@@ -504,12 +500,14 @@ class Session {
     sendSelectionBounds() {
         const selection = this.getCurrentSelection();
         const bounds = selection.getBounds();
+        const player = this.getPlayer();
         sendMessage(`MAX: §mX:${bounds.max.x} §qY:${bounds.max.y} §tZ:${bounds.max.z}`,'§2BT§r',player);
         sendMessage(`CENTER: §mX:${bounds.center.x} §qY:${bounds.center.y} §tZ:${bounds.center.z}`,'§2BT§r',player);
         sendMessage(`MIN: §mX:${bounds.min.x} §qY:${bounds.min.y} §tZ:${bounds.min.z}`,'§2BT§r',player);
     }
 
     sendSelectionInside() {
+        const player = this.getPlayer();
         const selection = this.getCurrentSelection();
         const location = this.pointerBlockLocation;
         sendMessage(`${selection.includes(location)} §mX:${location.x} §qY:${location.y} §tZ:${location.z}`,'§2BT§r',player);
@@ -579,7 +577,9 @@ class Session {
     }
 
     pasteSelection(baseLocation,dimension,clipboardIndex) {
+        const player = this.getPlayer();
         const clipboard = this.getClipboard();
+
         clipboard.getAllBlocks((clipboardLocation,blockState) => {
             const block = dimension.getBlock(VectorMath.sum(baseLocation,clipboardLocation));
             editBlock(
@@ -595,14 +595,20 @@ class Session {
      * @param {Mc.BlockPermutation} fillPermutation 
      */
     fillSelection(fillPermutation) {
+        const player = this.getPlayer();
         const selection = this.getCurrentSelection();
+        const dimension = selection.getDimension();
 
         selection.getAllBlocks((blockLocation) => {
-            setBlockPermutation(
-                player.dimension.getBlock(blockLocation),
-                fillPermutation,
-                {actorId:player.id,updateType:'blockyTools: player'}
-            );
+            try {
+                setBlockPermutation(
+                    dimension.getBlock(blockLocation),
+                    fillPermutation,
+                    {actorId:player.id,updateType:'blockyTools: player'}
+                );
+            } catch (error) {
+                logMessage(error);
+            }
         });
     }
 
@@ -638,8 +644,9 @@ class Session {
     }
 
     fillSelectionCorners(fillPermutation) {
-        const selection = this.getCurrentSelection();
         const player = this.getPlayer();
+        const selection = this.getCurrentSelection();
+
         for (const blockLocation of selection.getAllCorners()) {
             sendMessage(`§mX:${blockLocation.x} §qY:${blockLocation.y} §tZ:${blockLocation.z}`,'§2BT§r',player);
             setBlockPermutation(

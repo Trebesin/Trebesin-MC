@@ -156,3 +156,45 @@ export function getDirectionFace(vector) {
         else return 'up'
     }
 }
+
+/**
+ * Returns a vector with each axis containing the maximal value found for that axis out of all the input vectors.
+ * @param {Vector3[]} vectors 
+ * @returns {Vector3}
+ */
+export function getMaximalVector(vectors) {
+    const max = {
+        x: vectors[0].x,
+        y: vectors[0].y,
+        z: vectors[0].z
+    };
+    for (const axis of ['x','y','z']) {
+        for (const vector of vectors) {
+            const savedMaxValue = max[axis];
+            const currentValue = vector[axis];
+            if (savedMaxValue < currentValue) max[axis] = currentValue;
+        }
+    }
+    return max;
+}
+
+/**
+ * Returns a vector with each axis containing the minimal value found for that axis out of all the input vectors.
+ * @param {Vector3[]} vectors 
+ * @returns {Vector3}
+ */
+export function getMinimalVector(vectors) {
+    const min = {
+        x: vectors[0].x,
+        y: vectors[0].y,
+        z: vectors[0].z
+    };
+    for (const axis of ['x','y','z']) {
+        for (const vector of vectors) {
+            const savedMinValue = min[axis];
+            const currentValue = vector[axis];
+            if (savedMinValue > currentValue) min[axis] = currentValue;
+        }
+    }
+    return min;
+}

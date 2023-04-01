@@ -118,6 +118,38 @@ export function getGridBlock(coords,options = {},callback = null) {
     return resultCoords;
 }
 
+export function getMaximalVector(vectors) {
+    const max = {
+        x: vectors[0].x,
+        y: vectors[0].y,
+        z: vectors[0].z
+    };
+    for (const axis of ['x','y','z']) {
+        for (const vector of vectors) {
+            const savedMaxValue = max[axis];
+            const currentValue = vector[axis];
+            if (savedMaxValue < currentValue) max[axis] = currentValue;
+        }
+    }
+    return max;
+}
+
+export function getMinimalVector(vectors) {
+    const min = {
+        x: vectors[0].x,
+        y: vectors[0].y,
+        z: vectors[0].z
+    };
+    for (const axis of ['x','y','z']) {
+        for (const vector of vectors) {
+            const savedMinValue = min[axis];
+            const currentValue = vector[axis];
+            if (savedMinValue > currentValue) min[axis] = currentValue;
+        }
+    }
+    return min;
+}
+
 export function generateBlockPyramid(startCoord,steps = 10,callback) {
     const vectorDefinitions = {};
     //Tertiary vectors are sent at the beginning from the starting coordinate and also from the secondary and primary vectors. Those cover the whole Y axis.

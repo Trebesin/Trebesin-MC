@@ -1,4 +1,4 @@
-import { Dimension, MolangVariableMap, Vector } from '@minecraft/server';
+import * as Mc from '@minecraft/server';
 import {arrayDifference} from '../js_modules/array';
 import {getGridLine} from '../js_modules/geometry';
 import * as VectorMath from '../js_modules/vectorMath';
@@ -160,8 +160,8 @@ export function drawCorner(origin,corner,callback) {
  * 
  * @param {string} particle 
  * @param {Vector3} coords 
- * @param {Dimension} dimension 
- * @param {MolangVariableMap} molang 
+ * @param {Mc.Dimension} dimension 
+ * @param {Mc.MolangVariableMap} molang 
  */
 export function spawnBox(particle,coords,dimension,molang,edgeOffset = 0.005) {
     for (const axis of ['x','y','z']) {
@@ -181,8 +181,8 @@ export function spawnBox(particle,coords,dimension,molang,edgeOffset = 0.005) {
  * 
  * @param {string} particle 
  * @param {Vector3} coords 
- * @param {Dimension} dimension 
- * @param {MolangVariableMap} molang 
+ * @param {Mc.Dimension} dimension 
+ * @param {Mc.MolangVariableMap} molang 
  */
 export function spawnBigBox(particle,coords,dimension,molang,span,edgeOffset) {
     const additions = [-edgeOffset,edgeOffset];
@@ -235,38 +235,95 @@ function expandArea(locations,expansionAmounts) {
     return newLocations;
 }
 
+
+//TODO origin vector will prolly be needed to be define beforehand in order to manage rotation and flipping that is maintained to the origin
+//TODO infact we might need to flip x with z or something and this system wouldnt allow for that 
+//TODO we need to create more powerful function
 /**
  * 
  * @param {string} particle 
- * @param {Vector3} coords 
- * @param {Dimension} dimension 
- * @param {MolangVariableMap} molang 
+ * @param {import('../js_modules/vectorMath').Vector3} coords
+ * @param {Mc.Dimension} dimension 
+ * @param {Mc.MolangVariableMap} molang 
  */
 export function spawnLineBox(particleName,corners,dimension,molang) {
-    const axisIndexMap = {x:0,y:1,z:2};
     const appliedCorners = expandArea(corners,[0,1]);
+    
+    //~ Prototype code for axis colors
+    const minCorner = VectorMath.getMinimalVector(appliedCorners);
+    //~ Prototype code for axis colors
+
     const span = VectorMath.sub(appliedCorners[0],appliedCorners[1]);
 
-    for (const axis in axisIndexMap) {
+    for (const axis of ['x','y','z']) {
         const absoluteSpan = Math.abs(span[axis]);
         const direction = span[axis] < 0 ? 1 : -1;
-        const vectorDirection = [0,0,0];
-        vectorDirection[axisIndexMap[axis]] = direction;
-        const vector = new Vector(...vectorDirection);
+
+        const vectorDirection = {x:0,y:0,z:0};
+        vectorDirection[axis] = direction;
+        const vector = new Mc.Vector(vectorDirection.x,vectorDirection.y,vectorDirection.z);
 
         let finalLocation =  VectorMath.copy(appliedCorners[1]);
         finalLocation[axis] = appliedCorners[0][axis];
-        for (let spawnAxis in axisIndexMap) {
+        for (let spawnAxis of ['x','y','z']) {
             let spawnLocation = VectorMath.copy(appliedCorners[0]);
             if (spawnAxis != axis) {
                 spawnLocation[spawnAxis] = appliedCorners[1][spawnAxis];
             }
+
+            //~ Prototype code for axis colors
+            const axisOriginVector = VectorMath.copy(spawnLocation);
+            if (direction === -1) {
+                axisOriginVector[axis] = spawnLocation[axis] - absoluteSpan;
+            }
+            if (VectorMath.compare(axisOriginVector,minCorner)) {
+                molang.setColorRGBA(`variable.color`,{
+                    red: axis === 'x' ? 1 : 0,
+                    green: axis === 'y' ? 1 : 0,
+                    blue: axis === 'z' ? 1 : 0,
+                    alpha: 0.85
+                });
+            } else molang.setColorRGBA(`variable.color`,{red:0,green:1,blue:1,alpha:0.85});
+            //~ Prototype code for axis colors
+
             molang.setSpeedAndDirection(`variable.size`,absoluteSpan,vector);
             dimension.spawnParticle(particleName,spawnLocation,molang);
         }
+
+        //~ Prototype code for axis colors
+        const axisOriginVector = VectorMath.copy(finalLocation);
+        if (direction === -1) {
+            axisOriginVector[axis] = finalLocation[axis] - absoluteSpan;
+        }
+        if (VectorMath.compare(axisOriginVector,minCorner)) {
+            molang.setColorRGBA(`variable.color`,{
+                red: axis === 'x' ? 1 : 0,
+                green: axis === 'y' ? 1 : 0,
+                blue: axis === 'z' ? 1 : 0,
+                alpha: 0.85
+            });
+        } else molang.setColorRGBA(`variable.color`,{red:0,green:1,blue:1,alpha:0.85});
+        //~ Prototype code for axis colors
+
         molang.setSpeedAndDirection(`variable.size`,absoluteSpan,vector);
         dimension.spawnParticle(particleName,finalLocation,molang);
     }
+}
+
+
+/**
+ * @param {string} particleName
+ * @param {Mc.Dimension} dimension
+ * @param {import('../js_modules/vectorMath').Vector3} location
+ * @param {import('../js_modules/vectorMath').Vector3} direction 
+ * @param {number} length 
+ * @param {import('@minecraft/server').Color} color 
+ */
+export function spawnParticleLine(particleName,dimension,location,direction,length = 1,color = {red:0,green:0,blue:0,alpha:1}) {
+    const molang = new Mc.MolangVariableMap();
+    molang.setSpeedAndDirection(`variable.size`,length,direction);
+    molang.setColorRGBA(`variable.color`,color);
+    dimension.spawnParticle(particleName,location,molang);
 }
 
 
