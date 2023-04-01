@@ -373,8 +373,18 @@ export function initializeSession(player) {
 }
 
 
-export function getSession(playerId) {
-    return SessionStore[playerId];
+/**
+ * 
+ * @param {Mc.Player} player 
+ * @returns {Session}
+ */
+export function getSession(player) {
+    let session = SessionStore[player.id];
+    if (session == null) {
+        session = new Session(player);
+        SessionStore[player.id] = session;
+    }
+    return session;
 }
 
 //# Action State functions

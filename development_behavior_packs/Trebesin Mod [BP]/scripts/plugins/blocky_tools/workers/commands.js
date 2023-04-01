@@ -20,7 +20,7 @@ const Commands = new CommandParser({
 
 export async function main() {
 	Commands.registerCommand('restart', {
-		description: 'Initializes the Blocky Tools session for the player that invokes the command. §c!! Required to use Blocky Tools !!§r',
+		description: 'Initializes the Blocky Tools session for the player that invokes the command.',
 		parameters: [],
 		run: Sessions.initializeSession
 	});
@@ -53,34 +53,42 @@ export async function main() {
 				sendMessage('§cInvalid choice of pointer mode!§r Options are: §c"BLOCK","FACE","FREE","ACTION"§r.','§2BT§r',sender);
 				return;
 			}
-			Sessions.switchPointer(sender,pointerMode);
+			const session = Sessions.getSession(sender);
+			session.switchPointer(pointerMode);
+			//Sessions.switchPointer(sender,pointerMode);
 		}
 	});
 
 	Commands.registerCommand('fillSelectionCorners',{
-		parameters: [			{
-			id:'blockType',
-			type:'blockType'
+		parameters: [{
+			id:'blockPermutation',
+			type:'blockPermutation'
 		}],
 		run(sender,parameters) {
-			Sessions.fillSelectionCorners(sender,parameters.blockType);
+			const session = Sessions.getSession(sender);
+			session.fillSelectionCorners(parameters.blockPermutation);
+			//Sessions.fillSelectionCorners(sender,parameters.blockType);
 		}
 	});
 
 	Commands.registerCommand('selectionMinMax',{
 		parameters: [],
 		run(sender) {
-			Sessions.getSelectionMinMax(sender);
+			const session = Sessions.getSession(sender);
+			session.sendSelectionBounds();
+			//Sessions.getSelectionMinMax(sender);
 		}
 	});
 
 	Commands.registerCommand('fillSelection',{
 		parameters: [{
-			id:'blockType',
-			type:'blockType'
+			id:'blockPermutation',
+			type:'blockPermutation'
 		}],
 		run(sender,parameters) {
-			Sessions.fillSelection(sender,parameters.blockType);
+			const session = Sessions.getSession(sender);
+			session.fillSelection(parameters.blockPermutation);
+			//Sessions.fillSelection(sender,parameters.blockType);
 		}
 	});
 
@@ -114,7 +122,7 @@ export async function main() {
 			}
 		],
 		run(sender,parameters) {
-			// Changes userStates to exactMatch.
+			//~ Changes userStates to exactMatch.
 			const replacePermutations = [];
 			for (let index = 0;index < parameters.replacePermutations.length; index++) {
 				const replaceData = parameters.replacePermutations[index];
@@ -123,19 +131,27 @@ export async function main() {
 					exactMatch: replaceData.userStates
 				});
 			}
-			Sessions.fillReplaceSelection(
-				sender,
+			//Sessions.fillReplaceSelection(
+			//	sender,
+			//	parameters.fillBlock,
+			//	replacePermutations,
+			//	parameters.replaceMode === 'exclude',
+			//);
+			const session = Sessions.getSession(sender);
+			session.fillReplaceSelection(
 				parameters.fillBlock,
 				replacePermutations,
 				parameters.replaceMode === 'exclude',
-			);
+			)
 		}
 	});
 
-	Commands.registerCommand('includesInSelection',{
+	Commands.registerCommand('isInsideSelection',{
 		parameters: [],
 		run(sender) {
-			Sessions.insideSelection(sender);
+			const session = Sessions.getSession(sender);
+			session.sendSelectionInside();
+			//Sessions.insideSelection(sender);
 		}
 	});
 
@@ -152,35 +168,45 @@ export async function main() {
 			}
 		],
 		run(sender,parameters) {
-			Sessions.flipSelection(sender,parameters.axis);
+			const session = Sessions.getSession(sender);
+			session.fillSelection();
+			//Sessions.flipSelection(sender,parameters.axis);
 		}
 	});
 
 	Commands.registerCommand('paste',{
 		parameters: [],
 		run(sender) {
-			Sessions.beforePasteSelection(sender);
+			const session = Sessions.getSession(sender);
+			session.preparePasteSelection();
+			//Sessions.beforePasteSelection(sender);
 		}
 	});
 
 	Commands.registerCommand('confirm',{
 		parameters: [],
 		run(sender) {
-			Sessions.confirmAction(sender,true);
+			const session = Sessions.getSession(sender);
+			session.setActionConfirmation(true);
+			//Sessions.confirmAction(sender,true);
 		}
 	});
 
 	Commands.registerCommand('cancel',{
 		parameters: [],
 		run(sender) {
-			Sessions.confirmAction(sender,false);
+			const session = Sessions.getSession(sender);
+			session.setActionConfirmation(false);
+			//Sessions.confirmAction(sender,false);
 		}
 	});
 
 	Commands.registerCommand('copy',{
 		parameters: [],
 		run(sender) {
-			Sessions.copySelection(sender);
+			const session = Sessions.getSession(sender);
+			session.copySelection();
+			//Sessions.copySelection(sender);
 		}
 	});
 
@@ -262,6 +288,7 @@ export async function main() {
 		],
 		run(sender, parameters) {
 			Sessions.clearSelections(sender);
+			const session = Sessions.getSession(sender);
 		}
 	});
 
