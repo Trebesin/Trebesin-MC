@@ -404,17 +404,6 @@ export function getSessionById(id) {
     return SessionStore[id];
 }
 
-/**
- * 
- * @param {Mc.Player} player 
- * @returns {Session}
- */
-export function getSession(player) {
-    let session = SessionStore[player.id];
-    if (session == null) session = startSession(player);
-    return session;
-}
-
 //# Action State functions
 export function confirmAction(player,confirm) {
     let session = SessionStore[player.id];
