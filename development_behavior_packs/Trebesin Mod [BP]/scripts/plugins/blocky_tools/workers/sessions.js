@@ -445,8 +445,9 @@ class Session {
      * @param {Mc.Player} player 
      */
     constructor(player) {
-        this.#player = player;
         this.id = player.id;
+
+        this.#player = player;
         this.#clipboard = new ClipboardInstance();
         this.#actionConfirmation.pending = ActionPendingState.NONE;
         this.#actionConfirmation.confirm = null;
@@ -454,8 +455,15 @@ class Session {
         this.pointerMode = PointerMode.FREE;
         this.selectionType = SelectionType.CORNER
         this.selections[SelectionType.CORNER] = new CornerSelection(player);
+        this.config = {  
+            pointer: {
+                range: 3,
+                selectLiquids: false
+            }
+        };
     }
 
+    //## Configurations
     switchPointer(pointerMode = null) {
         if (pointerMode == null) {
             if (this.pointerMode < 3) this.pointerMode++;
@@ -465,6 +473,7 @@ class Session {
         }
     }
 
+    //## Sending Info
     sendSelectionBounds() {
         const selection = this.getCurrentSelection();
         const bounds = selection.getBounds();
@@ -479,6 +488,7 @@ class Session {
         sendMessage(`${selection.includes(location)} §mX:${location.x} §qY:${location.y} §tZ:${location.z}`,'§2BT§r',player);
     }
 
+    //## Working with Selections
     copySelection() {
         const clipboard = this.getClipboard();
         const selection = this.getCurrentSelection();
@@ -510,7 +520,12 @@ class Session {
         selection.flip(axis);
     }
 
-    beforePasteSelection(index = 0) {
+    //TODO Add a way to rotate, scale, transform, mirror and flip the selection in this phase.
+    /**
+     * Prepares to paste a selection from the clipboard of the session. It asks the player to confirm the paste and highlights the area the paste will occur inside of.
+     * @param {number} clipboardIndex 
+     */
+    preparePasteSelection(clipboardIndex = 0) {
         sendMessage(`Use the commands ".confirm" or ".cancel" to confirm or cancel the paste.`,'§2BT§r',player);
 
         const pasteDimension = player.dimension;
@@ -531,12 +546,12 @@ class Session {
             const confirm = this.getActionCofirmation();
             if (confirm != null) {
                 Mc.system.clearRun(intervalCheckId);
-                if (confirm) this.pasteSelection(pasteBounds[0],pasteDimension);
+                if (confirm) this.pasteSelection(pasteBounds[0],pasteDimension,clipboardIndex);
             }
         });
     }
 
-    pasteSelection(baseLocation,dimension) {
+    pasteSelection(baseLocation,dimension,clipboardIndex) {
         const clipboard = this.getClipboard();
         clipboard.getAllBlocks((clipboardLocation,blockState) => {
             const block = dimension.getBlock(VectorMath.sum(baseLocation,clipboardLocation));
@@ -545,7 +560,7 @@ class Session {
                 blockState,
                 {actorId:player.id,updateType:'blockyTools: player'}
             );
-        },0);
+        },clipboardIndex);
     }
 
     /**
@@ -595,12 +610,34 @@ class Session {
         });
     }
 
+    fillSelectionCorners(fillPermutation) {
+        const selection = this.getCurrentSelection();
+        const player = this.getPlayer();
+        for (const blockLocation of selection.getAllCorners()) {
+            sendMessage(`§mX:${blockLocation.x} §qY:${blockLocation.y} §tZ:${blockLocation.z}`,'§2BT§r',player);
+            setBlockPermutation(
+                player.dimension.getBlock(blockLocation),
+                fillPermutation,
+                {actorId:player.id,updateType:'blockyTools: player'}
+            );
+        }
+    }
+
     //## Action Confirm
+    /**
+     * Sents a request to the player of the session to make a confirmation of some action the plugin wants to confirm.
+     * @returns {undefined}
+     */
     requestActionConfirmation() {
         if (this.#actionConfirmation.pending > ActionPendingState.NONE) throw new Error('There is an already pending confirmation for the session!');
         else this.#actionConfirmation.pending = ActionPendingState.WAIT;
     }
 
+    /**
+     * Returns state of the confirmation, either `true` or `false` after player has confirmed the action or `null` when confirmation is still pending from the player.
+     * @throws Throws an error when there wasn't a request for confirmation made yet.
+     * @returns {boolean | null}
+     */
     getActionCofirmation() {
         if (this.#actionConfirmation.pending === ActionPendingState.NONE) throw new Error('No action currently pending confirmation!');
         if (this.#actionConfirmation.pending === ActionPendingState.WAIT) return null;
@@ -610,6 +647,11 @@ class Session {
         }
     }
 
+    /**
+     * Sets the state of the confirmation for the player, used to confirm an action by a player.
+     * @param {boolean} confirmValue `true` if player has confirmed, `false` if player has cancelled the action.
+     * @returns {undefined}
+     */
     setActionConfirmation(confirmValue) {
         if (this.#actionConfirmation.pending !== ActionPendingState.WAIT) {
             sendMessage('§nNo action currently pending confirmation!','§2BT§r',player)
@@ -651,12 +693,7 @@ class Session {
     //### Configurations:
     pointerMode
     selectionType
-    config = {
-        pointer: {
-            range: 3,
-            selectLiquids: false
-        }
-    };
+    config = {}
     //### State:
     pointerBlockLocation
     selections = [];
