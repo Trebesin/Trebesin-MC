@@ -123,6 +123,15 @@ export function floor(vector) {
 }
 
 /**
+ * Rounds all the axis of the vector.
+ * @param {Vector3} vector Vector to round.
+ * @returns {Vector3} Result of rounding all axis of the vector.
+ */
+export function round(vector) {
+    return {x:Math.round(vector.x),y:Math.round(vector.y),z:Math.round(vector.z)};
+}
+
+/**
  *  Changes all axis of the vector to their absolute values.
  * @param {Vector3} vector Vector to get absolute value of.
  * @returns {Vector3} Result of absolute values of all the axis of the vector.

@@ -604,6 +604,8 @@ class Session {
     }
 
     //! preview and blocks dont match bya bout a block, fix later
+    //! possible fix - add 0.5 to all block locations to rotate its angle 
+    //! tried this ^^, i think it works, needs testing
     rotateClipboard(angle,axis,clipboardIndex = 0) {
         try {
         //Rotation Origin: (CenterRelative(NewLocation) - CenterRelative(OldLocation)) + OldLocation = NewLocation
@@ -619,7 +621,11 @@ class Session {
 
         const updatedLocationData = [];
         clipboard.getAllBlocks((blockLocation,blockState) => {
-            const rotatedBlockLocation = VectorMath.rotateSinCos(blockLocation,angleResults,axis);
+            const rotatedBlockLocation = VectorMath.rotateSinCos(
+                VectorMath.sum(blockLocation,{x:0.5,y:0.5,z:0.5}),
+                angleResults,
+                axis
+            );
             updatedLocationData.push([rotatedBlockLocation,clipboard.getBlockStateIndex(blockState)])
         }, clipboardIndex);
         clipboard.structureData[clipboardIndex].locations = updatedLocationData;
