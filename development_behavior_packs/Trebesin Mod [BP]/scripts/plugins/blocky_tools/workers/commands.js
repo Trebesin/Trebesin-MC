@@ -164,6 +164,46 @@ export async function main() {
 		}
 	});
 
+	Commands.registerCommand('flipClipboard',{
+		parameters: [
+			{
+				id:'axis',
+				type:'string',
+				choice: {
+					'x':[],
+					'y':[],
+					'z':[]
+				}
+			}
+		],
+		run(sender,parameters) {
+			const session = Sessions.getSession(sender);
+			session.flipClipboard(parameters.axis);
+		}
+	});
+
+	Commands.registerCommand('rotateClipboard',{
+		parameters: [
+			{
+				id:'angle',
+				type:'integer'
+			},
+			{
+				id:'axis',
+				type:'string',
+				choice: {
+					'x':[],
+					'y':[],
+					'z':[]
+				}
+			}
+		],
+		run(sender,parameters) {
+			const session = Sessions.getSession(sender);
+			session.rotateClipboard(parameters.angle,parameters.axis);
+		}
+	});
+
 	Commands.registerCommand('paste',{
 		parameters: [],
 		run(sender) {

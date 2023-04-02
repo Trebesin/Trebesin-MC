@@ -2,7 +2,7 @@
 import * as Mc from '@minecraft/server';
 import { floorVector, setVectorLength, sumVectors, getDirectionFace, multiplyVector, subVectors} from '../../../js_modules/vector';
 import { DIMENSION_IDS, FACE_DIRECTIONS } from '../../../mc_modules/constants';
-import { generateLineBox, spawnBox, spawnLine, spawnLineBox, spawnParticleLine } from '../../../mc_modules/particles';
+import { expandArea, generateLineBox, spawnBox, spawnLine, spawnLineBox, spawnParticleLine } from '../../../mc_modules/particles';
 import { getEquipedItem, sendMessage } from '../../../mc_modules/players';
 //Plugins:
 import { CornerSelection } from './selection';
@@ -565,29 +565,26 @@ class Session {
 
         const intervalCheckId = Mc.system.runInterval(() => {
             clipboard.getAllParticles((lineParticle) => {
-                logMessage(JSON.stringify(lineParticle));
-                const molangVariables = new Mc.MolangVariableMap();
-                molangVariables.setColorRGBA(`variable.color`,lineParticle.color);
-                molangVariables.setSpeedAndDirection(`variable.time`,0.051,new Mc.Vector(0,0,0));
-                molangVariables.setSpeedAndDirection(
-                    `variable.size`,
-                    lineParticle.length,
-                    new Mc.Vector(lineParticle.direction.x,lineParticle.direction.y,lineParticle.direction.z)
-                );
-                spawnParticleLine(
-                    'trebesin:line_flex2',
-                    pasteDimension,
-                    VectorMath.sum(pasteLocation,lineParticle.location),
-                    lineParticle.length,
-                    molangVariables
-                );
+                try {
+                    spawnParticleLine(
+                        'trebesin:line_flex2',
+                        pasteDimension,
+                        VectorMath.sum(pasteLocation,lineParticle.location),
+                        lineParticle.direction,
+                        lineParticle.length,
+                        0.051,
+                        lineParticle.color
+                    );
+                } catch (error) {
+                    logMessage(error);
+                }
             },clipboardIndex);
-            //spawnLineBox('trebesin:line_flex2',pasteBounds,pasteDimension,molangVariables);
 
             const confirm = this.getActionCofirmation();
             if (confirm != null) {
                 Mc.system.clearRun(intervalCheckId);
                 if (confirm) this.pasteSelection(pasteLocation,pasteDimension,clipboardIndex);
+                //this.requestActionConfirmation();
             }
         });
     }
@@ -596,9 +593,7 @@ class Session {
         const player = this.getPlayer();
         const clipboard = this.getClipboard();
 
-        logMessage('gotta paste')
         clipboard.getAllBlocks((clipboardLocation,blockState) => {
-            //logMessage(`BASE LOC: ${JSON.stringify(baseLocation)} CLIP LOC: ${JSON.stringify(clipboardLocation)} BLOCK: ${JSON.stringify(blockState)}`);
             const block = dimension.getBlock(VectorMath.sum(baseLocation,clipboardLocation));
             editBlock(
                 block,
@@ -607,6 +602,87 @@ class Session {
             );
         },clipboardIndex);
     }
+
+    //! preview and blocks dont match bya bout a block, fix later
+    rotateClipboard(angle,axis,clipboardIndex = 0) {
+        try {
+        //Rotation Origin: (CenterRelative(NewLocation) - CenterRelative(OldLocation)) + OldLocation = NewLocation
+        const angleRadians = (Math.PI/180)*angle;
+        const angleResults = {
+            sin: Math.sin(angleRadians),
+            cos: Math.cos(angleRadians)
+        }
+
+        const clipboard = this.getClipboard();
+        const player = this.getPlayer();
+        const bounds = clipboard.getBounds(clipboardIndex);
+
+        const updatedLocationData = [];
+        clipboard.getAllBlocks((blockLocation,blockState) => {
+            const rotatedBlockLocation = VectorMath.rotateSinCos(blockLocation,angleResults,axis);
+            updatedLocationData.push([rotatedBlockLocation,clipboard.getBlockStateIndex(blockState)])
+        }, clipboardIndex);
+        clipboard.structureData[clipboardIndex].locations = updatedLocationData;
+
+        const updatedParticleData = [];
+        clipboard.getAllParticles((particleData) => {
+            const rotatedParticle = {
+                location: VectorMath.rotateSinCos(particleData.location,angleResults,axis),
+                direction: VectorMath.rotateSinCos(particleData.direction,angleResults,axis),
+                length: particleData.length,
+                color: particleData.color
+            }
+            updatedParticleData.push(rotatedParticle);
+        }, clipboardIndex);
+        clipboard.structureData[clipboardIndex].particles = updatedParticleData;
+        } catch (error) {
+            logMessage(error);
+        }
+    }
+
+    /**
+     * Flips all the blocks in the clipboard on the chosen axis.
+     * @param {'x'|'y'|'z'} axis Axis to flip.
+     */
+    flipClipboard(axis, clipboardIndex = 0) {
+        const clipboard = this.getClipboard();
+        const player = this.getPlayer();
+        const bounds = clipboard.getBounds(clipboardIndex);
+
+        const updatedLocationData = [];
+        clipboard.getAllBlocks((blockLocation,blockState) => {
+            const flippedBlockLocation = VectorMath.copy(blockLocation);
+            flippedBlockLocation[axis] = (bounds.center[axis]-(blockLocation[axis]-bounds.center[axis]));
+            updatedLocationData.push([flippedBlockLocation,clipboard.getBlockStateIndex(blockState)])
+        }, clipboardIndex);
+        clipboard.structureData[clipboardIndex].locations = updatedLocationData;
+
+        const particleBounds = expandArea([bounds.min,bounds.max],[0,1]);
+        const particleCenter = VectorMath.divide(
+            VectorMath.sum(
+                VectorMath.getMaximalVector(particleBounds),
+                VectorMath.getMinimalVector(particleBounds)
+            ),2
+        );
+
+        const updatedParticleData = [];
+        clipboard.getAllParticles((particleData) => {
+            const {location,direction} = particleData;
+            const flippedParticle = {
+                location: particleData.location,
+                direction: {
+                    x: axis === 'x' ? -direction.x : direction.x,
+                    y: axis === 'y' ? -direction.y : direction.y,
+                    z: axis === 'z' ? -direction.z : direction.z
+                },
+                length: particleData.length,
+                color: particleData.color
+            }
+            flippedParticle.location[axis] = (particleCenter[axis]-(location[axis]-particleCenter[axis]));
+            updatedParticleData.push(flippedParticle);
+        }, clipboardIndex);
+        clipboard.structureData[clipboardIndex].particles = updatedParticleData;
+    } 
 
     /**
      * Sets the permutation of all blocks contained inside the area of the selection.

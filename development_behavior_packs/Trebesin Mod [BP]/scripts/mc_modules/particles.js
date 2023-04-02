@@ -217,7 +217,7 @@ function maxIndex(array,callback) {
  * @param {number[]} locations 
  * @param {number[]} expansionAmount 
  */
-function expandArea(locations,expansionAmounts) {
+export function expandArea(locations,expansionAmounts) {
     let newLocations = [];
     const maxIndexes = {
         x: maxIndex(locations,(item) => item.x),
@@ -248,11 +248,6 @@ function expandArea(locations,expansionAmounts) {
  */
 export function spawnLineBox(particleName,corners,dimension,molang) {
     const appliedCorners = expandArea(corners,[0,1]);
-    
-    //~ Prototype code for axis colors
-    const minCorner = VectorMath.getMinimalVector(appliedCorners);
-    //~ Prototype code for axis colors
-
     const span = VectorMath.sub(appliedCorners[0],appliedCorners[1]);
 
     for (const axis of ['x','y','z']) {
@@ -271,39 +266,9 @@ export function spawnLineBox(particleName,corners,dimension,molang) {
                 spawnLocation[spawnAxis] = appliedCorners[1][spawnAxis];
             }
 
-            //~ Prototype code for axis colors
-            const axisOriginVector = VectorMath.copy(spawnLocation);
-            if (direction === -1) {
-                axisOriginVector[axis] = spawnLocation[axis] - absoluteSpan;
-            }
-            if (VectorMath.compare(axisOriginVector,minCorner)) {
-                molang.setColorRGBA(`variable.color`,{
-                    red: axis === 'x' ? 1 : 0,
-                    green: axis === 'y' ? 1 : 0,
-                    blue: axis === 'z' ? 1 : 0,
-                    alpha: 0.85
-                });
-            } else molang.setColorRGBA(`variable.color`,{red:0,green:1,blue:1,alpha:0.85});
-            //~ Prototype code for axis colors
-
             molang.setSpeedAndDirection(`variable.size`,absoluteSpan,vector);
             dimension.spawnParticle(particleName,spawnLocation,molang);
         }
-
-        //~ Prototype code for axis colors
-        const axisOriginVector = VectorMath.copy(finalLocation);
-        if (direction === -1) {
-            axisOriginVector[axis] = finalLocation[axis] - absoluteSpan;
-        }
-        if (VectorMath.compare(axisOriginVector,minCorner)) {
-            molang.setColorRGBA(`variable.color`,{
-                red: axis === 'x' ? 1 : 0,
-                green: axis === 'y' ? 1 : 0,
-                blue: axis === 'z' ? 1 : 0,
-                alpha: 0.85
-            });
-        } else molang.setColorRGBA(`variable.color`,{red:0,green:1,blue:1,alpha:0.85});
-        //~ Prototype code for axis colors
 
         molang.setSpeedAndDirection(`variable.size`,absoluteSpan,vector);
         dimension.spawnParticle(particleName,finalLocation,molang);
@@ -399,11 +364,13 @@ function directionLiesOnOrigin(location,direction,origin) {
  * @param {import('../js_modules/vectorMath').Vector3} location
  * @param {import('../js_modules/vectorMath').Vector3} direction 
  * @param {number} length 
+ * @param {number} time 
  * @param {import('@minecraft/server').Color} color 
  */
-export function spawnParticleLine(particleName,dimension,location,direction,length = 1,color = {red:0,green:0,blue:0,alpha:1}) {
+export function spawnParticleLine(particleName,dimension,location,direction,length = 1,time = 1,color = {red:0,green:0,blue:0,alpha:1}) {
     const molang = new Mc.MolangVariableMap();
-    molang.setSpeedAndDirection(`variable.size`,length,direction);
+    molang.setSpeedAndDirection(`variable.time`,time,new Mc.Vector(0,0,0));
+    molang.setSpeedAndDirection(`variable.size`,length,new Mc.Vector(direction.x,direction.y,direction.z));
     molang.setColorRGBA(`variable.color`,color);
     dimension.spawnParticle(particleName,location,molang);
 }
