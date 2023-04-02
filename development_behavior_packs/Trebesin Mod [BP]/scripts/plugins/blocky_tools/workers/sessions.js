@@ -607,7 +607,6 @@ class Session {
     //! possible fix - add 0.5 to all block locations to rotate its angle 
     //! tried this ^^, i think it works, needs testing
     rotateClipboard(angle,axis,clipboardIndex = 0) {
-        try {
         //Rotation Origin: (CenterRelative(NewLocation) - CenterRelative(OldLocation)) + OldLocation = NewLocation
         const angleRadians = (Math.PI/180)*angle;
         const angleResults = {
@@ -641,9 +640,6 @@ class Session {
             updatedParticleData.push(rotatedParticle);
         }, clipboardIndex);
         clipboard.structureData[clipboardIndex].particles = updatedParticleData;
-        } catch (error) {
-            logMessage(error);
-        }
     }
 
     /**
