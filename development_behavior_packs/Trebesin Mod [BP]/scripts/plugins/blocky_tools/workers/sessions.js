@@ -603,9 +603,11 @@ class Session {
         },clipboardIndex);
     }
 
-    //! preview and blocks dont match bya bout a block, fix later
-    //! possible fix - add 0.5 to all block locations to rotate its angle 
-    //! tried this ^^, i think it works, needs testing
+    //! somehow move paste location, prolly make like a temp store in the session class for storing variables like so
+
+    //!! scaling !!
+    //! mirroring maybe??
+    //! gotta add rotation relative to center, center of origin?
     rotateClipboard(angle,axis,clipboardIndex = 0) {
         //Rotation Origin: (CenterRelative(NewLocation) - CenterRelative(OldLocation)) + OldLocation = NewLocation
         const angleRadians = (Math.PI/180)*angle;
@@ -616,12 +618,11 @@ class Session {
 
         const clipboard = this.getClipboard();
         const player = this.getPlayer();
-        const bounds = clipboard.getBounds(clipboardIndex);
 
         const updatedLocationData = [];
         clipboard.getAllBlocks((blockLocation,blockState) => {
             const rotatedBlockLocation = VectorMath.rotateSinCos(
-                VectorMath.sum(blockLocation,{x:0.5,y:0.5,z:0.5}),
+                VectorMath.sum(VectorMath.floor(blockLocation),{x:0.5,y:0.5,z:0.5}),
                 angleResults,
                 axis
             );

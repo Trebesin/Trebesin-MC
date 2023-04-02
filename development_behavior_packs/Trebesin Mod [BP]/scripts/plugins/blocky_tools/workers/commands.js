@@ -2,7 +2,7 @@
 import * as Mc from '@minecraft/server';
 //Plugins:
 import * as Sessions from './sessions';
-import {setBlockType} from '../../block_history/block_history';
+import {editBlock, setBlockPermutation, setBlockType} from '../../block_history/block_history';
 import {isAdmin} from '../../commands/workers/admin';
 //Modules:
 import {generateBlockArea} from '../../../mc_modules/blocks';
@@ -201,6 +201,26 @@ export async function main() {
 		run(sender,parameters) {
 			const session = Sessions.getSession(sender);
 			session.rotateClipboard(parameters.angle,parameters.axis);
+		}
+	});
+
+	Commands.registerCommand('setblock',{
+		parameters: [
+			{
+				id:'fillBlock',
+				type:'blockPermutation'
+			},
+			{
+				id:'location',
+				type:'position'
+			}
+		],
+		run(sender,parameters) {
+			setBlockPermutation(
+				sender.dimension.getBlock(parameters.location),
+				parameters.fillBlock.permutation,
+				{actorId:sender.id,updateType:'blockyTools: player'}
+			);
 		}
 	});
 
