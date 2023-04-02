@@ -242,7 +242,7 @@ function expandArea(locations,expansionAmounts) {
 /**
  * 
  * @param {string} particle 
- * @param {import('../js_modules/vectorMath').Vector3} coords
+ * @param {import('../js_modules/vectorMath').Vector3[]} corners
  * @param {Mc.Dimension} dimension 
  * @param {Mc.MolangVariableMap} molang 
  */
@@ -310,6 +310,88 @@ export function spawnLineBox(particleName,corners,dimension,molang) {
     }
 }
 
+/**
+ * 
+ * @param {import('../js_modules/vectorMath').Vector3[]} corners
+ * @param {Mc.Color} defaultColor
+ */
+export function generateLineBox(corners,defaultColor) {
+    const particleDefinitions = [];
+    const appliedCorners = expandArea(corners,[0,1]);
+    
+    //~ Prototype code for axis colors
+    const minCorner = VectorMath.getMinimalVector(appliedCorners);
+    //~ Prototype code for axis colors
+
+    const span = VectorMath.sub(appliedCorners[1],appliedCorners[0]);
+
+    for (const axis of ['x','y','z']) {
+        //* This is a loop where the direction of the Particle is defined
+        //* 4 Particles of each direction form the box
+        const direction = {x:0,y:0,z:0};
+        direction[axis] = span[axis];
+        const length = Math.abs(direction[axis]);
+
+        for (let spawnAxis of ['x','y','z']) {
+            //* Here we take a spawn location, which is the 1st corner and then apply to it 1 coordinate of the other corner,
+            //* unless the axis is the same, that's what spawns the particle on the original corner location
+            const location = VectorMath.copy(appliedCorners[0]);
+            if (spawnAxis != axis) {
+                location[spawnAxis] = appliedCorners[1][spawnAxis];
+            }
+
+            //~ Prototype code for axis colors
+            const color = directionLiesOnOrigin(
+                location, direction, minCorner
+            ) ? {
+                red: axis === 'x' ? 1 : 0,
+                green: axis === 'y' ? 1 : 0,
+                blue: axis === 'z' ? 1 : 0,
+                alpha: defaultColor.alpha
+            } : defaultColor;
+            //~ Prototype code for axis colors
+
+            particleDefinitions.push({
+                location,direction,length,color
+            });
+        }
+        //* Here we take the 2nd corner and we apply to its axis that is rn the direction coordinate of the 1st one
+        //* That is essentially spawning it on the opposite side
+        const location = VectorMath.copy(appliedCorners[1]);
+        location[axis] = appliedCorners[0][axis];
+
+        //~ Prototype code for axis colors
+        const color = directionLiesOnOrigin(
+            location, direction, minCorner
+        ) ? {
+            red: axis === 'x' ? 1 : 0,
+            green: axis === 'y' ? 1 : 0,
+            blue: axis === 'z' ? 1 : 0,
+            alpha: defaultColor.alpha
+        } : defaultColor;
+        //~ Prototype code for axis colors
+
+        particleDefinitions.push({
+            location,direction,length,color
+        });
+    }
+
+    return particleDefinitions;
+}
+
+/**
+ * Helper function to proccess the `location` and `direction` vectors and checks if one of its ends lies on the `origin`.
+ * @param {object} vectors
+ * @param {import('../js_modules/vectorMath').Vector3} location
+ * @param {import('../js_modules/vectorMath').Vector3} direction
+ * @param {import('../js_modules/vectorMath').Vector3} origin
+ */
+function directionLiesOnOrigin(location,direction,origin) {
+    return (
+        VectorMath.compare(location,origin) ||
+        VectorMath.similar(VectorMath.sum(location,direction),origin,0.1)
+    );
+}
 
 /**
  * @param {string} particleName

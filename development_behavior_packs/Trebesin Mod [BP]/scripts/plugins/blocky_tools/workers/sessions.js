@@ -2,7 +2,7 @@
 import * as Mc from '@minecraft/server';
 import { floorVector, setVectorLength, sumVectors, getDirectionFace, multiplyVector, subVectors} from '../../../js_modules/vector';
 import { DIMENSION_IDS, FACE_DIRECTIONS } from '../../../mc_modules/constants';
-import { spawnBox, spawnLineBox } from '../../../mc_modules/particles';
+import { generateLineBox, spawnBox, spawnLine, spawnLineBox, spawnParticleLine } from '../../../mc_modules/particles';
 import { getEquipedItem, sendMessage } from '../../../mc_modules/players';
 //Plugins:
 import { CornerSelection } from './selection';
@@ -525,12 +525,15 @@ class Session {
                 min: {x:0,y:0,z:0},
                 max: VectorMath.sub(bounds.max,bounds.min),
                 center: VectorMath.sub(bounds.center,bounds.min)
-            }
+            },
+            particles: null
         };
+
+        copiedData.particles = generateLineBox([copiedData.bounds.min,copiedData.bounds.max],{red:0,green:1,blue:1,alpha:0.85});
     
         selection.getAllBlocks((blockLocation) => {
             const blockStateIndex = clipboard.getBlockStateIndex(copyBlockState(dimension.getBlock(blockLocation)));
-            logMessage(`${blockStateIndex},${JSON.stringify(blockLocation)}`);
+            //logMessage(`${blockStateIndex},${JSON.stringify(blockLocation)}`);
             copiedData.locations.push([
                 VectorMath.sub(blockLocation,selection.minCoordinates),blockStateIndex
             ]);
@@ -551,27 +554,40 @@ class Session {
      * @param {number} clipboardIndex 
      */
     preparePasteSelection(clipboardIndex = 0) {
+        const player = this.getPlayer();
         sendMessage(`Use the commands ".confirm" or ".cancel" to confirm or cancel the paste.`,'§2BT§r',player);
 
         const pasteDimension = player.dimension;
+        const pasteLocation = VectorMath.copy(this.pointerBlockLocation);
         const clipboard = this.getClipboard();
-        const pasteBounds = [
-            VectorMath.copy(this.pointerBlockLocation),
-            VectorMath.sum(this.pointerBlockLocation,clipboard.structureData[index].bounds.max)
-        ];
 
         this.requestActionConfirmation();
 
         const intervalCheckId = Mc.system.runInterval(() => {
-            const molangVariables = new Mc.MolangVariableMap();
-            molangVariables.setColorRGBA(`variable.color`,{red:0,green:1,blue:1,alpha:0.85});
-            molangVariables.setSpeedAndDirection(`variable.time`,0.051,new Mc.Vector(0,0,0));
-            spawnLineBox('trebesin:line_flex2',pasteBounds,pasteDimension,molangVariables);
+            clipboard.getAllParticles((lineParticle) => {
+                logMessage(JSON.stringify(lineParticle));
+                const molangVariables = new Mc.MolangVariableMap();
+                molangVariables.setColorRGBA(`variable.color`,lineParticle.color);
+                molangVariables.setSpeedAndDirection(`variable.time`,0.051,new Mc.Vector(0,0,0));
+                molangVariables.setSpeedAndDirection(
+                    `variable.size`,
+                    lineParticle.length,
+                    new Mc.Vector(lineParticle.direction.x,lineParticle.direction.y,lineParticle.direction.z)
+                );
+                spawnParticleLine(
+                    'trebesin:line_flex2',
+                    pasteDimension,
+                    VectorMath.sum(pasteLocation,lineParticle.location),
+                    lineParticle.length,
+                    molangVariables
+                );
+            },clipboardIndex);
+            //spawnLineBox('trebesin:line_flex2',pasteBounds,pasteDimension,molangVariables);
 
             const confirm = this.getActionCofirmation();
             if (confirm != null) {
                 Mc.system.clearRun(intervalCheckId);
-                if (confirm) this.pasteSelection(pasteBounds[0],pasteDimension,clipboardIndex);
+                if (confirm) this.pasteSelection(pasteLocation,pasteDimension,clipboardIndex);
             }
         });
     }
@@ -580,7 +596,9 @@ class Session {
         const player = this.getPlayer();
         const clipboard = this.getClipboard();
 
+        logMessage('gotta paste')
         clipboard.getAllBlocks((clipboardLocation,blockState) => {
+            //logMessage(`BASE LOC: ${JSON.stringify(baseLocation)} CLIP LOC: ${JSON.stringify(clipboardLocation)} BLOCK: ${JSON.stringify(blockState)}`);
             const block = dimension.getBlock(VectorMath.sum(baseLocation,clipboardLocation));
             editBlock(
                 block,
@@ -687,6 +705,7 @@ class Session {
      * @returns {undefined}
      */
     setActionConfirmation(confirmValue) {
+        const player = this.getPlayer();
         if (this.#actionConfirmation.pending !== ActionPendingState.WAIT) {
             sendMessage('§nNo action currently pending confirmation!','§2BT§r',player)
             return;
@@ -751,12 +770,24 @@ class ClipboardInstance {
         else return (this.blockStateData.push(blockState) - 1);
     }
 
-    getAllBlocks(callback,index) {
-        const locations = this.structureData[index];
+    getAllBlocks(callback,clipboardIndex) {
+        const locations = this.structureData[clipboardIndex].locations;
         if (locations == null) return null;
         for (let index = 0;index < locations.length;index++) {
-            callback(...locations[index]);
+            callback(locations[index][0],this.blockStateData[locations[index][1]]);
         }
+    }
+
+    getAllParticles(callback,clipboardIndex) {
+        const particles = this.structureData[clipboardIndex].particles;
+        if (particles == null) return null;
+        for (let index = 0;index < particles.length;index++) {
+            callback(particles[index]);
+        }
+    }
+
+    getBounds(clipboardIndex) {
+        return this.structureData[clipboardIndex].bounds;
     }
 }
 

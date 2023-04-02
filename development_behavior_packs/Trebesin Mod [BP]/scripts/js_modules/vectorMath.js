@@ -141,6 +141,21 @@ export function compare(vectorA,vectorB) {
     return (vectorA.x === vectorB.x && vectorA.y === vectorB.y && vectorA.z === vectorB.z);
 }
 
+/**
+ * Returns a value that indicates if the vectors are similar according to the `margin`.
+ * @param {Vector3} vectorA 
+ * @param {Vector3} vectorB 
+ * @param {number} margin 
+ * @returns {boolean}
+ */
+export function similar(vectorA,vectorB,margin) {
+    return (
+        Math.abs(vectorA.x - vectorB.x) <= margin &&
+        Math.abs(vectorA.y - vectorB.y) <= margin && 
+        Math.abs(vectorA.z - vectorB.z) <= margin
+    );
+}
+
 export function getDirectionFace(vector) {
     const absVector = getAbsoluteVector(vector);
     if (absVector.x > absVector.y && absVector.x > absVector.z) {
@@ -198,3 +213,140 @@ export function getMinimalVector(vectors) {
     }
     return min;
 }
+
+/**
+ * Performs a basic vector rotation.
+ * @param {Vector3} vector Vector that will be rotated by a specified angle on a specified axis.
+ * @param {number} angle Angle in radians.
+ * @param {'x' | 'y' | 'z'} axis Axis to rotate the vector along.
+ * @returns {Vector3}
+ */
+export function rotate(vector,angle,axis) {
+    const rotatedVector = {
+        x: vector.x,
+        y: vector.y,
+        z: vector.z
+    };
+    const angleSin = Math.sin(angle);
+    const angleCos = Math.cos(angle);
+
+    switch (axis) {
+        case 'x': {
+            rotatedVector.y = vector.y*angleCos - vector.z*angleSin;
+            rotatedVector.z = vector.y*angleSin + vector.z*angleCos;
+        } break;
+        case 'y': {
+            rotatedVector.x = vector.x*angleCos + vector.z*angleSin;
+            rotatedVector.z = vector.z*angleCos - vector.x*angleSin;
+        } break;
+        case 'z': {
+            rotatedVector.x = vector.x*angleCos - vector.y*angleSin;
+            rotatedVector.y = vector.x*angleSin + vector.y*angleCos;
+        } break;
+        default: throw new Error('Invalid Axis specified!');
+    }
+    return rotatedVector;
+}
+
+/**
+ * Performs a basic vector rotation in a batch on multiple vectors. The main advantage of this is that `Math.sin` and `Math.cos` will only be called once during the entire function.
+ * @param {Vector3[]} vectors Array of vectors that will be each rotated by a specified angle on a specified axis.
+ * @param {number} angle Angle in radians.
+ * @param {'x' | 'y' | 'z'} axis Axis to rotate the vector along.
+ * @param {Vector3Callback} callback Callback that gets called with the result of the operation.
+ */
+export function rotateVectors(vectors,angle,axis,callback) {
+    const angleSin = Math.sin(angle);
+    const angleCos = Math.cos(angle);
+
+    for (let index = 0;index < vectors.length;index++) {
+        const vector = vectors[index];
+        const rotatedVector = {
+            x: vector.x,
+            y: vector.y,
+            z: vector.z
+        };
+        switch (axis) {
+            case 'x': {
+                rotatedVector.y = vector.y*angleCos - vector.z*angleSin;
+                rotatedVector.z = vector.y*angleSin + vector.z*angleCos;
+            } break;
+            case 'y': {
+                rotatedVector.x = vector.x*angleCos + vector.z*angleSin;
+                rotatedVector.z = vector.z*angleCos - vector.x*angleSin;
+            } break;
+            case 'z': {
+                rotatedVector.x = vector.x*angleCos - vector.y*angleSin;
+                rotatedVector.y = vector.x*angleSin + vector.y*angleCos;
+            } break;
+            default: throw new Error('Invalid Axis specified!');
+        }
+        callback(rotatedVector);
+    }
+}
+
+/**
+ * Performs a basic vector rotation. The angle is defined by its `sin` and `cos` values.
+ * @param {Vector3[]} vectors Array of vectors that will be each rotated by a specified angle on a specified axis.
+ * @param {object} angle Angle definition.
+ * @param {number} angle.sin Sinus result of the angle.
+ * @param {number} angle.cos Cosin result of the angle.
+ * @param {'x' | 'y' | 'z'} axis Axis to rotate the vector along.
+ * @returns {Vector3}
+ */
+export function rotateSinCos(vector,angle,axis) {
+    const rotatedVector = {
+        x: vector.x,
+        y: vector.y,
+        z: vector.z
+    };
+    switch (axis) {
+        case 'x': {
+            rotatedVector.y = vector.y*angle.cos - vector.z*angle.sin;
+            rotatedVector.z = vector.y*angle.sin + vector.z*angle.cos;
+        } break;
+        case 'y': {
+            rotatedVector.x = vector.x*angle.cos + vector.z*angle.sin;
+            rotatedVector.z = vector.z*angle.cos - vector.x*angle.sin;
+        } break;
+        case 'z': {
+            rotatedVector.x = vector.x*angle.cos - vector.y*angle.sin;
+            rotatedVector.y = vector.x*angle.sin + vector.y*angle.cos;
+        } break;
+        default: throw new Error('Invalid Axis specified!');
+    }
+    return rotatedVector;
+}
+
+/**
+ * Returns the first axis that contains the maximal value of all the axis of the vector.
+ * @param {Vector3} vector 
+ * @returns {'x' | 'y' | 'z'}
+ */
+export function getMaxAxis(vector) {
+    const maxAxis = 'x';
+    for (const axis in vector) {
+        if (vector[axis] > vector[maxAxis]) maxAxis = axis;
+    }
+    return maxAxis
+}
+
+/**
+ * Returns the first axis that contains the minimal value of all the axis of the vector.
+ * @param {Vector3} vector 
+ * @returns {'x' | 'y' | 'z'}
+ */
+export function getMinAxis(vector) {
+    const minAxis = 'x';
+    for (const axis in vector) {
+        if (vector[axis] < vector[minAxis]) minAxis = axis;
+    }
+    return minAxis;
+}
+
+//# Types / Constants
+
+/**
+ * @callback Vector3Callback Callback that gets called during a vector operation with multiple vector outputs.
+ * @param {Vector3} vector Vector result of the operation.
+ */
