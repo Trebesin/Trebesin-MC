@@ -258,6 +258,19 @@ export function rotate(vector,angle,axis) {
 }
 
 /**
+ * Function that flips a `vector` on an `axis` relative to a defined `flipVector`.
+ * @param {Vector3} vector 
+ * @param {Vector3} flipVector 
+ * @param {'x' | 'y' | 'z'} axis 
+ * @returns {Vector3} Result of flipping the vector along the selected axis relative to the defined point.
+ */
+export function flip(vector,flipVector,axis) {
+    const flippedVector = copy(vector);
+    flippedVector[axis] = flipVector[axis] - (vector[axis] - flipVector[axis]);
+    return flippedVector;
+}
+
+/**
  * Performs a basic vector rotation in a batch on multiple vectors. The main advantage of this is that `Math.sin` and `Math.cos` will only be called once during the entire function.
  * @param {Vector3[]} vectors Array of vectors that will be each rotated by a specified angle on a specified axis.
  * @param {number} angle Angle in radians.

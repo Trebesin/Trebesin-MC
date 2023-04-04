@@ -478,6 +478,11 @@ class Session {
         this.pointerMode = PointerMode.FREE;
         this.selectionType = SelectionType.CORNER
         this.selections[SelectionType.CORNER] = new CornerSelection(player);
+        this.pasteState = {
+            originLocation: null,
+            clipboardIndex: null,
+            dimension: null
+        };
         this.config = {  
             pointer: {
                 range: 3,
@@ -526,7 +531,12 @@ class Session {
                 max: VectorMath.sub(bounds.max,bounds.min),
                 center: VectorMath.sub(bounds.center,bounds.min)
             },
-            particles: null
+            particles: null,
+            config: {
+                rotation: {x:0,y:0,z:0},
+                scale: {x:1,y:1,z:1},
+                flip: {x:false,y:false,z:false}
+            }
         };
 
         copiedData.particles = generateLineBox([copiedData.bounds.min,copiedData.bounds.max],{red:0,green:1,blue:1,alpha:0.85});
@@ -548,7 +558,7 @@ class Session {
         selection.flip(axis);
     }
 
-    //TODO Add a way to rotate, scale, transform, mirror and flip the selection in this phase.
+    //TODO Add a way to rotate, scale, translate, mirror and flip the selection in this phase.
     /**
      * Prepares to paste a selection from the clipboard of the session. It asks the player to confirm the paste and highlights the area the paste will occur inside of.
      * @param {number} clipboardIndex 
@@ -557,33 +567,40 @@ class Session {
         const player = this.getPlayer();
         sendMessage(`Use the commands ".confirm" or ".cancel" to confirm or cancel the paste.`,'§2BT§r',player);
 
-        const pasteDimension = player.dimension;
-        const pasteLocation = VectorMath.copy(this.pointerBlockLocation);
+        this.pasteState.dimension = player.dimension;
+        this.pasteState.originLocation = VectorMath.copy(this.pointerBlockLocation);
+        this.pasteState.clipboardIndex = clipboardIndex;
         const clipboard = this.getClipboard();
 
         this.requestActionConfirmation();
 
+        //!This will be part of the main interval
         const intervalCheckId = Mc.system.runInterval(() => {
-            clipboard.getAllParticles((lineParticle) => {
+            clipboard.getAllParticles((particle) => {
                 try {
                     spawnParticleLine(
                         'trebesin:line_flex2',
-                        pasteDimension,
-                        VectorMath.sum(pasteLocation,lineParticle.location),
-                        lineParticle.direction,
-                        lineParticle.length,
+                        this.pasteState.dimension,
+                        VectorMath.sum(this.pasteState.originLocation,particle.location),
+                        particle.direction,
+                        particle.length,
                         0.051,
-                        lineParticle.color
+                        particle.color
                     );
                 } catch (error) {
                     logMessage(error);
                 }
-            },clipboardIndex);
+            },this.pasteState.clipboardIndex);
 
             const confirm = this.getActionCofirmation();
             if (confirm != null) {
                 Mc.system.clearRun(intervalCheckId);
-                if (confirm) this.pasteSelection(pasteLocation,pasteDimension,clipboardIndex);
+                if (confirm) this.pasteSelection(
+                    this.pasteState.originLocation,
+                    this.pasteState.dimension,
+                    this.pasteState.clipboardIndex
+                );
+                this.pasteState.clipboardIndex = null;
                 //this.requestActionConfirmation();
             }
         });
@@ -827,9 +844,10 @@ class Session {
     selectionType
     config = {}
     //### State:
-    /** @type {import('./selection').Vector3} */
+    /** @type {import('../../../js_modules/vectorMath').Vector3} */
     pointerBlockLocation
     selections = [];
+    pasteState = {};
     //### Other:
     #clipboard
     #actionConfirmation = {};
@@ -840,9 +858,16 @@ class Session {
 class ClipboardInstance {
     constructor() {}
 
+    /** @type {import('../../../mc_modules/blocks').BlockState[]} */
     blockStateData = []
+    /** @type {ClipboardStructureData[]} */
     structureData = []
 
+    /**
+     * 
+     * @param {import('../../../mc_modules/blocks').BlockState} blockState 
+     * @returns {number}
+     */
     getBlockStateIndex(blockState) {
         const indexInArray = this.blockStateData.findIndex((savedBlockState) => compareBlockStates(blockState,savedBlockState));
         if (indexInArray >= 0) return indexInArray;
@@ -868,14 +893,78 @@ class ClipboardInstance {
     getBounds(clipboardIndex) {
         return this.structureData[clipboardIndex].bounds;
     }
+    
+    getConfig(clipboardIndex) {
+        return this.structureData[clipboardIndex].config;
+    }
+
+    /**
+     * Calling this function updates the particle preview for the clipboard contents.
+     * *Use mainly when updating configs of the clipboard contents or translating block locations.*
+     * @param {number} clipboardIndex Index of the clipboard contents.
+     */
+    updateParticlePreview(clipboardIndex) {
+        const bounds = this.getBounds(clipboardIndex);
+        const config = this.getConfig(clipboardIndex);
+        //### Create new particle set forming a box:
+        const particleData = generateLineBox([bounds.min,bounds.max],{red:0,green:1,blue:1,alpha:0.85});
+
+        //### Prepare center value for flip:
+        const particleBounds = expandArea([bounds.min,bounds.max],[0,1]); //*Particles are 1 block longer than the actual volume.
+        const particleCenter = VectorMath.divide(
+            VectorMath.sum(
+                VectorMath.getMaximalVector(particleBounds),
+                VectorMath.getMinimalVector(particleBounds)
+            ),2
+        );
+
+        //### Transform the particles !!(order: flip -> scale -> rotate)!!:
+        for (let index = 0;index < particleData.length; index++) {
+            const particle = particleData[index];
+            let {location,direction} = particle;
+            //### Apply Flip:
+            for (const axis in config.flip) {
+                if (!config.flip[axis]) continue;
+                location = VectorMath.flip(location,particleCenter,axis);
+                direction = VectorMath.flip(direction,{x:0,y:0,z:0},axis);
+            }
+            //### Apply Scale:
+            location = VectorMath.vectorMultiply(location,config.scale);
+            direction = VectorMath.vectorMultiply(direction,config.scale);
+            //### Apply Rotation:
+            for (const axis in config.rotation) {
+                const angleRadians = (Math.PI/180)*config.rotation[axis];
+                const angleResults = {
+                    sin: Math.sin(angleRadians),
+                    cos: Math.cos(angleRadians)
+                }
+                if (config.rotation[axis] === 0) continue;
+                location = VectorMath.rotateSinCos(location,angleResults,axis);
+                direction = VectorMath.rotateSinCos(direction,angleResults,axis);
+            }
+            //### Save the calculated values:
+            particleData[index].location = location;
+            particleData[index].location = direction;
+        }
+        //### Save the particles:
+        this.structureData[clipboardIndex].particles = particleData;
+    }
 }
 
 //# Types / Constants
 
 /**
- * @typedef ClipboardStructureData
- * @property {import('./selection').Vector3 | number [][]} locations
- * @property {import('./selection').SelectionBounds} bounds
+ * @typedef ClipboardStructureData Interface to define a set of blocks that are copied to the clipboard of a session.
+ * @property {import('./selection').Vector3 | number [][]} locations Array of arrays that consist of 2 items - **0**: `Vector3` to define a location relative to an origin and **1**: an index `number` that defines the block state coresponding to the location.
+ * @property {import('./selection').SelectionBounds} bounds Bounds of the clipboard contents that are important to technical workings of the clipboard.
+ * @property {object[]} particles Array of particles that show the user what is inside the clipboard contents.
+ * @property {object} config Configurations that define how the user has manipulated the clipboard contents, it gets processed and presented when the user pastes the data.
+ * @property {import('./selection').Vector3} config.rotation Defines how the clipboard contents are rotated on each axis.
+ * @property {import('./selection').Vector3} config.scale Defines how the clipboard contents are rotated on each axis.
+ * @property {object} config.flip Defines if the clipboard contents are flipped on any axis.
+ * @property {boolean} config.flip.x Flip value for the X axis.
+ * @property {boolean} config.flip.y Flip value for the Y axis.
+ * @property {boolean} config.flip.z Flip value for the Z axis.
 */
 
 /**

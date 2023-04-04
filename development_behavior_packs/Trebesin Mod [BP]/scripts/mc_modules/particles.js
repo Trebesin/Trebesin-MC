@@ -203,18 +203,24 @@ export function spawnBigBox(particle,coords,dimension,molang,span,edgeOffset) {
     }
 }
 
-function maxIndex(array,callback) {
+/**
+ * 
+ * @param {any[]} array 
+ * @param {Function} predicate 
+ * @returns {number}
+ */
+function maxIndex(array,predicate) {
     let maxIndex = 0;
     for (let index = 1;index < array.length;index++) {
-        const item = callback(array[index]);
-        if (item > callback(array[maxIndex])) maxIndex = index;
+        const item = predicate(array[index]);
+        if (item > predicate(array[maxIndex])) maxIndex = index;
     }
     return maxIndex;
 }
 
 /**
  * 
- * @param {number[]} locations 
+ * @param {import('../js_modules/vectorMath').Vector3[]} locations 
  * @param {number[]} expansionAmount 
  */
 export function expandArea(locations,expansionAmounts) {
