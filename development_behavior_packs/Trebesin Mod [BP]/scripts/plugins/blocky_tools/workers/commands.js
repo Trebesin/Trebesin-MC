@@ -178,7 +178,11 @@ export async function main() {
 		],
 		run(sender,parameters) {
 			const session = Sessions.getSession(sender);
-			session.flipClipboard(parameters.axis);
+			const clipboard = session.getClipboard();
+			const config = clipboard.getConfig(0);
+			config.flip[parameters.axis] = !config.flip[parameters.axis];
+			clipboard.updateParticlePreview(0);
+			//session.flipClipboard(parameters.axis);
 		}
 	});
 
@@ -200,7 +204,37 @@ export async function main() {
 		],
 		run(sender,parameters) {
 			const session = Sessions.getSession(sender);
-			session.rotateClipboard(parameters.angle,parameters.axis);
+			const clipboard = session.getClipboard();
+			const config = clipboard.getConfig(0);
+			config.rotation[parameters.axis] += parameters.angle;
+			clipboard.updateParticlePreview(0);
+			//session.rotateClipboard(parameters.angle,parameters.axis);
+		}
+	});
+
+	Commands.registerCommand('scaleClipboard',{
+		parameters: [
+			{
+				id:'scale',
+				type:'float'
+			},
+			{
+				id:'axis',
+				type:'string',
+				choice: {
+					'x':[],
+					'y':[],
+					'z':[]
+				}
+			}
+		],
+		run(sender,parameters) {
+			const session = Sessions.getSession(sender);
+			const clipboard = session.getClipboard();
+			const config = clipboard.getConfig(0);
+			config.scale[parameters.axis] = parameters.scale;
+			clipboard.updateParticlePreview(0);
+			//session.scaleClipboard(parameters.scale,parameters.axis);
 		}
 	});
 
