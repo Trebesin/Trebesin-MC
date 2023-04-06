@@ -992,7 +992,7 @@ class ClipboardInstance {
         //### Transform the particles !!(order: flip -> scale -> rotate)!!:
         for (let index = 0;index < particleData.length; index++) {
             const particle = particleData[index];
-            let {location,direction} = particle;
+            let {location,direction,length} = particle;
             //### Apply Flip:
             for (const axis in config.flip) {
                 if (!config.flip[axis]) continue;
@@ -1002,6 +1002,7 @@ class ClipboardInstance {
             //### Apply Scale:
             location = VectorMath.vectorMultiply(location,config.scale);
             direction = VectorMath.vectorMultiply(direction,config.scale);
+            length = VectorMath.getLength(direction);
             //### Apply Rotation:
             for (const axis in config.rotation) {
                 if (config.rotation[axis] === 0) continue;
@@ -1015,6 +1016,7 @@ class ClipboardInstance {
             }
             //### Save the calculated values:
             particleData[index].location = location;
+            particleData[index].length = length;
             particleData[index].direction = direction;
         }
         //### Save the particles:
