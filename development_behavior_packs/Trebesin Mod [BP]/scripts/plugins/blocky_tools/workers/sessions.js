@@ -566,6 +566,7 @@ class Session {
         const clipboard = this.getClipboard();
 
         clipboard.getAllBlocksProccessed((clipboardLocation,blockState) => {
+            if (blockState.typeId === 'minecraft:air') return;
             const block = dimension.getBlock(VectorMath.sum(baseLocation,clipboardLocation));
             editBlock(
                 block,
@@ -578,7 +579,6 @@ class Session {
     //! somehow move paste location, prolly make like a temp store in the session class for storing variables like so
 
     //!! scaling !!
-    //! mirroring maybe??
     //! gotta add rotation relative to center, center of origin?
     rotateClipboard(angle,axis,clipboardIndex = 0) {
         //Rotation Origin: (CenterRelative(NewLocation) - CenterRelative(OldLocation)) + OldLocation = NewLocation
@@ -939,6 +939,10 @@ class ClipboardInstance {
                 if (!config.flip[axis]) continue;
                 blockLocation = VectorMath.flip(blockLocation,bounds.center,axis);
             }
+            //!! Main idea behind scaling is that you scale its position and ALSO ITS SPAN. 
+            //!! The blocks position is its min position on all axis and the span goes therefor towards positive axis values.
+            //!! The algorithm will have to get all the block locations that are contained inside this span and prolly use 
+            //!! hash maps to avoid duplicates The alogirthm will use floor of any float point result like minecraft does and 
             blockLocation = VectorMath.vectorMultiply(blockLocation,config.scale);
             for (const axis in config.rotation) {
                 const angleRadians = (Math.PI/180)*config.rotation[axis];
