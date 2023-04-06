@@ -300,29 +300,29 @@ export async function main() {
 					translate: [
 						{
 							id: 'x',
-							type: 'number'
+							type: 'integer'
 						},
 						{
 							id: 'y',
-							type: 'number'
+							type: 'integer'
 						},
 						{
 							id: 'z',
-							type: 'number'
+							type: 'integer'
 						}
 					],
 					extend: [
 						{
 							id: 'x',
-							type: 'number'
+							type: 'integer'
 						},
 						{
 							id: 'y',
-							type: 'number'
+							type: 'integer'
 						},
 						{
 							id: 'z',
-							type: 'number'
+							type: 'integer'
 						},
 						{
 							id:'bothWays',
@@ -333,15 +333,15 @@ export async function main() {
 					shrink: [
 						{
 							id: 'x',
-							type: 'number'
+							type: 'integer'
 						},
 						{
 							id: 'y',
-							type: 'number'
+							type: 'integer'
 						},
 						{
 							id: 'z',
-							type: 'number'
+							type: 'integer'
 						},
 						{
 							id:'bothWays',
@@ -352,15 +352,15 @@ export async function main() {
 					rotate: [
 						{
 							id: 'x',
-							type: 'number'
+							type: 'integer'
 						},
 						{
 							id: 'y',
-							type: 'number'
+							type: 'integer'
 						},
 						{
 							id: 'z',
-							type: 'number'
+							type: 'integer'
 						}
 					]
 				}
@@ -376,15 +376,15 @@ export async function main() {
 		parameters: [
 			{
 				id: 'x',
-				type: 'number'
+				type: 'float'
 			},
 			{
 				id: 'y',
-				type: 'number'
+				type: 'float'
 			},
 			{
 				id: 'z',
-				type: 'number'
+				type: 'float'
 			}
 		],
 		run(sender,parameters) {
@@ -404,21 +404,21 @@ export async function main() {
 		parameters: [
 			{
 				id: 'x',
-				type: 'number'
+				type: 'float'
 			},
 			{
 				id: 'y',
-				type: 'number'
+				type: 'float'
 			},
 			{
 				id: 'z',
-				type: 'number'
+				type: 'float'
 			}
 		],
 		run(sender,parameters) {
 			const session = Sessions.getSession(sender);
 			if (session.pasteState.originLocation == null) {
-				sendMessage('§nNo paste action!','§2BT§r',player)
+				sendMessage('§nNo paste action!','§2BT§r',sender)
 				return;
 			}
 			session.pasteState.originLocation = VectorMath.sum(
@@ -439,10 +439,10 @@ export async function main() {
 			const session = Sessions.getSession(sender);
 			const clipboard = session.getClipboard();
 			const bounds = clipboard.getBounds(0);
-			sendMessage(`Sending Clipboard Bounds:`,'§2BT§r',player);
-			sendMessage(`MAX: §mX:${bounds.max.x} §qY:${bounds.max.y} §tZ:${bounds.max.z}`,'§2BT§r',player);
-			sendMessage(`CENTER: §mX:${bounds.center.x} §qY:${bounds.center.y} §tZ:${bounds.center.z}`,'§2BT§r',player);
-			sendMessage(`MIN: §mX:${bounds.min.x} §qY:${bounds.min.y} §tZ:${bounds.min.z}`,'§2BT§r',player);
+			sendMessage(`Sending Clipboard Bounds:`,'§2BT§r',sender);
+			sendMessage(`MAX: §mX:${bounds.max.x} §qY:${bounds.max.y} §tZ:${bounds.max.z}`,'§2BT§r',sender);
+			sendMessage(`CENTER: §mX:${bounds.center.x} §qY:${bounds.center.y} §tZ:${bounds.center.z}`,'§2BT§r',sender);
+			sendMessage(`MIN: §mX:${bounds.min.x} §qY:${bounds.min.y} §tZ:${bounds.min.z}`,'§2BT§r',sender);
 		}
 	});
 

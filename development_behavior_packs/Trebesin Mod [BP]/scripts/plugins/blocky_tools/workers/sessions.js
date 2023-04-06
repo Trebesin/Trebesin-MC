@@ -93,12 +93,6 @@ export function main() {
 
             if (getEquipedItem(player)?.typeId === 'trebesin:bt_blocky_axe') {
                 leftClickDetector.run(player);
-                //## Paste Action Update
-                try { 
-                    session.processPasteAction();
-                } catch (error) {
-                    logMessage(`[blocky_tools@workers/sessions.js] ERROR - session.processPasteAction():\n${error}`);
-                }
                 //## Updating Pointer Block
                 try { 
                     session.updatePointerBlockLocation();
@@ -119,6 +113,18 @@ export function main() {
             } else {
                 session.pointerBlockLocation = null;
                 leftClickDetector.stop(player.id);
+            }
+
+            if (session.pasteState.clipboardIndex != null) {
+                const molang = new Mc.MolangVariableMap();
+                molang.setColorRGBA('variable.color',{red:0,green:1,blue:1,alpha:1});
+                spawnBox(`trebesin:plane_box_`,session.pasteState.originLocation,player.dimension,molang,0.01);
+            }
+            //## Paste Action Update
+            try { 
+                session.processPasteAction();
+            } catch (error) {
+                logMessage(`[blocky_tools@workers/sessions.js] ERROR - session.processPasteAction():\n${error}`);
             }
         }
     },1);
@@ -911,8 +917,8 @@ class ClipboardInstance {
             locations[index][0] = VectorMath.sum(locations[index][0],translation);
         }
         bounds.max = VectorMath.sum(bounds.max,translation);
-        bounds.min = VectorMath.sum(bounds.max,translation);
-        bounds.center = VectorMath.sum(bounds.max,translation);
+        bounds.min = VectorMath.sum(bounds.min,translation);
+        bounds.center = VectorMath.sum(bounds.center,translation);
     }
 
     /**
@@ -998,18 +1004,18 @@ class ClipboardInstance {
             direction = VectorMath.vectorMultiply(direction,config.scale);
             //### Apply Rotation:
             for (const axis in config.rotation) {
+                if (config.rotation[axis] === 0) continue;
                 const angleRadians = (Math.PI/180)*config.rotation[axis];
                 const angleResults = {
                     sin: Math.sin(angleRadians),
                     cos: Math.cos(angleRadians)
                 }
-                if (config.rotation[axis] === 0) continue;
                 location = VectorMath.rotateSinCos(location,angleResults,axis);
                 direction = VectorMath.rotateSinCos(direction,angleResults,axis);
             }
             //### Save the calculated values:
             particleData[index].location = location;
-            particleData[index].location = direction;
+            particleData[index].direction = direction;
         }
         //### Save the particles:
         this.structureData[clipboardIndex].particles = particleData;
