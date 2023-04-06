@@ -91,46 +91,26 @@ export function main() {
             selection.createParticleOutline();
             selection.createParticleBlocks();
 
-
             if (getEquipedItem(player)?.typeId === 'trebesin:bt_blocky_axe') {
                 leftClickDetector.run(player);
-
-                //## Updating Pointer Block
-                switch (session.pointerMode) {
-                    case PointerMode.BLOCK: {
-                        session.pointerBlockLocation = player.getBlockFromViewDirection().location;
-                    }   break;
-                    case PointerMode.FACE: {
-                        //const targetLocation = player.getBlockFromViewDirection().location;
-                        //const viewVector = player.getViewDirection();
-                        //const relativeVector = subVectors(
-                        //    player.getHeadLocation(),targetLocation
-                        //);
-                        session.pointerBlockLocation = sumVectors(
-                            player.getBlockFromViewDirection().location,
-                            FACE_DIRECTIONS[getDirectionFace(player.getViewDirection())]
-                        );
-                        //session.pointerBlockLocation = floorVector(
-                        //    sumVectors(sumVectors(targetLocation,{x:0.5,y:0.5,z:0.5}),multiplyVector(viewVector,-1))
-                        //);
-                    }   break;
-                    case PointerMode.FREE: {
-                        session.pointerBlockLocation = floorVector(sumVectors(
-                            player.getHeadLocation(),
-                            setVectorLength(player.getViewDirection(),session.config.pointer.range)
-                        ));
-                    }   break;
-                    case PointerMode.ACTION: {
-                        session.pointerBlockLocation = null;
-                    }
+                //## Paste Action Update
+                try { 
+                    session.processPasteAction();
+                } catch (error) {
+                    logMessage(`[blocky_tools@workers/sessions.js] ERROR - session.processPasteAction():\n${error}`);
                 }
+                //## Updating Pointer Block
+                try { 
+                    session.updatePointerBlockLocation();
+                } catch (error) {
+                    logMessage(`[blocky_tools@workers/sessions.js] ERROR - session.updatePointerBlockLocation():\n${error}`);
+                }
+                //## Pointer Preview
                 if (session.pointerBlockLocation != null) {
-                    //## Pointer Preview
                     const molang = new Mc.MolangVariableMap();
                     molang.setColorRGBA('variable.color',{red:1,green:0,blue:0,alpha:1});
                     spawnBox(`trebesin:plane_box_`,session.pointerBlockLocation,player.dimension,molang,0.01);
                 }
-
                 player.onScreenDisplay.setActionBar(
                     `[§aBlocky §2Tools§r] ${ session.pointerBlockLocation != null ? `[${session.pointerBlockLocation.x},${session.pointerBlockLocation.y},${session.pointerBlockLocation.z}]` : ''}\n`+
                     `§cPointer Mode: §l${PointerModeNames[session.pointerMode]}§r\n`+
@@ -149,7 +129,7 @@ export function main() {
                 entity.triggerEvent('trebesin:make_despawn');
             }
         }
-    },6000);
+    },3600);
 }
 
 export function fillSelectionCorners(player,blockType) {
@@ -561,56 +541,25 @@ class Session {
     //TODO Add a way to rotate, scale, translate, mirror and flip the selection in this phase.
     /**
      * Prepares to paste a selection from the clipboard of the session. It asks the player to confirm the paste and highlights the area the paste will occur inside of.
+     * @param {VectorMath.Vector3} originLocation
      * @param {number} clipboardIndex 
      */
-    preparePasteSelection(clipboardIndex = 0) {
+    preparePasteSelection(originLocation,clipboardIndex = 0) {
         const player = this.getPlayer();
+
+        this.requestActionConfirmation();
         sendMessage(`Use the commands ".confirm" or ".cancel" to confirm or cancel the paste.`,'§2BT§r',player);
 
         this.pasteState.dimension = player.dimension;
-        this.pasteState.originLocation = VectorMath.copy(this.pointerBlockLocation);
+        this.pasteState.originLocation = originLocation;
         this.pasteState.clipboardIndex = clipboardIndex;
-        const clipboard = this.getClipboard();
-
-        this.requestActionConfirmation();
-
-        //!This will be part of the main interval
-        const intervalCheckId = Mc.system.runInterval(() => {
-            clipboard.getAllParticles((particle) => {
-                try {
-                    spawnParticleLine(
-                        'trebesin:line_flex2',
-                        this.pasteState.dimension,
-                        VectorMath.sum(this.pasteState.originLocation,particle.location),
-                        particle.direction,
-                        particle.length,
-                        0.051,
-                        particle.color
-                    );
-                } catch (error) {
-                    logMessage(error);
-                }
-            },this.pasteState.clipboardIndex);
-
-            const confirm = this.getActionCofirmation();
-            if (confirm != null) {
-                Mc.system.clearRun(intervalCheckId);
-                if (confirm) this.pasteSelection(
-                    this.pasteState.originLocation,
-                    this.pasteState.dimension,
-                    this.pasteState.clipboardIndex
-                );
-                this.pasteState.clipboardIndex = null;
-                //this.requestActionConfirmation();
-            }
-        });
     }
 
     pasteSelection(baseLocation,dimension,clipboardIndex) {
         const player = this.getPlayer();
         const clipboard = this.getClipboard();
 
-        clipboard.getAllBlocks((clipboardLocation,blockState) => {
+        clipboard.getAllBlocksProccessed((clipboardLocation,blockState) => {
             const block = dimension.getBlock(VectorMath.sum(baseLocation,clipboardLocation));
             editBlock(
                 block,
@@ -773,7 +722,7 @@ class Session {
 
     //## Action Confirm
     /**
-     * Sents a request to the player of the session to make a confirmation of some action the plugin wants to confirm.
+     * Senss a request to the player of the session to make a confirmation of some action the plugin wants to confirm.
      * @returns {undefined}
      */
     requestActionConfirmation() {
@@ -812,6 +761,65 @@ class Session {
         else sendMessage('§mCancelled action!','§2BT§r',player);
     }
 
+    //## State Update Functions *Designed to run inside an interval.*
+    updatePointerBlockLocation() {
+        const player = this.getPlayer();
+        switch (this.pointerMode) {
+            case PointerMode.BLOCK: {
+                this.pointerBlockLocation = player.getBlockFromViewDirection().location;
+            }   break;
+            case PointerMode.FACE: {
+                //const targetLocation = player.getBlockFromViewDirection().location;
+                //const viewVector = player.getViewDirection();
+                //const relativeVector = subVectors(
+                //    player.getHeadLocation(),targetLocation
+                //);
+                this.pointerBlockLocation = sumVectors(
+                    player.getBlockFromViewDirection().location,
+                    FACE_DIRECTIONS[getDirectionFace(player.getViewDirection())]
+                );
+                //session.pointerBlockLocation = floorVector(
+                //    sumVectors(sumVectors(targetLocation,{x:0.5,y:0.5,z:0.5}),multiplyVector(viewVector,-1))
+                //);
+            }   break;
+            case PointerMode.FREE: {
+                this.pointerBlockLocation = floorVector(sumVectors(
+                    player.getHeadLocation(),
+                    setVectorLength(player.getViewDirection(),this.config.pointer.range)
+                ));
+            }   break;
+            case PointerMode.ACTION: {
+                this.pointerBlockLocation = null;
+            }
+        }
+    }
+
+    processPasteAction() {
+        if (this.pasteState.clipboardIndex == null) return;
+        const clipboard = this.getClipboard();
+        clipboard.getAllParticles((particle) => {
+            spawnParticleLine(
+                'trebesin:line_flex2',
+                this.pasteState.dimension,
+                VectorMath.sum(this.pasteState.originLocation,particle.location),
+                particle.direction,
+                particle.length,
+                0.051,
+                particle.color
+            );
+        },this.pasteState.clipboardIndex);
+
+        const confirm = this.getActionCofirmation();
+        if (confirm != null) {
+            if (confirm) this.pasteSelection(
+                this.pasteState.originLocation,
+                this.pasteState.dimension,
+                this.pasteState.clipboardIndex
+            );
+            this.pasteState.clipboardIndex = null;
+        }
+    }
+
     //## Getters
     /**
      * Player whom the session belongs to.
@@ -844,7 +852,7 @@ class Session {
     selectionType
     config = {}
     //### State:
-    /** @type {import('../../../js_modules/vectorMath').Vector3} */
+    /** @type {VectorMath.Vector3} */
     pointerBlockLocation
     selections = [];
     pasteState = {};
@@ -874,11 +882,68 @@ class ClipboardInstance {
         else return (this.blockStateData.push(blockState) - 1);
     }
 
+    /**
+     * 
+     * @param {ClipboardBlocksCallback} callback 
+     * @param {number} clipboardIndex
+     * @returns 
+     */
     getAllBlocks(callback,clipboardIndex) {
         const locations = this.structureData[clipboardIndex].locations;
         if (locations == null) return null;
         for (let index = 0;index < locations.length;index++) {
             callback(locations[index][0],this.blockStateData[locations[index][1]]);
+        }
+    }
+
+    
+    /**
+     * Translates the position of the origin and all locations relative to it in the direction provided by `translation` vector.
+     * * Useful to change the relative point which rotation occurs around. *
+     * @param {VectorMath.Vector3} translation Direction to move the block locations.
+     * @param {number} clipboardIndex
+     * @returns 
+     */
+    translateLocations(translation,clipboardIndex) {
+        const bounds = this.getBounds(clipboardIndex);
+        const locations = this.structureData[clipboardIndex].locations;
+        for (let index = 0;index < locations.length;index++) {
+            locations[index][0] = VectorMath.sum(locations[index][0],translation);
+        }
+        bounds.max = VectorMath.sum(bounds.max,translation);
+        bounds.min = VectorMath.sum(bounds.max,translation);
+        bounds.center = VectorMath.sum(bounds.max,translation);
+    }
+
+    /**
+     * 
+     * @param {ClipboardBlocksCallback} callback 
+     * @param {number} clipboardIndex
+     * @returns 
+     */
+    getAllBlocksProccessed(callback,clipboardIndex) {
+        const config = this.getConfig(clipboardIndex);
+        const bounds = this.getBounds(clipboardIndex);
+        const locations = this.structureData[clipboardIndex].locations;
+        if (locations == null) return null;
+        for (let index = 0;index < locations.length;index++) {
+            const blockState = this.blockStateData[locations[index][1]];
+            let blockLocation = VectorMath.copy(locations[index][0]);
+            for (const axis in config.flip) {
+                if (!config.flip[axis]) continue;
+                blockLocation = VectorMath.flip(blockLocation,bounds.center,axis);
+            }
+            blockLocation = VectorMath.vectorMultiply(blockLocation,config.scale);
+            for (const axis in config.rotation) {
+                const angleRadians = (Math.PI/180)*config.rotation[axis];
+                const angleResults = {
+                    sin: Math.sin(angleRadians),
+                    cos: Math.cos(angleRadians)
+                }
+                if (config.rotation[axis] === 0) continue;
+                blockLocation = VectorMath.rotateSinCos(blockLocation,angleResults,axis);
+            }
+            callback(blockLocation,blockState);
         }
     }
 
@@ -954,17 +1019,27 @@ class ClipboardInstance {
 //# Types / Constants
 
 /**
+ * @callback ClipboardBlocksCallback Callback that gives a `blockLocation` and a `blockState`.
+ * @param {VectorMath.Vector3} blockLocation
+ * @param {import('../../../mc_modules/blocks').BlockState} blockState
+ */
+
+/**
+ * @typedef ClipboardStructureConfig
+ * @property {VectorMath.Vector3} rotation Defines how the clipboard contents are rotated on each axis.
+ * @property {VectorMath.Vector3} scale Defines how the clipboard contents are rotated on each axis.
+ * @property {object} flip Defines if the clipboard contents are flipped on any axis.
+ * @property {boolean} flip.x Flip value for the X axis.
+ * @property {boolean} flip.y Flip value for the Y axis.
+ * @property {boolean} flip.z Flip value for the Z axis.
+ */
+
+/**
  * @typedef ClipboardStructureData Interface to define a set of blocks that are copied to the clipboard of a session.
- * @property {import('./selection').Vector3 | number [][]} locations Array of arrays that consist of 2 items - **0**: `Vector3` to define a location relative to an origin and **1**: an index `number` that defines the block state coresponding to the location.
+ * @property {VectorMath.Vector3 | number [][]} locations Array of arrays that consist of 2 items - **0**: `Vector3` to define a location relative to an origin and **1**: an index `number` that defines the block state coresponding to the location.
  * @property {import('./selection').SelectionBounds} bounds Bounds of the clipboard contents that are important to technical workings of the clipboard.
  * @property {object[]} particles Array of particles that show the user what is inside the clipboard contents.
- * @property {object} config Configurations that define how the user has manipulated the clipboard contents, it gets processed and presented when the user pastes the data.
- * @property {import('./selection').Vector3} config.rotation Defines how the clipboard contents are rotated on each axis.
- * @property {import('./selection').Vector3} config.scale Defines how the clipboard contents are rotated on each axis.
- * @property {object} config.flip Defines if the clipboard contents are flipped on any axis.
- * @property {boolean} config.flip.x Flip value for the X axis.
- * @property {boolean} config.flip.y Flip value for the Y axis.
- * @property {boolean} config.flip.z Flip value for the Z axis.
+ * @property {ClipboardStructureConfig} config Configurations that define how the user has manipulated the clipboard contents, it gets processed and presented when the user pastes the data.
 */
 
 /**

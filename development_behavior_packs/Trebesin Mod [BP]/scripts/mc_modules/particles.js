@@ -365,13 +365,13 @@ function directionLiesOnOrigin(location,direction,origin) {
 }
 
 /**
- * @param {string} particleName
- * @param {Mc.Dimension} dimension
- * @param {import('../js_modules/vectorMath').Vector3} location
- * @param {import('../js_modules/vectorMath').Vector3} direction 
- * @param {number} length 
- * @param {number} time 
- * @param {import('@minecraft/server').Color} color 
+ * @param {string} particleName ID of the particle to spawn.
+ * @param {Mc.Dimension} dimension The dimension where the particle should spawn.
+ * @param {VectorMath.Vector3} location The origin location of the line particle/
+ * @param {VectorMath.Vector3} direction Direction the line particle is pointing towards from the origin.
+ * @param {number} length The length of the particle.
+ * @param {number} time The time in seconds the particle should be alive for.
+ * @param {Mc.Color} color Color the particle should have represneted in RGBA intensity 0-1.
  */
 export function spawnParticleLine(particleName,dimension,location,direction,length = 1,time = 1,color = {red:0,green:0,blue:0,alpha:1}) {
     const molang = new Mc.MolangVariableMap();

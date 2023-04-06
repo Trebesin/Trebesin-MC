@@ -9,7 +9,7 @@ import {generateBlockArea} from '../../../mc_modules/blocks';
 import {generateBlockPyramid} from '../../../js_modules/geometry';
 import {CommandParser} from '../../../mc_modules/commandParser';
 import {sendMessage} from '../../../mc_modules/players';
-import {copyVector, sumVectors} from '../../../js_modules/vector';
+import * as VectorMath from '../../../js_modules/vectorMath';
 import {logMessage} from '../../debug/debug';
 
 const Commands = new CommandParser({
@@ -262,7 +262,7 @@ export async function main() {
 		parameters: [],
 		run(sender) {
 			const session = Sessions.getSession(sender);
-			session.preparePasteSelection();
+			session.preparePasteSelection(VectorMath.copy(session.pointerBlockLocation));
 		}
 	});
 
@@ -368,6 +368,81 @@ export async function main() {
 		],
 		run(sender, parameters) {
 			const session = Sessions.getSession(sender);
+		}
+	});
+
+	Commands.registerCommand('moveClipboard', {
+		description: '',
+		parameters: [
+			{
+				id: 'x',
+				type: 'number'
+			},
+			{
+				id: 'y',
+				type: 'number'
+			},
+			{
+				id: 'z',
+				type: 'number'
+			}
+		],
+		run(sender,parameters) {
+			const session = Sessions.getSession(sender);
+			const clipboard = session.getClipboard();
+			clipboard.translateLocations({
+				x: parameters.x,
+				y: parameters.y,
+				z: parameters.z
+			},0);
+			clipboard.updateParticlePreview(0);
+		}
+	});
+
+	Commands.registerCommand('movePasteOrigin', {
+		description: '',
+		parameters: [
+			{
+				id: 'x',
+				type: 'number'
+			},
+			{
+				id: 'y',
+				type: 'number'
+			},
+			{
+				id: 'z',
+				type: 'number'
+			}
+		],
+		run(sender,parameters) {
+			const session = Sessions.getSession(sender);
+			if (session.pasteState.originLocation == null) {
+				sendMessage('§nNo paste action!','§2BT§r',player)
+				return;
+			}
+			session.pasteState.originLocation = VectorMath.sum(
+				session.pasteState.originLocation,
+				{
+					x: parameters.x,
+					y: parameters.y,
+					z: parameters.z
+				}
+			);
+		}
+	});
+
+	Commands.registerCommand('getClipboardBounds', {
+		description: '',
+		parameters: [],
+		run(sender) {
+			const session = Sessions.getSession(sender);
+			const clipboard = session.getClipboard();
+			const bounds = clipboard.getBounds(0);
+			sendMessage(`Sending Clipboard Bounds:`,'§2BT§r',player);
+			sendMessage(`MAX: §mX:${bounds.max.x} §qY:${bounds.max.y} §tZ:${bounds.max.z}`,'§2BT§r',player);
+			sendMessage(`CENTER: §mX:${bounds.center.x} §qY:${bounds.center.y} §tZ:${bounds.center.z}`,'§2BT§r',player);
+			sendMessage(`MIN: §mX:${bounds.min.x} §qY:${bounds.min.y} §tZ:${bounds.min.z}`,'§2BT§r',player);
 		}
 	});
 
