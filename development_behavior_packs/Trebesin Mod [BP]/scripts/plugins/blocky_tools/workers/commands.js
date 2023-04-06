@@ -212,6 +212,7 @@ export async function main() {
 		}
 	});
 
+	//All clipboard commands will default to the current selected index
 	Commands.registerCommand('scaleClipboard',{
 		parameters: [
 			{
