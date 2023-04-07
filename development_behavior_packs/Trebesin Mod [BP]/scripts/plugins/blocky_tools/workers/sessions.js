@@ -46,8 +46,14 @@ class LeftClickDetect {
         }
     }
 
+    /**
+     * @param {Mc.Player} player 
+     * @param {VectorMath.Vector3} location 
+     */
     #spawnEntity(player,location) {
         const playerEntity = player.dimension.spawnEntity('trebesin:left_click_detect',location);
+        //const scale = playerEntity.getComponent('minecraft:scale');
+        //scale.value = 1.0;
         this.#playerData[player.id] = playerEntity;
     }
 
@@ -126,6 +132,7 @@ export function main() {
                 session.processPasteAction();
             } catch (error) {
                 logMessage(`[blocky_tools@workers/sessions.js] ERROR - session.processPasteAction():\n${error}`);
+                session.pasteState.clipboardIndex = null;
             }
         }
     },1);
@@ -255,11 +262,17 @@ class Session {
         copiedData.particles = generateLineBox([copiedData.bounds.min,copiedData.bounds.max],{red:0,green:1,blue:1,alpha:0.85});
     
         selection.getAllBlocks((blockLocation) => {
-            const blockStateIndex = clipboard.getBlockStateIndex(copyBlockState(dimension.getBlock(blockLocation)));
-            //logMessage(`${blockStateIndex},${JSON.stringify(blockLocation)}`);
-            copiedData.locations.push([
-                VectorMath.sub(blockLocation,selection.minCoordinates),blockStateIndex
-            ]);
+            try {
+                const block = dimension.getBlock(blockLocation);
+                if (block == null) return logMessage('null');
+                const blockStateIndex = clipboard.getBlockStateIndex(copyBlockState(dimension.getBlock(blockLocation)));
+                //logMessage(`${blockStateIndex},${JSON.stringify(blockLocation)}`);
+                copiedData.locations.push([
+                    VectorMath.sub(blockLocation,selection.minCoordinates),blockStateIndex
+                ]);
+            } catch (error) {
+                logMessage(`caught ${error}`);
+            }
         });
     
         clipboard.structureData[0] = copiedData;
@@ -293,7 +306,6 @@ class Session {
         const clipboard = this.getClipboard();
 
         clipboard.getAllBlocksProccessed((clipboardLocation,blockState) => {
-            if (blockState.typeId === 'minecraft:air') return;
             const block = dimension.getBlock(VectorMath.sum(baseLocation,clipboardLocation));
             editBlock(
                 block,
@@ -656,7 +668,12 @@ class ClipboardInstance {
      */
     getAllBlocksProccessed(callback,clipboardIndex) {
         const config = this.getConfig(clipboardIndex);
-        const bounds = this.getBounds(clipboardIndex);
+        const ogBounds = this.getBounds(clipboardIndex);
+        const bounds = {
+            max: VectorMath.vectorMultiply(ogBounds.max,config.scale),
+            center: VectorMath.vectorMultiply(ogBounds.center,config.scale),
+            min: VectorMath.vectorMultiply(ogBounds.min,config.scale)
+        };
         const locations = this.structureData[clipboardIndex].locations;
         if (locations == null) return null;
         //### Scaling process:
@@ -665,13 +682,13 @@ class ClipboardInstance {
             for (let index = 0;index < locations.length;++index) {
                 let blockLocation = VectorMath.copy(locations[index][0]);
                 const scaledLocations = Geometry.scaleBlockLocation(blockLocation,config.scale);
-                for (let locationIndex = 0;locationIndex < scaledLocations.length;++scaledLocations) {
+                for (let locationIndex = 0;locationIndex < scaledLocations.length;++locationIndex) {
                     const location = scaledLocations[locationIndex];
                     const flooredLocation = VectorMath.floor(location);
                     const locationString = `${flooredLocation.x},${flooredLocation.y},${flooredLocation.z}`;
                     const distance = Math.abs(location.x-flooredLocation.x-0.5)+Math.abs(location.y-flooredLocation.y-0.5)+Math.abs(location.z-flooredLocation.z-0.5);
                     if (!blockMap.has(locationString) || blockMap.get(locationString).distance > distance) {
-                        blockMap.set({
+                        blockMap.set(locationString,{
                             distance,
                             block: [flooredLocation,locations[index][1]]
                         });
@@ -691,11 +708,6 @@ class ClipboardInstance {
                 if (!config.flip[axis]) continue;
                 blockLocation = VectorMath.flip(blockLocation,bounds.center,axis);
             }
-            //!! Main idea behind scaling is that you scale its position and ALSO ITS SPAN. 
-            //!! The blocks position is its min position on all axis and the span goes therefor towards positive axis values.
-            //!! The algorithm will have to get all the block locations that are contained inside this span and prolly use 
-            //!! hash maps to avoid duplicates The alogirthm will use floor of any float point result like minecraft does and 
-            //blockLocation = VectorMath.vectorMultiply(blockLocation,config.scale);
             for (const axis in config.rotation) {
                 const angleRadians = (Math.PI/180)*config.rotation[axis];
                 const angleResults = {

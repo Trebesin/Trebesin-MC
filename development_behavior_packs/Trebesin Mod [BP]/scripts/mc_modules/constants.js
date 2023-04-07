@@ -40,3 +40,8 @@ export const BLOCK_STATE_COMPONENTS = [
     'inventory',
     'sign'
 ];
+
+export const ITEM_STATE_COMPONENTS = [
+    'durability',
+    'enchantments'
+]

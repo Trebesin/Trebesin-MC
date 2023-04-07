@@ -158,7 +158,7 @@ export function getMinimalVector(vectors) {
  */
 export function scaleBlockLocation(blockLocation,scaleVector) {
     const scaledLocations = [];
-    locations.push(VectorMath.vectorMultiply(blockLocation,scaleVector));
+    scaledLocations.push(VectorMath.vectorMultiply(blockLocation,scaleVector));
 
     for (const axis of ['x','y','z']) {
         const addedLocations = [];

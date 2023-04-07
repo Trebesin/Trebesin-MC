@@ -6,7 +6,7 @@ import * as Debug from '../debug/debug';
 //Modules:
 import { DatabaseConnection } from '../../mc_modules/network/database-api';
 import { Server as ServerModule, ServerEventCallback } from '../../mc_modules/server';
-import { compareItems } from '../../mc_modules/items';
+import * as Items from '../../mc_modules/items';
 import { CommandParser } from '../../mc_modules/commandParser';
 import { sendMessage } from '../../mc_modules/players';
 
@@ -106,7 +106,7 @@ export async function main() {
                     const slotBefore = data.playerEquip[player.id].slot;
                     const itemAfter = player.getComponent('inventory').container?.getSlot(player.selectedSlot).clone();
                     const slotAfter = player.selectedSlot;
-                    if (!compareItems(itemAfter,itemBefore) || slotBefore != slotAfter) {
+                    if (!Items.compare(itemAfter,itemBefore) || slotBefore != slotAfter) {
                         data.playerEquip[player.id].item = itemAfter;
                         data.playerEquip[player.id].slot = slotAfter;
                         playerEquipCallbacks.runCallbacks({

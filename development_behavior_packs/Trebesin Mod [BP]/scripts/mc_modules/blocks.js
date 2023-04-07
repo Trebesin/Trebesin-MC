@@ -43,15 +43,7 @@ export function compareBlocks(blockA,blockB,checkLocation = false) {
         )) return false;
     }
 
-    const permutationA = blockA.permutation;
-    const permutationB = blockB.permutation;
-    const properties = /*blockA.typeId.startsWith('trebesin:') ? TREBESIN_PERMUTATIONS :*/ permutationA.getAllProperties();
-    for (const property in properties) {
-        const valueA = permutationA.getProperty(property);
-        const valueB = permutationB.getProperty(property);
-        if (valueA !== valueB) return false;
-    }
-    return true
+    return (blockA.permutation === blockB.permutation);
 }
 
 /**
@@ -80,13 +72,13 @@ export function copyBlock(block) {
         dimension: block.dimension,
         location: block.location,
         isWaterlogged: block.isWaterlogged,
-        permutation: block.permutation.clone(),
+        permutation: block.permutation?.clone(),
         components: copyBlockComponents(block)
     }
 }
 
 /**
- * Function to copy `Block` class objects with data that only generally define its state.
+ * Function to copy `Block` class objects with data that define its state regardless of its location.
  * @param {Mc.Block} block Block to copy.
  * @returns {BlockState} Object containing copies of selected properties of the block.
  */
@@ -94,7 +86,7 @@ export function copyBlockState(block) {
     return {
         typeId: block.typeId,
         isWaterlogged: block.isWaterlogged,
-        permutation: block.permutation.clone(),
+        permutation: block.permutation?.clone(),
         components: copyBlockComponents(block)
     }
 }
@@ -103,7 +95,6 @@ export function copyBlockState(block) {
  * Function to apply block state data to an existing block.
  * @param {Mc.Block} block Block to apply the state onto.
  * @param {BlockState} blockState Block state data to apply.
- * @returns {undefined}
  */
 export function applyBlockState(block,blockState) {
     if (blockState.typeId) block.setType(Mc.MinecraftBlockTypes.get(blockState.typeId));
@@ -131,32 +122,39 @@ export function compareBlockStates(blockStateA,blockStateB) {
  * Function to compare if 2 block component states are matching.
  * @param {BlockComponentState} componentsA First block component state data to compare.
  * @param {BlockComponentState} componentsB Second block component state data to compare.
- * @returns {boolean}
+ * @returns {boolean | undefined} Returns the result of the comparison or `undefined` if any of the components are invalid.
  */
 export function compareBlockComponents(componentsA,componentsB) {
+    if (componentsA == null || componentsB == null) return undefined;
+
     for (const componentId in BLOCK_STATE_COMPONENTS) {
-        if (componentsA[componentId] != null && componentsB[componentId] != null) {
+        const componentDataA = componentsA[componentId];
+        const componentDataB = componentsB[componentId];
+        if (componentDataA != null && componentDataB != null) {
             switch (componentId) {
                 case 'inventory': {
-                    return false
+                    return false;
                 }   break;
                 case 'sign': {
                     const signCheck = (
-                        componentsA[componentId].text === componentsB[componentId].text && 
-                        componentsA[componentId].dyeColor === componentsB[componentId].dyeColor && 
-                        !(componentsA[componentId].rawText != null || componentsB[componentId].rawText != null)
+                        componentDataA.text === componentDataB.text && 
+                        componentDataA.dyeColor === componentDataB.dyeColor && 
+                        (componentDataA.rawText == null && componentDataB.rawText == null)
                     );
                     if (!signCheck) return false;
                 }   break;
             }
-        } else if ((componentsA[componentId] != null && componentsB[componentId] == null) || (componentsA[componentId] == null && componentsB[componentId] != null)) return false;
+        } else if (
+            (componentDataA != null && componentDataB == null) || 
+            (componentDataA == null && componentDataB != null)
+        ) return false;
     }
     return true;
 }
 
 /**
  * @typedef BlockState
- * @prop {string} typeId ID of the type the block is.
+ * @prop {string} typeId ID of the type of the block.
  * @prop {boolean} isWaterlogged Waterlog state of the block.
  * @prop {Mc.BlockPermutation} permutation Block permutation.
  * @prop {BlockComponentState} components State of the block components.
@@ -178,25 +176,26 @@ export function compareBlockComponents(componentsA,componentsB) {
 /**
  * Function to copy all components of a block.
  * @param {Mc.Block} block Block to copy.
- * @returns {BlockComponentState} Object containing copies of selected properties of the block.
+ * @returns {BlockComponentState | undefined} Object containing copies of components of the block. `undefined` if the block is invalid.
  */
 export function copyBlockComponents(block) {
+    if (block == null) return undefined;
     const blockComponents = {};
 
     /** @type {Mc.BlockInventoryComponent} */
     const inventory = block.getComponent('inventory');
-    if (inventory != null) {
-        blockComponents['inventory'] = [];
+    if (inventory != null && inventory?.container != null) {
+        blockComponents.inventory = [];
         const {container} = inventory;
         for (let slotIndex = 0;slotIndex < container.size;slotIndex++) {
-            blockComponents['inventory'][slotIndex] = container.getSlot(slotIndex).clone();
+            blockComponents.inventory[slotIndex] = container.getSlot(slotIndex).clone();
         }
     }
 
     /** @type {Mc.BlockSignComponent} */
     const sign = block.getComponent('sign');
     if (sign != null) {
-        blockComponents['sign'] = {
+        blockComponents.sign = {
             text: sign.getText(),
             rawText: sign.getRawText(),
             dyeColor: sign.getTextDyeColor()
@@ -207,15 +206,10 @@ export function copyBlockComponents(block) {
 
     //!These components do not have getter functions:
     //const lavaContainer = block.getComponent('lavaContainer');
-    //
     //const potionContainer = block.getComponent('potionContainer');
-    //
     //const snowContainer = block.getComponent('snowContainer');
-    //
     //const waterContainer = block.getComponent('waterContainer');
-    //
     //const piston = block.getComponent('piston');
-    //
     //const recordPlayer = block.getComponent('recordPlayer');
 }
 
