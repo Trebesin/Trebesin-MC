@@ -10,6 +10,7 @@ import { logMessage } from '../../debug/debug';
 import { editBlock, setBlockPermutation, setBlockType } from '../../block_history/block_history';
 import { compareBlockStates, copyBlockState } from '../../../mc_modules/blocks';
 import * as VectorMath from '../../../js_modules/vectorMath';
+import * as Geometry from '../../../js_modules/geometry';
 //Modules:
 
 

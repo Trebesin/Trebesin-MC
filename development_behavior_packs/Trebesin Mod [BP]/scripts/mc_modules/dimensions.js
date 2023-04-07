@@ -18,7 +18,7 @@
 
 import * as Mc from "@minecraft/server";
 import * as ArrayOps from '../js_modules/array';
-import * as VectorMath from '../js_modules/vectormath';
+import * as VectorMath from '../js_modules/vectorMath';
 
 //!remove all usage of arrays to store locations/vectors
 

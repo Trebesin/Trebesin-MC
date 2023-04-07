@@ -15,8 +15,8 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-import { mapArray } from './array';
-import { sumVectors } from './vector';
+import * as ArrayOps from './array';
+import * as VectorMath from './vectorMath';
 
 /**
  * Function that creates a line in 3D coordinate system.
@@ -39,7 +39,7 @@ export function getGridLine(coords,options = {},callback = null) {
         coords[1].z - coords[0].z
     ];
     
-    const steps = Math.max(...mapArray(differences,num => Math.abs(num)));
+    const steps = Math.max(...ArrayOps.mapArray(differences,num => Math.abs(num)));
 
     if (stepBy < 0) {
         stepBy = steps/-stepBy;
@@ -51,7 +51,7 @@ export function getGridLine(coords,options = {},callback = null) {
         stepBy = 1;
     }
 
-    const portions = mapArray(differences,num => num/steps);
+    const portions = ArrayOps.mapArray(differences,num => num/steps);
     
     for (let step = 0;step <= steps;step += stepBy) {
         const x = coords[0].x + (round ? Math.round(portions[0] * step) : portions[0] * step);
@@ -150,6 +150,32 @@ export function getMinimalVector(vectors) {
     return min;
 }
 
+/**
+ * Transforms a single block location of area 1\*1\*1 into a new array of block locations which fill out scaled area of a new scaled block location.
+ * @param {VectorMath.Vector3} blockLocation Block location of area 1\*1\*1 to scale.
+ * @param {VectorMath.Vector3} scaleVector Vector that defines the scale on each axis.
+ * @returns {VectorMath.Vector3[]}
+ */
+export function scaleBlockLocation(blockLocation,scaleVector) {
+    const scaledLocations = [];
+    locations.push(VectorMath.vectorMultiply(blockLocation,scaleVector));
+
+    for (const axis of ['x','y','z']) {
+        const addedLocations = [];
+        for (let spanStep = scaleVector[axis];spanStep > 1;--spanStep) {
+            const addedStep = Math.max(0,spanStep-1);
+            for (let locationIndex = 0; locationIndex < scaledLocations.length;++locationIndex) {
+                const location = scaledLocations[locationIndex];
+                const scaledLocation = VectorMath.copy(location);
+                scaledLocation[axis] += addedStep;
+                addedLocations.push(scaledLocation);
+            }
+        }
+        scaledLocations.push(...addedLocations);
+    }
+    return scaledLocations;
+}
+
 export function generateBlockPyramid(startCoord,steps = 10,callback) {
     const vectorDefinitions = {};
     //Tertiary vectors are sent at the beginning from the starting coordinate and also from the secondary and primary vectors. Those cover the whole Y axis.
@@ -221,7 +247,7 @@ export function generateBlockPyramid(startCoord,steps = 10,callback) {
         }
         for (let index = 0;index < lastLength;index++) {
             const vector = sentVectors[index];
-            const location = sumVectors(vector.location,vector.definition.vector);
+            const location = VectorMath.sumVectors(vector.location,vector.definition.vector);
             vector.location = location;
             callback(location);
             if (vector.definition.sends) {
