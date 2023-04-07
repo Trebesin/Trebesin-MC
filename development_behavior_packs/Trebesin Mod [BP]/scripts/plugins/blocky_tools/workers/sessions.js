@@ -659,6 +659,31 @@ class ClipboardInstance {
         const bounds = this.getBounds(clipboardIndex);
         const locations = this.structureData[clipboardIndex].locations;
         if (locations == null) return null;
+        //### Scaling process:
+        if (!VectorMath.compare(config.scale,{x:1,y:1,z:1})) {
+            const blockMap = new Map();
+            for (let index = 0;index < locations.length;++index) {
+                let blockLocation = VectorMath.copy(locations[index][0]);
+                const scaledLocations = Geometry.scaleBlockLocation(blockLocation,config.scale);
+                for (let locationIndex = 0;locationIndex < scaledLocations.length;++scaledLocations) {
+                    const location = scaledLocations[locationIndex];
+                    const flooredLocation = VectorMath.floor(location);
+                    const locationString = `${flooredLocation.x},${flooredLocation.y},${flooredLocation.z}`;
+                    const distance = Math.abs(location.x-flooredLocation.x-0.5)+Math.abs(location.y-flooredLocation.y-0.5)+Math.abs(location.z-flooredLocation.z-0.5);
+                    if (!blockMap.has(locationString) || blockMap.get(locationString).distance > distance) {
+                        blockMap.set({
+                            distance,
+                            block: [flooredLocation,locations[index][1]]
+                        });
+                    }
+                }
+            }
+            locations.length = 0;
+            blockMap.forEach((value) => {
+                locations.push(value.block);
+            })
+        }
+        //### Flipping and rotation:
         for (let index = 0;index < locations.length;index++) {
             const blockState = this.blockStateData[locations[index][1]];
             let blockLocation = VectorMath.copy(locations[index][0]);
@@ -670,7 +695,7 @@ class ClipboardInstance {
             //!! The blocks position is its min position on all axis and the span goes therefor towards positive axis values.
             //!! The algorithm will have to get all the block locations that are contained inside this span and prolly use 
             //!! hash maps to avoid duplicates The alogirthm will use floor of any float point result like minecraft does and 
-            blockLocation = VectorMath.vectorMultiply(blockLocation,config.scale);
+            //blockLocation = VectorMath.vectorMultiply(blockLocation,config.scale);
             for (const axis in config.rotation) {
                 const angleRadians = (Math.PI/180)*config.rotation[axis];
                 const angleResults = {
