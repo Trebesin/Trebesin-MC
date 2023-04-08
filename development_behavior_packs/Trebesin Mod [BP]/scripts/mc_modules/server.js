@@ -2,7 +2,6 @@ import { world, system } from "@minecraft/server";
 import { ChunkManager, getSubchunksCoords } from './chunk.js';
 import { randInt } from '../js_modules/random.js';
 import { insertToArray, deleteFromArray } from "../js_modules/array.js";
-import { compareItems } from './items.js';
 import * as Debug from './../plugins/debug/debug'
 
 /**
