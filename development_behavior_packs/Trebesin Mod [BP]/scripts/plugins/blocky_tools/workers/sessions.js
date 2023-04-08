@@ -291,7 +291,7 @@ class Session {
                     VectorMath.sub(blockLocation,selection.minCoordinates),blockStateIndex
                 ]);
             } catch (error) {
-                logMessage(`Error while copying on block [§mX:${blockLocation.x} §qY:${blockLocation.y} §tZ:${blockLocation.z}]:\n ${error}`);
+                logMessage(`Failed to copy block [§m${blockLocation.x},§q${blockLocation.y},§t${blockLocation.z}] due to error:\n ${error}`);
             }
         });
     
