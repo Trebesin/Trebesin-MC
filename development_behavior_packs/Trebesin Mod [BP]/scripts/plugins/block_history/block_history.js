@@ -121,34 +121,24 @@ export async function main() {
 
     //## Block Breaking Detection:
     world.events.blockBreak.subscribe(async (eventData) => {
-        Debug.sendLogMessage(`§cBlock Break§r - ${system.currentTick}`);
+        Debug.logMessage(`§cBlock Break§r - ${system.currentTick}`);
         const playerId = eventData.player.id;
         const blockOld = {
             typeId: eventData.brokenBlockPermutation.type.id,
             isWaterlogged: eventData.block.isWaterlogged,
-            dimension: eventData.dimension,
+            permutation: eventData.brokenBlockPermutation?.clone(),
+            components: {},
             location: eventData.block.location,
-            permutation: eventData.brokenBlockPermutation
+            dimension: eventData.dimension,
         }
-        //This Block:
-        /*if(eventData.player.hasTag('inspector')){
-            try{
-                BlockHistoryCommandsWorker.revertBlockChange(blockOld, copyBlock(eventData.block), eventData.player)
-                await BlockHistoryCommandsWorker.inspector(eventData.block.location, eventData.player) 
 
-            }
-            catch(error){
-                Debug.sendLogMessage(error)
-            }
-        }
-        else{*/
-            saveBlockUpdate(blockOld,Blocks.copyBlockState(eventData.block,true),{actorId:playerId});
-        //}
+        //This Block:
+        saveBlockUpdate(blockOld,Blocks.copyBlockState(eventData.block,true),{actorId:playerId});
 
         //Updated Blocks:
         await Blocks.blockUpdateIteration(blockOld.location,blockOld.dimension,(blockBefore,blockAfter,tick) => {
             const vec = subVectors(blockBefore.location,blockOld.location);
-            Debug.sendLogMessage(`${blockBefore.typeId} -> ${blockAfter.typeId} @ ${vec.x},${vec.y},${vec.z}:${tick}`);
+            Debug.logMessage(`${blockBefore.typeId} -> ${blockAfter.typeId} @ ${vec.x},${vec.y},${vec.z}:${tick}`);
             //Falling Blocks:
             const fallObject = fallingBlocksTracked.find((block) => blockBefore.location.equals(block.location.start));
             if (fallObject) fallObject.playerId = playerId;
@@ -156,7 +146,7 @@ export async function main() {
     });
     
     world.events.beforeItemUseOn.subscribe((eventData) => {
-        //this prevents an exploit do not remove!!!!
+        //!! this prevents an exploit do not remove !!
         const player = eventData.source;
         if (player.hasTag('inspector')){
             eventData.cancel = true;
@@ -189,7 +179,7 @@ export async function main() {
         const block = player.dimension.getBlock(eventData.getBlockLocation());
         const blockOld = Blocks.copyBlockState(block,true);
 
-        //Those Blocks:
+        //These Blocks:
         system.runTimeout(async () => {
             saveBlockUpdate(faceBlockOld,Blocks.copyBlockState(faceBlock,true),{actorId:player.id});
             saveBlockUpdate(blockOld,Blocks.copyBlockState(block,true),{actorId:player.id});
@@ -203,7 +193,7 @@ export async function main() {
         //Updated Blocks:
         await Blocks.blockUpdateIteration(faceBlockLocation,faceBlockOld.dimension,(blockBefore,blockAfter,tick) => {
             const vec = subVectors(blockBefore.location,faceBlockOld.location);
-            Debug.sendLogMessage(`${blockBefore.typeId} -> ${blockAfter.typeId} @ ${vec.x},${vec.y},${vec.z}:${tick}`);
+            Debug.logMessage(`${blockBefore.typeId} -> ${blockAfter.typeId} @ ${vec.x},${vec.y},${vec.z}:${tick}`);
             //Falling Blocks:
             const fallObject = fallingBlocksTracked.find((block) => blockBefore.location.equals(block.location.start));
             if (fallObject) fallObject.playerId = player.id;
@@ -247,6 +237,7 @@ function loadWorkers() {
  */
 export function saveBlockUpdate(blockBefore,blockAfter,blockHistoryEntry) {
     blockUpdates[blockHistoryEntry.actorId] ??= [];
+    Debug.logMessage(`${Blocks.compareBlockStates(blockBefore,blockAfter,true)} Change? BF: ${blockBefore.typeId} AF: ${blockAfter.typeId}`)
     if (Blocks.compareBlockStates(blockBefore,blockAfter,true)) return 0;
 
     const records = blockUpdates[blockHistoryEntry.actorId]

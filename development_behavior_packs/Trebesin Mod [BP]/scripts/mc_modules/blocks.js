@@ -88,7 +88,7 @@ export function applyBlockState(block,blockState) {
  */
 export function compareBlockStates(blockStateA,blockStateB,ignoreComponents = false) {
     return (
-        blockStateA != null || blockStateB != null &&
+        blockStateA != null && blockStateB != null &&
         blockStateA.typeId === blockStateB.typeId &&
         blockStateA.isWaterlogged === blockStateB.isWaterlogged &&
         blockStateA.permutation === blockStateB.permutation &&
