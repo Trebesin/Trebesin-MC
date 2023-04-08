@@ -1,5 +1,5 @@
 /*
-    "dimension.js" - Helper functions to work with MC dimensions.
+    "dimension.js" - Helper functions to work within MC dimension.
     Copyright (C) 2023  PavelDobCZ23
 
     This program is free software: you can redistribute it and/or modify
@@ -19,6 +19,28 @@
 import * as Mc from "@minecraft/server";
 import * as ArrayOps from '../js_modules/array';
 import * as VectorMath from '../js_modules/vectorMath';
+
+
+/**
+ * @typedef Position Defines an exact position in a Minecraft world.
+ * @prop {Mc.Dimension} dimension Dimension where coordinate location is contained.
+ * @prop {VectorMath.Vector3} location The coordinate location.
+ */
+
+/**
+ * Function for comparing 2 positions.
+ * @param {Position} positionA 1st position to compare.
+ * @param {Position} positionB 2nd position to compare.
+ * @returns {boolean} Boolean that is equal to `true` if the positions are at the exact same place, otherwise `false`.
+ */
+export function comparePositions(positionA,positionB) {
+    return (
+        positionA.dimension.id === positionB.dimension.id &&
+        positionA.location.x === positionB.location.x &&
+        positionA.location.y === positionB.location.y &&
+        positionA.location.z === positionB.location.z
+    );
+}
 
 //!remove all usage of arrays to store locations/vectors
 

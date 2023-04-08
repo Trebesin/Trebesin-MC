@@ -7,7 +7,7 @@ import { getGridBlock } from '../../../js_modules/geometry';
 import { insertToArray } from '../../../js_modules/array';
 import { logMessage } from '../../debug/debug';
 import * as VectorMath from '../../../js_modules/vectorMath';
-import { copyBlockState } from '../../../mc_modules/blocks';
+import * as Blocks from '../../../mc_modules/blocks';
 import { editBlock } from '../../block_history/block_history';
 
 /**
@@ -111,7 +111,7 @@ class BaseSelection {
             const flippedBlockLocation = VectorMath.copy(blockLocation);
             flippedBlockLocation[axis] = (bounds.center[axis]-(blockLocation[axis]-bounds.center[axis]));
             updatedBlocks.push({
-                blockState: copyBlockState(block),
+                blockState: Blocks.copyBlockState(block),
                 blockLocation: flippedBlockLocation
             })
         })

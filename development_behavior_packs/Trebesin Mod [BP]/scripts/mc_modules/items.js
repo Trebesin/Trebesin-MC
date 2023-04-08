@@ -24,14 +24,14 @@ export function compareStates(itemStateA, itemStateB) {
         if (itemStateA.lore[loreIndex] !== itemStateB.lore[loreIndex]) return false;
     }
     //### Rest of the item
-    return !(
-        itemStateA.typeId !== itemStateB.typeId ||
-        itemStateA.nameTag !== itemStateB.nameTag ||
-        itemStateA.amount !== itemStateB.amount ||
-        itemStateA.keepOnDeath !== itemStateB.keepOnDeath ||
-        itemStateA.lockMode !== itemStateB.lockMode ||
-        !compareComponents(itemStateA.components,itemStateB.components)
-    )
+    return (
+        itemStateA.typeId === itemStateB.typeId &&
+        itemStateA.nameTag === itemStateB.nameTag &&
+        itemStateA.amount === itemStateB.amount &&
+        itemStateA.keepOnDeath === itemStateB.keepOnDeath &&
+        itemStateA.lockMode === itemStateB.lockMode &&
+        compareComponents(itemStateA.components,itemStateB.components)
+    );
 }
 /**
  * Function to compare if 2 item component states are matching.

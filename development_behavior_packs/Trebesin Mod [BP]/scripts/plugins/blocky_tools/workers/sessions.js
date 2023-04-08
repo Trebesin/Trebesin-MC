@@ -8,7 +8,7 @@ import { getEquipedItem, sendMessage } from '../../../mc_modules/players';
 import { CornerSelection } from './selection';
 import { logMessage } from '../../debug/debug';
 import { editBlock, setBlockPermutation, setBlockType } from '../../block_history/block_history';
-import { compareBlockStates, copyBlockState } from '../../../mc_modules/blocks';
+import * as Blocks from '../../../mc_modules/blocks';
 import * as VectorMath from '../../../js_modules/vectorMath';
 import * as Geometry from '../../../js_modules/geometry';
 //Modules:
@@ -265,7 +265,7 @@ class Session {
             try {
                 const block = dimension.getBlock(blockLocation);
                 if (block == null) return logMessage('null');
-                const blockStateIndex = clipboard.getBlockStateIndex(copyBlockState(dimension.getBlock(blockLocation)));
+                const blockStateIndex = clipboard.getBlockStateIndex(Blocks.copyBlockState(dimension.getBlock(blockLocation)));
                 //logMessage(`${blockStateIndex},${JSON.stringify(blockLocation)}`);
                 copiedData.locations.push([
                     VectorMath.sub(blockLocation,selection.minCoordinates),blockStateIndex
@@ -622,7 +622,7 @@ class ClipboardInstance {
      * @returns {number}
      */
     getBlockStateIndex(blockState) {
-        const indexInArray = this.blockStateData.findIndex((savedBlockState) => compareBlockStates(blockState,savedBlockState));
+        const indexInArray = this.blockStateData.findIndex((savedBlockState) => Blocks.compareBlockStates(blockState,savedBlockState));
         if (indexInArray >= 0) return indexInArray;
         else return (this.blockStateData.push(blockState) - 1);
     }

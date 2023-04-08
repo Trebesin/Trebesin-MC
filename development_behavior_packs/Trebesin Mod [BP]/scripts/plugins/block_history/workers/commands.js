@@ -7,7 +7,8 @@ import { isAdmin, isMod } from "../../commands/workers/admin";
 import { logMessage, sendLogMessage } from "../../debug/debug";
 //sdf
 //Modules:
-import { copyBlock } from "../../../mc_modules/blocks";
+import * as VectorMath from '../../../js_modules/vectorMath'
+import * as Blocks from "../../../mc_modules/blocks";
 import { sendMessage} from "../../../mc_modules/players";
 import { getEdgeLocations, locationToString, stringToLocation } from "../../../mc_modules/particles";
 import { CommandError } from "../../../mc_modules/commandParser";
@@ -21,29 +22,28 @@ const PARTICLE_LIMIT = 1000//particle limit per player
 function main(){
     system.runInterval(() => {
         for (const player in particlesPerPlayers) {
-            //particles
+            //## Particles:
             let limitIndex = 0;
             for(const locationString of particlesPerPlayers[player].particleLocations){
                 if(limitIndex > PARTICLE_LIMIT){
                     sendMessage("§c§lTOO MANY PARTICLES §r- removing all your particles", "§cBH - CHAOS MANAGER",particlesPerPlayers[player].player)
-                    delete particlesPerPlayers[player]
-                    break
+                    delete particlesPerPlayers[player];
+                    break;
                 }
                 limitIndex++
                 const particleLocation = stringToLocation(locationString);
-                spawnParticles(particleLocation[0], particleLocation[1], particlesPerPlayers[player].player)
+                spawnParticles(particleLocation[0], particleLocation[1], particlesPerPlayers[player].player);
             }
         }
         for(const player in confirmationPerPlayer) {
-            if(!confirmationPerPlayer[player].confirmed && confirmationPerPlayer[player].countdown > 0) {
+            if (!confirmationPerPlayer[player].confirmed && confirmationPerPlayer[player].countdown > 0) {
                 confirmationPerPlayer[player].countdown - 4;
             }
             else if(confirmationPerPlayer[player].confirmed) {
                 try {
-                    confirmationPerPlayer[player].callback()
-                }
-                catch(error){
-                    logMessage(error)
+                    confirmationPerPlayer[player].callback();
+                } catch(error) {
+                    logMessage(error);
                 }
                 delete confirmationPerPlayer[player];
             }
@@ -78,11 +78,8 @@ function main(){
                     break;
                 }
                 {
-                    let pos = parameter.coords ?? sender.location
-                    pos.x = Math.floor(pos.x)
-                    pos.y = Math.floor(pos.y)
-                    pos.z = Math.floor(pos.z)
-                    let request = {}
+                    const pos = VectorMath.floor(parameter.coords ?? sender.location);
+                    let request = {};
                     try{
                         request = sqlRequestHandler(parameter, {type: "block", pos: pos})
                     }
@@ -153,10 +150,7 @@ function main(){
                     break;
                 }
                 {
-                    let pos = parameter.coords ?? sender.location
-                    pos.x = Math.floor(pos.x)
-                    pos.y = Math.floor(pos.y)
-                    pos.z = Math.floor(pos.z)
+                    const pos = VectorMath.floor(parameter.coords ?? sender.location);
                     let request = {}
                     try{
                         request = sqlRequestHandler(parameter, {type: "block", pos: pos})
@@ -934,11 +928,11 @@ async function reverseBlocks(blocks, sender) {
     for(let i = 0;i<blocks.length;i++){
         const playerId = sender.id;
         const block = world.getDimension(blocks[i].dimension_id).getBlock(blocks[i]);
-        const blockOld = copyBlock(block);
+        const blockOld = Blocks.copyBlockState(block,true);
         const permutationsBefore = BlockPermutation.resolve(blocks[i].before_id, JSON.parse(blocks[i].before_permutations))
         block.setType(MinecraftBlockTypes.get(blocks[i].before_id));
         block.setPermutation(permutationsBefore);
-        BlockHistoryPlugin.saveBlockUpdate(blockOld,copyBlock(block),{
+        BlockHistoryPlugin.saveBlockUpdate(blockOld,Blocks.copyBlockState(block,true),{
             actorId: playerId,
             updateType: "blockHistory: reverse",
             updateId: callID

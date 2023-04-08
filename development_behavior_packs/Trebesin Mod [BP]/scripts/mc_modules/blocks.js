@@ -18,7 +18,7 @@
 import * as Mc from '@minecraft/server'
 import * as VectorMath from './../js_modules/vectorMath';
 import { logMessage, sendLogMessage } from '../plugins/debug/debug';
-import { DIRECTIONS, TREBESIN_PERMUTATIONS, BLOCK_STATE_COMPONENTS } from './constants';
+import { DIRECTIONS, BLOCK_STATE_COMPONENTS } from './constants';
 
 /**
  * Function for comparing 2 `Block` class objects.
@@ -47,48 +47,24 @@ export function compareBlocks(blockA,blockB,checkLocation = false) {
 }
 
 /**
- * Function for comparing location of 2 `Block` class objects.
- * @param {Mc.Block} blockA 1st block to compare the other with.
- * @param {Mc.Block} blockB The other block to compare with.
- * @returns {boolean} Boolean that is equal to `true` if the blocks at the exact same place, otherwise `false`.
- */
-export function compareBlockLocations(blockA,blockB) {
-    return (
-        blockA.dimension.id === blockB.dimension.id &&
-        blockA.location.x === blockB.location.x &&
-        blockA.location.y === blockB.location.y &&
-        blockA.location.z === blockB.location.z
-    )
-}
-
-/**
- * Function to copy `Block` class objects.
- * @param {Mc.Block} block Block to copy.
- * @returns {object} Object containing copies of selected properties of the block.
- */
-export function copyBlock(block) {
-    return {
-        typeId: block.typeId,
-        dimension: block.dimension,
-        location: block.location,
-        isWaterlogged: block.isWaterlogged,
-        permutation: block.permutation?.clone(),
-        components: copyBlockComponents(block)
-    }
-}
-
-/**
  * Function to copy `Block` class objects with data that define its state regardless of its location.
  * @param {Mc.Block} block Block to copy.
+ * @param {boolean} [includePosition] If `true` the block state information will contain `location` and `dimension` properties.
  * @returns {BlockState} Object containing copies of selected properties of the block.
  */
-export function copyBlockState(block) {
-    return {
+export function copyBlockState(block,includePosition = false) {
+    if (block == null) return null;
+    const blockState = {
         typeId: block.typeId,
         isWaterlogged: block.isWaterlogged,
         permutation: block.permutation?.clone(),
         components: copyBlockComponents(block)
     }
+    if (includePosition) {
+        blockState.dimension = block.dimension;
+        blockState.location = block.location;
+    }
+    return blockState;
 }
 
 /**
@@ -105,17 +81,19 @@ export function applyBlockState(block,blockState) {
 
 /**
  * Function to compare if 2 block states are matching.
- * @param {BlockState} blockStateA First block state data to compare.
- * @param {BlockState} blockStateB Second block state data to compare/
+ * @param {BlockState} blockStateA 1st block state data to compare.
+ * @param {BlockState} blockStateB 2nd block state data to compare.
+ * @param {boolean} ignoreComponents If `true` components will automatically pass the check.
  * @returns {boolean}
  */
-export function compareBlockStates(blockStateA,blockStateB) {
-    return !(
-        blockStateA.typeId !== blockStateB.typeId ||
-        blockStateA.isWaterlogged !== blockStateB.isWaterlogged ||
-        blockStateA.permutation !== blockStateB.permutation ||
-        !compareBlockComponents(blockStateA.components,blockStateB.components)
-    )
+export function compareBlockStates(blockStateA,blockStateB,ignoreComponents = false) {
+    return (
+        blockStateA != null || blockStateB != null &&
+        blockStateA.typeId === blockStateB.typeId &&
+        blockStateA.isWaterlogged === blockStateB.isWaterlogged &&
+        blockStateA.permutation === blockStateB.permutation &&
+        (ignoreComponents || compareBlockComponents(blockStateA.components,blockStateB.components))
+    );
 }
 
 /**
@@ -158,6 +136,8 @@ export function compareBlockComponents(componentsA,componentsB) {
  * @prop {boolean} isWaterlogged Waterlog state of the block.
  * @prop {Mc.BlockPermutation} permutation Block permutation.
  * @prop {BlockComponentState} components State of the block components.
+ * @prop {Mc.Dimension} [dimension] Dimension of a block. *Only included if position is explicitly requested.*
+ * @prop {VectorMath.Vector3} [location] Coordinates of a block. *Only included if position is explicitly requested.*
  */
 
 /**
@@ -244,7 +224,7 @@ export function getAdjecentBlockCopies(coord,dimension) {
     const blockArray = [];
     for (let index = 0;index < DIRECTIONS.length;index++) {
         const face = DIRECTIONS[index];
-        blockArray.push(copyBlock(dimension.getBlock(VectorMath.sum(coord,face))));
+        blockArray.push(copyBlockState(dimension.getBlock(VectorMath.sum(coord,face)),true));
     }
     return blockArray;
 }
@@ -276,8 +256,8 @@ export async function blockUpdateIteration(location,dimension,callback) {
             for (let index = 0;index < blockUpdateSignal.length;index++) {
                 const blockBefore = blockUpdateSignal[index];
                 const blockLocation = blockBefore.location;
-                const blockAfter = copyBlock(dimension.getBlock(blockLocation));
-                if (!compareBlocks(blockBefore,blockAfter,false)) {
+                const blockAfter = copyBlockState(dimension.getBlock(blockLocation),true);
+                if (!compareBlockStates(blockBefore,blockAfter,true)) {
                     const adjecentBlocks = getAdjecentBlockCopies(blockLocation,dimension);
                     for (let adjecentIndex = 0;adjecentIndex < adjecentBlocks.length;adjecentIndex++) {
                         const adjecentBlock = adjecentBlocks[adjecentIndex];
@@ -305,10 +285,11 @@ async function blockUpdateIterationObject(location,dimension,callback) {
     while (!isEmptyObject(blockUpdateSignal)) {
         blockUpdateSignal = await waitForNextTick(() => {
             const newBlockUpdates = {};
-            for (const blockBefore in blockUpdateSignal) {
+            for (const blockBeforeId in blockUpdateSignal) {
+                const blockBefore = blockUpdateSignal[blockBeforeId];
                 const blockLocation = blockBefore.location;
-                const blockAfter = copyBlock(dimension.getBlock(blockLocation));
-                if (!compareBlocks(blockBefore,blockAfter,false)) {
+                const blockAfter = copyBlockState(dimension.getBlock(blockLocation),true);
+                if (!compareBlockStates(blockBefore,blockAfter,true)) {
                     const adjecentBlocks = getAdjecentBlockCopies(blockLocation,dimension);
                     for (let adjecentIndex = 0;adjecentIndex < adjecentBlocks.length;adjecentIndex++) {
                         const adjecentBlock = adjecentBlocks[adjecentIndex];

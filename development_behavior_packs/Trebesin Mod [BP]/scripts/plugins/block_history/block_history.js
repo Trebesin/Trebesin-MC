@@ -8,7 +8,8 @@ import { DB, Server } from '../backend/backend';
 import { getEntityById } from '../../mc_modules/entities';
 import { sumVectors, copyVector, subVectors, floorVector, compareVectors } from '../../js_modules/vector';
 import { containsArray, filter, insertToArray, deleteFromArray } from '../../js_modules/array';
-import { copyBlock, compareBlocks, blockUpdateIteration, applyBlockState } from '../../mc_modules/blocks';
+import * as Blocks from '../../mc_modules/blocks';
+import * as Dimensions from '../../mc_modules/dimensions';
 import { DIMENSION_IDS , FACE_DIRECTIONS } from '../../mc_modules/constants';
 import { getEquipedItem, sendMessage } from '../../mc_modules/players';
 
@@ -141,11 +142,11 @@ export async function main() {
             }
         }
         else{*/
-            saveBlockUpdate(blockOld,copyBlock(eventData.block),{actorId:playerId});
+            saveBlockUpdate(blockOld,Blocks.copyBlockState(eventData.block,true),{actorId:playerId});
         //}
 
         //Updated Blocks:
-        await blockUpdateIteration(blockOld.location,blockOld.dimension,(blockBefore,blockAfter,tick) => {
+        await Blocks.blockUpdateIteration(blockOld.location,blockOld.dimension,(blockBefore,blockAfter,tick) => {
             const vec = subVectors(blockBefore.location,blockOld.location);
             Debug.sendLogMessage(`${blockBefore.typeId} -> ${blockAfter.typeId} @ ${vec.x},${vec.y},${vec.z}:${tick}`);
             //Falling Blocks:
@@ -184,14 +185,14 @@ export async function main() {
         const offset = FACE_DIRECTIONS[eventData.blockFace];
         const faceBlockLocation = sumVectors(eventData.getBlockLocation(),offset);
         const faceBlock = player.dimension.getBlock(faceBlockLocation);
-        const faceBlockOld = copyBlock(faceBlock);
+        const faceBlockOld = Blocks.copyBlockState(faceBlock,true);
         const block = player.dimension.getBlock(eventData.getBlockLocation());
-        const blockOld = copyBlock(block);
+        const blockOld = Blocks.copyBlockState(block,true);
 
         //Those Blocks:
         system.runTimeout(async () => {
-            saveBlockUpdate(faceBlockOld,copyBlock(faceBlock),{actorId:player.id});
-            saveBlockUpdate(blockOld,copyBlock(block),{actorId:player.id});
+            saveBlockUpdate(faceBlockOld,Blocks.copyBlockState(faceBlock,true),{actorId:player.id});
+            saveBlockUpdate(blockOld,Blocks.copyBlockState(block,true),{actorId:player.id});
             //Falling Blocks
             system.runTimeout(() => {
                 const fallObject = fallingBlocksTracked.find((block) => compareVectors(faceBlock.location,block.location.start));
@@ -200,7 +201,7 @@ export async function main() {
         },1);
 
         //Updated Blocks:
-        await blockUpdateIteration(faceBlockLocation,faceBlockOld.dimension,(blockBefore,blockAfter,tick) => {
+        await Blocks.blockUpdateIteration(faceBlockLocation,faceBlockOld.dimension,(blockBefore,blockAfter,tick) => {
             const vec = subVectors(blockBefore.location,faceBlockOld.location);
             Debug.sendLogMessage(`${blockBefore.typeId} -> ${blockAfter.typeId} @ ${vec.x},${vec.y},${vec.z}:${tick}`);
             //Falling Blocks:
@@ -245,28 +246,28 @@ function loadWorkers() {
  * @returns {number} Returns a number indicating change to the memory database.
  */
 export function saveBlockUpdate(blockBefore,blockAfter,blockHistoryEntry) {
-    if (blockUpdates[blockHistoryEntry.actorId] == null) blockUpdates[blockHistoryEntry.actorId] = [];
-    const updateRecord = {
-        before: blockBefore,
-        after: blockAfter,
-        tick: system.currentTick,
-        blockPlaceType: blockHistoryEntry.updateType ?? "playerPlace",
-        blockPlaceID: blockHistoryEntry.updateId
-    };
-    if (compareBlocks(updateRecord.before,updateRecord.after)) return 0;
-    
+    blockUpdates[blockHistoryEntry.actorId] ??= [];
+    if (Blocks.compareBlockStates(blockBefore,blockAfter,true)) return 0;
+
     const records = blockUpdates[blockHistoryEntry.actorId]
     const lastRecord = records[records.length - 1];
     if (
         lastRecord &&
-        compareBlocks(lastRecord.before,updateRecord.after,true) &&
-        compareBlocks(lastRecord.after,updateRecord.before,true)
+        Dimensions.comparePositions(lastRecord.before,blockBefore) &&
+        Blocks.compareBlockStates(lastRecord.before,blockAfter,true) &&
+        Blocks.compareBlockStates(lastRecord.after,blockBefore,true)
     ) {
         records.pop();
         Debug.sendLogMessage('garbage collected!');
         return -1;
     } else {
-        records.push(updateRecord);
+        records.push({
+            before: blockBefore,
+            after: blockAfter,
+            tick: system.currentTick,
+            blockPlaceType: blockHistoryEntry.updateType ?? "playerPlace",
+            blockPlaceID: blockHistoryEntry.updateId
+        });
         Debug.sendLogMessage('saved the record');
         return 1;
     }
@@ -280,9 +281,9 @@ export function saveBlockUpdate(blockBefore,blockAfter,blockHistoryEntry) {
  * @param {BlockHistoryOptions} blockHistoryEntry Information used to store the entry in the database.
  */
 export function setBlockType(block,blockType,blockHistoryEntry) {
-    const blockBefore = copyBlock(block);
+    const blockBefore = Blocks.copyBlockState(block,true);
     block.setType(blockType);
-    const blockAfter = copyBlock(block);
+    const blockAfter = Blocks.copyBlockState(block,true);
     saveBlockUpdate(blockBefore,blockAfter,blockHistoryEntry);
 }
 
@@ -293,22 +294,22 @@ export function setBlockType(block,blockType,blockHistoryEntry) {
  * @param {BlockHistoryOptions} blockHistoryEntry Information used to store the entry in the database.
  */
 export function setBlockPermutation(block,permutation,blockHistoryEntry) {
-    const blockBefore = copyBlock(block);
+    const blockBefore = Blocks.copyBlockState(block,true);
     block.setPermutation(permutation);
-    const blockAfter = copyBlock(block);
+    const blockAfter = Blocks.copyBlockState(block,true);
     saveBlockUpdate(blockBefore,blockAfter,blockHistoryEntry);
 }
 
 /**
  * Updates the block state and records the update to the block hisory database.
- * @param {Block} block `Block` class object to invoke `setpermutation()` method on.
+ * @param {Block} block `Block` class object to edit state of.
  * @param {import('../../mc_modules/blocks').BlockState} blockState Block state to apply.
  * @param {BlockHistoryOptions} blockHistoryEntry Information used to store the entry in the database.
  */
 export function editBlock(block,blockState,blockHistoryEntry) {
-    const blockBefore = copyBlock(block);
-    applyBlockState(block,blockState)
-    const blockAfter = copyBlock(block);
+    const blockBefore = Blocks.copyBlockState(block,true);
+    Blocks.applyBlockState(block,blockState)
+    const blockAfter = Blocks.copyBlockState(block,true);
     saveBlockUpdate(blockBefore,blockAfter,blockHistoryEntry);
 }
 
