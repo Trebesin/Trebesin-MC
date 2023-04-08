@@ -62,7 +62,7 @@ class CommandParser {
                 if (!this.#options.caseSensitive) {
                     commandInput = commandInput.toLowerCase();
                 }
-                this.runCommand(commandInput,messageArray.slice(1).join(' '),sender);
+                await this.runCommand(commandInput,messageArray.slice(1).join(' '),sender);
             }
         });
         

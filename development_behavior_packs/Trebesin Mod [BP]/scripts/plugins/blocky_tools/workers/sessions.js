@@ -271,8 +271,6 @@ class Session {
         selection.getAllBlocks((blockLocation) => {
             try {
                 const block = dimension.getBlock(blockLocation);
-                if (block == null) return logMessage('Block is null!');
-
                 const blockMatch = permutations.find(
                     ({exactMatch,permutation}) => {
                         return ((

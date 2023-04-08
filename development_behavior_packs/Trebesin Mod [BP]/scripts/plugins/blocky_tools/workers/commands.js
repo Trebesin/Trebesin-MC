@@ -469,7 +469,7 @@ export async function main() {
 	Commands.registerCommand('getClipboardBounds', {
 		description: '',
 		parameters: [],
-		run(sender) {
+		async run(sender) {
 			const session = Sessions.getSession(sender);
 			const clipboard = session.getClipboard();
 			const bounds = clipboard.getBounds(0);

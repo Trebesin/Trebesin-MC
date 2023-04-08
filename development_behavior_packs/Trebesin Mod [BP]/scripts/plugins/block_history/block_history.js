@@ -248,7 +248,7 @@ export function saveBlockUpdate(blockBefore,blockAfter,blockHistoryEntry) {
         Blocks.compareBlockStates(lastRecord.after,blockBefore,true)
     ) {
         records.pop();
-        Debug.sendLogMessage('garbage collected!');
+        //Debug.sendLogMessage('garbage collected!');
         return -1;
     } else {
         records.push({
@@ -258,7 +258,7 @@ export function saveBlockUpdate(blockBefore,blockAfter,blockHistoryEntry) {
             blockPlaceType: blockHistoryEntry.updateType ?? "playerPlace",
             blockPlaceID: blockHistoryEntry.updateId
         });
-        Debug.sendLogMessage('saved the record');
+        //Debug.sendLogMessage('saved the record');
         return 1;
     }
 }
