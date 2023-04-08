@@ -140,7 +140,7 @@ export async function main() {
             const vec = subVectors(blockBefore.location,blockOld.location);
             Debug.logMessage(`${blockBefore.typeId} -> ${blockAfter.typeId} @ ${vec.x},${vec.y},${vec.z}:${tick}`);
             //Falling Blocks:
-            const fallObject = fallingBlocksTracked.find((block) => blockBefore.location.equals(block.location.start));
+            const fallObject = fallingBlocksTracked.find((block) => compareVectors(blockBefore.location,block.location.start));
             if (fallObject) fallObject.playerId = playerId;
         });
     });
@@ -237,7 +237,6 @@ function loadWorkers() {
  */
 export function saveBlockUpdate(blockBefore,blockAfter,blockHistoryEntry) {
     blockUpdates[blockHistoryEntry.actorId] ??= [];
-    Debug.logMessage(`${Blocks.compareBlockStates(blockBefore,blockAfter,true)} Change? BF: ${blockBefore.typeId} AF: ${blockAfter.typeId}`)
     if (Blocks.compareBlockStates(blockBefore,blockAfter,true)) return 0;
 
     const records = blockUpdates[blockHistoryEntry.actorId]
