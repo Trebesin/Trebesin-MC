@@ -168,7 +168,11 @@ export function copyBlockComponents(block) {
         blockComponents.inventory = [];
         const {container} = inventory;
         for (let slotIndex = 0;slotIndex < container.size;slotIndex++) {
-            blockComponents.inventory[slotIndex] = container.getSlot(slotIndex).clone();
+            try {
+                blockComponents.inventory[slotIndex] = container.getSlot(slotIndex).clone();
+            } catch {
+                blockComponents.inventory[slotIndex] = null;
+            }
         }
     }
 

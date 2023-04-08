@@ -284,10 +284,43 @@ export async function main() {
 	});
 
 	Commands.registerCommand('copy',{
-		parameters: [],
-		run(sender) {
+		parameters: [
+			{
+				id:'copyMode',
+				type:'string',
+				optional: true,
+				choice: {
+					'include': [
+						{
+							id: 'permutations',
+							type: 'blockPermutation',
+							array: Infinity,
+							fullArray: false
+						}
+					],
+					'exclude': [
+						{
+							id: 'permutations',
+							type: 'blockPermutation',
+							array: Infinity,
+							fullArray: false
+						}
+					]
+				}
+			}
+		],
+		run(sender,parameters) {
 			const session = Sessions.getSession(sender);
-			session.copySelection();
+			const exclusion = (parameters.copyMode ?? 'exclude') === 'exclude';
+			const permutations = [];
+			for (let index = 0;index < parameters.permutations?.length; index++) {
+				const replaceData = parameters.permutations[index];
+				permutations.push({
+					permutation: replaceData.permutation,
+					exactMatch: replaceData.userStates
+				});
+			}
+			session.copySelection(permutations,exclusion);
 		}
 	});
 

@@ -239,7 +239,14 @@ class Session {
     }
 
     //## Working with Selections
-    copySelection() {
+    /**
+     * 
+     * @param {object[]} permutations 
+     * @param {Mc.BlockPermutation} permutations[].permutation
+     * @param {boolean} permutations[].exactMatch
+     * @param {boolean} exclusion 
+     */
+    copySelection(permutations,exclusion) {
         const clipboard = this.getClipboard();
         const selection = this.getCurrentSelection();
         const dimension = selection.getDimension();
@@ -264,14 +271,27 @@ class Session {
         selection.getAllBlocks((blockLocation) => {
             try {
                 const block = dimension.getBlock(blockLocation);
-                if (block == null) return logMessage('null');
-                const blockStateIndex = clipboard.getBlockStateIndex(Blocks.copyBlockState(dimension.getBlock(blockLocation)));
+                if (block == null) return logMessage('Block is null!');
+
+                const blockMatch = permutations.find(
+                    ({exactMatch,permutation}) => {
+                        return ((
+                            exactMatch && block.permutation === permutation
+                        ) || (
+                            !exactMatch && block.typeId === permutation.type.id
+                        ));
+                    }
+                ) != null;
+                if ((exclusion && blockMatch) || (!exclusion && !blockMatch)) return;
+                
+                const blockState = Blocks.copyBlockState(block);
+                const blockStateIndex = clipboard.getBlockStateIndex(blockState);
                 //logMessage(`${blockStateIndex},${JSON.stringify(blockLocation)}`);
                 copiedData.locations.push([
                     VectorMath.sub(blockLocation,selection.minCoordinates),blockStateIndex
                 ]);
             } catch (error) {
-                logMessage(`caught ${error}`);
+                logMessage(`Error while copying on block [§mX:${blockLocation.x} §qY:${blockLocation.y} §tZ:${blockLocation.z}]:\n ${error}`);
             }
         });
     
@@ -314,89 +334,6 @@ class Session {
             );
         },clipboardIndex);
     }
-
-    //! somehow move paste location, prolly make like a temp store in the session class for storing variables like so
-
-    //!! scaling !!
-    //! gotta add rotation relative to center, center of origin?
-    rotateClipboard(angle,axis,clipboardIndex = 0) {
-        //Rotation Origin: (CenterRelative(NewLocation) - CenterRelative(OldLocation)) + OldLocation = NewLocation
-        const angleRadians = (Math.PI/180)*angle;
-        const angleResults = {
-            sin: Math.sin(angleRadians),
-            cos: Math.cos(angleRadians)
-        }
-
-        const clipboard = this.getClipboard();
-        const player = this.getPlayer();
-
-        const updatedLocationData = [];
-        clipboard.getAllBlocks((blockLocation,blockState) => {
-            const rotatedBlockLocation = VectorMath.rotateSinCos(
-                VectorMath.sum(VectorMath.floor(blockLocation),{x:0.5,y:0.5,z:0.5}),
-                angleResults,
-                axis
-            );
-            updatedLocationData.push([rotatedBlockLocation,clipboard.getBlockStateIndex(blockState)])
-        }, clipboardIndex);
-        clipboard.structureData[clipboardIndex].locations = updatedLocationData;
-
-        const updatedParticleData = [];
-        clipboard.getAllParticles((particleData) => {
-            const rotatedParticle = {
-                location: VectorMath.rotateSinCos(particleData.location,angleResults,axis),
-                direction: VectorMath.rotateSinCos(particleData.direction,angleResults,axis),
-                length: particleData.length,
-                color: particleData.color
-            }
-            updatedParticleData.push(rotatedParticle);
-        }, clipboardIndex);
-        clipboard.structureData[clipboardIndex].particles = updatedParticleData;
-    }
-
-    /**
-     * Flips all the blocks in the clipboard on the chosen axis.
-     * @param {'x'|'y'|'z'} axis Axis to flip.
-     */
-    flipClipboard(axis, clipboardIndex = 0) {
-        const clipboard = this.getClipboard();
-        const player = this.getPlayer();
-        const bounds = clipboard.getBounds(clipboardIndex);
-
-        const updatedLocationData = [];
-        clipboard.getAllBlocks((blockLocation,blockState) => {
-            const flippedBlockLocation = VectorMath.copy(blockLocation);
-            flippedBlockLocation[axis] = (bounds.center[axis]-(blockLocation[axis]-bounds.center[axis]));
-            updatedLocationData.push([flippedBlockLocation,clipboard.getBlockStateIndex(blockState)])
-        }, clipboardIndex);
-        clipboard.structureData[clipboardIndex].locations = updatedLocationData;
-
-        const particleBounds = expandArea([bounds.min,bounds.max],[0,1]);
-        const particleCenter = VectorMath.divide(
-            VectorMath.sum(
-                VectorMath.getMaximalVector(particleBounds),
-                VectorMath.getMinimalVector(particleBounds)
-            ),2
-        );
-
-        const updatedParticleData = [];
-        clipboard.getAllParticles((particleData) => {
-            const {location,direction} = particleData;
-            const flippedParticle = {
-                location: particleData.location,
-                direction: {
-                    x: axis === 'x' ? -direction.x : direction.x,
-                    y: axis === 'y' ? -direction.y : direction.y,
-                    z: axis === 'z' ? -direction.z : direction.z
-                },
-                length: particleData.length,
-                color: particleData.color
-            }
-            flippedParticle.location[axis] = (particleCenter[axis]-(location[axis]-particleCenter[axis]));
-            updatedParticleData.push(flippedParticle);
-        }, clipboardIndex);
-        clipboard.structureData[clipboardIndex].particles = updatedParticleData;
-    } 
 
     /**
      * Sets the permutation of all blocks contained inside the area of the selection.
@@ -611,14 +548,14 @@ class Session {
 class ClipboardInstance {
     constructor() {}
 
-    /** @type {import('../../../mc_modules/blocks').BlockState[]} */
+    /** @type {Blocks.BlockState[]} */
     blockStateData = []
     /** @type {ClipboardStructureData[]} */
     structureData = []
 
     /**
      * 
-     * @param {import('../../../mc_modules/blocks').BlockState} blockState 
+     * @param {Blocks.BlockState} blockState 
      * @returns {number}
      */
     getBlockStateIndex(blockState) {
