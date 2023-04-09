@@ -62,7 +62,9 @@ export async function main() {
         try {
             await connection.query(request,true);
         } catch (error) {
-            Debug.sendLogMessage(`${error}`);
+            for (const prop in error) {
+                Debug.sendLogMessage(`SQL Error: ${prop} ${error[prop]}`);
+            }
         }
     },DB_UPDATE_INTERVAL)
 
@@ -173,7 +175,7 @@ export async function main() {
                 if (getEquipedItem(player) != null) BlockHistoryCommandsWorker.inspector(faceBlockLocation, player);
                 else BlockHistoryCommandsWorker.inspector(eventData.getBlockLocation(), player);
             } catch(error) {
-                Debug.sendLogMessage(error);
+                Debug.sendLogMessage(`Inspector Error: ${error}`);
             }
         }
     });

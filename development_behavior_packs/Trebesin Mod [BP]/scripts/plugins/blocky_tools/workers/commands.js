@@ -119,7 +119,7 @@ export async function main() {
 				}
 			}
 		],
-		run(sender,parameters) {
+		async run(sender,parameters) {
 			//~ Changes userStates to exactMatch.
 			const replacePermutations = [];
 			for (let index = 0;index < parameters.replacePermutations.length; index++) {
@@ -130,7 +130,7 @@ export async function main() {
 				});
 			}
 			const session = Sessions.getSession(sender);
-			session.fillReplaceSelection(
+			await session.fillReplaceSelection(
 				parameters.fillBlock,
 				replacePermutations,
 				parameters.replaceMode === 'exclude',

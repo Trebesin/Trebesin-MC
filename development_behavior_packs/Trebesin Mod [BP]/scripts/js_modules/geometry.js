@@ -67,9 +67,9 @@ export function getGridLine(coords,options = {},callback = null) {
 }
 
 
-export function getGridBlock(coords,options = {},callback = null) {
+export async function getGridBlock(coords,callback,options = {}) {
+
     const {stepBy,hollow,width} = Object.assign({stepBy:{x:1,y:1,z:1},hollow:false,width:1},options);
-    const resultCoords = !callback ? [] : undefined;
     const maxCorner = {
         x: Math.max(coords[0].x,coords[1].x),
         y: Math.max(coords[0].y,coords[1].y),
@@ -105,17 +105,10 @@ export function getGridBlock(coords,options = {},callback = null) {
                     y < minCorner.y + width ||
                     z < minCorner.z + width 
                 )) continue;
-
-                if (callback) {
-                    callback({x,y,z});
-                } else {
-                    resultCoords.push({x,y,z});
-                }
+                await callback({x,y,z});
             }
         }
     }
-
-    return resultCoords;
 }
 
 export function getMaximalVector(vectors) {

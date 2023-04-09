@@ -11,6 +11,7 @@ import { editBlock, setBlockPermutation, setBlockType, BlockHistoryUpdateTypes }
 import * as Blocks from '../../../mc_modules/blocks';
 import * as VectorMath from '../../../js_modules/vectorMath';
 import * as Geometry from '../../../js_modules/geometry';
+import { Throttle } from '../../backend/backend';
 //Modules:
 
 
@@ -363,12 +364,12 @@ class Session {
      * @param {boolean} replacePermutations[].exactMatch
      * @param {boolean} exclusion 
      */
-    fillReplaceSelection(fillPermutation,replacePermutations,exclusion) {
+    async fillReplaceSelection(fillPermutation,replacePermutations,exclusion) {
         const player = this.getPlayer();
         const selection = this.getCurrentSelection();
         const dimension = selection.getDimension();
-
-        selection.getAllBlocks((blockLocation) => {
+        await selection.getAllBlocks(async (blockLocation) => {
+            await Throttle.runAction();
             const block = dimension.getBlock(blockLocation);
             const blockMatch = replacePermutations.find(
                 ({exactMatch,permutation}) => {
@@ -382,8 +383,8 @@ class Session {
             if (
                 (exclusion && !blockMatch) || (!exclusion && blockMatch)
             ) setBlockPermutation(block,fillPermutation.permutation,{actorId:player.id,updateType:BlockHistoryUpdateTypes.blockyTools});
-
         });
+        
     }
 
     fillSelectionCorners(fillPermutation) {

@@ -1,4 +1,5 @@
 import * as Mc from '@minecraft/server';
+import { logMessage } from '../plugins/debug/debug';
 
 export class Throttling {
     constructor(maxOperations) {
@@ -7,6 +8,7 @@ export class Throttling {
         this.#queuedActions = [];
 
         Mc.system.runInterval(() => {
+            if (this.#operationsRan > 0) logMessage(`OPS ran: ${this.#operationsRan}`);
             this.#operationsRan = 0;
     
             //~2nd version (safe because array functions):
@@ -23,7 +25,7 @@ export class Throttling {
     * When it's called it adds `1` to a global amount of ran operations per tick and as long as the global amount doesn't cross the threshold it returns immediatly otherwise it queues to return on the next tick.
     */
     async runAction() {
-        if (++this.#operationsRan <= MAX_OPS_PER_TICK) return;
+        if (++this.#operationsRan <= this.#maxOperations) return;
         else await this.#queueAction();
     }
 
