@@ -346,6 +346,7 @@ class Session {
         selection.getAllBlocks(async (blockLocation) => {
             await Throttle.runAction();
             //! this no need ^^ async makes it slow enough already.
+            //! like edior mode does tis
             setBlockPermutation(
                 dimension.getBlock(blockLocation),
                 fillPermutation,
