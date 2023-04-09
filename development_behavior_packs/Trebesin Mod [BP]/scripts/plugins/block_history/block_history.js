@@ -132,8 +132,18 @@ export async function main() {
             dimension: eventData.dimension,
         }
 
+        //const blocks = {
+        //    before: blockOld,
+        //    after: Blocks.copyBlockState(eventData.block,true)
+        //}
+//
+        //const position = {
+        //    location: eventData.block.location,
+        //    dimension: eventData.dimension,
+        //}
+
         //This Block:
-        saveBlockUpdate(blockOld,Blocks.copyBlockState(eventData.block,true),{actorId:playerId});
+        saveBlockUpdate({before:blockOld,after:Blocks.copyBlockState(eventData.block,true)},{actorId:playerId});
 
         //Updated Blocks:
         await Blocks.blockUpdateIteration(blockOld.location,blockOld.dimension,(blockBefore,blockAfter,tick) => {
@@ -154,19 +164,18 @@ export async function main() {
     })
     //## Inspector
     Server.events.beforeItemStartUseOn.subscribe((eventData) => {
-            const player = eventData.source;
-            if (player.hasTag('inspector')){
-                try {
-                    eventData.cancel = true;
-                    const offset = FACE_DIRECTIONS[eventData.blockFace];
-                    const faceBlockLocation = sumVectors(eventData.getBlockLocation(), offset);
-                    if (getEquipedItem(player) != null) BlockHistoryCommandsWorker.inspector(faceBlockLocation, player);
-                    else BlockHistoryCommandsWorker.inspector(eventData.getBlockLocation(), player);
-                }
-                catch(error){
-                    Debug.sendLogMessage(error)
-                }
+        const player = eventData.source;
+        if (player.hasTag('inspector')) {
+            try {
+                eventData.cancel = true;
+                const offset = FACE_DIRECTIONS[eventData.blockFace];
+                const faceBlockLocation = sumVectors(eventData.getBlockLocation(), offset);
+                if (getEquipedItem(player) != null) BlockHistoryCommandsWorker.inspector(faceBlockLocation, player);
+                else BlockHistoryCommandsWorker.inspector(eventData.getBlockLocation(), player);
+            } catch(error) {
+                Debug.sendLogMessage(error);
             }
+        }
     });
 
     //## Block Placing Detection:
@@ -181,8 +190,24 @@ export async function main() {
 
         //These Blocks:
         system.runTimeout(async () => {
-            saveBlockUpdate(faceBlockOld,Blocks.copyBlockState(faceBlock,true),{actorId:player.id});
-            saveBlockUpdate(blockOld,Blocks.copyBlockState(block,true),{actorId:player.id});
+            //const faceBlocks = {
+            //    before: faceBlockOld,
+            //    after: copyBlockState(faceBlock,true)
+            //};
+            //const facePosition = {
+            //    location: faceBlock.location,
+            //    dimension: faceBlock.dimension
+            //};
+            //const blocks = {
+            //    before: blockOld,
+            //    after: Blocks.copyBlockState(block,true)
+            //};
+            //const position = {
+            //    location: block.location,
+            //    dimension: block.dimension
+            //};
+            saveBlockUpdate({before:faceBlockOld,after:Blocks.copyBlockState(faceBlock,true)},{actorId:player.id});
+            saveBlockUpdate({before:blockOld,after:Blocks.copyBlockState(block,true)},{actorId:player.id});
             //Falling Blocks
             system.runTimeout(() => {
                 const fallObject = fallingBlocksTracked.find((block) => compareVectors(faceBlock.location,block.location.start));
@@ -230,33 +255,34 @@ function loadWorkers() {
 
 /**
  * Function for saving block updates into the Block History memory database.
- * @param {object} blockBefore **Copy** of the `Block` class object saved as the block before the update.
- * @param {object} blockAfter **Copy** of the `Block` class object saved as the block after the update.
+ * @param {object} blockStates Block states that define the block before and after the update.
+ * @param {Blocks.BlockState} blockStates.before Block state of the block before the update.
+ * @param {Blocks.BlockState} blockStates.after Block state of the block after the update.
  * @param {BlockHistoryOptions} blockHistoryEntry Information regarding the block history database entry for the block update.
  * @returns {number} Returns a number indicating change to the memory database.
  */
-export function saveBlockUpdate(blockBefore,blockAfter,blockHistoryEntry) {
+export function saveBlockUpdate(blockStates,blockHistoryEntry) {
     blockUpdates[blockHistoryEntry.actorId] ??= [];
-    if (Blocks.compareBlockStates(blockBefore,blockAfter,true)) return 0;
+    if (Blocks.compareBlockStates(blockStates.before,blockStates.after,true)) return 0;
 
     const records = blockUpdates[blockHistoryEntry.actorId]
     const lastRecord = records[records.length - 1];
     if (
         lastRecord &&
-        Dimensions.comparePositions(lastRecord.before,blockBefore) &&
-        Blocks.compareBlockStates(lastRecord.before,blockAfter,true) &&
-        Blocks.compareBlockStates(lastRecord.after,blockBefore,true)
+        Dimensions.comparePositions(lastRecord.before,blockStates.before) &&
+        Blocks.compareBlockStates(lastRecord.before,blockStates.after,true) &&
+        Blocks.compareBlockStates(lastRecord.after,blockStates.before,true)
     ) {
         records.pop();
         //Debug.sendLogMessage('garbage collected!');
         return -1;
     } else {
         records.push({
-            before: blockBefore,
-            after: blockAfter,
+            before: blockStates.before,
+            after: blockStates.after,
             tick: system.currentTick,
-            blockPlaceType: blockHistoryEntry.updateType ?? BlockHistoryUpdateTypes.playerUpdate,
-            blockPlaceID: blockHistoryEntry.updateId
+            updateType: blockHistoryEntry.updateType ?? BlockHistoryUpdateTypes.playerUpdate,
+            updateId: blockHistoryEntry.updateId
         });
         //Debug.sendLogMessage('saved the record');
         return 1;
@@ -274,7 +300,7 @@ export function setBlockType(block,blockType,blockHistoryEntry) {
     const blockBefore = Blocks.copyBlockState(block,true);
     block.setType(blockType);
     const blockAfter = Blocks.copyBlockState(block,true);
-    saveBlockUpdate(blockBefore,blockAfter,blockHistoryEntry);
+    saveBlockUpdate({before:blockBefore,after:blockAfter},blockHistoryEntry);
 }
 
 /**
@@ -287,7 +313,7 @@ export function setBlockPermutation(block,permutation,blockHistoryEntry) {
     const blockBefore = Blocks.copyBlockState(block,true);
     block.setPermutation(permutation);
     const blockAfter = Blocks.copyBlockState(block,true);
-    saveBlockUpdate(blockBefore,blockAfter,blockHistoryEntry);
+    saveBlockUpdate({before:blockBefore,after:blockAfter},blockHistoryEntry);
 }
 
 /**
@@ -298,9 +324,9 @@ export function setBlockPermutation(block,permutation,blockHistoryEntry) {
  */
 export function editBlock(block,blockState,blockHistoryEntry) {
     const blockBefore = Blocks.copyBlockState(block,true);
-    Blocks.applyBlockState(block,blockState)
+    Blocks.applyBlockState(block,blockState);
     const blockAfter = Blocks.copyBlockState(block,true);
-    saveBlockUpdate(blockBefore,blockAfter,blockHistoryEntry);
+    saveBlockUpdate({before:blockBefore,after:blockAfter},blockHistoryEntry);
 }
 
 //# Types / Constants

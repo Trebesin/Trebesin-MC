@@ -28,6 +28,17 @@ import * as VectorMath from '../js_modules/vectorMath';
  */
 
 /**
+ * @param {Mc.Entity | Mc.Block} object Entity or a block to get the position of.
+ * @returns {Position}
+ */
+export function getPosition(object) {
+    return {
+        location: object.location,
+        dimension: object.dimension
+    };
+}
+
+/**
  * Function for comparing 2 positions.
  * @param {Position} positionA 1st position to compare.
  * @param {Position} positionB 2nd position to compare.

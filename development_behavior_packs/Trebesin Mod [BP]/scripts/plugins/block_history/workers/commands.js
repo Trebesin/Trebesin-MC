@@ -799,7 +799,7 @@ function printBlockHistory(request, options, sender){
     if(options.type === "reverse")sendLongMessage(`Block History reverses of ${playerName}`, message.trim(), sender)
     if(options.type === "player")sendLongMessage(`Block History of ${playerName}`, message.trim(), sender);
     if(options.type === "block")sendLongMessage(`Block History of block ${Math.floor(options.pos.x)}, ${Math.floor(options.pos.y)}, ${Math.floor(options.pos.z)}`, message.trim(), sender);
-    return true
+    return true;
 }
 
 function spawnParticles(location, particleAxis, sender) {
@@ -826,6 +826,11 @@ async function getMaxIDPerPlayer(updateType, player){
     }
 }
 
+/**
+ * 
+ * @param {Blocks.BlockState} blockOld 
+ * @param {import('../../../mc_modules/dimensions').Position} position 
+ */
 export function revertBlockChange(blockOld, position){
     const block = position.dimension.getBlock(position.location);
     Blocks.applyBlockState(block,blockOld);
@@ -933,7 +938,10 @@ async function reverseBlocks(blocks, sender) {
         const permutationsBefore = BlockPermutation.resolve(blocks[i].before_id, JSON.parse(blocks[i].before_permutations))
         block.setType(MinecraftBlockTypes.get(blocks[i].before_id));
         block.setPermutation(permutationsBefore);
-        BlockHistoryPlugin.saveBlockUpdate(blockOld,Blocks.copyBlockState(block,true),{
+        BlockHistoryPlugin.saveBlockUpdate({
+            before: blockOld,
+            after: Blocks.copyBlockState(block,true)
+        },{
             actorId: playerId,
             updateType: BlockHistoryUpdateTypes.blockHistoryReverse,
             updateId: callID
