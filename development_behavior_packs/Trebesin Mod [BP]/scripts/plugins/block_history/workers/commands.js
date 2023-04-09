@@ -13,7 +13,30 @@ import { sendMessage} from "../../../mc_modules/players";
 import { getEdgeLocations, locationToString, stringToLocation } from "../../../mc_modules/particles";
 import { CommandError } from "../../../mc_modules/commandParser";
 
-const {BlockHistoryUpdateTypes} = BlockHistoryPlugin;
+//const {BlockHistoryUpdateTypes,BlockHistoryUpdateTypeNames} = BlockHistoryPlugin;
+
+/**
+ * Object with defining IDs for `BlockHistoryOptions` `updateType` entries.
+ */
+const BlockHistoryUpdateTypes = {
+    /** Block updated by a player in a usual vanilla MC interaction. */
+    playerUpdate: 0,
+    /** Block updated by a player using block history plugin reverse feature. */
+    blockHistoryReverse: 1,
+    /** Block updated by a player using blocky tools plugin. */
+    blockyTools: 2,
+    /** Block updated by the system for a technical reason in an automated fashion. */
+    system: 3
+
+};
+
+const BlockHistoryUpdateTypeNames = [
+    'Player Update',
+    'Block History: Reverse',
+    'Blocky Tools: Player',
+    'System'
+];
+
 
 let particlesPerPlayers = {}
 let confirmationPerPlayer = {}
@@ -790,10 +813,10 @@ function printBlockHistory(request, options, sender){
         const blockAlteration = request.result[i]
         const timeOfBlockAlteration = system.currentTick - parseInt(blockAlteration.tick)
         if(options.type === "player" || options.type === "reverse"){
-            message += `${blockAlteration.update_type === BlockHistoryUpdateTypes.playerUpdate ? "" : `(${blockAlteration.update_type}) - `}[${blockAlteration.x}, ${blockAlteration.y}, ${blockAlteration.z}]: ${blockAlteration.before_id} -> ${blockAlteration.after_id} - before: ${parseToRealTime(timeOfBlockAlteration)}\n`;
+            message += `${blockAlteration.update_type === BlockHistoryUpdateTypes.playerUpdate ? "" : `(${BlockHistoryUpdateTypeNames[blockAlteration.update_type]}) - `}[${blockAlteration.x}, ${blockAlteration.y}, ${blockAlteration.z}]: ${blockAlteration.before_id} -> ${blockAlteration.after_id} - before: ${parseToRealTime(timeOfBlockAlteration)}\n`;
         }
         if(options.type === "block"){
-            message += `${blockAlteration.PlayerName}${blockAlteration.update_type === BlockHistoryUpdateTypes.playerUpdate ? "" : ` (${blockAlteration.update_type})`}: ${blockAlteration.before_id} -> ${blockAlteration.after_id} - before: ${parseToRealTime(timeOfBlockAlteration)}\n`;
+            message += `${blockAlteration.PlayerName}${blockAlteration.update_type === BlockHistoryUpdateTypes.playerUpdate ? "" : ` (${BlockHistoryUpdateTypeNames[blockAlteration.update_type]})`}: ${blockAlteration.before_id} -> ${blockAlteration.after_id} - before: ${parseToRealTime(timeOfBlockAlteration)}\n`;
         }
     }
     if(options.type === "reverse")sendLongMessage(`Block History reverses of ${playerName}`, message.trim(), sender)

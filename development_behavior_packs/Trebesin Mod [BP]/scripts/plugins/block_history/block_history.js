@@ -13,36 +13,6 @@ import * as Dimensions from '../../mc_modules/dimensions';
 import { DIMENSION_IDS , FACE_DIRECTIONS } from '../../mc_modules/constants';
 import { getEquipedItem, sendMessage } from '../../mc_modules/players';
 
-//# Types / Constants
-/**
- * @typedef BlockHistoryOptions
- * @prop {string} actorId ID of the player or entity that will be defined as the cause.
- * @prop {string} updateType Type of the block update.
- * @prop {number} updateId ID for the block update.
- */
-
-/**
- * Object with defining IDs for `BlockHistoryOptions` `updateType` entries.
- */
-export const BlockHistoryUpdateTypes = {
-    /** Block updated by a player in a usual vanilla MC interaction. */
-    playerUpdate: 0,
-    /** Block updated by a player using block history plugin reverse feature. */
-    blockHistoryReverse: 1,
-    /** Block updated by a player using blocky tools plugin. */
-    blockyTools: 2,
-    /** Block updated by the system for a technical reason in an automated fashion. */
-    system: 3
-
-};
-
-export const BlockHistoryUpdateTypeNames = [
-    'Player Update',
-    'Block History: Reverse',
-    'Blocky Tools: Player',
-    'System'
-];
-
 
 const DB_UPDATE_INTERVAL = 100;
 const blockUpdates = {};
@@ -358,3 +328,33 @@ export function editBlock(block,blockState,blockHistoryEntry) {
     const blockAfter = Blocks.copyBlockState(block,true);
     saveBlockUpdate({before:blockBefore,after:blockAfter},blockHistoryEntry);
 }
+
+//# Types / Constants
+/**
+ * @typedef BlockHistoryOptions
+ * @prop {string} actorId ID of the player or entity that will be defined as the cause.
+ * @prop {string} updateType Type of the block update.
+ * @prop {number} updateId ID for the block update.
+ */
+
+/**
+ * Object with defining IDs for `BlockHistoryOptions` `updateType` entries.
+ */
+export const BlockHistoryUpdateTypes = {
+    /** Block updated by a player in a usual vanilla MC interaction. */
+    playerUpdate: 0,
+    /** Block updated by a player using block history plugin reverse feature. */
+    blockHistoryReverse: 1,
+    /** Block updated by a player using blocky tools plugin. */
+    blockyTools: 2,
+    /** Block updated by the system for a technical reason in an automated fashion. */
+    system: 3
+
+};
+
+export const BlockHistoryUpdateTypeNames = [
+    'Player Update',
+    'Block History: Reverse',
+    'Blocky Tools: Player',
+    'System'
+];
