@@ -3,17 +3,19 @@ import { world, system } from '@minecraft/server';
 import * as serverAdmin from '@minecraft/server-admin';
 //Plugins:
 import * as Debug from '../debug/debug';
+import { MAX_OPS_PER_TICK } from '../../config';
 //Modules:
 import { DatabaseConnection } from '../../mc_modules/network/database-api';
 import { Server as ServerModule, ServerEventCallback } from '../../mc_modules/server';
+import { Throttling } from '../../mc_modules/throttle';
 import * as Items from '../../mc_modules/items';
 import { CommandParser } from '../../mc_modules/commandParser';
 import { sendMessage } from '../../mc_modules/players';
 
-
 export const Commands = new CommandParser({
     prefix: "!", caseSensitive: false
 });
+export const Throttle = new Throttling(MAX_OPS_PER_TICK);
 export const Server = new ServerModule(0);
 Server.cancelTerminations = true;
 

@@ -29,7 +29,7 @@ export async function main() {
     system.runInterval(async () => {
         let empty = true;
         const request = {
-            sql: 'INSERT INTO block_history (actor_id,tick,dimension_id,x,y,z,before_id,after_id,before_waterlogged,after_waterlogged,before_permutations,after_permutations,blockPlaceType,blockPlaceTypeID) VALUES ',
+            sql: 'INSERT INTO block_history (actor_id,tick,dimension_id,x,y,z,before_id,after_id,before_waterlogged,after_waterlogged,before_permutations,after_permutations,update_type,update_id) VALUES ',
             values: []
         };
         for (const actorId in blockUpdates) {
@@ -51,8 +51,8 @@ export async function main() {
                     record.after.isWaterlogged,
                     JSON.stringify(record.before.permutation.getAllProperties()),
                     JSON.stringify(record.after.permutation.getAllProperties()),
-                    record.blockPlaceType,
-                    record.blockPlaceID
+                    record.updateType,
+                    record.updateId
                 );
                 empty = false;
             }
@@ -255,7 +255,7 @@ export function saveBlockUpdate(blockBefore,blockAfter,blockHistoryEntry) {
             before: blockBefore,
             after: blockAfter,
             tick: system.currentTick,
-            blockPlaceType: blockHistoryEntry.updateType ?? "playerPlace",
+            blockPlaceType: blockHistoryEntry.updateType ?? BlockHistoryUpdateTypes.playerUpdate,
             blockPlaceID: blockHistoryEntry.updateId
         });
         //Debug.sendLogMessage('saved the record');

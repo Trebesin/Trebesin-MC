@@ -13,13 +13,15 @@ import { sendMessage} from "../../../mc_modules/players";
 import { getEdgeLocations, locationToString, stringToLocation } from "../../../mc_modules/particles";
 import { CommandError } from "../../../mc_modules/commandParser";
 
+const {BlockHistoryUpdateTypes} = BlockHistoryPlugin;
+
 let particlesPerPlayers = {}
 let confirmationPerPlayer = {}
 let lastParticleCall = {}
 let lastCall = {}
 const PARTICLE_LIMIT = 1000//particle limit per player
 
-function main(){
+export function main(){
     system.runInterval(() => {
         for (const player in particlesPerPlayers) {
             //## Particles:
@@ -255,7 +257,7 @@ function main(){
                             ON block_history.actor_id = latest_connections.PlayerID 
                             JOIN PlayerConnections 
                             ON latest_connections.latest_id = PlayerConnections.ID
-                            WHERE PlayerName = ? AND blockPlaceType = 'blockHistory: reverse' AND blockPlaceTypeID = ?
+                            WHERE PlayerName = ? AND update_type = ${BlockHistoryUpdateTypes.blockHistoryReverse} AND update_id = ?
                             ORDER BY \`block_history\`.\`tick\` DESC
                         `,
                         values : [playerName, parameter.id]
@@ -788,10 +790,10 @@ function printBlockHistory(request, options, sender){
         const blockAlteration = request.result[i]
         const timeOfBlockAlteration = system.currentTick - parseInt(blockAlteration.tick)
         if(options.type === "player" || options.type === "reverse"){
-            message += `${blockAlteration.blockPlaceType === "playerPlace"? "" : `(${blockAlteration.blockPlaceType}) - `}[${blockAlteration.x}, ${blockAlteration.y}, ${blockAlteration.z}]: ${blockAlteration.before_id} -> ${blockAlteration.after_id} - before: ${parseToRealTime(timeOfBlockAlteration)}\n`;
+            message += `${blockAlteration.update_type === BlockHistoryUpdateTypes.playerUpdate ? "" : `(${blockAlteration.update_type}) - `}[${blockAlteration.x}, ${blockAlteration.y}, ${blockAlteration.z}]: ${blockAlteration.before_id} -> ${blockAlteration.after_id} - before: ${parseToRealTime(timeOfBlockAlteration)}\n`;
         }
         if(options.type === "block"){
-            message += `${blockAlteration.PlayerName}${blockAlteration.blockPlaceType === "playerPlace"? "" : ` (${blockAlteration.blockPlaceType})`}: ${blockAlteration.before_id} -> ${blockAlteration.after_id} - before: ${parseToRealTime(timeOfBlockAlteration)}\n`;
+            message += `${blockAlteration.PlayerName}${blockAlteration.update_type === BlockHistoryUpdateTypes.playerUpdate ? "" : ` (${blockAlteration.update_type})`}: ${blockAlteration.before_id} -> ${blockAlteration.after_id} - before: ${parseToRealTime(timeOfBlockAlteration)}\n`;
         }
     }
     if(options.type === "reverse")sendLongMessage(`Block History reverses of ${playerName}`, message.trim(), sender)
@@ -807,15 +809,15 @@ function spawnParticles(location, particleAxis, sender) {
     dimension.spawnParticle(`trebesin:edge_highlight_${particleAxis}`, location, molang);
 }
 
-async function getMaxIDPerPlayer(blockPlaceType, player){
+async function getMaxIDPerPlayer(updateType, player){
     try{
         const request = await DB.query({
-            sql: `SELECT actor_id, MAX(blockPlaceTypeID) AS id
+            sql: `SELECT actor_id, MAX(update_id) AS id
                     FROM block_history
-                    WHERE actor_id = ? AND blockPlaceType = ? AND blockPlaceTypeID IS NOT NULL
+                    WHERE actor_id = ? AND update_type = ? AND update_id IS NOT NULL
                     GROUP BY actor_id;
                     `,
-            values: [player.id, blockPlaceType]
+            values: [player.id, updateType]
         })
         return request.result[0].id
     }
@@ -824,10 +826,9 @@ async function getMaxIDPerPlayer(blockPlaceType, player){
     }
 }
 
-function revertBlockChange(blockOld, blockNew, sender){
-    const block = sender.dimension.getBlock(blockNew.location);
-    block.setType(MinecraftBlockTypes.get(blockOld.typeId));
-    block.setPermutation(BlockPermutation.resolve(blockOld.typeId,JSON.parse(blockOld.permutation)));
+export function revertBlockChange(blockOld, position){
+    const block = position.dimension.getBlock(position.location);
+    Blocks.applyBlockState(block,blockOld);
 }
 
 function parseToRealTime(input){
@@ -884,7 +885,7 @@ function parseToTicks(input){
     return result;
 }
 
-async function inspector(location, sender){
+export async function inspector(location, sender){
     const pos = location 
     const request = {
         sql : `SELECT DISTINCT block_history.*, PlayerConnections.PlayerName 
@@ -924,7 +925,7 @@ async function inspector(location, sender){
 }
 
 async function reverseBlocks(blocks, sender) {
-    const callID = (await getMaxIDPerPlayer("blockHistory: reverse", sender) ?? -1)+1
+    const callID = (await getMaxIDPerPlayer(BlockHistoryUpdateTypes.blockHistoryReverse, sender) ?? -1)+1
     for(let i = 0;i<blocks.length;i++){
         const playerId = sender.id;
         const block = world.getDimension(blocks[i].dimension_id).getBlock(blocks[i]);
@@ -934,11 +935,9 @@ async function reverseBlocks(blocks, sender) {
         block.setPermutation(permutationsBefore);
         BlockHistoryPlugin.saveBlockUpdate(blockOld,Blocks.copyBlockState(block,true),{
             actorId: playerId,
-            updateType: "blockHistory: reverse",
+            updateType: BlockHistoryUpdateTypes.blockHistoryReverse,
             updateId: callID
         });
     }
     sendMessage(`succesfully reversed blocks - callID: ${callID}`, "BlockHistory: reverse",sender)
 }
-
-export {main, inspector, revertBlockChange}
