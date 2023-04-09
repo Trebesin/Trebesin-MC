@@ -7,7 +7,7 @@ import { getEquipedItem, sendMessage } from '../../../mc_modules/players';
 //Plugins:
 import { CornerSelection } from './selection';
 import { logMessage } from '../../debug/debug';
-import { editBlock, setBlockPermutation, setBlockType } from '../../block_history/block_history';
+import { editBlock, setBlockPermutation, setBlockType, BlockHistoryUpdateTypes } from '../../block_history/block_history';
 import * as Blocks from '../../../mc_modules/blocks';
 import * as VectorMath from '../../../js_modules/vectorMath';
 import * as Geometry from '../../../js_modules/geometry';
@@ -328,7 +328,7 @@ class Session {
             editBlock(
                 block,
                 blockState,
-                {actorId:player.id,updateType:'blockyTools: player'}
+                {actorId:player.id,updateType:BlockHistoryUpdateTypes.blockyTools}
             );
         },clipboardIndex);
     }
@@ -347,7 +347,7 @@ class Session {
                 setBlockPermutation(
                     dimension.getBlock(blockLocation),
                     fillPermutation,
-                    {actorId:player.id,updateType:'blockyTools: player'}
+                    {actorId:player.id,updateType:BlockHistoryUpdateTypes.blockyTools}
                 );
             } catch (error) {
                 logMessage(error);
@@ -381,7 +381,7 @@ class Session {
             ) != null;
             if (
                 (exclusion && !blockMatch) || (!exclusion && blockMatch)
-            ) setBlockPermutation(block,fillPermutation.permutation,{actorId:player.id,updateType:'blockyTools: player'});
+            ) setBlockPermutation(block,fillPermutation.permutation,{actorId:player.id,updateType:BlockHistoryUpdateTypes.blockyTools});
 
         });
     }

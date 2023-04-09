@@ -8,7 +8,7 @@ import { insertToArray } from '../../../js_modules/array';
 import { logMessage } from '../../debug/debug';
 import * as VectorMath from '../../../js_modules/vectorMath';
 import * as Blocks from '../../../mc_modules/blocks';
-import { editBlock } from '../../block_history/block_history';
+import { BlockHistoryUpdateTypes, editBlock } from '../../block_history/block_history';
 
 /**
  * @typedef Vector3
@@ -118,7 +118,7 @@ class BaseSelection {
 
         for (const newBlock of updatedBlocks) {
             const block = dimension.getBlock(newBlock.blockLocation);
-            editBlock(block,newBlock.blockState,{actorId:player.id,updateType:'blockyTools: player'});
+            editBlock(block,newBlock.blockState,{actorId:player.id,updateType:BlockHistoryUpdateTypes.blockyTools});
         }
         //center-(cordinate-center)
     } 
