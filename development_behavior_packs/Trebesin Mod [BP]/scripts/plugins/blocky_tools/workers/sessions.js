@@ -369,7 +369,6 @@ class Session {
         const selection = this.getCurrentSelection();
         const dimension = selection.getDimension();
         await selection.getAllBlocks(async (blockLocation) => {
-            await Throttle.runAction();
             const block = dimension.getBlock(blockLocation);
             const blockMatch = replacePermutations.find(
                 ({exactMatch,permutation}) => {
@@ -383,6 +382,7 @@ class Session {
             if (
                 (exclusion && !blockMatch) || (!exclusion && blockMatch)
             ) setBlockPermutation(block,fillPermutation.permutation,{actorId:player.id,updateType:BlockHistoryUpdateTypes.blockyTools});
+            await Throttle.runAction();
         });
         
     }
