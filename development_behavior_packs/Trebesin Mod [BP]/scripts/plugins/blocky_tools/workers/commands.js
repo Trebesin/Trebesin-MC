@@ -130,7 +130,7 @@ export async function main() {
 				});
 			}
 			const session = Sessions.getSession(sender);
-			await session.fillReplaceSelection(
+			session.fillReplaceSelection(
 				parameters.fillBlock,
 				replacePermutations,
 				parameters.replaceMode === 'exclude',

@@ -343,16 +343,15 @@ class Session {
         const selection = this.getCurrentSelection();
         const dimension = selection.getDimension();
 
-        selection.getAllBlocks((blockLocation) => {
-            try {
-                setBlockPermutation(
-                    dimension.getBlock(blockLocation),
-                    fillPermutation,
-                    {actorId:player.id,updateType:BlockHistoryUpdateTypes.blockyTools}
-                );
-            } catch (error) {
-                logMessage(error);
-            }
+        selection.getAllBlocks(async (blockLocation) => {
+            await Throttle.runAction();
+            //! this no need ^^ async makes it slow enough already.
+            setBlockPermutation(
+                dimension.getBlock(blockLocation),
+                fillPermutation,
+                {actorId:player.id,updateType:BlockHistoryUpdateTypes.blockyTools}
+            );
+            
         });
     }
 
@@ -364,11 +363,11 @@ class Session {
      * @param {boolean} replacePermutations[].exactMatch
      * @param {boolean} exclusion 
      */
-    async fillReplaceSelection(fillPermutation,replacePermutations,exclusion) {
+    fillReplaceSelection(fillPermutation,replacePermutations,exclusion) {
         const player = this.getPlayer();
         const selection = this.getCurrentSelection();
         const dimension = selection.getDimension();
-        await selection.getAllBlocks(async (blockLocation) => {
+        selection.getAllBlocks(async (blockLocation) => {
             const block = dimension.getBlock(blockLocation);
             const blockMatch = replacePermutations.find(
                 ({exactMatch,permutation}) => {
@@ -382,7 +381,6 @@ class Session {
             if (
                 (exclusion && !blockMatch) || (!exclusion && blockMatch)
             ) setBlockPermutation(block,fillPermutation.permutation,{actorId:player.id,updateType:BlockHistoryUpdateTypes.blockyTools});
-            await Throttle.runAction();
         });
         
     }
@@ -602,7 +600,7 @@ class ClipboardInstance {
      * @param {number} clipboardIndex
      * @returns 
      */
-    getAllBlocksProccessed(callback,clipboardIndex) {
+    async getAllBlocksProccessed(callback,clipboardIndex) {
         const config = this.getConfig(clipboardIndex);
         const ogBounds = this.getBounds(clipboardIndex);
         const bounds = {
@@ -629,6 +627,7 @@ class ClipboardInstance {
                             block: [flooredLocation,locations[index][1]]
                         });
                     }
+                    await Throttle.runAction();
                 }
             }
             locations.length = 0;
@@ -654,6 +653,7 @@ class ClipboardInstance {
                 blockLocation = VectorMath.rotateSinCos(blockLocation,angleResults,axis);
             }
             callback(blockLocation,blockState);
+            await Throttle.runAction();
         }
     }
 

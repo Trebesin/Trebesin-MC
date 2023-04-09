@@ -200,8 +200,8 @@ export class CornerSelection extends BaseSelection {
      * @arg {function} callback
      * @returns 
      */
-    async getAllBlocks(callback) {
-        await getGridBlock(this.getSelectionCorners(),callback,{stepBy:{x:1,y:1,z:1},hollow:false,width:1});
+    getAllBlocks(callback) {
+        getGridBlock(this.getSelectionCorners(),callback,{stepBy:{x:1,y:1,z:1},hollow:false,width:1});
     }
 
     updateMinMax() {

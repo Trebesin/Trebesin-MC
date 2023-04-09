@@ -10,8 +10,7 @@ export class Throttling {
         Mc.system.runInterval(() => {
             if (this.#operationsRan > 0) logMessage(`OPS ran: ${this.#operationsRan}`);
             this.#operationsRan = 0;
-    
-            //~2nd version (safe because array functions):
+
             do {
                 const action = this.#queuedActions.pop();
                 if (action == null) break;
@@ -37,12 +36,3 @@ export class Throttling {
     #operationsRan;
     #queuedActions;
 }
-
-//~1st version (doesn't use array functions, might cause bugs??):
-/*
-while (queuedActions.length < 0) {
-    if (operationsRan++ < MAX_OPS_PER_TICK) break;
-    queuedActions[queuedActions.length-1]();
-    --queuedActions.length;
-}
-*/

@@ -15,6 +15,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
+import { logMessage } from '../plugins/debug/debug';
 import * as ArrayOps from './array';
 import * as VectorMath from './vectorMath';
 
@@ -68,7 +69,6 @@ export function getGridLine(coords,options = {},callback = null) {
 
 
 export async function getGridBlock(coords,callback,options = {}) {
-
     const {stepBy,hollow,width} = Object.assign({stepBy:{x:1,y:1,z:1},hollow:false,width:1},options);
     const maxCorner = {
         x: Math.max(coords[0].x,coords[1].x),
