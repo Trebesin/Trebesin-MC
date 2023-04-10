@@ -648,7 +648,7 @@ class ClipboardInstance {
                 if (config.rotation[axis] === 0) continue;
                 blockLocation = VectorMath.rotateSinCos(blockLocation,angleResults,axis);
             }
-            callback(blockLocation,blockState);
+            await callback(blockLocation,blockState);
         }
     }
 

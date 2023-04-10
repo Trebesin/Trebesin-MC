@@ -264,6 +264,7 @@ export async function main() {
 			{
 				id:'axis',
 				type:'string',
+				optional: true,
 				choice: {
 					'x':[],
 					'y':[],
@@ -275,7 +276,13 @@ export async function main() {
 			const session = Sessions.getSession(sender);
 			const clipboard = session.getClipboard();
 			const config = clipboard.getConfig(0);
-			config.scale[parameters.axis] = parameters.scale;
+			if (parameters.axis == null) {
+				config.scale.x = parameters.scale;
+				config.scale.y = parameters.scale;
+				config.scale.z = parameters.scale;
+			} else {
+				config.scale[parameters.axis] = parameters.scale;
+			}
 			clipboard.updateParticlePreview(0);
 			//session.scaleClipboard(parameters.scale,parameters.axis);
 		}
