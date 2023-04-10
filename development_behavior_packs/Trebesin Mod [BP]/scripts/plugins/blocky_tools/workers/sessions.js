@@ -11,7 +11,6 @@ import { editBlock, setBlockPermutation, setBlockType, BlockHistoryUpdateTypes }
 import * as Blocks from '../../../mc_modules/blocks';
 import * as VectorMath from '../../../js_modules/vectorMath';
 import * as Geometry from '../../../js_modules/geometry';
-import { Throttle } from '../../backend/backend';
 //Modules:
 
 
@@ -338,22 +337,19 @@ class Session {
      * Sets the permutation of all blocks contained inside the area of the selection.
      * @param {Mc.BlockPermutation} fillPermutation 
      */
-    fillSelection(fillPermutation) {
+    fillSelection(fillPermutation,options) {
         const player = this.getPlayer();
         const selection = this.getCurrentSelection();
         const dimension = selection.getDimension();
 
-        selection.getAllBlocks(async (blockLocation) => {
-            await Throttle.runAction();
-            //! this no need ^^ async makes it slow enough already.
-            //! like edior mode does tis
+        selection.getBlocks(async (blockLocation) => {
             setBlockPermutation(
                 dimension.getBlock(blockLocation),
                 fillPermutation,
                 {actorId:player.id,updateType:BlockHistoryUpdateTypes.blockyTools}
             );
             
-        });
+        },options);
     }
 
     /**
@@ -628,7 +624,6 @@ class ClipboardInstance {
                             block: [flooredLocation,locations[index][1]]
                         });
                     }
-                    await Throttle.runAction();
                 }
             }
             locations.length = 0;
@@ -654,7 +649,6 @@ class ClipboardInstance {
                 blockLocation = VectorMath.rotateSinCos(blockLocation,angleResults,axis);
             }
             callback(blockLocation,blockState);
-            await Throttle.runAction();
         }
     }
 

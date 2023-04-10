@@ -91,19 +91,6 @@ export function main(){
     }
   });
 
-  Commands.registerCommand('testBlockType', {
-    parameters: [
-      {
-        id: 'blockType',
-        type:'blockType'
-      }
-    ],
-    run(sender, parameters) {
-      logMessage(JSON.stringify(parameters.blockType));
-      setBlockType(sender.dimension.getBlock(sender.location),parameters.blockType,{actorId:player.id,updateType:'blockyTools: player'});
-    }
-  });
-
   Commands.registerCommand('testBlockPermutation', {
     parameters: [
       {

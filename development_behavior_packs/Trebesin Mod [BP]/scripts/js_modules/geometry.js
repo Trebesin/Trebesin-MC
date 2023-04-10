@@ -93,7 +93,7 @@ export async function getGridBlock(coordinates,callback,options = {}) {
         }
     }
 
-    for (let x = minCorner.x;x <= minCorner.x;x += stepBy.x) {
+    for (let x = minCorner.x;x <= maxCorner.x;x += stepBy.x) {
         for (let y = minCorner.y;y <= maxCorner.y;y += stepBy.y) {
             for (let z = minCorner.z;z <= maxCorner.z;z += stepBy.z) {
                 if (hollow && !(
@@ -108,22 +108,6 @@ export async function getGridBlock(coordinates,callback,options = {}) {
             }
         }
     }
-
-    //for (let x = maxCorner.x;x >= minCorner.x;x -= stepBy.x) {
-    //    for (let y = maxCorner.y;y >= minCorner.y;y -= stepBy.y) {
-    //        for (let z = maxCorner.z;z >= minCorner.z;z -= stepBy.z) {
-    //            if (hollow && !(
-    //                x > hollowMaxCorner.x ||
-    //                y > hollowMaxCorner.y ||
-    //                z > hollowMaxCorner.z ||
-    //                x < hollowMinCorner.x ||
-    //                y < hollowMinCorner.y ||
-    //                z < hollowMinCorner.z 
-    //            )) continue;
-    //            await callback({x,y,z});
-    //        }
-    //    }
-    //}
 }
 
 export function getMaximalVector(vectors) {

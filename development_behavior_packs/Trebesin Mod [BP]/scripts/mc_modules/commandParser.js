@@ -203,10 +203,11 @@ class CommandParser {
                 //Restart with new options defined by the choice
                 currentOptions = option.choice[parameter];
                 optionIndex = -1;//increment will make it 0
+                optional = false;//reset optional to false //![experimental]
             }
         }
 
-        return output
+        return output;
     }   
 
     /**
@@ -224,30 +225,6 @@ class CommandParser {
             case 'str':
                 value = parameter;
                 parsedParameter = value;
-                break;
-            case 'blockType':
-                //! DEPRECATED - left for compatibility, will remove later
-                const blockTypeId = parameter.match(':') == null ? `minecraft:${parameter}` : parameter;
-                parsedParameter = MinecraftBlockTypes.get(blockTypeId);
-                if (parsedParameter == null) throw new CommandError(`Block type with the id '${blockTypeId}' doesn't exist!`);
-                break;
-            case 'blockPermutation':
-                const typeId = parameter.type.match(':') == null ? `minecraft:${parameter.type}` : parameter.type;
-                let blockStates;
-                try {
-                    const stateJsonString = parameter.states === '' ? '{}' : parameter.states;
-                    blockStates = JSON.parse(stateJsonString);
-                } catch (error) {
-                    throw new CommandError(`Failed parsing of '${option.id}' block states as JSON! Error: ${error}`);
-                }
-                try {
-                    parsedParameter = {
-                        userStates: parameter.states !== '',
-                        permutation: BlockPermutation.resolve(typeId,blockStates)
-                    };
-                } catch {
-                    throw new CommandError(`Failed resolving block with id '${typeId}' and its states!`);
-                }
                 break;
             case 'integer':
             case 'int':
@@ -285,6 +262,24 @@ class CommandParser {
             case 'select':
                 value = this.#parseSelector(parameter,sender,option);
                 parsedParameter = value;
+                break;
+            case 'blockPermutation':
+                const typeId = parameter.type.match(':') == null ? `minecraft:${parameter.type}` : parameter.type;
+                let blockStates;
+                try {
+                    const stateJsonString = parameter.states === '' ? '{}' : parameter.states;
+                    blockStates = JSON.parse(stateJsonString);
+                } catch (error) {
+                    throw new CommandError(`Failed parsing of '${option.id}' block states as JSON! Error: ${error}`);
+                }
+                try {
+                    parsedParameter = {
+                        userStates: parameter.states !== '',
+                        permutation: BlockPermutation.resolve(typeId,blockStates)
+                    };
+                } catch {
+                    throw new CommandError(`Failed resolving block with id '${typeId}' and its states!`);
+                }
                 break;
             default:
                 throw new Error(`Unknown type of '${option.type}' found while parsing parameters!`);
@@ -355,7 +350,6 @@ class CommandParser {
     }
 
     #parseSelector(selector,sender,option) {
-        try {
         const queryOptions = {};
         let selectedEntities = [];
         let entityLimit = parseInt(selector.values.limit?.[0]);
@@ -522,7 +516,6 @@ class CommandParser {
         }
         
         return selectedEntities;
-        } catch (error) {logMessage(error);}
     }
 }
 

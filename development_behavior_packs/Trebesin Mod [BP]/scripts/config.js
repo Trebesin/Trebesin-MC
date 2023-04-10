@@ -3,5 +3,3 @@
 
 export const TICK_SPEED = 3;
 
-export const MAX_OPS_PER_TICK = 1000;
-

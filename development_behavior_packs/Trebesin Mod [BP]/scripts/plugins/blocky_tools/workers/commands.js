@@ -79,14 +79,56 @@ export async function main() {
 		}
 	});
 
-	Commands.registerCommand('fillSelection',{
-		parameters: [{
-			id:'fillBlock',
-			type:'blockPermutation'
-		}],
+	Commands.registerCommand('fills',{
+		parameters: [
+			{
+				id:'fillBlock',
+				type:'blockPermutation'
+			},
+			{
+				id: 'fillMode',
+				type:'string',
+				optional: true,
+				choice: {
+					'hollow': [
+						{
+							id: 'thickness',
+							type: 'integer',
+							optional: true
+						}
+					],
+					'grid': [
+						{
+							id: 'stepX',
+							type: 'integer',
+							optional: true
+						},
+						{
+							id: 'stepY',
+							type: 'integer'
+						},
+						{
+							id: 'stepZ',
+							type: 'integer'
+						}
+					]
+				}
+			}
+		],
 		run(sender,parameters) {
 			const session = Sessions.getSession(sender);
-			session.fillSelection(parameters.fillBlock.permutation);
+			const options = {};
+			if (parameters.fillMode === 'grid') {
+				options.stepBy = {};
+				options.stepBy.x = parameters.stepX ?? 2;
+				options.stepBy.y = parameters.stepY ?? options.stepBy.x;
+				options.stepBy.z = parameters.stepZ ?? options.stepBy.y;
+			};
+			if (parameters.fillMode === 'hollow') {
+				options.hollow = true;
+				options.width = parameters.thickness ?? 1;
+			};
+			session.fillSelection(parameters.fillBlock.permutation,options);
 		}
 	});
 
