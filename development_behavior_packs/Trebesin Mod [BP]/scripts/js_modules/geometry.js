@@ -68,18 +68,17 @@ export function getGridLine(coords,options = {},callback = null) {
 }
 
 
-export async function getGridBlock(coords,callback,options = {}) {
+export async function getGridBlock(coordinates,callback,options = {}) {
     const {stepBy,hollow,width} = Object.assign({stepBy:{x:1,y:1,z:1},hollow:false,width:1},options);
-    const maxCorner = {
-        x: Math.max(coords[0].x,coords[1].x),
-        y: Math.max(coords[0].y,coords[1].y),
-        z: Math.max(coords[0].z,coords[1].z)
-    };
-    const minCorner = {
-        x: Math.min(coords[0].x,coords[1].x),
-        y: Math.min(coords[0].y,coords[1].y),
-        z: Math.min(coords[0].z,coords[1].z)
-    };
+    const maxCorner = VectorMath.getMaximalVector(coordinates);
+    const minCorner = VectorMath.getMinimalVector(coordinates);
+
+    let hollowMaxCorner,hollowMinCorner;
+    if (hollow) {
+        const widthVector = {x:width,y:width,z:width};
+        hollowMaxCorner = VectorMath.sub(maxCorner,widthVector);
+        hollowMinCorner = VectorMath.sum(minCorner,widthVector);
+    }
 
     for (const axis in stepBy) {
         const steps = maxCorner[axis] - minCorner[axis];
@@ -94,21 +93,37 @@ export async function getGridBlock(coords,callback,options = {}) {
         }
     }
 
-    for (let x = maxCorner.x;x >= minCorner.x;x -= stepBy.x) {
-        for (let y = maxCorner.y;y >= minCorner.y;y -= stepBy.y) {
-            for (let z = maxCorner.z;z >= minCorner.z;z -= stepBy.z) {
+    for (let x = minCorner.x;x <= minCorner.x;x += stepBy.x) {
+        for (let y = minCorner.y;y <= maxCorner.y;y += stepBy.y) {
+            for (let z = minCorner.z;z <= maxCorner.z;z += stepBy.z) {
                 if (hollow && !(
-                    x > maxCorner.x - width ||
-                    y > maxCorner.y - width ||
-                    z > maxCorner.z - width ||
-                    x < minCorner.x + width ||
-                    y < minCorner.y + width ||
-                    z < minCorner.z + width 
+                    x > hollowMaxCorner.x ||
+                    y > hollowMaxCorner.y ||
+                    z > hollowMaxCorner.z ||
+                    x < hollowMinCorner.x ||
+                    y < hollowMinCorner.y ||
+                    z < hollowMinCorner.z 
                 )) continue;
                 await callback({x,y,z});
             }
         }
     }
+
+    //for (let x = maxCorner.x;x >= minCorner.x;x -= stepBy.x) {
+    //    for (let y = maxCorner.y;y >= minCorner.y;y -= stepBy.y) {
+    //        for (let z = maxCorner.z;z >= minCorner.z;z -= stepBy.z) {
+    //            if (hollow && !(
+    //                x > hollowMaxCorner.x ||
+    //                y > hollowMaxCorner.y ||
+    //                z > hollowMaxCorner.z ||
+    //                x < hollowMinCorner.x ||
+    //                y < hollowMinCorner.y ||
+    //                z < hollowMinCorner.z 
+    //            )) continue;
+    //            await callback({x,y,z});
+    //        }
+    //    }
+    //}
 }
 
 export function getMaximalVector(vectors) {
