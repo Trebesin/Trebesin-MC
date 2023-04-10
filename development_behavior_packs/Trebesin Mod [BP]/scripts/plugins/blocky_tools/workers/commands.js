@@ -350,6 +350,36 @@ export async function main() {
 		}
 	});
 
+	Commands.registerCommand('pos1',{
+		parameters: [
+			{
+				id: 'location',
+				type: 'position',
+				optional: true
+			}
+		],
+		run(sender,parameters) {
+			const session = Sessions.getSession(sender);
+			const selection = session.getCurrentSelection();
+			selection.setCorner(0,parameters.location ?? sender.location);
+		}
+	});
+
+	Commands.registerCommand('pos2',{
+		parameters: [
+			{
+				id: 'location',
+				type: 'position',
+				optional: true
+			}
+		],
+		run(sender,parameters) {
+			const session = Sessions.getSession(sender);
+			const selection = session.getCurrentSelection();
+			selection.setCorner(0,parameters.location ?? sender.location);
+		}
+	});
+
 	Commands.registerCommand('copy',{
 		parameters: [
 			{

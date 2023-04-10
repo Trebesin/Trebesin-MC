@@ -146,7 +146,7 @@ export class CornerSelection extends BaseSelection {
      */
     setCorner(index,coords = null) {
         if (index !== 1 && index !== 0) throw new Error('Invalid Index');
-        this.#corners[index] = coords;
+        this.#corners[index] = VectorMath.floor(coords);
         this.updateMinMax();
     }
     /**
@@ -262,7 +262,7 @@ export class CornerSelection extends BaseSelection {
 
         const molangVariables = new Mc.MolangVariableMap();
         molangVariables.setColorRGBA(`variable.color`,{red:0,green:0,blue:1,alpha:0.85});
-        molangVariables.setSpeedAndDirection(`variable.time`,0.051,new Mc.Vector(0,0,0));
+        molangVariables.setSpeedAndDirection(`variable.time`,0.06,new Mc.Vector(0,0,0));
         spawnLineBox('trebesin:line_flex2',corners,this.getDimension(),molangVariables);
     }
 
@@ -272,7 +272,7 @@ export class CornerSelection extends BaseSelection {
     createParticleBlocks(color = null,duration = null) {
         const molangVariables = new Mc.MolangVariableMap();
         molangVariables.setColorRGBA('variable.color',{red:0,green:1,blue:0,alpha:1});
-        molangVariables.setSpeedAndDirection(`variable.time`,0.051,new Mc.Vector(0,0,0));
+        molangVariables.setSpeedAndDirection(`variable.time`,0.06,new Mc.Vector(0,0,0));
         for (const cornerCoordinate of this.getSelectionCorners()) {
             if (cornerCoordinate == null) continue;
             spawnBox('trebesin:plane_box_',cornerCoordinate,this.getDimension(),molangVariables,0.005);
