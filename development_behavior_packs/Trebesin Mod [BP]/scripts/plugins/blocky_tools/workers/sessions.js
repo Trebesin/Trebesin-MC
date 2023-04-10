@@ -353,6 +353,25 @@ class Session {
     }
 
     /**
+     * Sets the permutation of all blocks on the outline of the selection.
+     * @param {Mc.BlockPermutation} fillPermutation 
+     */
+    fillSelectionOutline(fillPermutation,options) {
+        const player = this.getPlayer();
+        const selection = this.getCurrentSelection();
+        const dimension = selection.getDimension();
+
+        selection.getOutlineBlocks(async (blockLocation) => {
+            setBlockPermutation(
+                dimension.getBlock(blockLocation),
+                fillPermutation,
+                {actorId:player.id,updateType:BlockHistoryUpdateTypes.blockyTools}
+            );
+            
+        },options);
+    }
+
+    /**
      * Sets the permutation of all blocks contained inside the area of the selection follow replace rules that allow to only include/exclude specific blockTypes or permutations.
      * @param {Mc.BlockPermutation} fillPermutation 
      * @param {object[]} replacePermutations 

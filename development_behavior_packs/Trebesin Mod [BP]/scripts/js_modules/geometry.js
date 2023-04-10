@@ -31,16 +31,12 @@ import * as VectorMath from './vectorMath';
  * @param {Function} [callback] Callback that gets each step as an input, it will make the return `undefined`.
  * @returns {Object[]|undefined} Array containing X,Y,Z coordinates the line is composed of.
  */
-export function getGridLine(coords,options = {},callback = null) {
+export async function getGridLine(coordinates,callback,options = {}) {
     let {stepBy, round} = Object.assign({stepBy:1,round:true},options);
-    const resultCoords = !callback ? [] : undefined;
-    let differences = [
-        coords[1].x - coords[0].x,
-        coords[1].y - coords[0].y,
-        coords[1].z - coords[0].z
-    ];
+    let difference = VectorMath.sub(coordinates[1],coordinates[0]);
+    let absoluteDifference = VectorMath.absolute(difference);
     
-    const steps = Math.max(...ArrayOps.mapArray(differences,num => Math.abs(num)));
+    const steps = Math.max(absoluteDifference.x,absoluteDifference.y,absoluteDifference.z);
 
     if (stepBy < 0) {
         stepBy = steps/-stepBy;
@@ -52,19 +48,66 @@ export function getGridLine(coords,options = {},callback = null) {
         stepBy = 1;
     }
 
-    const portions = ArrayOps.mapArray(differences,num => num/steps);
+    const portions = VectorMath.divide(difference,steps);
     
     for (let step = 0;step <= steps;step += stepBy) {
-        const x = coords[0].x + (round ? Math.round(portions[0] * step) : portions[0] * step);
-        const y = coords[0].y + (round ? Math.round(portions[1] * step) : portions[1] * step);
-        const z = coords[0].z + (round ? Math.round(portions[2] * step) : portions[2] * step);
-        if (callback) {
-            callback({x,y,z});
+        let stepVector = VectorMath.multiply(portions,step);
+        if (round) stepVector = VectorMath.round(stepVector);
+        await callback(VectorMath.sum(coordinates[0],stepVector));
+    }
+}
+
+export async function getBlockOutline(coordinates,callback,options = {}) {
+    const {stepBy,width} = Object.assign({stepBy:1,width:1},options);
+    const span = VectorMath.sub(coordinates[1],coordinates[0]);
+
+    //!! this code is repeated for particles and this
+    for (const axis of ['x','y','z']) {
+        //~Prototype width code
+        const thickAxes = ArrayOps.arrayDifference(['x','y','z'],[axis]);
+        //~Prototype width code
+        const direction = {x:0,y:0,z:0};
+        direction[axis] = span[axis];
+
+        for (let spawnAxis of ['x','y','z']) {
+            const location = VectorMath.copy(coordinates[0]);
+            if (spawnAxis != axis) {
+                location[spawnAxis] = coordinates[1][spawnAxis];
+            }
+
+            if (width > 1) {
+                //~Prototype width code
+                for (let thickAxis0 = 0;thickAxis0 < width;thickAxis0++) 
+                for (let thickAxis1 = 0;thickAxis1 < width;thickAxis1++) {
+                    const lineLocation = VectorMath.copy(location);
+                    lineLocation[thickAxes[0]] += (((thickAxes[0] === spawnAxis) === (span[thickAxes[0]] < 0)) ? thickAxis0 : -thickAxis0);
+                    lineLocation[thickAxes[1]] += (((thickAxes[1] === spawnAxis) === (span[thickAxes[1]] < 0)) ? thickAxis1 : -thickAxis1);
+                    
+                    await getGridLine([lineLocation,VectorMath.sum(lineLocation,direction)],callback,{stepBy});
+                }
+                //~Prototype width code
+            } else {
+                await getGridLine([location,VectorMath.sum(location,direction)],callback,{stepBy});
+            }
+        }
+
+        const location = VectorMath.copy(coordinates[1]);
+        location[axis] = coordinates[0][axis];
+        if (width > 1) {
+            //~Prototype width code
+            for (let thickAxis0 = 0;thickAxis0 < width;thickAxis0++) 
+            for (let thickAxis1 = 0;thickAxis1 < width;thickAxis1++) {
+                const lineLocation = VectorMath.copy(location);
+                lineLocation[thickAxes[0]] += (span[thickAxes[0]] < 0 ? thickAxis0 : -thickAxis0);
+                lineLocation[thickAxes[1]] += (span[thickAxes[1]] < 0 ? thickAxis1 : -thickAxis1);
+                
+                await getGridLine([lineLocation,VectorMath.sum(lineLocation,direction)],callback,{stepBy});
+            }
+            //~Prototype width code
         } else {
-            resultCoords.push({x,y,z});
+            await getGridLine([location,VectorMath.sum(location,direction)],callback,{stepBy});
         }
     }
-    return resultCoords;
 }
 
 

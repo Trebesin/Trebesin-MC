@@ -3,7 +3,7 @@ import * as Mc from '@minecraft/server';
 //MC Modules
 import { spawnBlockSelection, spawnBox, spawnLineBox } from '../../../mc_modules/particles';
 //JS Modules
-import { getGridBlock } from '../../../js_modules/geometry';
+import { getBlockOutline, getGridBlock } from '../../../js_modules/geometry';
 import { insertToArray } from '../../../js_modules/array';
 import { logMessage } from '../../debug/debug';
 import * as VectorMath from '../../../js_modules/vectorMath';
@@ -205,12 +205,21 @@ export class CornerSelection extends BaseSelection {
     }
 
     /**
-     * Calls the callback for every single block that is within the selection area.
+     * Calls the callback selected blocks in a specific shape defined in options.
      * @arg {function} callback
      * @returns 
      */
     getBlocks(callback,options) {
         getGridBlock(this.getSelectionCorners(),callback,options);
+    }
+
+    /**
+     * Calls the callback for every single block that is on the outline of the selection area.
+     * @arg {function} callback
+     * @returns 
+     */
+    getOutlineBlocks(callback,options) {
+        getBlockOutline(this.getSelectionCorners(),callback,options);
     }
 
     updateMinMax() {

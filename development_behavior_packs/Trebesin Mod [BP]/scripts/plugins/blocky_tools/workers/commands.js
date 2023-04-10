@@ -97,6 +97,18 @@ export async function main() {
 							optional: true
 						}
 					],
+					'outline': [
+						{
+							id: 'thickness',
+							type: 'integer',
+							optional: true
+						},
+						{
+							id: 'stepBy',
+							type: 'integer',
+							optional: true
+						}
+					],
 					'grid': [
 						{
 							id: 'stepX',
@@ -127,6 +139,12 @@ export async function main() {
 			if (parameters.fillMode === 'hollow') {
 				options.hollow = true;
 				options.width = parameters.thickness ?? 1;
+			};
+			if (parameters.fillMode === 'outline') {
+				options.stepBy = parameters.stepBy ?? 1;
+				options.width = parameters.thickness ?? 1;
+				session.fillSelectionOutline(parameters.fillBlock.permutation,options);
+				return;
 			};
 			session.fillSelection(parameters.fillBlock.permutation,options);
 		}
