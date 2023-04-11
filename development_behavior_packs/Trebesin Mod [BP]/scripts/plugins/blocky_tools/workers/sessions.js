@@ -115,7 +115,8 @@ export function main() {
                 player.onScreenDisplay.setActionBar(
                     `[§aBlocky §2Tools§r] ${ session.pointerBlockLocation != null ? `[${session.pointerBlockLocation.x},${session.pointerBlockLocation.y},${session.pointerBlockLocation.z}]` : ''}\n`+
                     `§cPointer Mode: §l${PointerModeNames[session.pointerMode]}§r\n`+
-                    `§bSelection Type: §l${SelectionTypeNames[session.selectionType]}§r\n`
+                    `§bSelection Type: §l${SelectionTypeNames[session.selectionType]}§r\n`+
+                    `§bAction: §l${session.getActionString()}§r\n`
                 );
             } else {
                 session.pointerBlockLocation = null;
@@ -202,6 +203,11 @@ class Session {
             originLocation: null,
             clipboardIndex: null,
             dimension: null
+        };
+        this.actionState = {
+            id: null,
+            progress: 0,
+            maxSteps: 0
         };
         this.config = {  
             pointer: {
@@ -456,6 +462,27 @@ class Session {
         else sendMessage('§mCancelled action!','§2BT§r',player);
     }
 
+    //## Action State
+    /**
+     * Sets the current action.
+     * @param {number | null} id 
+     */
+    setCurrentAction(id) {
+        
+    }
+
+    progressCurrentAction() {
+
+    }
+
+    updateActionPercent() {
+
+    }
+
+    getActionString() {
+
+    }
+
     //## State Update Functions *Designed to run inside an interval.*
     updatePointerBlockLocation() {
         const player = this.getPlayer();
@@ -551,6 +578,7 @@ class Session {
     pointerBlockLocation
     selections = [];
     pasteState = {};
+    actionState = {};
     //### Other:
     #clipboard
     #actionConfirmation = {};
