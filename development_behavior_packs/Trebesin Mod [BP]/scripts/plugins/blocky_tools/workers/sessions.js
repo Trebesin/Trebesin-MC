@@ -770,6 +770,38 @@ class ClipboardInstance {
     }
 }
 
+
+const SessionActions = {
+    0: {
+        groupId: null,
+        name: 'Fill'
+    },
+    1: {
+        groupId: null,
+        name: 'Outline Fill'
+    },
+    2: {
+        groupId: null,
+        name: 'Fill Replace'
+    },
+    100: {
+        groupId: 0,
+        name: 'Copy'
+    },
+    101: {
+        groupId: 0,
+        name: 'Paste'
+    }
+}
+
+const SessionActionIds = {
+    SELECTION_FILL: 0,
+    SELECTION_OUTLINE_FILL: 1,
+    SELECTION_FILL_REPLACE: 2,
+    CLIPBOARD_COPY: 100,
+    CLIPBOARD_PASTE: 101
+}
+
 //# Types / Constants
 
 /**
@@ -795,15 +827,6 @@ class ClipboardInstance {
  * @property {object[]} particles Array of particles that show the user what is inside the clipboard contents.
  * @property {ClipboardStructureConfig} config Configurations that define how the user has manipulated the clipboard contents, it gets processed and presented when the user pastes the data.
 */
-
-/**
- * Enum for the messages defining state of a tool.
- * @readonly
- * @enum {number}
- */
-export const StateMessages = {
-
-}
 
 /**
  * Enum for the pointer modes that the player can use.
