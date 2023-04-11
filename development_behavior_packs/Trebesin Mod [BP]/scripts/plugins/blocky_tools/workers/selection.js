@@ -196,6 +196,15 @@ export class CornerSelection extends BaseSelection {
     }
 
     /**
+     * Returns the number blocks in the selection.
+     * @returns 
+     */
+    getArea() {
+        const lengths = VectorMath.sub(this.maxCoordinates,this.minCoordinates)
+        return (lengths.x+1) * (lengths.y+1) * (lengths.z+1);
+    }
+
+    /**
      * Calls the callback for every single block that is within the selection area.
      * @arg {function} callback
      * @returns 
