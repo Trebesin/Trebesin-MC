@@ -28,8 +28,17 @@
  * @returns {number}
  **/
 export function getLength(vector) {
-    return Math.sqrt(vector.x**2+vector.y**2+vector.z**2);
+    return Math.sqrt(vector.x*vector.x+vector.y*vector.y+vector.z*vector.z);
 }
+
+/**
+ * @param {Vector3} vector 
+ * @returns {number}
+ **/
+export function getLengthSquared(vector) {
+    return vector.x*vector.x+vector.y*vector.y+vector.z*vector.z;
+}
+
 /**
  * @param {Vector3} vector
  * @param {number} length

@@ -23,16 +23,16 @@ class LeftClickDetect {
      * @param {Mc.Player} player
      */
     run(player) {
-        const entityLocation = sumVectors(player.getHeadLocation(),multiplyVector(player.getViewDirection(),0.5));
         /** @type {Mc.Entity} */
         let playerEntity = this.#playerData[player.id];
         if (playerEntity == null) {
-            this.#spawnEntity(player,entityLocation);
+            this.#spawnEntity(player,player.location);
         } else {
             try {
-                playerEntity.teleport(entityLocation,player.dimension,0,0,false);
+                playerEntity.teleport(VectorMath.sum(player.location,VectorMath.multiply(player.getVelocity(),5)),player.dimension,0,0,false);
+                playerEntity.getComponent('minecraft:scale').value = 1.0 + (VectorMath.getLengthSquared(player.getVelocity())*8);
             } catch {
-                this.#spawnEntity(player,entityLocation);
+                this.#spawnEntity(player,player.location);
             }
         }
 
@@ -51,7 +51,7 @@ class LeftClickDetect {
      * @param {VectorMath.Vector3} location 
      */
     #spawnEntity(player,location) {
-        const playerEntity = player.dimension.spawnEntity('trebesin:left_click_detect',location);
+        const playerEntity = player.dimension.spawnEntity('trebesin:better_left_click_detect',location);
         //const scale = playerEntity.getComponent('minecraft:scale');
         //scale.value = 1.0;
         this.#playerData[player.id] = playerEntity;
@@ -145,6 +145,13 @@ export function main() {
             }
         }
     },3600);
+
+    Mc.system.runInterval(() => {
+        for (const playerId in SessionStore) {
+            const session = SessionStore[playerId];
+            session.updateActionPercent();
+        }
+    },20);
 }
 
 /**
@@ -343,12 +350,16 @@ class Session {
      * Sets the permutation of all blocks contained inside the area of the selection.
      * @param {Mc.BlockPermutation} fillPermutation 
      */
-    fillSelection(fillPermutation,options) {
+    async fillSelection(fillPermutation,options) {
         const player = this.getPlayer();
         const selection = this.getCurrentSelection();
         const dimension = selection.getDimension();
 
-        selection.getBlocks(async (blockLocation) => {
+        const fullProgress = selection.getArea();
+        this.setCurrentAction(SessionActionIds.SELECTION_FILL,fullProgress);
+
+        await selection.getBlocks(async (blockLocation) => {
+            this.progressCurrentAction();
             setBlockPermutation(
                 dimension.getBlock(blockLocation),
                 fillPermutation,
@@ -356,6 +367,9 @@ class Session {
             );
             
         },options);
+
+        sendMessage(`Finished filling!`,'§2BT§r',player);
+        this.setCurrentAction(null,null);
     }
 
     /**
@@ -467,20 +481,24 @@ class Session {
      * Sets the current action.
      * @param {number | null} id 
      */
-    setCurrentAction(id) {
-        
+    setCurrentAction(id,fullProgress) {
+        this.actionState.id = id;
+        this.actionState.fullProgress = fullProgress;
+        this.actionState.currentProgress = 0;
+        this.actionState.percentDone = 0;
     }
 
     progressCurrentAction() {
-
+        return ++this.actionState.currentProgress;
     }
 
     updateActionPercent() {
-
+        this.actionState.percentDone = Math.round((this.actionState.currentProgress*100)/this.actionState.fullProgress);
     }
 
     getActionString() {
-
+        if (this.actionState.id == null) return 'None';
+        return `§q§l${SessionActions[this.actionState.id].name}§r - §p${this.actionState.percentDone}§t%`;
     }
 
     //## State Update Functions *Designed to run inside an interval.*

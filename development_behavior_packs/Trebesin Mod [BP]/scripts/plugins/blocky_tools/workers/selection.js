@@ -201,7 +201,7 @@ export class CornerSelection extends BaseSelection {
      */
     getArea() {
         const lengths = VectorMath.sub(this.maxCoordinates,this.minCoordinates)
-        return (lengths.x+1) * (lengths.y+1) * (lengths.z+1);
+        return Math.abs((lengths.x+1) * (lengths.y+1) * (lengths.z+1));
     }
 
     /**
@@ -209,8 +209,8 @@ export class CornerSelection extends BaseSelection {
      * @arg {function} callback
      * @returns 
      */
-    getAllBlocks(callback) {
-        getGridBlock(this.getSelectionCorners(),callback);
+    async getAllBlocks(callback) {
+        await getGridBlock(this.getSelectionCorners(),callback);
     }
 
     /**
@@ -218,8 +218,8 @@ export class CornerSelection extends BaseSelection {
      * @arg {function} callback
      * @returns 
      */
-    getBlocks(callback,options) {
-        getGridBlock(this.getSelectionCorners(),callback,options);
+    async getBlocks(callback,options) {
+        await getGridBlock(this.getSelectionCorners(),callback,options);
     }
 
     /**
@@ -227,8 +227,8 @@ export class CornerSelection extends BaseSelection {
      * @arg {function} callback
      * @returns 
      */
-    getOutlineBlocks(callback,options) {
-        getBlockOutline(this.getSelectionCorners(),callback,options);
+    async getOutlineBlocks(callback,options) {
+        await getBlockOutline(this.getSelectionCorners(),callback,options);
     }
 
     updateMinMax() {
