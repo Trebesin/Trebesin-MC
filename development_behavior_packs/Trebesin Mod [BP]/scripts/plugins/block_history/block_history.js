@@ -26,7 +26,7 @@ export async function main() {
     //# Database:
     const connection = DB;
     //## DB Save Schedule:
-    system.runInterval(async () => {
+    Mc.system.runInterval(async () => {
         let empty = true;
         const request = {
             sql: 'INSERT INTO block_history (actor_id,tick,dimension_id,x,y,z,before_id,after_id,before_waterlogged,after_waterlogged,before_permutations,after_permutations,update_type,update_id) VALUES ',
