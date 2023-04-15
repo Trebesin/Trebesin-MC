@@ -179,6 +179,7 @@ export function main(){
 		run(sender,parameters) {
 			const molang = new Mc.MolangVariableMap();
 			molang.setColorRGBA(`variable.color`,{red:0,green:0,blue:1,alpha:0.5});
+			molang.setSpeedAndDirection(`variable.time`,10,{x:0,y:0,z:0});
       		molang.setVector3(`variable.size`,{x:parameters.sizeX/2,y:parameters.sizeY/2,z:parameters.sizeZ/2});
 			spawnBigBox(
         		'trebesin:plane_box_flex_',
