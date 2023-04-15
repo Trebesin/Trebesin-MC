@@ -66,7 +66,7 @@ export async function main() {
                 Debug.sendLogMessage(`SQL Error: ${prop} ${error[prop]}`);
             }
         }
-    },DB_UPDATE_INTERVAL)
+    },DB_UPDATE_INTERVAL);
 
     //# Block Updates:
     //## Falling Block Patches:
@@ -93,7 +93,7 @@ export async function main() {
         }
     });
 
-    system.runInterval(() => {
+    Mc.system.runInterval(() => {
         for (let index = 0;index < fallingBlocksTracked.length;index++) {
             const fallingBlockData = fallingBlocksTracked[index];
             if (fallingBlockData == null) continue;
@@ -138,7 +138,6 @@ export async function main() {
         //    before: blockOld,
         //    after: Blocks.copyBlockState(eventData.block,true)
         //}
-//
         //const position = {
         //    location: eventData.block.location,
         //    dimension: eventData.dimension,
@@ -157,14 +156,15 @@ export async function main() {
         });
     });
     
+    //## Inspector
     Mc.world.beforeEvents.itemUseOn.subscribe((eventData) => {
         //!! this prevents an exploit do not remove !!
         const player = eventData.source;
         if (player.hasTag('inspector')){
             eventData.cancel = true;
         }
-    })
-    //## Inspector
+    });
+
     Server.events.beforeItemStartUseOn.subscribe((eventData) => {
         const player = eventData.source;
         if (player.hasTag('inspector')) {
@@ -244,7 +244,7 @@ export async function main() {
         } else if (eventData.itemStack.typeId === 'minecraft:diamond_sword') {
             Debug.sendLogMessage(`${JSON.stringify(blockUpdates,null,1)}`);
         }
-    })
+    });
 }
 
 //# Functions:
