@@ -69,7 +69,7 @@ export function main() {
     });
 
     Mc.world.events.itemUse.subscribe((eventData) => {
-        if (eventData.item.typeId !== 'trebesin:bt_blocky_axe') return;
+        if (eventData.itemStack.typeId !== 'trebesin:bt_blocky_axe') return;
         const session = getSession(eventData.source);
         const selection = session.getCurrentSelection();
         selection.setCorner(0,session.pointerBlockLocation);

@@ -22,7 +22,7 @@ export function main() {
     Server.events.itemStartUseOn.subscribe(async (eventData) => {
         if (eventData.item.typeId === 'trebesin:bt_debug_stick') {
             /** @type {Block} */
-            const block = eventData.source.dimension.getBlock(eventData.getBlockLocation());
+            const block = eventData.source.dimension.getBlock(eventData.block.location);
             const propertyList = block.permutation.getAllProperties();
             const player = eventData.source;
 

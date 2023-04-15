@@ -1,12 +1,12 @@
 //APIs:
-import { world,system, Block, BlockType, Entity, BlockPermutation} from '@minecraft/server';
+import * as Mc from '@minecraft/server';
 //Plugins:
 import * as BlockHistoryCommandsWorker from './workers/commands';
 import * as Debug from '../debug/debug';
 import { DB, Server } from '../backend/backend';
 //Modules:
 import { getEntityById } from '../../mc_modules/entities';
-import { sumVectors, copyVector, subVectors, floorVector, compareVectors } from '../../js_modules/vector';
+import * as VectorMath from '../../js_modules/vectorMath';
 import { containsArray, filter, insertToArray, deleteFromArray } from '../../js_modules/array';
 import * as Blocks from '../../mc_modules/blocks';
 import * as Dimensions from '../../mc_modules/dimensions';
@@ -70,9 +70,9 @@ export async function main() {
 
     //# Block Updates:
     //## Falling Block Patches:
-    world.events.entitySpawn.subscribe((eventData) => {
+    Mc.world.events.entitySpawn.subscribe((eventData) => {
         if (eventData.entity.typeId === 'minecraft:falling_block') {
-            const blockLocation = floorVector(eventData.entity.location);
+            const blockLocation = VectorMath.floor(eventData.entity.location);
             insertToArray(
                 fallingBlocksTracked,
                 {
@@ -115,14 +115,14 @@ export async function main() {
                 )?.nameTag}`);
                 deleteFromArray(fallingBlocksTracked,index);
             } else {
-                fallingBlockData.location.current = floorVector(fallingBlockEntity.location);
+                fallingBlockData.location.current = VectorMath.floor(fallingBlockEntity.location);
                 fallingBlockData.tick.current = system.currentTick;
             }
         }
     },1);
 
     //## Block Breaking Detection:
-    world.events.blockBreak.subscribe(async (eventData) => {
+    Mc.world.events.blockBreak.subscribe(async (eventData) => {
         Debug.logMessage(`§cBlock Break§r - ${system.currentTick}`);
         const playerId = eventData.player.id;
         const blockOld = {
@@ -149,15 +149,15 @@ export async function main() {
 
         //Updated Blocks:
         await Blocks.blockUpdateIteration(blockOld.location,blockOld.dimension,(blockBefore,blockAfter,tick) => {
-            const vec = subVectors(blockBefore.location,blockOld.location);
+            const vec = VectorMath.sub(blockBefore.location,blockOld.location);
             Debug.logMessage(`${blockBefore.typeId} -> ${blockAfter.typeId} @ ${vec.x},${vec.y},${vec.z}:${tick}`);
             //Falling Blocks:
-            const fallObject = fallingBlocksTracked.find((block) => compareVectors(blockBefore.location,block.location.start));
+            const fallObject = fallingBlocksTracked.find((block) => VectorMath.compare(blockBefore.location,block.location.start));
             if (fallObject) fallObject.playerId = playerId;
         });
     });
     
-    world.beforeEvents.itemUseOn.subscribe((eventData) => {
+    Mc.world.beforeEvents.itemUseOn.subscribe((eventData) => {
         //!! this prevents an exploit do not remove !!
         const player = eventData.source;
         if (player.hasTag('inspector')){
@@ -171,9 +171,9 @@ export async function main() {
             try {
                 eventData.cancel = true;
                 const offset = FACE_DIRECTIONS[eventData.blockFace];
-                const faceBlockLocation = sumVectors(eventData.getBlockLocation(), offset);
+                const faceBlockLocation = VectorMath.sum(eventData.block.location, offset);
                 if (getEquipedItem(player) != null) BlockHistoryCommandsWorker.inspector(faceBlockLocation, player);
-                else BlockHistoryCommandsWorker.inspector(eventData.getBlockLocation(), player);
+                else BlockHistoryCommandsWorker.inspector(eventData.block.location, player);
             } catch(error) {
                 Debug.sendLogMessage(`Inspector Error: ${error}`);
             }
@@ -181,13 +181,13 @@ export async function main() {
     });
 
     //## Block Placing Detection:
-    world.events.itemStartUseOn.subscribe(async(eventData) => {
+    Mc.world.events.itemStartUseOn.subscribe(async(eventData) => {
         const player = eventData.source;
         const offset = FACE_DIRECTIONS[eventData.blockFace];
-        const faceBlockLocation = sumVectors(eventData.getBlockLocation(),offset);
+        const faceBlockLocation = VectorMath.sum(eventData.block.location,offset);
         const faceBlock = player.dimension.getBlock(faceBlockLocation);
         const faceBlockOld = Blocks.copyBlockState(faceBlock,true);
-        const block = player.dimension.getBlock(eventData.getBlockLocation());
+        const block = player.dimension.getBlock(eventData.block.location);
         const blockOld = Blocks.copyBlockState(block,true);
 
         //These Blocks:
@@ -212,14 +212,14 @@ export async function main() {
             saveBlockUpdate({before:blockOld,after:Blocks.copyBlockState(block,true)},{actorId:player.id});
             //Falling Blocks
             system.runTimeout(() => {
-                const fallObject = fallingBlocksTracked.find((block) => compareVectors(faceBlock.location,block.location.start));
+                const fallObject = fallingBlocksTracked.find((block) => VectorMath.compare(faceBlock.location,block.location.start));
                 if (fallObject) fallObject.playerId = player.id;
             },1);
         },1);
 
         //Updated Blocks:
         await Blocks.blockUpdateIteration(faceBlockLocation,faceBlockOld.dimension,(blockBefore,blockAfter,tick) => {
-            const vec = subVectors(blockBefore.location,faceBlockOld.location);
+            const vec = VectorMath.sub(blockBefore.location,faceBlockOld.location);
             Debug.logMessage(`${blockBefore.typeId} -> ${blockAfter.typeId} @ ${vec.x},${vec.y},${vec.z}:${tick}`);
             //Falling Blocks:
             const fallObject = fallingBlocksTracked.find((block) => blockBefore.location.equals(block.location.start));
@@ -228,9 +228,9 @@ export async function main() {
     });
 
     //Debug:
-    world.events.itemUseOn.subscribe((eventData) => {
-        if (eventData.item.typeId === 'minecraft:stick') {
-            const block = eventData.source.dimension.getBlock(eventData.getBlockLocation());
+    Mc.world.events.itemUseOn.subscribe((eventData) => {
+        if (eventData.itemStack.typeId === 'minecraft:stick') {
+            const block = eventData.block;
             if (block.typeId.startsWith('trebesin')) {
                 Debug.sendLogMessage(`[trebesin:rotation] - ${block.permutation.getProperty('trebesin:rotation')?.value}`);
                 Debug.sendLogMessage(`[trebesin:horizontal_rotation] - ${block.permutation.getProperty('trebesin:horizontal_rotation')?.value}`);
@@ -241,7 +241,7 @@ export async function main() {
                     Debug.sendLogMessage(`[${property}] - ${properties[property]}`);
                 }
             }
-        } else if (eventData.item.typeId === 'minecraft:diamond_sword') {
+        } else if (eventData.itemStack.typeId === 'minecraft:diamond_sword') {
             Debug.sendLogMessage(`${JSON.stringify(blockUpdates,null,1)}`);
         }
     })
@@ -294,8 +294,8 @@ export function saveBlockUpdate(blockStates,blockHistoryEntry) {
 //# Exported Functions:
 /**
  * Custom set block type function, does the same as `Block.setType()` method but also records the update to the block hisory database.
- * @param {Block} block `Block` class object to invoke `setType()` method on.
- * @param {BlockType} blockType `blockType` parameter of the `setType()` method.
+ * @param {Mc.Block} block `Block` class object to invoke `setType()` method on.
+ * @param {Mc.BlockType} blockType `blockType` parameter of the `setType()` method.
  * @param {BlockHistoryOptions} blockHistoryEntry Information used to store the entry in the database.
  */
 export function setBlockType(block,blockType,blockHistoryEntry) {
@@ -307,8 +307,8 @@ export function setBlockType(block,blockType,blockHistoryEntry) {
 
 /**
  * Custom set block permutation function, does the same as `Block.setpermutation()` method but also records the update to the block hisory database.
- * @param {Block} block `Block` class object to invoke `setpermutation()` method on.
- * @param {BlockPermutation} permutation `permutation` parameter of the `setpermutation()` method.
+ * @param {Mc.Block} block `Block` class object to invoke `setpermutation()` method on.
+ * @param {Mc.BlockPermutation} permutation `permutation` parameter of the `setpermutation()` method.
  * @param {BlockHistoryOptions} blockHistoryEntry Information used to store the entry in the database.
  */
 export function setBlockPermutation(block,permutation,blockHistoryEntry) {
@@ -320,7 +320,7 @@ export function setBlockPermutation(block,permutation,blockHistoryEntry) {
 
 /**
  * Updates the block state and records the update to the block hisory database.
- * @param {Block} block `Block` class object to edit state of.
+ * @param {Mc.Block} block `Block` class object to edit state of.
  * @param {import('../../mc_modules/blocks').BlockState} blockState Block state to apply.
  * @param {BlockHistoryOptions} blockHistoryEntry Information used to store the entry in the database.
  */

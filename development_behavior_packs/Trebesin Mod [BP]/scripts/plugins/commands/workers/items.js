@@ -44,7 +44,7 @@ export function main() {
 
     Mc.world.beforeEvents.itemUse.subscribe((eventData) => {
         //## Dynamic item:
-        if (eventData.item.typeId === 'trebesin:cmd_universal') {
+        if (eventData.itemStack.typeId === 'trebesin:cmd_universal') {
             const itemLore = eventData.item.getLore();
             const command = itemLore[0];
             const parameters = itemLore[1];
