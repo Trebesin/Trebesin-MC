@@ -1,5 +1,5 @@
 //APIs:
-import {CommandResult, MinecraftEffectTypes , world, TicksPerDay, TicksPerSecond, Vector, MolangVariableMap, system, MinecraftBlockTypes, BlockPermutation, Player} from "@minecraft/server";
+import {CommandResult, MinecraftEffectTypes , world, TicksPerDay, TicksPerSecond, MolangVariableMap, system, MinecraftBlockTypes, BlockPermutation, Player} from "@minecraft/server";
 //Plugins:
 import * as BlockHistoryPlugin from "../block_history";
 import { Commands, sendLongMessage, DB } from '../../backend/backend';

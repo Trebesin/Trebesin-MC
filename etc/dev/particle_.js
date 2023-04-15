@@ -50,7 +50,7 @@ function drawCorner(origin,corner) {
     for (let staleAxisStep = 0;staleAxisStep <= 1;staleAxisStep++) {
         const staleAxisOffset = {};
         staleAxisOffset[otherAxis] = staleAxisStep;
-        const particleLocation = interfaceToLocation(sumLocations(particleCoord,staleAxisOffset));
+        const particleLocation = sumLocations(particleCoord,staleAxisOffset);
         dimension.spawnParticle(particle,particleLocation,molang);
     }
 }
@@ -70,14 +70,6 @@ function sumLocations(locationA,locationB) {
         y: locationA.y ?? 0 + locationB.y ?? 0,
         z: locationA.z ?? 0 + locationB.z ?? 0
     }
-}
-
-function interfaceToLocation(object) {
-    return new Location(object.x,object.y,object.z)
-}
-
-function interfaceToVector(object) {
-    return new Vector(object.x,object.y,object.z)
 }
 
 function getStaleAxis(origin,corner) {

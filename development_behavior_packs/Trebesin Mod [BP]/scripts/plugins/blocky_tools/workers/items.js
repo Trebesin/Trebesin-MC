@@ -1,5 +1,5 @@
 //APIs:
-import { MolangVariableMap, BlockPermutation,BlockProperties, world, system, Block, Vector} from '@minecraft/server';
+import { MolangVariableMap, BlockPermutation,BlockProperties, world, system, Block} from '@minecraft/server';
 //Plugins:
 import * as Debug from './../../debug/debug';
 import { Server } from '../../backend/backend';
@@ -85,8 +85,8 @@ export function main() {
             const chunk = getOriginChunkCoord(player.location);
             const verticalMolang = new MolangVariableMap();
             verticalMolang.setColorRGBA('variable.color',{red:1,green:0,blue:0,alpha:1});
-            verticalMolang.setSpeedAndDirection('variable.size',384,new Vector(0,1,0));
-            verticalMolang.setSpeedAndDirection('variable.time',1.01,new Vector(0,0,0));
+            verticalMolang.setSpeedAndDirection('variable.size',384,{x:0,y:1,z:0});
+            verticalMolang.setSpeedAndDirection('variable.time',1.01,{x:0,y:0,z:0});
 
             player.dimension.spawnParticle('trebesin:line_flex2',{x:chunk.x,y:-64,z:chunk.z},verticalMolang);
             player.dimension.spawnParticle('trebesin:line_flex2',{x:chunk.x+16,y:-64,z:chunk.z},verticalMolang);
@@ -96,20 +96,20 @@ export function main() {
             const randomColor = {red:1,green:1,blue:1,alpha:1};
 
             const diagonalMolangPositiveZ = new MolangVariableMap();
-            diagonalMolangPositiveZ.setSpeedAndDirection('variable.size',384.3331887829,new Vector(0,384,16));
-            diagonalMolangPositiveZ.setSpeedAndDirection('variable.time',1.01,new Vector(0,0,0));
+            diagonalMolangPositiveZ.setSpeedAndDirection('variable.size',384.3331887829,{x:0,y:384,z:16});
+            diagonalMolangPositiveZ.setSpeedAndDirection('variable.time',1.01,{x:0,y:0,z:0});
             diagonalMolangPositiveZ.setColorRGBA('variable.color',randomColor);
             const diagonalMolangPositiveX = new MolangVariableMap();
-            diagonalMolangPositiveX.setSpeedAndDirection('variable.size',384.3331887829,new Vector(16,384,0));
-            diagonalMolangPositiveX.setSpeedAndDirection('variable.time',1.01,new Vector(0,0,0));
+            diagonalMolangPositiveX.setSpeedAndDirection('variable.size',384.3331887829, {x:16,y:384,z:0});
+            diagonalMolangPositiveX.setSpeedAndDirection('variable.time',1.01,{x:0,y:0,z:0});
             diagonalMolangPositiveX.setColorRGBA('variable.color',randomColor);
             const diagonalMolangNegativeZ = new MolangVariableMap();
-            diagonalMolangNegativeZ.setSpeedAndDirection('variable.size',384.3331887829,new Vector(0,384,-16));
-            diagonalMolangNegativeZ.setSpeedAndDirection('variable.time',1.01,new Vector(0,0,0));
+            diagonalMolangNegativeZ.setSpeedAndDirection('variable.size',384.3331887829, {x:0,y:384,z:-16});
+            diagonalMolangNegativeZ.setSpeedAndDirection('variable.time',1.01,{x:0,y:0,z:0});
             diagonalMolangNegativeZ.setColorRGBA('variable.color',randomColor);
             const diagonalMolangNegativeX = new MolangVariableMap();
-            diagonalMolangNegativeX.setSpeedAndDirection('variable.size',384.3331887829,new Vector(-16,384,0));
-            diagonalMolangNegativeX.setSpeedAndDirection('variable.time',1.01,new Vector(0,0,0));
+            diagonalMolangNegativeX.setSpeedAndDirection('variable.size',384.3331887829, {x:-16,y:384,z:0});
+            diagonalMolangNegativeX.setSpeedAndDirection('variable.time',1.01,{x:0,y:0,z:0});
             diagonalMolangNegativeX.setColorRGBA('variable.color',randomColor);
 
             player.dimension.spawnParticle('trebesin:line_flex2',{x:chunk.x,y:-64,z:chunk.z},diagonalMolangPositiveX);

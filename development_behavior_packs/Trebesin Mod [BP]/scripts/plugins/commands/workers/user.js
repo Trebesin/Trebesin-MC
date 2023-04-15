@@ -124,19 +124,19 @@ export function main(){
 			if (molangOptions?.speed_direction) molangVariables.setSpeedAndDirection(
 				`variable.${molangOptions.speed_direction.name}`,
 				molangOptions.speed_direction.speed ?? 0,
-        new Mc.Vector(
-          molangOptions.speed_direction.x ?? 0,
-          molangOptions.speed_direction.y ?? 0,
-          molangOptions.speed_direction.z ?? 0
-        )
+        		{
+					x: molangOptions.speed_direction.x ?? 0,
+          			y: molangOptions.speed_direction.y ?? 0,
+         			z: molangOptions.speed_direction.z ?? 0
+				}
 			);
 			if (molangOptions?.vector) molangVariables.setVector3(
 				`variable.${molangOptions.vector.name}`,
-        new Mc.Vector(
-          molangOptions.vector.x ?? 0,
-          molangOptions.vector.y ?? 0,
-          molangOptions.vector.z ?? 0
-        )
+        		{
+					x: molangOptions.vector.x ?? 0,
+					y: molangOptions.vector.y ?? 0,
+					z: molangOptions.vector.z ?? 0
+				}
 			);
 			sender.dimension.spawnParticle(parameters.particleId,parameters.location,molangVariables);
 			sendMessage(`Summoned particle "${parameters.particleId}"!`,'§aCMD§f',sender);
@@ -179,7 +179,7 @@ export function main(){
 		run(sender,parameters) {
 			const molang = new Mc.MolangVariableMap();
 			molang.setColorRGBA(`variable.color`,{red:0,green:0,blue:1,alpha:0.5});
-      		molang.setVector3(`variable.size`,new Mc.Vector(parameters.sizeX/2,parameters.sizeY/2,parameters.sizeZ/2));
+      		molang.setVector3(`variable.size`,{x:parameters.sizeX/2,y:parameters.sizeY/2,z:parameters.sizeZ/2});
 			spawnBigBox(
         		'trebesin:plane_box_flex_',
         		VectorMath.floor(parameters.location),
@@ -217,7 +217,7 @@ export function main(){
 		run(sender,parameters) {
 			const molang = new Mc.MolangVariableMap();
 			molang.setColorRGBA(`variable.color`,{red:0,green:0,blue:1,alpha:0.5});
-      		molang.setSpeedAndDirection(`variable.size`,parameters.lineLength,new Mc.Vector(parameters.dirX,parameters.dirY,parameters.dirZ));
+      		molang.setSpeedAndDirection(`variable.size`,parameters.lineLength,{x:parameters.dirX,y:parameters.dirY,z:parameters.dirZ});
 			sender.dimension.spawnParticle(`trebesin:line_flex`,VectorMath.floor(parameters.location),molang);
 		}
 	})
@@ -244,7 +244,7 @@ export function main(){
 		run(sender,parameters) {
 			const molang = new Mc.MolangVariableMap();
 			molang.setColorRGBA(`variable.color`,{red:0,green:0,blue:1,alpha:0.5});
-			molang.setSpeedAndDirection(`variable.time`,4,new Mc.Vector(0,0,0));
+			molang.setSpeedAndDirection(`variable.time`,4,{x:0,y:0,z:0});
 			Debug.logMessage(JSON.stringify([VectorMath.floor(parameters.location),VectorMath.sum(VectorMath.floor(parameters.location),{x:parameters.sizeX,y:parameters.sizeY,z:parameters.sizeZ})]))
 			spawnLineBox(
         		'trebesin:line_flex2',

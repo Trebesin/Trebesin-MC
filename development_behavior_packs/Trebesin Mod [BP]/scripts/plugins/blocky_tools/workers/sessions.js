@@ -35,7 +35,6 @@ class LeftClickDetect {
                 this.#spawnEntity(player,player.location);
             }
         }
-
     }
 
     stop(playerId) {
@@ -69,6 +68,7 @@ export function main() {
     });
 
     Mc.world.events.itemUse.subscribe((eventData) => {
+        logMessage('use')
         if (eventData.itemStack.typeId !== 'trebesin:bt_blocky_axe') return;
         const session = getSession(eventData.source);
         const selection = session.getCurrentSelection();
@@ -76,6 +76,7 @@ export function main() {
     });
 
     Mc.world.events.entityHit.subscribe((eventData) => {
+        logMessage('hit')
         //logMessage(`EntityHit ${eventData.entity.name} - E:${eventData?.hitEntity?.typeId} B:${eventData?.hitBlock?.typeId} T:${Mc.system.currentTick}`);
         const itemHolding = getEquipedItem(eventData.entity);
         if (itemHolding?.typeId !== 'trebesin:bt_blocky_axe') return;

@@ -262,7 +262,6 @@ export function spawnLineBox(particleName,corners,dimension,molang) {
 
         const vectorDirection = {x:0,y:0,z:0};
         vectorDirection[axis] = direction;
-        const vector = new Mc.Vector(vectorDirection.x,vectorDirection.y,vectorDirection.z);
 
         let finalLocation =  VectorMath.copy(appliedCorners[1]);
         finalLocation[axis] = appliedCorners[0][axis];
@@ -272,11 +271,11 @@ export function spawnLineBox(particleName,corners,dimension,molang) {
                 spawnLocation[spawnAxis] = appliedCorners[1][spawnAxis];
             }
 
-            molang.setSpeedAndDirection(`variable.size`,absoluteSpan,vector);
+            molang.setSpeedAndDirection(`variable.size`,absoluteSpan,vectorDirection);
             dimension.spawnParticle(particleName,spawnLocation,molang);
         }
 
-        molang.setSpeedAndDirection(`variable.size`,absoluteSpan,vector);
+        molang.setSpeedAndDirection(`variable.size`,absoluteSpan,vectorDirection);
         dimension.spawnParticle(particleName,finalLocation,molang);
     }
 }
@@ -375,8 +374,8 @@ function directionLiesOnOrigin(location,direction,origin) {
  */
 export function spawnParticleLine(particleName,dimension,location,direction,length = 1,time = 1,color = {red:0,green:0,blue:0,alpha:1}) {
     const molang = new Mc.MolangVariableMap();
-    molang.setSpeedAndDirection(`variable.time`,time,new Mc.Vector(0,0,0));
-    molang.setSpeedAndDirection(`variable.size`,length,new Mc.Vector(direction.x,direction.y,direction.z));
+    molang.setSpeedAndDirection(`variable.time`,time,{x:0,y:0,z:0});
+    molang.setSpeedAndDirection(`variable.size`,length,direction);
     molang.setColorRGBA(`variable.color`,color);
     dimension.spawnParticle(particleName,location,molang);
 }
