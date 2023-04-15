@@ -237,9 +237,9 @@ function executeRandomTick(callback/*Array*/,loadedChunks,tickSpeed) {
                 for (let subChunkIndex = 0;subChunkIndex < subChunks.length;subChunkIndex++) {
                     //!the performance problem lies here:
                     //!40-45% CPU Usage Getting The Block, 40-45% CPU Usage Generating the Number :/
+                    const subChunk = subChunks[subChunkIndex];
+                    const subChunkEnd = VectorMath.sum(subChunk,{x:15,y:15,z:15});
                     for (let index = 0;index <= tickSpeed;index++) {
-                        const subChunk = subChunks[subChunkIndex];
-                        const subChunkEnd = VectorMath.sum(subChunk,{x:15,y:15,z:15});
                         callback(dimension.getBlock({
                             x: randInt(subChunk.x,subChunkEnd.x),
                             y: randInt(subChunk.y,subChunkEnd.y),
