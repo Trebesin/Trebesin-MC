@@ -50,7 +50,7 @@ class LeftClickDetect {
      * @param {VectorMath.Vector3} location 
      */
     #spawnEntity(player,location) {
-        const playerEntity = player.dimension.spawnEntity('trebesin:better_left_click_detect',location);
+        const playerEntity = player.dimension.spawnEntity('trebesin:left_click_detect',location);
         //const scale = playerEntity.getComponent('minecraft:scale');
         //scale.value = 1.0;
         this.#playerData[player.id] = playerEntity;
@@ -68,7 +68,6 @@ export function main() {
     });
 
     Mc.world.events.itemUse.subscribe((eventData) => {
-        logMessage('use')
         if (eventData.itemStack.typeId !== 'trebesin:bt_blocky_axe') return;
         const session = getSession(eventData.source);
         const selection = session.getCurrentSelection();
@@ -76,7 +75,6 @@ export function main() {
     });
 
     Mc.world.events.entityHit.subscribe((eventData) => {
-        logMessage('hit')
         //logMessage(`EntityHit ${eventData.entity.name} - E:${eventData?.hitEntity?.typeId} B:${eventData?.hitBlock?.typeId} T:${Mc.system.currentTick}`);
         const itemHolding = getEquipedItem(eventData.entity);
         if (itemHolding?.typeId !== 'trebesin:bt_blocky_axe') return;
@@ -98,7 +96,6 @@ export function main() {
             const selection = session.getCurrentSelection();
             selection.createParticleOutline();
             selection.createParticleBlocks();
-
             if (getEquipedItem(player)?.typeId === 'trebesin:bt_blocky_axe') {
                 leftClickDetector.run(player);
                 //## Updating Pointer Block

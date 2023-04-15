@@ -260,8 +260,8 @@ export function spawnLineBox(particleName,corners,dimension,molang) {
         const absoluteSpan = Math.abs(span[axis]);
         const direction = span[axis] < 0 ? 1 : -1;
 
-        const vectorDirection = {x:0,y:0,z:0};
-        vectorDirection[axis] = direction;
+        const vector = {x:0,y:0,z:0};
+        vector[axis] = direction;
 
         let finalLocation =  VectorMath.copy(appliedCorners[1]);
         finalLocation[axis] = appliedCorners[0][axis];
@@ -271,11 +271,11 @@ export function spawnLineBox(particleName,corners,dimension,molang) {
                 spawnLocation[spawnAxis] = appliedCorners[1][spawnAxis];
             }
 
-            molang.setSpeedAndDirection(`variable.size`,absoluteSpan,vectorDirection);
+            molang.setSpeedAndDirection(`variable.size`,absoluteSpan,vector);
             dimension.spawnParticle(particleName,spawnLocation,molang);
         }
 
-        molang.setSpeedAndDirection(`variable.size`,absoluteSpan,vectorDirection);
+        molang.setSpeedAndDirection(`variable.size`,absoluteSpan,vector);
         dimension.spawnParticle(particleName,finalLocation,molang);
     }
 }

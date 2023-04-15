@@ -281,7 +281,7 @@ export class CornerSelection extends BaseSelection {
     createParticleBlocks(color = null,duration = null) {
         const molangVariables = new Mc.MolangVariableMap();
         molangVariables.setColorRGBA('variable.color',{red:0,green:1,blue:0,alpha:1});
-        molangVariables.setSpeedAndDirection(`variable.time`,0.06,new {x:0,y:0,z:0});
+        molangVariables.setSpeedAndDirection(`variable.time`,0.06,{x:0,y:0,z:0});
         for (const cornerCoordinate of this.getSelectionCorners()) {
             if (cornerCoordinate == null) continue;
             spawnBox('trebesin:plane_box_',cornerCoordinate,this.getDimension(),molangVariables,0.005);
