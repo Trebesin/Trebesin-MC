@@ -1,5 +1,5 @@
 //APIs:
-import {CommandResult, MinecraftEffectTypes , world, TicksPerDay, TicksPerSecond, Vector, MolangVariableMap, system, MinecraftBlockTypes, BlockPermutation} from "@minecraft/server";
+import {CommandResult, MinecraftEffectTypes , world, TicksPerDay, TicksPerSecond, Vector, MolangVariableMap, system, MinecraftBlockTypes, BlockPermutation, Player} from "@minecraft/server";
 //Plugins:
 import * as BlockHistoryPlugin from "../block_history";
 import { Commands, sendLongMessage, DB } from '../../backend/backend';
@@ -81,7 +81,11 @@ export function main(){
 
 
 
-
+    /**
+     * 
+     * @param {Player} sender 
+     * @param {*} parameter 
+     */
     async function blockHistoryHandler(sender, parameter){
         switch(parameter.command){
             case 'warp':
@@ -93,7 +97,7 @@ export function main(){
                     if(index < 0 || index >= lastCall[sender.id].length){
                         sendMessage('invalid index', 'blockHistory', sender)
                     }
-                    sender.teleport(lastCall[sender.id][index-1], sender.dimension, sender.getRotation().x, sender.getRotation().y)
+                    sender.teleport(lastCall[sender.id][index-1]);
                 }
                 break;
             case 'rb':

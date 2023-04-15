@@ -163,7 +163,7 @@ export async function main() {
         },
         initialize() {
             const {data,callbacks} = this;
-            world.events.beforeItemUseOn.subscribe(eventData => {
+            world.beforeEvents.itemUseOn.subscribe(eventData => {
                 const callbackData = callbacks.beforeItemStartUseOn;
                 if (((data[eventData.source.id] ?? 0) + 1) < system.currentTick) {
                     callbackData.runCallbacks(eventData);

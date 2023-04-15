@@ -77,7 +77,7 @@ export async function main() {
     });
 
     //## Block Ban
-    world.events.beforeItemUseOn.subscribe((eventData) => {
+    world.beforeEvents.itemUseOn.subscribe((eventData) => {
         if (eventData.source.hasTag('certified_builder')) return;
         const itemId = eventData.item.typeId;
         if (

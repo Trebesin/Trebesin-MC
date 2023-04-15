@@ -5,7 +5,7 @@ import * as Debug from './../../debug/debug';
 import { playerData as serverPlayerData } from '../../server/server';
 import { Commands } from '../../backend/backend';
 //Modules:
-import * as vectorMath from "../../../js_modules/vector.js";
+import * as VectorMath from "../../../js_modules/vectorMath.js";
 import { sendMessage } from '../../../mc_modules/players';
 import { spawnBox, spawnBigBox, spawnLineBox} from '../../../mc_modules/particles';
 
@@ -50,8 +50,8 @@ export function main(){
 
   Commands.registerCommand("phase", {
     parameters: [{id: "distance", type: "int", optional: true}], aliases: ["p","phaser"], run: (sender, parameter) => {
-      const newLocation = Mc.Vector.add(sender.location, vectorMath.setVectorLength(sender.getViewDirection(), parameter.distance ?? 2));
-      sender.teleport(newLocation, sender.dimension, sender.getRotation().x, sender.getRotation().y);
+      const newLocation = VectorMath.sum(sender.location, VectorMath.setLength(sender.getViewDirection(), parameter.distance ?? 2));
+      sender.teleport(newLocation);
       sendMessage("§l§bWHOOSH!§r", "", sender);
     },
     description: "teleports you in front by [distance] blocks"
@@ -182,7 +182,7 @@ export function main(){
       		molang.setVector3(`variable.size`,new Mc.Vector(parameters.sizeX/2,parameters.sizeY/2,parameters.sizeZ/2));
 			spawnBigBox(
         		'trebesin:plane_box_flex_',
-        		vectorMath.floorVector(parameters.location),
+        		VectorMath.floor(parameters.location),
         		sender.dimension,
         		molang,
         		{x:parameters.sizeX,y:parameters.sizeY,z:parameters.sizeZ},
@@ -218,7 +218,7 @@ export function main(){
 			const molang = new Mc.MolangVariableMap();
 			molang.setColorRGBA(`variable.color`,{red:0,green:0,blue:1,alpha:0.5});
       		molang.setSpeedAndDirection(`variable.size`,parameters.lineLength,new Mc.Vector(parameters.dirX,parameters.dirY,parameters.dirZ));
-			sender.dimension.spawnParticle(`trebesin:line_flex`,vectorMath.floorVector(parameters.location),molang);
+			sender.dimension.spawnParticle(`trebesin:line_flex`,VectorMath.floor(parameters.location),molang);
 		}
 	})
 
@@ -245,10 +245,10 @@ export function main(){
 			const molang = new Mc.MolangVariableMap();
 			molang.setColorRGBA(`variable.color`,{red:0,green:0,blue:1,alpha:0.5});
 			molang.setSpeedAndDirection(`variable.time`,4,new Mc.Vector(0,0,0));
-			Debug.logMessage(JSON.stringify([vectorMath.floorVector(parameters.location),vectorMath.sumVectors(vectorMath.floorVector(parameters.location),{x:parameters.sizeX,y:parameters.sizeY,z:parameters.sizeZ})]))
+			Debug.logMessage(JSON.stringify([VectorMath.floor(parameters.location),VectorMath.sum(VectorMath.floor(parameters.location),{x:parameters.sizeX,y:parameters.sizeY,z:parameters.sizeZ})]))
 			spawnLineBox(
         		'trebesin:line_flex2',
-        		[vectorMath.floorVector(parameters.location),vectorMath.sumVectors(vectorMath.floorVector(parameters.location),{x:parameters.sizeX,y:parameters.sizeY,z:parameters.sizeZ})],
+        		[VectorMath.floor(parameters.location),VectorMath.sum(VectorMath.floor(parameters.location),{x:parameters.sizeX,y:parameters.sizeY,z:parameters.sizeZ})],
         		sender.dimension,
         		molang
       		);

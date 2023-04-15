@@ -1,5 +1,5 @@
 //APIs:
-import {world,ItemTypes, ItemStack} from '@minecraft/server';
+import * as Mc from '@minecraft/server';
 //Plugins:
 import { isAdmin, isBuilder } from './admin';
 import { Commands } from '../../backend/backend';
@@ -34,7 +34,7 @@ export function main() {
          * @param {*} parameters 
          */
         run(sender,parameters) {
-            const commandItem = new ItemStack(ItemTypes.get('trebesin:cmd_universal'),1);
+            const commandItem = new Mc.ItemStack(Mc.ItemTypes.get('trebesin:cmd_universal'),1);
             commandItem.setLore([parameters.commandName,parameters.commandParameters.join(' ')]);
             commandItem.nameTag = parameters.itemName ?? `[CMD] ${parameters.commandName}`;
             sender.getComponent('inventory').container.addItem(commandItem);
@@ -42,18 +42,22 @@ export function main() {
         }
     });
 
-    world.events.beforeItemUse.subscribe((eventData) => {
+    Mc.world.beforeEvents.itemUse.subscribe((eventData) => {
         //## Dynamic item:
         if (eventData.item.typeId === 'trebesin:cmd_universal') {
             const itemLore = eventData.item.getLore();
             const command = itemLore[0];
             const parameters = itemLore[1];
-            Commands.runCommand(command,parameters,eventData.source);
+            Mc.system.runTimeout(
+                () => Commands.runCommand(command,parameters,eventData.source), 1
+            );
         }
         //## Hardcoded items:
         const itemCommand = itemCommands[eventData.item.typeId];
         if (itemCommand) {
-            Commands.runCommand(itemCommand.input,itemCommand.parameter,eventData.source);
+            Mc.system.runTimeout (
+                () => Commands.runCommand(itemCommand.input,itemCommand.parameter,eventData.source), 1
+            );
         }
     })
 }

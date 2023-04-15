@@ -133,9 +133,7 @@ export function main() {
 			for (let i = 0; i < parameter.players.length; i++) {
 				parameter.players[i].teleport(
 					sender.location,
-					sender.dimension,
-					sender.getRotation().x,
-					sender.getRotation().y
+					{dimension: sender.dimension}
 				);
 			}
 		}

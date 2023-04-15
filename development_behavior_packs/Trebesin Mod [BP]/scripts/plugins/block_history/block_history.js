@@ -157,7 +157,7 @@ export async function main() {
         });
     });
     
-    world.events.beforeItemUseOn.subscribe((eventData) => {
+    world.beforeEvents.itemUseOn.subscribe((eventData) => {
         //!! this prevents an exploit do not remove !!
         const player = eventData.source;
         if (player.hasTag('inspector')){

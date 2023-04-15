@@ -1,4 +1,4 @@
-import { world, BlockAreaSize, Player, MinecraftBlockTypes, BlockPermutation } from '@minecraft/server';
+import { world, system, BlockAreaSize, Player, MinecraftBlockTypes, BlockPermutation } from '@minecraft/server';
 import { setVectorLength } from './../js_modules/vector';
 import { filter } from '../js_modules/array';
 import { randInt } from '../js_modules/random';
@@ -51,7 +51,7 @@ class CommandParser {
         for (const option in options) {
             this.#options[option] = options[option];
         }
-        world.events.beforeChat.subscribe(async (eventData) => {
+        world.beforeEvents.chatSend.subscribe(async (eventData) => {
             const {message, sender} = eventData;
 
             if (message.startsWith(this.#options.prefix)) {
@@ -62,7 +62,9 @@ class CommandParser {
                 if (!this.#options.caseSensitive) {
                     commandInput = commandInput.toLowerCase();
                 }
-                await this.runCommand(commandInput,messageArray.slice(1).join(' '),sender);
+                system.runTimeout(
+                    () => this.runCommand(commandInput,messageArray.slice(1).join(' '),sender), 1
+                );
             }
         });
         

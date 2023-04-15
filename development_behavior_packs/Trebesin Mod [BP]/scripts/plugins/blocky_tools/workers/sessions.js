@@ -29,7 +29,7 @@ class LeftClickDetect {
             this.#spawnEntity(player,player.location);
         } else {
             try {
-                playerEntity.teleport(VectorMath.sum(player.location,VectorMath.multiply(player.getVelocity(),5)),player.dimension,0,0,false);
+                playerEntity.teleport(VectorMath.sum(player.location,VectorMath.multiply(player.getVelocity(),5)),{dimension:player.dimension,keepVelocity:false});
                 playerEntity.getComponent('minecraft:scale').value = 1.0 + (VectorMath.getLengthSquared(player.getVelocity())*8);
             } catch {
                 this.#spawnEntity(player,player.location);
