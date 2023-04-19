@@ -257,11 +257,14 @@ class Session {
      * @param {boolean} permutations[].exactMatch
      * @param {boolean} exclusion 
      */
-    copySelection(permutations,exclusion) {
+    async copySelection(permutations,exclusion) {
         const clipboard = this.getClipboard();
         const selection = this.getCurrentSelection();
         const dimension = selection.getDimension();
         const bounds = selection.getBounds();
+        const player = this.getPlayer();
+        
+        sendMessage(`Started copying selected area!`,'§2BT§r',player);
         const copiedData = {
             locations: [],
             bounds: {
@@ -279,7 +282,7 @@ class Session {
 
         copiedData.particles = generateLineBox([copiedData.bounds.min,copiedData.bounds.max],{red:0,green:1,blue:1,alpha:0.85});
     
-        selection.getAllBlocks((blockLocation) => {
+        await selection.getAllBlocks((blockLocation) => {
             try {
                 const block = dimension.getBlock(blockLocation);
                 const blockMatch = permutations.find(
@@ -304,6 +307,7 @@ class Session {
             }
         });
     
+        sendMessage(`Finished copying §l§m${copiedData.locations.length}§r blocks!`,'§2BT§r',player);
         clipboard.structureData[0] = copiedData;
         //clipboard.structureData.push(copiedData);
     }

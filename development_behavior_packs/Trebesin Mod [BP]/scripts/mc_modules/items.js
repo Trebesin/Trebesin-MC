@@ -74,6 +74,7 @@ export function compareComponents(componentsA,componentsB) {
  * @returns {Mc.ItemStack} Item stack created from the item state.
  */
 export function createStack(itemState) {
+    if (itemState?.typeId == null) return null;
     const itemStack = new Mc.ItemStack(itemState.typeId,itemState.amount);
     itemStack.nameTag = itemState.nameTag;
     itemStack.setLore(itemState.lore);
@@ -119,6 +120,7 @@ export function applyComponents(itemStack,itemComponents) {
  * @returns {ItemState} Object containing copies of selected properties of the item.
  */
 export function copyState(item) {
+    if (item?.typeId == null) return null;
     return {
         typeId: item.typeId,
         nameTag: item.nameTag,
