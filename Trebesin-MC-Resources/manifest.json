@@ -2,19 +2,19 @@
     "format_version": 2,
     "metadata": {
         "authors": ["PavelDobCZ23","tpkowastaken"],
-        "url": "https://www.trebesin.cz/",
+        "url": "https://www.trebesin.fun/",
         "license": "GNU GPL v3.0"
     }, 
     "header": {
         "description": "Resource Pack for Třebešín",
-        "name": "Třebešín Mód [RP]",
+        "name": "Třebešín MC [RP]",
         "uuid": "551d5da1-7964-4bd2-95f3-eeeee720fea0",
         "version": [ 1, 0, 5 ],
-        "min_engine_version": [ 1, 19, 40 ]
+        "min_engine_version": [ 1, 20, 0 ]
     },
     "modules": [
         {
-            "description": "Třebešín Mód [RP] - resources module",
+            "description": "Třebešín MC [RP] - resources module",
             "type": "resources",
             "uuid": "e8bb0fda-3993-4718-b2cf-1d11dd12d07e",
             "version": [1, 0, 0]
