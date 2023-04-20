@@ -23,5 +23,4 @@ Tento soubor musí obsahovat minimálně 2 exporty, a to funkci `main` a variabl
 
 ### Debugging
 
-Minecraft má built-in debugger pro skriptování co funguje s TS. Tento debugger je dělaný pro použití ve VSCode a dá se [stáhnout jako rozšíření](https://marketplace.visualstudio.com/items?itemName=mojang-studios.minecraft-debugger). Tento debugger má již nastavené parametry v souboru `/.vscode/launch.json`, aby fungoval v našem prostředí.
-
+Minecraft má built-in debugger pro skriptování co funguje s TS. Tento debugger je dělaný pro použití ve VSCode a dá se [stáhnout jako rozšíření](https://marketplace.visualstudio.com/items?itemName=mojang-studios.minecraft-debugger). Tento debugger má již nastavené parametry v souboru `/.vscode/launch.json`, aby fungoval v našem prostředí. Ke spuštění debuggeru stačí spusit příkaz `script debugger listen` na serveru a připojit ve VSCodu debugger `Trebesin-MC Script Debug`.
