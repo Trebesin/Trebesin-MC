@@ -5,9 +5,9 @@
         "type": "minecraft-js",
         "request": "attach",
         "name": "Trebesin-MC Script Debug",
-        "mode": "listen",
+        "mode": "connect",
         "localRoot": "${workspaceFolder}/Trebesin-MC-Scripts/scripts/",
-        "port": 56175,
+        //"port": 56175,
         "sourceMapRoot": "${workspaceFolder}/Trebesin-MC-Scripts/sourcemap/",
       }
     ]
