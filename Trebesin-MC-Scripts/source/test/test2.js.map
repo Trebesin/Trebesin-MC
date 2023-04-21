@@ -1,0 +1,1 @@
+{"version":3,"sources":["test/test2.ts"],"names":[],"mappings":";AAAA,SAAS,IAAI,CAAE,CAAS;IACpB,OAAO,CAAC,GAAG,CAAC,CAAC;AACjB,CAAC","file":"test2.js","sourcesContent":["function test (n: number): number {\r\n    return n * 2;\r\n}"]}
