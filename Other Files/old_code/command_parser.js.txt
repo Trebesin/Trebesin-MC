@@ -6,6 +6,7 @@ function getParameterChainOld(parameters,options,sender,index = 0,optional = fal
 
         if (option.optional) optional = true;
 
+is cool
         if (index >= parameters.length) {
             if (optional) return output;
             throw new CommandError(`Missing parameter '${option.id}'!`);
