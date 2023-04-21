@@ -10,6 +10,7 @@
         "localRoot": "${workspaceFolder}/Trebesin-MC-Scripts/scripts/",
         "port": 25589,
         "sourceMapRoot": "${workspaceFolder}/Trebesin-MC-Scripts/sourcemap/",
+        "generatedSourceRoot": "${workspaceFolder}/Trebesin-MC-Scripts/source/",
       }
     ]
   }
