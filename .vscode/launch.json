@@ -9,7 +9,7 @@
         "mode": "connect",
         "localRoot": "${workspaceFolder}/Trebesin-MC-Scripts/scripts/",
         "port": 25589,
-        "sourceMapRoot": "${workspaceFolder}/Trebesin-MC-Scripts/sourcemap/",
+        "sourceMapRoot": "${workspaceFolder}/Trebesin-MC-Scripts/source/",
         "generatedSourceRoot": "${workspaceFolder}/Trebesin-MC-Scripts/source/",
       }
     ]
