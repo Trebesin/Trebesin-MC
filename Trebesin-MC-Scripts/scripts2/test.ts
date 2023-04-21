@@ -1,4 +1,4 @@
-function testMain (n): number {
+function testMain (n:number): number {
     return n * 2;
 }
 
@@ -10,4 +10,4 @@ function sendUser(user:test) {
     return user.user
 }
 
-sendUser({k:1});
+sendUser({user:''});
