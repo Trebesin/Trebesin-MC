@@ -67,7 +67,6 @@ const actionMenuData = {
 
 //!add new features forced shit yk the drill
 //Async
-
 /**
  * @typedef {object} ModalMenuElement
  * @property {'toggle'|'textField'|'slider'|'icon'|'dropdown'} type - Type of element.

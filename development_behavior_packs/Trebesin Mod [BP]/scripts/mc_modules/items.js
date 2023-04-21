@@ -158,7 +158,6 @@ export function copyComponents(item) {
 }
 
 //# Types / Constants:
-
 /**
  * @typedef ItemState
  * @prop {string} typeId ID of the type of the item.
