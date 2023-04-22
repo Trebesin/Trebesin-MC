@@ -6,7 +6,8 @@
         "strict": true,
         "target": "es2020",
         "noImplicitAny": true,
-        "sourceMap": true
+        "sourceMap": true,
+        "newLine": "lf"
       },
       
     "exclude": [
