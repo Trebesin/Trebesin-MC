@@ -20,7 +20,7 @@
  * @description Inserts value at the first empty index in the array and returns the index.
  * @param {any[]} array - Array to insert the value into.
  * @param {*} value - Value to insert into the array.
- * @returns {number} Index that the value was inserted to.
+ * @returns {number|undefined|null} Index that the value was inserted to.
  **/
 export function insertToArray(array, value) {
     if (!Array.isArray(array)) return null

@@ -7,10 +7,12 @@
         "target": "es2020",
         "noImplicitAny": true,
         "sourceMap": true,
-        "newLine": "lf"
-      },
-      
+        "newLine": "lf",
+        "allowJs": true
+    },
     "exclude": [
+        "source",
+        "source/*",
         "node_modules",
         "**/node_modules/*"
     ]
