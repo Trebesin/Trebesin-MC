@@ -1,5 +1,5 @@
 //APIs:
-import { MolangVariableMap, BlockPermutation,BlockProperties, world, system, Block} from '@minecraft/server';
+import { MolangVariableMap, BlockPermutation,BlockStates, world, system, Block} from '@minecraft/server';
 //Plugins:
 import * as Debug from './../../debug/debug';
 import { Server } from '../../backend/backend';
@@ -44,7 +44,7 @@ export function main() {
                 const option = {
                     id: propertyName
                 };
-                const propertyDefinition = BlockProperties.get(propertyName);
+                const propertyDefinition = BlockStates.get(propertyName);
                 const propertyType = typeof propertyDefinition.validValues[0];
                 option.label = `§2${propertyName} [${propertyType}]`;
                 if (propertyType === 'boolean') {
@@ -63,7 +63,7 @@ export function main() {
             if (block?.typeId == null) return;
             const propertyRecord = {};
             for (const propertyName in propertyList) {
-                const propertyDefinition = BlockProperties.get(propertyName);
+                const propertyDefinition = BlockStates.get(propertyName);
                 const propertyType = typeof propertyDefinition.validValues[0];
                 if (propertyType === 'boolean') {
                     propertyRecord[propertyName] = response.formValues[propertyName];
