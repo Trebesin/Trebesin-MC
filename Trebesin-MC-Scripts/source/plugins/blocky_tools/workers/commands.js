@@ -119,7 +119,7 @@ export async function main() {
                 }
             }
         ],
-        run(sender, parameters) {
+        async run(sender, parameters) {
             const session = Sessions.getSession(sender);
             const options = {};
             if (parameters.fillMode === 'grid') {
@@ -137,11 +137,11 @@ export async function main() {
             if (parameters.fillMode === 'outline') {
                 options.stepBy = parameters.stepBy ?? 1;
                 options.width = parameters.thickness ?? 1;
-                session.fillSelectionOutline(parameters.fillBlock.permutation, options);
+                await session.fillSelectionOutline(parameters.fillBlock.permutation, options);
                 return;
             }
             ;
-            session.fillSelection(parameters.fillBlock.permutation, options);
+            await session.fillSelection(parameters.fillBlock.permutation, options);
         }
     });
     Commands.registerCommand('fillReplaceSelection', {
