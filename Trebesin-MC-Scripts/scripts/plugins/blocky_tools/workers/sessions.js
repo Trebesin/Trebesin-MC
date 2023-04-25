@@ -360,6 +360,7 @@ class Session {
         const fullProgress = selection.getArea();
         this.setCurrentAction(SessionActionIds.SELECTION_FILL,fullProgress);
 
+        sendMessage(`Started copying selected area!`,'§2BT§r',player);
         await selection.getBlocks(async (blockLocation) => {
             this.progressCurrentAction();
             setBlockPermutation(
@@ -378,12 +379,12 @@ class Session {
      * Sets the permutation of all blocks on the outline of the selection.
      * @param {Mc.BlockPermutation} fillPermutation 
      */
-    fillSelectionOutline(fillPermutation,options) {
+    async fillSelectionOutline(fillPermutation,options) {
         const player = this.getPlayer();
         const selection = this.getCurrentSelection();
         const dimension = selection.getDimension();
 
-        selection.getOutlineBlocks(async (blockLocation) => {
+        await selection.getOutlineBlocks(async (blockLocation) => {
             setBlockPermutation(
                 dimension.getBlock(blockLocation),
                 fillPermutation,
@@ -401,11 +402,11 @@ class Session {
      * @param {boolean} replacePermutations[].exactMatch
      * @param {boolean} exclusion 
      */
-    fillReplaceSelection(fillPermutation,replacePermutations,exclusion) {
+    async fillReplaceSelection(fillPermutation,replacePermutations,exclusion) {
         const player = this.getPlayer();
         const selection = this.getCurrentSelection();
         const dimension = selection.getDimension();
-        selection.getAllBlocks(async (blockLocation) => {
+        await selection.getAllBlocks(async (blockLocation) => {
             const block = dimension.getBlock(blockLocation);
             const blockMatch = replacePermutations.find(
                 ({exactMatch,permutation}) => {
@@ -469,7 +470,7 @@ class Session {
     setActionConfirmation(confirmValue) {
         const player = this.getPlayer();
         if (this.#actionConfirmation.pending !== ActionPendingState.WAIT) {
-            sendMessage('§nNo action currently pending confirmation!','§2BT§r',player)
+            sendMessage('§nNo action currently pending confirmation!','§2BT§r',player);
             return;
         }
         this.#actionConfirmation.confirm = confirmValue;
@@ -500,7 +501,7 @@ class Session {
 
     getActionString() {
         if (this.actionState.id == null) return 'None';
-        return `§q§l${SessionActions[this.actionState.id].name}§r - §p${this.actionState.percentDone}§t%`;
+        return `§q§l${SessionActions[this.actionState.id].name}§r - §p${this.actionState.percentDone}§u%`;
     }
 
     //## State Update Functions *Designed to run inside an interval.*
