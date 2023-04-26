@@ -110,7 +110,6 @@ export async function getBlockOutline(coordinates,callback,options = {}) {
     }
 }
 
-
 export async function getGridBlock(coordinates,callback,options = {}) {
     const {stepBy,hollow,width} = Object.assign({stepBy:{x:1,y:1,z:1},hollow:false,width:1},options);
     const maxCorner = VectorMath.getMaximalVector(coordinates);
