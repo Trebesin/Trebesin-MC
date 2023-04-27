@@ -102,10 +102,12 @@ class DatabaseConnection {
                 .setTimeout(4);
             const response = await http.request(request);
             if (response.status === 200) {
+                logMessage('200!');
                 __classPrivateFieldSet(this, _DatabaseConnection_token, JSON.parse(response.body).token, "f");
                 resolve(response);
             }
             else if (response.status === 400) {
+                logMessage('400!');
                 const disconnectResponse = await this.disconnect(2);
                 if (disconnectResponse.status === 200) {
                     resolve(await this.connect(attempts));
@@ -115,9 +117,11 @@ class DatabaseConnection {
                 }
             }
             else if (attempts > 0) {
+                logMessage('New attempt!');
                 resolve(await this.connect(attempts - 1));
             }
             else {
+                logMessage('Other response!');
                 resolve(response);
             }
         });
