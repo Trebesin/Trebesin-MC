@@ -1,11 +1,19 @@
 //Plugins:
+console.warn('1st log')
 import { world } from '@minecraft/server';
+console.warn('BH')
 import * as BlockHistoryPlugin from './plugins/block_history/block_history';
+console.warn('BT')
 import * as BlockyToolsPlugin from './plugins/blocky_tools/blocky_tools';
+console.warn('Server')
 import * as ServerPlugin from './plugins/server/server';
+console.warn('Commnads')
 import * as CommandsPlugin from './plugins/commands/commands';
+console.warn('Debug')
 import * as Debug from './plugins/debug/debug';
+console.warn('Backend')
 import * as Backend from './plugins/backend/backend';
+console.warn('UT')
 import * as unitTesting from './plugins/unit_testing/unit_testing'
 
 //#This is the main executable file of the script. It loads all imported plugins.
