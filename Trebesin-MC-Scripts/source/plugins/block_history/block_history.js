@@ -231,8 +231,7 @@ function loadWorkers() {
  * @returns {number} Returns a number indicating change to the memory database.
  */
 export function saveBlockUpdate(blockStates, blockHistoryEntry) {
-    var _a;
-    blockUpdates[_a = blockHistoryEntry.actorId] ?? (blockUpdates[_a] = []);
+    blockUpdates[blockHistoryEntry.actorId] ??= [];
     if (Blocks.compareBlockStates(blockStates.before, blockStates.after, true))
         return 0;
     const records = blockUpdates[blockHistoryEntry.actorId];
