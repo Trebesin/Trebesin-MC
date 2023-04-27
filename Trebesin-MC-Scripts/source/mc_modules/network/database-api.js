@@ -102,9 +102,7 @@ class DatabaseConnection {
                 .setTimeout(4);
             const response = await http.request(request);
             if (response.status === 200) {
-                logMessage('200!');
                 __classPrivateFieldSet(this, _DatabaseConnection_token, JSON.parse(response.body).token, "f");
-                logMessage(`${__classPrivateFieldGet(this, _DatabaseConnection_token, "f")}`);
                 resolve(response);
             }
             else if (response.status === 400) {
