@@ -2,4 +2,3 @@
 //# MACRO_CASE is used within configurations! Only use `const` variables.
 
 export const TICK_SPEED = 3;
-

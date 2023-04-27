@@ -54,7 +54,6 @@ export function randChoice(array, weights = null) {
 }
 
 function randomTriInt(min, max, tri) {
-
 }
 
 function randomTriFloat() {
