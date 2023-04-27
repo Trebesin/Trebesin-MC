@@ -5,7 +5,7 @@
         "type": "minecraft-js",
         "request": "attach",
         "name": "Trebesin-MC Script Debug",
-        "host": "prem2.falixserver.net",
+        "host": "prem6.falixserver.net",
         "mode": "connect",
         "localRoot": "${workspaceFolder}/Trebesin-MC-Scripts/scripts/",
         "port": 20592,
