@@ -8,7 +8,7 @@
         "host": "prem2.falixserver.net",
         "mode": "connect",
         "localRoot": "${workspaceFolder}/Trebesin-MC-Scripts/scripts/",
-        "port": 25589,
+        "port": 20592,
         "sourceMapRoot": "${workspaceFolder}/Trebesin-MC-Scripts/source/",
         "generatedSourceRoot": "${workspaceFolder}/Trebesin-MC-Scripts/source/",
       }
