@@ -70,7 +70,7 @@ export async function main() {
 
     //# Block Updates:
     //## Falling Block Patches:
-    Mc.world.events.entitySpawn.subscribe((eventData) => {
+    Mc.world.afterEvents.entitySpawn.subscribe((eventData) => {
         if (eventData.entity.typeId === 'minecraft:falling_block') {
             const blockLocation = VectorMath.floor(eventData.entity.location);
             insertToArray(
@@ -122,7 +122,7 @@ export async function main() {
     },1);
 
     //## Block Breaking Detection:
-    Mc.world.events.blockBreak.subscribe(async (eventData) => {
+    Mc.world.afterEvents.blockBreak.subscribe(async (eventData) => {
         Debug.logMessage(`§cBlock Break§r - ${system.currentTick}`);
         const playerId = eventData.player.id;
         const blockOld = {
@@ -181,7 +181,7 @@ export async function main() {
     });
 
     //## Block Placing Detection:
-    Mc.world.events.itemStartUseOn.subscribe(async(eventData) => {
+    Mc.world.afterEvents.itemStartUseOn.subscribe(async(eventData) => {
         const player = eventData.source;
         const offset = FACE_DIRECTIONS[eventData.blockFace];
         const faceBlockLocation = VectorMath.sum(eventData.block.location,offset);
@@ -228,7 +228,7 @@ export async function main() {
     });
 
     //Debug:
-    Mc.world.events.itemUseOn.subscribe((eventData) => {
+    Mc.world.afterEvents.itemUseOn.subscribe((eventData) => {
         if (eventData.itemStack.typeId === 'minecraft:stick') {
             const block = eventData.block;
             if (block.typeId.startsWith('trebesin')) {

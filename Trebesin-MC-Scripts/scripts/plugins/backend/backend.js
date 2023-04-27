@@ -145,7 +145,7 @@ export async function main() {
         },
         initialize() {
             const {data,callbacks} = this;
-            world.events.itemUseOn.subscribe(eventData => {
+            world.afterEvents.itemUseOn.subscribe(eventData => {
                 const callbackData = callbacks.itemStartUseOn;
                 if (((data[eventData.source.id] ?? 0) + 1) < system.currentTick) {
                     callbackData.runCallbacks(eventData);
