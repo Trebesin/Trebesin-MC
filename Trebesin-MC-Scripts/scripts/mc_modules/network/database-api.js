@@ -78,9 +78,11 @@ class DatabaseConnection {
             .setTimeout(4);
             const response = await http.request(request);
             if (response.status === 200) {
+                logMessage('200!')
                 this.#token = JSON.parse(response.body).token;
                 resolve(response);
             } else if (response.status === 400) {
+                logMessage('400!')
                 const disconnectResponse = await this.disconnect(2);
                 if (disconnectResponse.status === 200) {
                     resolve(await this.connect(attempts));
@@ -88,8 +90,10 @@ class DatabaseConnection {
                     reject(`Unable to disconnect existing connection to reconnect!\n[${disconnectResponse.status}] - ${disconnectResponse.body}`);
                 }
             } else if (attempts > 0) {
+                logMessage('New attempt!')
                 resolve(await this.connect(attempts - 1));
             } else {
+                logMessage('Other response!')
                 resolve(response);
             }
         });
