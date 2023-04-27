@@ -85,7 +85,6 @@ export async function main() {
     } catch (error) {
         Debug.logMessage(error);
     }
-    Debug.logMessage('DATABASE DONE')
     //# Custom Events
     Server.registerEvent('player',{
         callbacks: {

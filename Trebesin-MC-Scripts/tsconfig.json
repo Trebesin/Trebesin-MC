@@ -2,9 +2,9 @@
     "compilerOptions": {
         "module": "es2020",
         "moduleResolution": "node",
-        "lib": ["es2020", "dom"],
+        "lib": ["es2020", "dom", "es2021"],
         "strict": true,
-        "target": "es2020",
+        "target": "es2021",
         "noImplicitAny": true,
         "sourceMap": true,
         "newLine": "crlf",
