@@ -10,7 +10,7 @@
         "name": "Třebešín Mód [BP]",
         "uuid": "6131cbff-1172-4c3e-a701-52f21fc9c9d3",
         "version": [ 1, 2, 0 ],
-        "min_engine_version": [ 1, 19, 70 ]
+        "min_engine_version": [ 1, 19, 80 ]
     },
     "modules": [
         {
@@ -35,7 +35,7 @@
         },
         {
             "module_name": "@minecraft/server",
-            "version": "1.1.0-beta"
+            "version": "1.2.0-beta"
         },
         {
             "module_name": "@minecraft/server-ui",
