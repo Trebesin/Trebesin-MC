@@ -80,6 +80,7 @@ class DatabaseConnection {
             if (response.status === 200) {
                 logMessage('200!')
                 this.#token = JSON.parse(response.body).token;
+                logMessage(`${this.#token}`);
                 resolve(response);
             } else if (response.status === 400) {
                 logMessage('400!')
