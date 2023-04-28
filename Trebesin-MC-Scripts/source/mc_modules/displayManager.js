@@ -34,8 +34,7 @@ class ScreenDisplayManager {
      * @param {*} options
      */
     setActionBar(player, text, options) {
-        var _a, _b;
-        (_a = __classPrivateFieldGet(this, _ScreenDisplayManager_playerScenes, "f"))[_b = player.id] ?? (_a[_b] = { actionBar: {}, title: {} });
+        __classPrivateFieldGet(this, _ScreenDisplayManager_playerScenes, "f")[player.id] ??= { actionBar: {}, title: {} };
         const playerActionBar = __classPrivateFieldGet(this, _ScreenDisplayManager_playerScenes, "f")[player.id].actionBar;
         const playerScreenDisplay = player.onScreenDisplay;
         if (playerActionBar) { }
