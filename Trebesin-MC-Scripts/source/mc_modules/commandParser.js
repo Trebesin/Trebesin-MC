@@ -913,3 +913,5 @@ function normalizeParameterType(type) {
     return normalizedType;
 }
 export { CommandParser, CommandError };
+
+//# sourceMappingURL=commandParser.js.map

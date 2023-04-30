@@ -35,3 +35,5 @@ export async function logMessage(message, options) {
     if (OPTIONS.api && apiConnected)
         await apiLog.sendLog(`${message}`);
 }
+
+//# sourceMappingURL=debug.js.map

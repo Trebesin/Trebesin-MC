@@ -158,3 +158,5 @@ class LoggingConnection {
 }
 _LoggingConnection_options = new WeakMap(), _LoggingConnection_token = new WeakMap();
 export { LoggingConnection };
+
+//# sourceMappingURL=logging-api.js.map

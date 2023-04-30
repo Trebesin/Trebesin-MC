@@ -379,3 +379,5 @@ export function getCornerOffset(origin, corner) {
         z: origin.z + (corner.z === 1 ? 1 : 0)
     };
 }
+
+//# sourceMappingURL=particles.js.map

@@ -319,3 +319,5 @@ export const BlockHistoryUpdateTypeNames = [
     'Blocky Tools: Player',
     'System'
 ];
+
+//# sourceMappingURL=block_history.js.map

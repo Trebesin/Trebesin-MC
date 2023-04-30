@@ -173,3 +173,5 @@ export function mapArray(array, callback) {
     }
     return mappedArray;
 }
+
+//# sourceMappingURL=array.js.map

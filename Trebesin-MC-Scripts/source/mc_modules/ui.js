@@ -161,3 +161,5 @@ export async function messageMenu(menuData, player) {
     const response = await menu.show(player);
     return response;
 }
+
+//# sourceMappingURL=ui.js.map
