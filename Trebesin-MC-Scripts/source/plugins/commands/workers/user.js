@@ -225,5 +225,3 @@ export function main() {
         }
     });
 }
-
-//# sourceMappingURL=user.js.map

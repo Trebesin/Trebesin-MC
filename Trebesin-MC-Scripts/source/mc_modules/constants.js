@@ -39,5 +39,3 @@ export const ITEM_STATE_COMPONENTS = [
     'durability',
     'enchantments'
 ];
-
-//# sourceMappingURL=constants.js.map

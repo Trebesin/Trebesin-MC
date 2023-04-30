@@ -119,5 +119,3 @@ export function sendMessage(message, senderText = null, player = null) {
         }
     }
 }
-
-//# sourceMappingURL=players.js.map

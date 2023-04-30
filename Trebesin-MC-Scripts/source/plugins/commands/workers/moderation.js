@@ -6,5 +6,3 @@ import { Commands } from "../../backend/backend";
 import { sendMessage } from '../../../mc_modules/players';
 export async function main() {
 }
-
-//# sourceMappingURL=moderation.js.map

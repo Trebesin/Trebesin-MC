@@ -118,5 +118,3 @@ export function main() {
     }, 20);
     //## -- --
 }
-
-//# sourceMappingURL=items.js.map

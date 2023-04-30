@@ -45,5 +45,3 @@ class ScreenDisplayManager {
     }
 }
 _ScreenDisplayManager_scenes = new WeakMap(), _ScreenDisplayManager_playerScenes = new WeakMap();
-
-//# sourceMappingURL=displayManager.js.map

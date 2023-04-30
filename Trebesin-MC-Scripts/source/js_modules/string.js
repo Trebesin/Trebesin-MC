@@ -55,5 +55,3 @@ export function findCharIndex(string, char) {
             return index;
     }
 }
-
-//# sourceMappingURL=string.js.map

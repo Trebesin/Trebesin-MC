@@ -15,5 +15,3 @@ export async function main() {
     DebugCommands.main();
     Debug.sendLogMessage('   Debug commands set');
 }
-
-//# sourceMappingURL=commands.js.map

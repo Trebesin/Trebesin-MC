@@ -804,5 +804,3 @@ export const SelectionType = {
  * @enum {number}
  */
 export const SelectionTypeNames = ['Corner', 'Elipse', 'Point'];
-
-//# sourceMappingURL=sessions.js.map

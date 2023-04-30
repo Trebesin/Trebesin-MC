@@ -34,5 +34,3 @@ async function loadPlugin(pluginImport) {
     }
 }
 executePlugins();
-
-//# sourceMappingURL=main.js.map

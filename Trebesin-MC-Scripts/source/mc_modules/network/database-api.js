@@ -173,5 +173,3 @@ class DatabaseConnection {
 }
 _DatabaseConnection_options = new WeakMap(), _DatabaseConnection_token = new WeakMap();
 export { DatabaseConnection };
-
-//# sourceMappingURL=database-api.js.map

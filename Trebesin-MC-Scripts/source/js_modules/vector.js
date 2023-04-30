@@ -103,5 +103,3 @@ export function getDirectionFace(vector) {
             return 'up';
     }
 }
-
-//# sourceMappingURL=vector.js.map

@@ -18,5 +18,3 @@ export function getEntityById(id, queryOptions = {}, dimensionIds = DIMENSION_ID
             return entityWithId;
     }
 }
-
-//# sourceMappingURL=entities.js.map

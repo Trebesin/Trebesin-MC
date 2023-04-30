@@ -178,5 +178,3 @@ class ChunkManager {
 }
 _ChunkManager_tickDistance = new WeakMap(), _ChunkManager_forcedChunks = new WeakMap(), _ChunkManager_playerChunks = new WeakMap(), _ChunkManager_centerChunks = new WeakMap(), _ChunkManager_loadedChunks = new WeakMap();
 export { ChunkManager, getSubchunksCoords, getAbsoluteChunkCoord, getOriginChunkCoord, getRelativeChunkCoord, iterateLoadedChunks };
-
-//# sourceMappingURL=chunk.js.map

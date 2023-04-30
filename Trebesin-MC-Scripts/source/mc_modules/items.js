@@ -174,5 +174,3 @@ export function copyComponents(item) {
  * @prop {number} durability.damage Defines how damaged the item is.
  * @prop {Object.<string,number>} enchantments Object of numerical value with keys defining the specific enchanment type and the number its level.
  */ 
-
-//# sourceMappingURL=items.js.map

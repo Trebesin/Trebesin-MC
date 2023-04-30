@@ -282,5 +282,3 @@ function getGridTriangle(verticies, options = {}, callback = null) {
 function withinBounds(coords, coord) {
     //* check if block is within a selection
 }
-
-//# sourceMappingURL=geometry.js.map

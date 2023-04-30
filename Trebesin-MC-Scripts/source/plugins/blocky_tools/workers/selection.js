@@ -363,5 +363,3 @@ _ExtendedSelection_pointMode = new WeakMap(), _ExtendedSelection_points = new We
  * @property {Vector3} min Minimal coordinate value for each axis the selection area spans.
  * @property {Vector3} center Average coordinate value for each axis the selection area spans.
  */
-
-//# sourceMappingURL=selection.js.map

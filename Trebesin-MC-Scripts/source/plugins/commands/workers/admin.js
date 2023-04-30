@@ -259,5 +259,3 @@ export function main() {
         description: 'sets your gamemode to survival'
     });
 }
-
-//# sourceMappingURL=admin.js.map

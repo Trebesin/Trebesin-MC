@@ -913,5 +913,3 @@ async function reverseBlocks(blocks, sender) {
     }
     sendMessage(`succesfully reversed blocks - callID: ${callID}`, "BlockHistory: reverse", sender);
 }
-
-//# sourceMappingURL=commands.js.map

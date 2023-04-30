@@ -399,5 +399,3 @@ export function generateBlockArea(coord, steps = 10, callback = null) {
     }
     return coords;
 }
-
-//# sourceMappingURL=blocks.js.map

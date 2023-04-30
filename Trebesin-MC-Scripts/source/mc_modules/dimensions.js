@@ -203,5 +203,3 @@ function outsideDistanceSquered(locationA, locationB, distance) {
 }
 //!new filler algorithm - start with 6 main vectors with set children vectors which are vectors
 //!that are sent by the main vector to start checking too
-
-//# sourceMappingURL=dimensions.js.map

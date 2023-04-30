@@ -376,5 +376,3 @@ export function getMinAxis(vector) {
  * @callback Vector3Callback Callback that gets called during a vector operation with multiple vector outputs.
  * @param {Vector3} vector Vector result of the operation.
  */ 
-
-//# sourceMappingURL=vectorMath.js.map

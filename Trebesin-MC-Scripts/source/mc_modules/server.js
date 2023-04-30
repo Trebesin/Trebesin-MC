@@ -253,5 +253,3 @@ function executeRandomTick(callback /*Array*/, loadedChunks, tickSpeed) {
     }
     //}
 }
-
-//# sourceMappingURL=server.js.map
