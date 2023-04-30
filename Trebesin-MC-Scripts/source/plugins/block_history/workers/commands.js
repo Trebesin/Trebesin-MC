@@ -549,11 +549,10 @@ export function main() {
     });
 }
 function addActiveParticles(particleLocation, axis, sender) {
-    var _a;
-    particlesPerPlayers[_a = sender.id] ?? (particlesPerPlayers[_a] = {
+    particlesPerPlayers[sender.id] ??= {
         player: sender,
         particleLocations: new Set()
-    });
+    };
     particlesPerPlayers[sender.id].particleLocations.add(locationToString(particleLocation, axis));
 }
 function removeActiveParticles(sender) {

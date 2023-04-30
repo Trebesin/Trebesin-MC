@@ -52,7 +52,7 @@ export async function main() {
     }, DB_UPDATE_INTERVAL);
     //# Block Updates:
     //## Falling Block Patches:
-    Mc.world.events.entitySpawn.subscribe((eventData) => {
+    Mc.world.afterEvents.entitySpawn.subscribe((eventData) => {
         if (eventData.entity.typeId === 'minecraft:falling_block') {
             const blockLocation = VectorMath.floor(eventData.entity.location);
             insertToArray(fallingBlocksTracked, {
@@ -93,7 +93,7 @@ export async function main() {
         }
     }, 1);
     //## Block Breaking Detection:
-    Mc.world.events.blockBreak.subscribe(async (eventData) => {
+    Mc.world.afterEvents.blockBreak.subscribe(async (eventData) => {
         Debug.logMessage(`§cBlock Break§r - ${system.currentTick}`);
         const playerId = eventData.player.id;
         const blockOld = {
@@ -150,7 +150,7 @@ export async function main() {
         }
     });
     //## Block Placing Detection:
-    Mc.world.events.itemStartUseOn.subscribe(async (eventData) => {
+    Mc.world.afterEvents.itemStartUseOn.subscribe(async (eventData) => {
         const player = eventData.source;
         const offset = FACE_DIRECTIONS[eventData.blockFace];
         const faceBlockLocation = VectorMath.sum(eventData.block.location, offset);
@@ -196,7 +196,7 @@ export async function main() {
         });
     });
     //Debug:
-    Mc.world.events.itemUseOn.subscribe((eventData) => {
+    Mc.world.afterEvents.itemUseOn.subscribe((eventData) => {
         if (eventData.itemStack.typeId === 'minecraft:stick') {
             const block = eventData.block;
             if (block.typeId.startsWith('trebesin')) {
@@ -231,8 +231,7 @@ function loadWorkers() {
  * @returns {number} Returns a number indicating change to the memory database.
  */
 export function saveBlockUpdate(blockStates, blockHistoryEntry) {
-    var _a;
-    blockUpdates[_a = blockHistoryEntry.actorId] ?? (blockUpdates[_a] = []);
+    blockUpdates[blockHistoryEntry.actorId] ??= [];
     if (Blocks.compareBlockStates(blockStates.before, blockStates.after, true))
         return 0;
     const records = blockUpdates[blockHistoryEntry.actorId];

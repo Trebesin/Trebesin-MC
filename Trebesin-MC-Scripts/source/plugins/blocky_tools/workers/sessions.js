@@ -67,17 +67,17 @@ _LeftClickDetect_playerData = new WeakMap(), _LeftClickDetect_instances = new We
 };
 const leftClickDetector = new LeftClickDetect();
 export function main() {
-    Mc.world.events.playerJoin.subscribe((eventData) => {
+    Mc.world.afterEvents.playerJoin.subscribe((eventData) => {
         leftClickDetector.stop(eventData.playerId);
     });
-    Mc.world.events.itemUse.subscribe((eventData) => {
+    Mc.world.afterEvents.itemUse.subscribe((eventData) => {
         if (eventData.itemStack.typeId !== 'trebesin:bt_blocky_axe')
             return;
         const session = getSession(eventData.source);
         const selection = session.getCurrentSelection();
         selection.setCorner(0, session.pointerBlockLocation);
     });
-    Mc.world.events.entityHit.subscribe((eventData) => {
+    Mc.world.afterEvents.entityHit.subscribe((eventData) => {
         //logMessage(`EntityHit ${eventData.entity.name} - E:${eventData?.hitEntity?.typeId} B:${eventData?.hitBlock?.typeId} T:${Mc.system.currentTick}`);
         const itemHolding = getEquipedItem(eventData.entity);
         if (itemHolding?.typeId !== 'trebesin:bt_blocky_axe')

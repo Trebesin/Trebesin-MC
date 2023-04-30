@@ -91,7 +91,6 @@ export async function main() {
         },
         initialize() { },
         execute() {
-            var _a, _b, _c, _d;
             const { data, callbacks } = this;
             const players = world.getAllPlayers();
             for (let playerIndex = 0; playerIndex < players.length; playerIndex++) {
@@ -99,7 +98,7 @@ export async function main() {
                 //## playerEquip event:
                 const playerEquipCallbacks = callbacks.playerEquip;
                 if (playerEquipCallbacks.saved.length) {
-                    (_a = data.playerEquip)[_b = player.id] ?? (_a[_b] = {});
+                    data.playerEquip[player.id] ??= {};
                     const itemBefore = data.playerEquip[player.id].item;
                     const slotBefore = data.playerEquip[player.id].slot;
                     const itemAfter = player.getComponent('inventory').container?.getSlot(player.selectedSlot).clone();
@@ -119,7 +118,7 @@ export async function main() {
                 //## playerSneak event:
                 const playerSneakCallbacks = callbacks.playerSneak;
                 if (playerSneakCallbacks.saved.length) {
-                    (_c = data.playerSneak)[_d = player.id] ?? (_c[_d] = player.isSneaking);
+                    data.playerSneak[player.id] ??= player.isSneaking;
                     const sneakingBefore = data.playerSneak[player.id];
                     const sneakingAfter = player.isSneaking;
                     if (sneakingBefore !== sneakingAfter) {
@@ -143,7 +142,7 @@ export async function main() {
         },
         initialize() {
             const { data, callbacks } = this;
-            world.events.itemUseOn.subscribe(eventData => {
+            world.afterEvents.itemUseOn.subscribe(eventData => {
                 const callbackData = callbacks.itemStartUseOn;
                 if (((data[eventData.source.id] ?? 0) + 1) < system.currentTick) {
                     callbackData.runCallbacks(eventData);

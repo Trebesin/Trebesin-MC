@@ -43,14 +43,14 @@ export async function main() {
             ;
         }
     }, 4);
-    world.events.entityHit.subscribe((eventData) => {
+    world.afterEvents.entityHit.subscribe((eventData) => {
         const { entity, hitEntity } = eventData;
         if (hitEntity && entity.typeId === 'minecraft:player' && playerData.instaKill[entity.id]) {
             hitEntity.kill();
             playerData.instaKill[entity.id] = false;
         }
     });
-    world.events.playerJoin.subscribe(async (eventData) => {
+    world.afterEvents.playerJoin.subscribe(async (eventData) => {
         const connection = DB;
         const request = {
             sql: 'INSERT INTO PlayerConnections (playerID,PlayerName,Tick) VALUES (?,?,?);',
