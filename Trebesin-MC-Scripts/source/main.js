@@ -11,8 +11,7 @@ import * as unitTesting from './plugins/unit_testing/unit_testing';
 //#Order of the loading is important, Debug and Backend must be loaded first!
 //#To ensure the order eveything is asynchrounus and awaited.
 async function executePlugins() {
-    world.sendMessage('Start!');
-    Debug.logMessage('\n\nReloading Trebesin Mod Script...\n\n');
+    Debug.logMessage('\nReloading Trebesin Mod Script...\n');
     //!Debug && Backend (1.):
     await loadPlugin(Debug);
     await loadPlugin(Backend);
