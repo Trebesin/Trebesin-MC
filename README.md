@@ -2,10 +2,12 @@
 
 Toto je repozitář obsahující plugin kód pro Minecraft server Třebešína s replikou školy. Do kódu patří skripty, gameplay customizace a resource packy.
 
+# [Více info o serveru](http://trebesin.fun)
+
 ## Pravidla Codebase pro JS Skriptování
 
 Zde se nachází důležité informace pro možnou kolaboraci na projektu vrámci skriptování a pluginů.
-Za tento vývoj je zoodpovědný a vede ho Pavel Dobiáš (Discord: **PavelDobCZ23#5726**), pokud máte jakékoliv dotazy, obracet přímo na mě.
+Za tento vývoj je zoodpovědný a vedou ho Pavel Dobiáš (Discord: **PavelDobCZ23#5726**) a Tomáš Protiva (Discord: **tpko#9755**), pokud máte jakékoliv dotazy, obracet přímo na nás.
 
 ### Struktura složek
 
