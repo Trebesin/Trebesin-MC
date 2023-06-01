@@ -36,7 +36,7 @@ export class Server {
                 __classPrivateFieldSet(this, _Server_playersLoaded, true, "f");
         }, 1);
         //## Cancel Termination:
-        system.events.beforeWatchdogTerminate.subscribe((eventData) => {
+        system.beforeEvents.watchdogTerminate.subscribe((eventData) => {
             eventData.cancel = __classPrivateFieldGet(this, _Server_watchdogTerminate, "f");
         });
     }
