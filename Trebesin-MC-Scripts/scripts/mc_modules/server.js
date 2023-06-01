@@ -19,7 +19,7 @@ export class Server {
         },1);
 
         //## Cancel Termination:
-        system.events.beforeWatchdogTerminate.subscribe((eventData) => {
+        system.beforeEvents.watchdogTerminate.subscribe((eventData) => {
             eventData.cancel = this.#watchdogTerminate;
         });
     }
