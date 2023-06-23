@@ -34,7 +34,7 @@ export async function main() {
                 const record = actorRecords[index];
                 request.sql += '(?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
                 request.sql += (index + 1 === actorRecords.length) ? ';' : ',';
-                request.values.push(actorId, record.tick, record.before.dimension.id, record.before.location.x, record.before.location.y, record.before.location.z, record.before.typeId, record.after.typeId, record.before.isWaterlogged, record.after.isWaterlogged, JSON.stringify(record.before.permutation.getAllProperties()), JSON.stringify(record.after.permutation.getAllProperties()), record.updateType, record.updateId);
+                request.values.push(actorId, record.tick, record.before.dimension.id, record.before.location.x, record.before.location.y, record.before.location.z, record.before.typeId, record.after.typeId, record.before.isWaterlogged, record.after.isWaterlogged, JSON.stringify(record.before.permutation.getAllStates()), JSON.stringify(record.after.permutation.getAllStates()), record.updateType, record.updateId);
                 empty = false;
             }
             actorRecords.length = 0;
@@ -210,7 +210,7 @@ export async function main() {
                 Debug.sendLogMessage(`[trebesin:vertical_rotation] - ${block.permutation.getProperty('trebesin:vertical_rotation')?.value}`);
             }
             else {
-                const properties = block.permutation.getAllProperties();
+                const properties = block.permutation.getAllStates();
                 for (const property in properties) {
                     Debug.sendLogMessage(`[${property}] - ${properties[property]}`);
                 }
