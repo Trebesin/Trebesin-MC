@@ -23,7 +23,7 @@ export function main() {
         if (eventData.item.typeId === 'trebesin:bt_debug_stick') {
             /** @type {Mc.Block} */
             const block = eventData.source.dimension.getBlock(eventData.block.location);
-            const propertyList = block.permutation.getAllProperties();
+            const propertyList = block.permutation.getAllStates();
             const player = eventData.source;
 
             //let blockTagText = '';

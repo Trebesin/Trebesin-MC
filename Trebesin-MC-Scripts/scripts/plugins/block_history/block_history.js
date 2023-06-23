@@ -13,7 +13,6 @@ import * as Dimensions from '../../mc_modules/dimensions';
 import { DIMENSION_IDS , FACE_DIRECTIONS } from '../../mc_modules/constants';
 import { getEquipedItem, sendMessage } from '../../mc_modules/players';
 
-
 const DB_UPDATE_INTERVAL = 100;
 const blockUpdates = {};
 const fallingBlocksTracked = [];
@@ -49,8 +48,8 @@ export async function main() {
                     record.after.typeId,
                     record.before.isWaterlogged,
                     record.after.isWaterlogged,
-                    JSON.stringify(record.before.permutation.getAllProperties()),
-                    JSON.stringify(record.after.permutation.getAllProperties()),
+                    JSON.stringify(record.before.permutation.getAllStates()),
+                    JSON.stringify(record.after.permutation.getAllStates()),
                     record.updateType,
                     record.updateId
                 );
@@ -240,7 +239,7 @@ export async function main() {
                 Debug.sendLogMessage(`[trebesin:horizontal_rotation] - ${block.permutation.getProperty('trebesin:horizontal_rotation')?.value}`);
                 Debug.sendLogMessage(`[trebesin:vertical_rotation] - ${block.permutation.getProperty('trebesin:vertical_rotation')?.value}`);    
             } else {
-                const properties = block.permutation.getAllProperties();
+                const properties = block.permutation.getAllStates();
                 for (const property in properties) {
                     Debug.sendLogMessage(`[${property}] - ${properties[property]}`);
                 }

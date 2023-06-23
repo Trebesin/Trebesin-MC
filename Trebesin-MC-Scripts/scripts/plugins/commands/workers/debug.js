@@ -100,7 +100,7 @@ export function main(){
     ],
     run(sender, parameters) {
       const {permutation,userStates} = parameters.permutation;
-      const allStates = permutation.getAllProperties();
+      const allStates = permutation.getAllStates();
       logMessage(permutation.type.id);
       logMessage(userStates);
       logMessage(JSON.stringify(permutation.getTags()));
