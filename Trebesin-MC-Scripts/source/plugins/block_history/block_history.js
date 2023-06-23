@@ -159,7 +159,9 @@ export async function main() {
         const player = eventData.source;
         const offset = FACE_DIRECTIONS[eventData.blockFace];
         const faceBlockLocation = VectorMath.sum(eventData.block.location, offset);
+        Debug.logMessage(`FBL: ${faceBlockLocation?.x} ${faceBlockLocation?.y} ${faceBlockLocation?.z}`);
         const faceBlock = player.dimension.getBlock(faceBlockLocation);
+        Debug.logMessage(`FB: ${faceBlock?.typeId}`);
         const faceBlockOld = Blocks.copyBlockState(faceBlock, true);
         const block = player.dimension.getBlock(eventData.block.location);
         const blockOld = Blocks.copyBlockState(block, true);
