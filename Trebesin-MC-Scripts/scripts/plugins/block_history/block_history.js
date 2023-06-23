@@ -166,20 +166,22 @@ export async function main() {
     });
 
     Server.events.beforeItemStartUseOn.subscribe((eventData) => {
+        const player = eventData.source;
+        const blockFace = eventData.blockFace;
+        const blockLocation = eventData.block.location;
         Mc.system.run(() => {
-            const player = eventData.source;
             if (player.hasTag('inspector')) {
                 try {
-                    eventData.cancel = true;
-                    const offset = FACE_DIRECTIONS[eventData.blockFace];
-                    const faceBlockLocation = VectorMath.sum(eventData.block.location, offset);
+                    const offset = FACE_DIRECTIONS[blockFace];
+                    const faceBlockLocation = VectorMath.sum(blockLocation, offset);
                     if (getEquipedItem(player) != null) BlockHistoryCommandsWorker.inspector(faceBlockLocation, player);
-                    else BlockHistoryCommandsWorker.inspector(eventData.block.location, player);
+                    else BlockHistoryCommandsWorker.inspector(blockLocation, player);
                 } catch(error) {
                     Debug.sendLogMessage(`Inspector Error: ${error}`);
                 }
             }
         });
+        if (player.hasTag('inspector')) eventData.cancel = true;
     });
 
     //## Block Placing Detection:
