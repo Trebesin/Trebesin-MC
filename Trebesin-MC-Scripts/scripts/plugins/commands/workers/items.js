@@ -45,7 +45,7 @@ export function main() {
     Mc.world.beforeEvents.itemUse.subscribe((eventData) => {
         //## Dynamic item:
         if (eventData.itemStack.typeId === 'trebesin:cmd_universal') {
-            const itemLore = eventData.item.getLore();
+            const itemLore = eventData.itemStack.getLore();
             const command = itemLore[0];
             const parameters = itemLore[1];
             Mc.system.runTimeout(
@@ -53,7 +53,7 @@ export function main() {
             );
         }
         //## Hardcoded items:
-        const itemCommand = itemCommands[eventData.item.typeId];
+        const itemCommand = itemCommands[eventData.itemStack.typeId];
         if (itemCommand) {
             Mc.system.runTimeout (
                 () => Commands.runCommand(itemCommand.input,itemCommand.parameter,eventData.source), 1
