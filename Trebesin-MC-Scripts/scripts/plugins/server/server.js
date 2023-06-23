@@ -19,8 +19,8 @@ export const name = 'Server';
 export async function main() {
     system.runInterval(() => {
         for (const player of world.getPlayers()) {
-            player.addEffect(MinecraftEffectTypes.saturation,9999,128,false);
-            if(!player.hasTag("nvoff")) player.addEffect(MinecraftEffectTypes.nightVision,300,128,false);
+            player.addEffect(MinecraftEffectTypes.saturation,9999,{showParticles:false,amplifier:128});
+            if(!player.hasTag("nvoff")) player.addEffect(MinecraftEffectTypes.nightVision,300,{showParticles:false,amplifier:128});
         }
     },20);
 
@@ -38,7 +38,7 @@ export async function main() {
             };
 
             const equipedItem = player.getComponent('inventory').container.getSlot(player.selectedSlot).getItem();
-            if (equipedItem.typeId === 'trebesin:cmd_phaser') {
+            if (equipedItem?.typeId === 'trebesin:cmd_phaser') {
                 const molang = new MolangVariableMap()
                 .setColorRGBA('variable.color',{red:0,green:1,blue:1,alpha:1});
                 Particles.spawnLine(
