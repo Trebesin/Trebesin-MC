@@ -10,7 +10,7 @@ var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (
     return kind === "m" ? f : kind === "a" ? f.call(receiver) : f ? f.value : state.get(receiver);
 };
 var _Server_eventsRegister, _Server_tick, _Server_playersLoaded, _Server_watchdogTerminate;
-import { world, system } from "@minecraft/server";
+import * as Mc from "@minecraft/server";
 import { ChunkManager, getSubchunksCoords } from './chunk.js';
 import { randInt } from '../js_modules/random.js';
 import { insertToArray, deleteFromArray } from "../js_modules/array.js";
@@ -27,16 +27,16 @@ export class Server {
         _Server_watchdogTerminate.set(this, false);
         __classPrivateFieldSet(this, _Server_tick, initialTick, "f");
         //## Relative Tick, Loaded Players, Custom Events
-        system.runInterval(() => {
+        Mc.system.runInterval(() => {
             var _a;
             __classPrivateFieldSet(this, _Server_tick, (_a = __classPrivateFieldGet(this, _Server_tick, "f"), _a++, _a), "f");
             for (const eventId in __classPrivateFieldGet(this, _Server_eventsRegister, "f"))
                 __classPrivateFieldGet(this, _Server_eventsRegister, "f")[eventId].execute?.(this);
-            if (!__classPrivateFieldGet(this, _Server_playersLoaded, "f") && world.getAllPlayers().length)
+            if (!__classPrivateFieldGet(this, _Server_playersLoaded, "f") && Mc.world.getAllPlayers().length)
                 __classPrivateFieldSet(this, _Server_playersLoaded, true, "f");
         }, 1);
         //## Cancel Termination:
-        system.events.beforeWatchdogTerminate.subscribe((eventData) => {
+        Mc.system.events.beforeWatchdogTerminate.subscribe((eventData) => {
             eventData.cancel = __classPrivateFieldGet(this, _Server_watchdogTerminate, "f");
         });
     }
@@ -76,7 +76,7 @@ export class Server {
                 OPTIONS.tries += result?.tries ?? 0;
                 if (OPTIONS.tries <= 0) {
                     if (timeoutIndex != null)
-                        system.clearRun(timeoutIndex);
+                        Mc.system.clearRun(timeoutIndex);
                     eventObject.unsubscribe(event);
                     reject({ timeout: false, tries: true });
                 }
@@ -85,7 +85,7 @@ export class Server {
                     if ((OPTIONS.amount > 0 && savedEvents.length === OPTIONS.amount) ||
                         (OPTIONS.amount < 0 && savedEvents.length + OPTIONS.amount === 0)) {
                         if (timeoutIndex != null)
-                            system.clearRun(timeoutIndex);
+                            Mc.system.clearRun(timeoutIndex);
                         eventObject.unsubscribe(event);
                         resolve(savedEvents);
                     }
@@ -93,13 +93,13 @@ export class Server {
             });
             if (OPTIONS.timeout > 0) {
                 if (OPTIONS.amount > 0) {
-                    timeoutIndex = system.runTimeout(() => {
+                    timeoutIndex = Mc.system.runTimeout(() => {
                         eventObject.unsubscribe(event);
                         reject({ timeout: true, tries: false });
                     }, OPTIONS.timeout);
                 }
                 else {
-                    timeoutIndex = system.runTimeout(() => {
+                    timeoutIndex = Mc.system.runTimeout(() => {
                         eventObject.unsubscribe(event);
                         resolve(savedEvents);
                     }, OPTIONS.timeout);
@@ -114,7 +114,7 @@ export class Server {
      */
     async waitForNextTick(callback) {
         return new Promise((resolve, reject) => {
-            system.runTimeout(() => {
+            Mc.system.runTimeout(() => {
                 try {
                     resolve(callback());
                 }
@@ -134,7 +134,7 @@ _Server_eventsRegister = new WeakMap(), _Server_tick = new WeakMap(), _Server_pl
  */
 export async function waitForTick(callback, ticks = 1) {
     return new Promise((resolve, reject) => {
-        system.runTimeout(() => {
+        Mc.system.runTimeout(() => {
             try {
                 resolve(callback());
             }
@@ -165,7 +165,7 @@ export async function waitForEvent(eventObject, callback, options = {}) {
             OPTIONS.tries += result?.tries ?? 0;
             if (OPTIONS.tries <= 0) {
                 if (timeoutIndex != null)
-                    system.clearRun(timeoutIndex);
+                    Mc.system.clearRun(timeoutIndex);
                 eventObject.unsubscribe(event);
                 reject({ timeout: false, tries: true });
             }
@@ -174,7 +174,7 @@ export async function waitForEvent(eventObject, callback, options = {}) {
                 if ((OPTIONS.amount > 0 && savedEvents.length === OPTIONS.amount) ||
                     (OPTIONS.amount < 0 && savedEvents.length + OPTIONS.amount === 0)) {
                     if (timeoutIndex != null)
-                        system.clearRun(timeoutIndex);
+                        Mc.system.clearRun(timeoutIndex);
                     eventObject.unsubscribe(event);
                     resolve(savedEvents);
                 }
@@ -182,13 +182,13 @@ export async function waitForEvent(eventObject, callback, options = {}) {
         });
         if (OPTIONS.timeout > 0) {
             if (OPTIONS.amount > 0) {
-                timeoutIndex = system.runTimeout(() => {
+                timeoutIndex = Mc.system.runTimeout(() => {
                     eventObject.unsubscribe(event);
                     reject({ timeout: true, tries: false });
                 }, OPTIONS.timeout);
             }
             else {
-                timeoutIndex = system.runTimeout(() => {
+                timeoutIndex = Mc.system.runTimeout(() => {
                     eventObject.unsubscribe(event);
                     resolve(savedEvents);
                 }, OPTIONS.timeout);
@@ -229,7 +229,7 @@ import * as VectorMath from '../js_modules/vectorMath.js';
 function executeRandomTick(callback /*Array*/, loadedChunks, tickSpeed) {
     //if (callbackArray.length) {
     for (const dimensionId in loadedChunks) {
-        const dimension = world.getDimension(dimensionId);
+        const dimension = Mc.world.getDimension(dimensionId);
         const chunks = loadedChunks[dimensionId];
         for (let chunkIndex = 0; chunkIndex < chunks.length; chunkIndex++) {
             const subChunks = getSubchunksCoords(chunks[chunkIndex], true);

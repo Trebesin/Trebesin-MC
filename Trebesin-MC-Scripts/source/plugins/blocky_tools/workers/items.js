@@ -1,5 +1,5 @@
 //APIs:
-import { MolangVariableMap, BlockPermutation, BlockStates, world, system, Block } from '@minecraft/server';
+import * as Mc from '@minecraft/server';
 //Plugins:
 import * as Debug from './../../debug/debug';
 import { Server } from '../../backend/backend';
@@ -20,7 +20,7 @@ export function main() {
     });
     Server.events.itemStartUseOn.subscribe(async (eventData) => {
         if (eventData.item.typeId === 'trebesin:bt_debug_stick') {
-            /** @type {Block} */
+            /** @type {Mc.Block} */
             const block = eventData.source.dimension.getBlock(eventData.block.location);
             const propertyList = block.permutation.getAllProperties();
             const player = eventData.source;
@@ -39,7 +39,7 @@ export function main() {
                 const option = {
                     id: propertyName
                 };
-                const propertyDefinition = BlockStates.get(propertyName);
+                const propertyDefinition = Mc.BlockStates.get(propertyName);
                 const propertyType = typeof propertyDefinition.validValues[0];
                 option.label = `§2${propertyName} [${propertyType}]`;
                 if (propertyType === 'boolean') {
@@ -60,7 +60,7 @@ export function main() {
                 return;
             const propertyRecord = {};
             for (const propertyName in propertyList) {
-                const propertyDefinition = BlockStates.get(propertyName);
+                const propertyDefinition = Mc.BlockStates.get(propertyName);
                 const propertyType = typeof propertyDefinition.validValues[0];
                 if (propertyType === 'boolean') {
                     propertyRecord[propertyName] = response.formValues[propertyName];
@@ -70,18 +70,18 @@ export function main() {
                     propertyRecord[propertyName] = propertyDefinition.validValues[index];
                 }
             }
-            const updatedPermutations = BlockPermutation.resolve(block.typeId, propertyRecord);
+            const updatedPermutations = Mc.BlockPermutation.resolve(block.typeId, propertyRecord);
             setBlockPermutation(block, updatedPermutations, { actorId: player.id, updateType: 'blockyTools: player' });
         }
     });
-    system.runInterval(() => {
-        const players = world.getAllPlayers();
+    Mc.system.runInterval(() => {
+        const players = Mc.world.getAllPlayers();
         for (let playerIndex = 0; playerIndex < players.length; playerIndex++) {
             const player = players[playerIndex];
             if (showChunkBorder[player.id] === 0 || showChunkBorder[player.id] == null)
                 continue;
             const chunk = getOriginChunkCoord(player.location);
-            const verticalMolang = new MolangVariableMap();
+            const verticalMolang = new Mc.MolangVariableMap();
             verticalMolang.setColorRGBA('variable.color', { red: 1, green: 0, blue: 0, alpha: 1 });
             verticalMolang.setSpeedAndDirection('variable.size', 384, { x: 0, y: 1, z: 0 });
             verticalMolang.setSpeedAndDirection('variable.time', 1.01, { x: 0, y: 0, z: 0 });
@@ -90,19 +90,19 @@ export function main() {
             player.dimension.spawnParticle('trebesin:line_flex2', { x: chunk.x, y: -64, z: chunk.z + 16 }, verticalMolang);
             player.dimension.spawnParticle('trebesin:line_flex2', { x: chunk.x + 16, y: -64, z: chunk.z + 16 }, verticalMolang);
             const randomColor = { red: 1, green: 1, blue: 1, alpha: 1 };
-            const diagonalMolangPositiveZ = new MolangVariableMap();
+            const diagonalMolangPositiveZ = new Mc.MolangVariableMap();
             diagonalMolangPositiveZ.setSpeedAndDirection('variable.size', 384.3331887829, { x: 0, y: 384, z: 16 });
             diagonalMolangPositiveZ.setSpeedAndDirection('variable.time', 1.01, { x: 0, y: 0, z: 0 });
             diagonalMolangPositiveZ.setColorRGBA('variable.color', randomColor);
-            const diagonalMolangPositiveX = new MolangVariableMap();
+            const diagonalMolangPositiveX = new Mc.MolangVariableMap();
             diagonalMolangPositiveX.setSpeedAndDirection('variable.size', 384.3331887829, { x: 16, y: 384, z: 0 });
             diagonalMolangPositiveX.setSpeedAndDirection('variable.time', 1.01, { x: 0, y: 0, z: 0 });
             diagonalMolangPositiveX.setColorRGBA('variable.color', randomColor);
-            const diagonalMolangNegativeZ = new MolangVariableMap();
+            const diagonalMolangNegativeZ = new Mc.MolangVariableMap();
             diagonalMolangNegativeZ.setSpeedAndDirection('variable.size', 384.3331887829, { x: 0, y: 384, z: -16 });
             diagonalMolangNegativeZ.setSpeedAndDirection('variable.time', 1.01, { x: 0, y: 0, z: 0 });
             diagonalMolangNegativeZ.setColorRGBA('variable.color', randomColor);
-            const diagonalMolangNegativeX = new MolangVariableMap();
+            const diagonalMolangNegativeX = new Mc.MolangVariableMap();
             diagonalMolangNegativeX.setSpeedAndDirection('variable.size', 384.3331887829, { x: -16, y: 384, z: 0 });
             diagonalMolangNegativeX.setSpeedAndDirection('variable.time', 1.01, { x: 0, y: 0, z: 0 });
             diagonalMolangNegativeX.setColorRGBA('variable.color', randomColor);

@@ -10,7 +10,7 @@ var __classPrivateFieldSet = (this && this.__classPrivateFieldSet) || function (
     return (kind === "a" ? f.call(receiver, value) : f ? f.value = value : state.set(receiver, value)), value;
 };
 var _CommandParser_instances, _CommandParser_helpCommand, _CommandParser_commands, _CommandParser_options, _CommandParser_getParameterChain, _CommandParser_parseParameterType, _CommandParser_parsePosition, _CommandParser_parseSelector, _ParameterStringParser_index, _ParameterStringParser_string, _ParameterStringParser_options;
-import { world, system, BlockAreaSize, Player, MinecraftBlockTypes, BlockPermutation } from '@minecraft/server';
+import * as Mc from '@minecraft/server';
 import { setVectorLength } from './../js_modules/vector';
 import { filter } from '../js_modules/array';
 import { randInt } from '../js_modules/random';
@@ -21,12 +21,12 @@ import { sendLongMessage } from '../plugins/backend/backend';
 //# Type Definitions:
 /**
 * @callback CommandDefinitionRun
-* @param {Player} sender - Actor that has invoked the command.
+* @param {Mc.Player} sender - Actor that has invoked the command.
 * @param {object} parameters - Object of parameters, keys are named after ids specified in command definition parameters and values are parsed user input.
 */
 /**
 * @callback CommandDefinitionSenderCheck
-* @param {Player} sender Actor that has invoked the command.
+* @param {Mc.Player} sender Actor that has invoked the command.
 */
 /**
 * @typedef CommandDefinitionParameter
@@ -72,14 +72,14 @@ class CommandParser {
          *
          * @param {ParameterStringParser} parameters
          * @param {CommandDefinitionParameter[]} options
-         * @param {Player} sender
+         * @param {Mc.Player} sender
          * @returns
          */
         );
         for (const option in options) {
             __classPrivateFieldGet(this, _CommandParser_options, "f")[option] = options[option];
         }
-        world.beforeEvents.chatSend.subscribe(async (eventData) => {
+        Mc.world.beforeEvents.chatSend.subscribe(async (eventData) => {
             const { message, sender } = eventData;
             if (message.startsWith(__classPrivateFieldGet(this, _CommandParser_options, "f").prefix)) {
                 eventData.cancel = true;
@@ -89,7 +89,7 @@ class CommandParser {
                 if (!__classPrivateFieldGet(this, _CommandParser_options, "f").caseSensitive) {
                     commandInput = commandInput.toLowerCase();
                 }
-                system.runTimeout(() => this.runCommand(commandInput, messageArray.slice(1).join(' '), sender), 1);
+                Mc.system.runTimeout(() => this.runCommand(commandInput, messageArray.slice(1).join(' '), sender), 1);
             }
         });
         this.registerCommand('help', {
@@ -117,7 +117,7 @@ class CommandParser {
      * A function used to execute a command.
      * @param {string} name Name of the command to run.
      * @param {string} parameterString String input of the parameters.
-     * @param {Player} sender Player to use as the context of the command execution.
+     * @param {Mc.Player} sender Player to use as the context of the command execution.
      * @param {boolean} sudo Wheter or not to run the command if sender doesn't have permisions
      */
     async runCommand(name, parameterString, sender, sudo = false) {
@@ -275,7 +275,7 @@ _CommandParser_commands = new WeakMap(), _CommandParser_options = new WeakMap(),
             try {
                 parsedParameter = {
                     userStates: parameter.states !== '',
-                    permutation: BlockPermutation.resolve(typeId, blockStates)
+                    permutation: Mc.BlockPermutation.resolve(typeId, blockStates)
                 };
             }
             catch {
@@ -401,7 +401,7 @@ _CommandParser_commands = new WeakMap(), _CommandParser_options = new WeakMap(),
     }
     if (selector.values.dx && selector.values.dy && selector.values.dz) {
         allPlayersOnly = false;
-        queryOptions.volume = new BlockAreaSize(parseInt(selector.values.dx[0]), parseInt(selector.values.dy[0]), parseInt(selector.values.dz[0]));
+        queryOptions.volume = new Mc.BlockAreaSize(parseInt(selector.values.dx[0]), parseInt(selector.values.dy[0]), parseInt(selector.values.dz[0]));
     }
     //Entity score filtering:
     if (selector.values.scores) {
@@ -461,10 +461,10 @@ _CommandParser_commands = new WeakMap(), _CommandParser_options = new WeakMap(),
     //Getting all entities from a chosen/default dimension:
     let entities;
     if (allPlayersOnly) {
-        entities = world.getPlayers(queryOptions);
+        entities = Mc.world.getPlayers(queryOptions);
     }
     else {
-        const dimension = world.getDimension(selector.values.dimension?.[0] ?? sender.dimension.id);
+        const dimension = Mc.world.getDimension(selector.values.dimension?.[0] ?? sender.dimension.id);
         entities = dimension.getEntities(queryOptions);
     }
     //Custom entity filters & limit for unsorted entity queries:

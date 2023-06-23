@@ -1,5 +1,5 @@
 //APIs:
-import { CommandResult, MinecraftEffectTypes, world, TicksPerDay, TicksPerSecond, MolangVariableMap, system, MinecraftBlockTypes, BlockPermutation, Player } from "@minecraft/server";
+import * as Mc from '@minecraft/server';
 //Plugins:
 import * as BlockHistoryPlugin from "../block_history";
 import { Commands, sendLongMessage, DB } from '../../backend/backend';
@@ -38,7 +38,7 @@ let lastParticleCall = {};
 let lastCall = {};
 const PARTICLE_LIMIT = 1000; //particle limit per player
 export function main() {
-    system.runInterval(() => {
+    Mc.system.runInterval(() => {
         for (const player in particlesPerPlayers) {
             //## Particles:
             let limitIndex = 0;
@@ -74,7 +74,7 @@ export function main() {
     }, 4);
     /**
      *
-     * @param {Player} sender
+     * @param {Mc.Player} sender
      * @param {*} parameter
      */
     async function blockHistoryHandler(sender, parameter) {
@@ -603,7 +603,7 @@ function sqlRequestHandler(parameters, options) {
                 FROM cte
                 WHERE rn > ?
                 `,
-                values: [options.pos.x, options.pos.y, options.pos.z, system.currentTick - parseToTicks(parameters.until), parseInt(parameters.startingFrom ?? 0)]
+                values: [options.pos.x, options.pos.y, options.pos.z, Mc.system.currentTick - parseToTicks(parameters.until), parseInt(parameters.startingFrom ?? 0)]
             };
         }
         else if (/^(\d+)(m|w|d|h|s)/.exec(parameters.until) && /^(\d+)(m|w|d|h|s)/.exec(parameters.startingFrom)) {
@@ -620,7 +620,7 @@ function sqlRequestHandler(parameters, options) {
                 WHERE x = ? AND y = ? AND z = ? AND block_history.tick >= ? AND block_history.tick <= ?
                 ORDER BY \`block_history\`.\`tick\` DESC
             `,
-                values: [options.pos.x, options.pos.y, options.pos.z, system.currentTick - parseToTicks(parameters.until), system.currentTick - parseToTicks(parameters.startingFrom)]
+                values: [options.pos.x, options.pos.y, options.pos.z, Mc.system.currentTick - parseToTicks(parameters.until), Mc.system.currentTick - parseToTicks(parameters.startingFrom)]
             };
         }
         else if ((!parameters.until || /^(\d+)$/.exec(parameters.until)) && /^(\d+)(m|w|d|h|s)/.exec(parameters.startingFrom)) {
@@ -638,7 +638,7 @@ function sqlRequestHandler(parameters, options) {
                 ORDER BY \`block_history\`.\`tick\` DESC
                 LIMIT ? OFFSET 0
             `,
-                values: [options.pos.x, options.pos.y, options.pos.z, system.currentTick - parseToTicks(parameters.startingFrom), parseInt(parameters.until ?? 7)]
+                values: [options.pos.x, options.pos.y, options.pos.z, Mc.system.currentTick - parseToTicks(parameters.startingFrom), parseInt(parameters.until ?? 7)]
             };
         }
         else {
@@ -682,7 +682,7 @@ function sqlRequestHandler(parameters, options) {
                     FROM cte
                     WHERE rn > ?
                 `,
-                values: [options.playerName, system.currentTick - parseToTicks(parameters.until), parseInt(parameters.startingFrom ?? 0)]
+                values: [options.playerName, Mc.system.currentTick - parseToTicks(parameters.until), parseInt(parameters.startingFrom ?? 0)]
             };
         }
         else if (/^(\d+)(m|w|d|h|s)/.exec(parameters.until) && /^(\d+)(m|w|d|h|s)/.exec(parameters.startingFrom)) {
@@ -699,7 +699,7 @@ function sqlRequestHandler(parameters, options) {
                 WHERE playerName = ? AND block_history.tick >= ? AND block_history.tick <= ?
                 ORDER BY \`block_history\`.\`tick\` DESC
             `,
-                values: [options.playerName, system.currentTick - parseToTicks(parameters.until), system.currentTick - parseToTicks(parameters.startingFrom)]
+                values: [options.playerName, Mc.system.currentTick - parseToTicks(parameters.until), Mc.system.currentTick - parseToTicks(parameters.startingFrom)]
             };
         }
         else if ((!parameters.until || /^(\d+)$/.exec(parameters.until)) && /^(\d+)(m|w|d|h|s)/.exec(parameters.startingFrom)) {
@@ -717,7 +717,7 @@ function sqlRequestHandler(parameters, options) {
                 ORDER BY \`block_history\`.\`tick\` DESC
                 LIMIT ? OFFSET 0
             `,
-                values: [options.playerName, system.currentTick - parseToTicks(parameters.startingFrom), parseInt(parameters.until ?? 7)]
+                values: [options.playerName, Mc.system.currentTick - parseToTicks(parameters.startingFrom), parseInt(parameters.until ?? 7)]
             };
         }
         else {
@@ -746,14 +746,14 @@ function printBlockHistory(request, options, sender) {
         sendMessage(`No changes were made to block ${Math.floor(options.pos.x)}, ${Math.floor(options.pos.y)}, ${Math.floor(options.pos.z)}`, 'CMD - BlockHistory', sender);
         return false;
     }
-    const tickInASec = TicksPerSecond;
+    const tickInASec = Mc.TicksPerSecond;
     const tickInAMin = tickInASec * 60;
     const tickInAnHour = tickInAMin * 60;
     const tickInADay = tickInAnHour * 24;
     let message = '';
     for (let i = 0; i < request.result.length; i++) {
         const blockAlteration = request.result[i];
-        const timeOfBlockAlteration = system.currentTick - parseInt(blockAlteration.tick);
+        const timeOfBlockAlteration = Mc.system.currentTick - parseInt(blockAlteration.tick);
         if (options.type === "player" || options.type === "reverse") {
             message += `${blockAlteration.update_type === BlockHistoryUpdateTypes.playerUpdate ? "" : `(${BlockHistoryUpdateTypeNames[blockAlteration.update_type]}) - `}[${blockAlteration.x}, ${blockAlteration.y}, ${blockAlteration.z}]: ${blockAlteration.before_id} -> ${blockAlteration.after_id} - before: ${parseToRealTime(timeOfBlockAlteration)}\n`;
         }
@@ -770,9 +770,9 @@ function printBlockHistory(request, options, sender) {
     return true;
 }
 function spawnParticles(location, particleAxis, sender) {
-    const molang = new MolangVariableMap()
+    const molang = new Mc.MolangVariableMap()
         .setColorRGB('variable.color', { red: 1, green: 0, blue: 0, alpha: 1 });
-    const dimension = world.getDimension('overworld');
+    const dimension = Mc.world.getDimension('overworld');
     dimension.spawnParticle(`trebesin:edge_highlight_${particleAxis}`, location, molang);
 }
 async function getMaxIDPerPlayer(updateType, player) {
@@ -802,7 +802,7 @@ export function revertBlockChange(blockOld, position) {
 }
 function parseToRealTime(input) {
     let result = "";
-    const tickInASec = TicksPerSecond;
+    const tickInASec = Mc.TicksPerSecond;
     const tickInAMin = tickInASec * 60;
     const tickInAnHour = tickInAMin * 60;
     const tickInADay = tickInAnHour * 24;
@@ -820,7 +820,7 @@ function parseToRealTime(input) {
 function parseToTicks(input) {
     const regex = /^(\d+)(m|w|d|h|s)/;
     let result = 0;
-    const tickInASec = TicksPerSecond;
+    const tickInASec = Mc.TicksPerSecond;
     const tickInAMin = tickInASec * 60;
     const tickInAnHour = tickInAMin * 60;
     const tickInADay = tickInAnHour * 24;
@@ -897,10 +897,10 @@ async function reverseBlocks(blocks, sender) {
     const callID = (await getMaxIDPerPlayer(BlockHistoryUpdateTypes.blockHistoryReverse, sender) ?? -1) + 1;
     for (let i = 0; i < blocks.length; i++) {
         const playerId = sender.id;
-        const block = world.getDimension(blocks[i].dimension_id).getBlock(blocks[i]);
+        const block = Mc.world.getDimension(blocks[i].dimension_id).getBlock(blocks[i]);
         const blockOld = Blocks.copyBlockState(block, true);
-        const permutationsBefore = BlockPermutation.resolve(blocks[i].before_id, JSON.parse(blocks[i].before_permutations));
-        block.setType(MinecraftBlockTypes.get(blocks[i].before_id));
+        const permutationsBefore = Mc.BlockPermutation.resolve(blocks[i].before_id, JSON.parse(blocks[i].before_permutations));
+        block.setType(Mc.MinecraftBlockTypes.get(blocks[i].before_id));
         block.setPermutation(permutationsBefore);
         BlockHistoryPlugin.saveBlockUpdate({
             before: blockOld,
