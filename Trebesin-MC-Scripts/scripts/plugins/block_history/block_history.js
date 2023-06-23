@@ -81,15 +81,15 @@ export async function main() {
                         current: blockLocation
                     },
                     tick: {
-                        start:  system.currentTick,
-                        current:  system.currentTick
+                        start:  Mc.system.currentTick,
+                        current:  Mc.system.currentTick
                     },
                     id: eventData.entity.id,
                     dimensionId: eventData.entity.dimension.id,
                     playerId: null
                 }
             );
-            Debug.sendLogMessage(`§aBlock Starts Falling§r [${blockLocation.x},${blockLocation.y},${blockLocation.z}] @ ${system.currentTick}`);
+            Debug.sendLogMessage(`§aBlock Starts Falling§r [${blockLocation.x},${blockLocation.y},${blockLocation.z}] @ ${Mc.system.currentTick}`);
         }
     });
 
@@ -116,14 +116,14 @@ export async function main() {
                 deleteFromArray(fallingBlocksTracked,index);
             } else {
                 fallingBlockData.location.current = VectorMath.floor(fallingBlockEntity.location);
-                fallingBlockData.tick.current = system.currentTick;
+                fallingBlockData.tick.current = Mc.system.currentTick;
             }
         }
     },1);
 
     //## Block Breaking Detection:
     Mc.world.afterEvents.blockBreak.subscribe(async (eventData) => {
-        Debug.logMessage(`§cBlock Break§r - ${system.currentTick}`);
+        Debug.logMessage(`§cBlock Break§r - ${Mc.system.currentTick}`);
         const playerId = eventData.player.id;
         const blockOld = {
             typeId: eventData.brokenBlockPermutation.type.id,
@@ -166,18 +166,20 @@ export async function main() {
     });
 
     Server.events.beforeItemStartUseOn.subscribe((eventData) => {
-        const player = eventData.source;
-        if (player.hasTag('inspector')) {
-            try {
-                eventData.cancel = true;
-                const offset = FACE_DIRECTIONS[eventData.blockFace];
-                const faceBlockLocation = VectorMath.sum(eventData.block.location, offset);
-                if (getEquipedItem(player) != null) BlockHistoryCommandsWorker.inspector(faceBlockLocation, player);
-                else BlockHistoryCommandsWorker.inspector(eventData.block.location, player);
-            } catch(error) {
-                Debug.sendLogMessage(`Inspector Error: ${error}`);
+        Mc.system.run(() => {
+            const player = eventData.source;
+            if (player.hasTag('inspector')) {
+                try {
+                    eventData.cancel = true;
+                    const offset = FACE_DIRECTIONS[eventData.blockFace];
+                    const faceBlockLocation = VectorMath.sum(eventData.block.location, offset);
+                    if (getEquipedItem(player) != null) BlockHistoryCommandsWorker.inspector(faceBlockLocation, player);
+                    else BlockHistoryCommandsWorker.inspector(eventData.block.location, player);
+                } catch(error) {
+                    Debug.sendLogMessage(`Inspector Error: ${error}`);
+                }
             }
-        }
+        });
     });
 
     //## Block Placing Detection:
@@ -191,7 +193,7 @@ export async function main() {
         const blockOld = Blocks.copyBlockState(block,true);
 
         //These Blocks:
-        system.runTimeout(async () => {
+        Mc.system.runTimeout(async () => {
             //const faceBlocks = {
             //    before: faceBlockOld,
             //    after: copyBlockState(faceBlock,true)
@@ -211,7 +213,7 @@ export async function main() {
             saveBlockUpdate({before:faceBlockOld,after:Blocks.copyBlockState(faceBlock,true)},{actorId:player.id});
             saveBlockUpdate({before:blockOld,after:Blocks.copyBlockState(block,true)},{actorId:player.id});
             //Falling Blocks
-            system.runTimeout(() => {
+            Mc.system.runTimeout(() => {
                 const fallObject = fallingBlocksTracked.find((block) => VectorMath.compare(faceBlock.location,block.location.start));
                 if (fallObject) fallObject.playerId = player.id;
             },1);
@@ -276,17 +278,17 @@ export function saveBlockUpdate(blockStates,blockHistoryEntry) {
         Blocks.compareBlockStates(lastRecord.after,blockStates.before,true)
     ) {
         records.pop();
-        //Debug.sendLogMessage('garbage collected!');
+        Debug.sendLogMessage('garbage collected!');
         return -1;
     } else {
         records.push({
             before: blockStates.before,
             after: blockStates.after,
-            tick: system.currentTick,
+            tick: Mc.system.currentTick,
             updateType: blockHistoryEntry.updateType ?? BlockHistoryUpdateTypes.playerUpdate,
             updateId: blockHistoryEntry.updateId
         });
-        //Debug.sendLogMessage('saved the record');
+        Debug.sendLogMessage('saved the record');
         return 1;
     }
 }

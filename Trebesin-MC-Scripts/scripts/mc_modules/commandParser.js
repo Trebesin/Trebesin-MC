@@ -1,4 +1,4 @@
-import { world, system, BlockAreaSize, Player, MinecraftBlockTypes, BlockPermutation } from '@minecraft/server';
+import * as Mc from '@minecraft/server';
 import { setVectorLength } from './../js_modules/vector';
 import { filter } from '../js_modules/array';
 import { randInt } from '../js_modules/random';
@@ -10,13 +10,13 @@ import { sendLongMessage } from '../plugins/backend/backend';
 //# Type Definitions:
 /**
 * @callback CommandDefinitionRun
-* @param {Player} sender - Actor that has invoked the command.
+* @param {Mc.Player} sender - Actor that has invoked the command.
 * @param {object} parameters - Object of parameters, keys are named after ids specified in command definition parameters and values are parsed user input.
 */
 
 /**
 * @callback CommandDefinitionSenderCheck
-* @param {Player} sender Actor that has invoked the command.
+* @param {Mc.Player} sender Actor that has invoked the command.
 */
 
 /**
@@ -51,7 +51,7 @@ class CommandParser {
         for (const option in options) {
             this.#options[option] = options[option];
         }
-        world.beforeEvents.chatSend.subscribe(async (eventData) => {
+        Mc.world.beforeEvents.chatSend.subscribe(async (eventData) => {
             const {message, sender} = eventData;
 
             if (message.startsWith(this.#options.prefix)) {
@@ -62,7 +62,7 @@ class CommandParser {
                 if (!this.#options.caseSensitive) {
                     commandInput = commandInput.toLowerCase();
                 }
-                system.runTimeout(
+                Mc.system.runTimeout(
                     () => this.runCommand(commandInput,messageArray.slice(1).join(' '),sender), 1
                 );
             }
@@ -127,7 +127,7 @@ class CommandParser {
      * A function used to execute a command.
      * @param {string} name Name of the command to run.
      * @param {string} parameterString String input of the parameters.
-     * @param {Player} sender Player to use as the context of the command execution.
+     * @param {Mc.Player} sender Player to use as the context of the command execution.
      * @param {boolean} sudo Wheter or not to run the command if sender doesn't have permisions
      */
      async runCommand(name,parameterString,sender, sudo = false) {
@@ -170,7 +170,7 @@ class CommandParser {
      * 
      * @param {ParameterStringParser} parameters 
      * @param {CommandDefinitionParameter[]} options 
-     * @param {Player} sender 
+     * @param {Mc.Player} sender 
      * @returns 
      */
     #getParameterChain(parameters,options,sender) {
@@ -215,7 +215,7 @@ class CommandParser {
     /**
      * 
      * @param {string} parameter 
-     * @param {Player} sender 
+     * @param {Mc.Player} sender 
      * @param {} option 
      * @returns 
      */
@@ -277,7 +277,7 @@ class CommandParser {
                 try {
                     parsedParameter = {
                         userStates: parameter.states !== '',
-                        permutation: BlockPermutation.resolve(typeId,blockStates)
+                        permutation: Mc.BlockPermutation.resolve(typeId,blockStates)
                     };
                 } catch {
                     throw new CommandError(`Failed resolving block with id '${typeId}' and its states!`);
@@ -433,7 +433,7 @@ class CommandParser {
         }
         if (selector.values.dx && selector.values.dy && selector.values.dz) {
             allPlayersOnly = false;
-            queryOptions.volume = new BlockAreaSize(
+            queryOptions.volume = new Mc.BlockAreaSize(
                 parseInt(selector.values.dx[0]),parseInt(selector.values.dy[0]),parseInt(selector.values.dz[0])
             );
         }
@@ -496,9 +496,9 @@ class CommandParser {
         //Getting all entities from a chosen/default dimension:
         let entities;
         if (allPlayersOnly) {
-            entities = world.getPlayers(queryOptions);
+            entities = Mc.world.getPlayers(queryOptions);
         } else {
-            const dimension = world.getDimension(selector.values.dimension?.[0] ?? sender.dimension.id);
+            const dimension = Mc.world.getDimension(selector.values.dimension?.[0] ?? sender.dimension.id);
             entities = dimension.getEntities(queryOptions);
         }
         //Custom entity filters & limit for unsorted entity queries:

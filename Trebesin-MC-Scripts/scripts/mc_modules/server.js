@@ -1,4 +1,4 @@
-import { world, system } from "@minecraft/server";
+import * as Mc from "@minecraft/server";
 import { ChunkManager, getSubchunksCoords } from './chunk.js';
 import { randInt } from '../js_modules/random.js';
 import { insertToArray, deleteFromArray } from "../js_modules/array.js";
@@ -12,14 +12,14 @@ export class Server {
         this.#tick = initialTick;
 
         //## Relative Tick, Loaded Players, Custom Events
-        system.runInterval(() => {
+        Mc.system.runInterval(() => {
             this.#tick++;
             for (const eventId in this.#eventsRegister) this.#eventsRegister[eventId].execute?.(this);
-            if (!this.#playersLoaded && world.getAllPlayers().length) this.#playersLoaded = true;
+            if (!this.#playersLoaded && Mc.world.getAllPlayers().length) this.#playersLoaded = true;
         },1);
 
         //## Cancel Termination:
-        system.events.beforeWatchdogTerminate.subscribe((eventData) => {
+        Mc.system.events.beforeWatchdogTerminate.subscribe((eventData) => {
             eventData.cancel = this.#watchdogTerminate;
         });
     }
@@ -71,7 +71,7 @@ export class Server {
                 const result = callback(data);
                 OPTIONS.tries += result?.tries ?? 0;
                 if (OPTIONS.tries <= 0) {
-                    if (timeoutIndex != null) system.clearRun(timeoutIndex);
+                    if (timeoutIndex != null) Mc.system.clearRun(timeoutIndex);
                     eventObject.unsubscribe(event);
                     reject({timeout:false,tries:true});
                 }
@@ -82,7 +82,7 @@ export class Server {
                         (OPTIONS.amount > 0 && savedEvents.length === OPTIONS.amount) || 
                         (OPTIONS.amount < 0 && savedEvents.length + OPTIONS.amount === 0)
                     ) {
-                        if (timeoutIndex != null) system.clearRun(timeoutIndex);
+                        if (timeoutIndex != null) Mc.system.clearRun(timeoutIndex);
                         eventObject.unsubscribe(event);
                         resolve(savedEvents);
                     }
@@ -91,12 +91,12 @@ export class Server {
 
             if (OPTIONS.timeout > 0) {
                 if (OPTIONS.amount > 0) {
-                    timeoutIndex = system.runTimeout(() => {
+                    timeoutIndex = Mc.system.runTimeout(() => {
                         eventObject.unsubscribe(event);
                         reject({timeout:true,tries:false});
                     },OPTIONS.timeout);
                 } else {
-                    timeoutIndex = system.runTimeout(() => {
+                    timeoutIndex = Mc.system.runTimeout(() => {
                         eventObject.unsubscribe(event);
                         resolve(savedEvents);
                     },OPTIONS.timeout);
@@ -112,7 +112,7 @@ export class Server {
      */
      async waitForNextTick(callback) {
         return new Promise((resolve,reject) => {
-            system.runTimeout(() => {
+            Mc.system.runTimeout(() => {
                 try {
                     resolve(callback());
                 } catch (error) {
@@ -131,7 +131,7 @@ export class Server {
  */
 export async function waitForTick(callback,ticks = 1) {
     return new Promise((resolve,reject) => {
-        system.runTimeout(() => {
+        Mc.system.runTimeout(() => {
             try {
                 resolve(callback());
             } catch (error) {
@@ -162,7 +162,7 @@ export async function waitForEvent(eventObject,callback,options = {}) {
             const result = callback(data);
             OPTIONS.tries += result?.tries ?? 0;
             if (OPTIONS.tries <= 0) {
-                if (timeoutIndex != null) system.clearRun(timeoutIndex);
+                if (timeoutIndex != null) Mc.system.clearRun(timeoutIndex);
                 eventObject.unsubscribe(event);
                 reject({timeout:false,tries:true});
             }
@@ -173,7 +173,7 @@ export async function waitForEvent(eventObject,callback,options = {}) {
                     (OPTIONS.amount > 0 && savedEvents.length === OPTIONS.amount) || 
                     (OPTIONS.amount < 0 && savedEvents.length + OPTIONS.amount === 0)
                 ) {
-                    if (timeoutIndex != null) system.clearRun(timeoutIndex);
+                    if (timeoutIndex != null) Mc.system.clearRun(timeoutIndex);
                     eventObject.unsubscribe(event);
                     resolve(savedEvents);
                 }
@@ -182,12 +182,12 @@ export async function waitForEvent(eventObject,callback,options = {}) {
 
         if (OPTIONS.timeout > 0) {
             if (OPTIONS.amount > 0) {
-                timeoutIndex = system.runTimeout(() => {
+                timeoutIndex = Mc.system.runTimeout(() => {
                     eventObject.unsubscribe(event);
                     reject({timeout:true,tries:false});
                 },OPTIONS.timeout);
             } else {
-                timeoutIndex = system.runTimeout(() => {
+                timeoutIndex = Mc.system.runTimeout(() => {
                     eventObject.unsubscribe(event);
                     resolve(savedEvents);
                 },OPTIONS.timeout);
@@ -230,7 +230,7 @@ import * as VectorMath from '../js_modules/vectorMath.js';
 function executeRandomTick(callback/*Array*/,loadedChunks,tickSpeed) {
     //if (callbackArray.length) {
         for (const dimensionId in loadedChunks) {
-            const dimension = world.getDimension(dimensionId);
+            const dimension = Mc.world.getDimension(dimensionId);
             const chunks = loadedChunks[dimensionId];
             for (let chunkIndex = 0;chunkIndex < chunks.length;chunkIndex++) {
                 const subChunks = getSubchunksCoords(chunks[chunkIndex],true);

@@ -1,5 +1,5 @@
 //APIs:
-import { world, system } from '@minecraft/server';
+import * as Mc from '@minecraft/server';
 import * as serverAdmin from '@minecraft/server-admin';
 //Plugins:
 import * as Debug from '../debug/debug';
@@ -94,7 +94,7 @@ export async function main() {
         initialize() {},
         execute() {
             const {data,callbacks} = this;
-            const players = world.getAllPlayers();
+            const players = Mc.world.getAllPlayers();
             for (let playerIndex = 0; playerIndex < players.length; playerIndex++) {
                 const player = players[playerIndex];
                 //## playerEquip event:
@@ -145,12 +145,12 @@ export async function main() {
         },
         initialize() {
             const {data,callbacks} = this;
-            world.afterEvents.itemUseOn.subscribe(eventData => {
+            Mc.world.afterEvents.itemUseOn.subscribe(eventData => {
                 const callbackData = callbacks.itemStartUseOn;
-                if (((data[eventData.source.id] ?? 0) + 1) < system.currentTick) {
+                if (((data[eventData.source.id] ?? 0) + 1) < Mc.system.currentTick) {
                     callbackData.runCallbacks(eventData);
                 }
-                data[eventData.source.id] = system.currentTick;
+                data[eventData.source.id] = Mc.system.currentTick;
             });
         },
         execute() {},
@@ -163,12 +163,12 @@ export async function main() {
         },
         initialize() {
             const {data,callbacks} = this;
-            world.beforeEvents.itemUseOn.subscribe(eventData => {
+            Mc.world.beforeEvents.itemUseOn.subscribe(eventData => {
                 const callbackData = callbacks.beforeItemStartUseOn;
-                if (((data[eventData.source.id] ?? 0) + 1) < system.currentTick) {
+                if (((data[eventData.source.id] ?? 0) + 1) < Mc.system.currentTick) {
                     callbackData.runCallbacks(eventData);
                 }
-                data[eventData.source.id] = system.currentTick;
+                data[eventData.source.id] = Mc.system.currentTick;
             });
         },
         execute() {},

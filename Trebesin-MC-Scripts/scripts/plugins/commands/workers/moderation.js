@@ -1,5 +1,5 @@
 //APIs:
-import {CommandResult, MinecraftEffectTypes , system, world} from "@minecraft/server";
+import * as Mc from "@minecraft/server";
 //Plugins:
 import {Commands} from "../../backend/backend";
 //Modules:
