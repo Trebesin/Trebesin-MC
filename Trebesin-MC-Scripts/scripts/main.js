@@ -16,7 +16,7 @@ async function executePlugins() {
     Debug.logMessage('\nReloading Trebesin Mod Script...\n');
     //!Debug && Backend (1.):
     await loadPlugin(Debug);
-    await loadPlugin(Backend);
+    //await loadPlugin(Backend);
     //!Rest of the plugins (2.):
     await loadPlugin(ServerPlugin);
     await loadPlugin(BlockHistoryPlugin);
