@@ -14,7 +14,7 @@ async function executePlugins() {
     Debug.logMessage('\nReloading Trebesin Mod Script...\n');
     //!Debug && Backend (1.):
     await loadPlugin(Debug);
-    //await loadPlugin(Backend);
+    await loadPlugin(Backend);
     //!Rest of the plugins (2.):
     await loadPlugin(ServerPlugin);
     await loadPlugin(BlockHistoryPlugin);
@@ -28,7 +28,7 @@ async function loadPlugin(pluginImport) {
         await pluginImport.main();
         Debug.logMessage(`}\n${pluginImport.name} loaded successfully!`);
     }
-    catch {
+    catch (error) {
         Debug.logMessage(`}\nError has occured during the load, read below!\n${error}`);
     }
 }
