@@ -81,6 +81,7 @@ export async function main() {
     console.warn('cool2')
     try {
         const response = await DB.connect();
+        console.warn('cool2.1')
         if (response.status === 200) Debug.logMessage('Successfully connected to the database!');
         else Debug.logMessage(`Couldn't connect to database! [${response.status}]\n${response.body}`);
     } catch (error) {
