@@ -100,7 +100,9 @@ class DatabaseConnection {
                 .setBody(JSON.stringify(__classPrivateFieldGet(this, _DatabaseConnection_options, "f").connection))
                 .setMethod(HttpRequestMethod.POST)
                 .setTimeout(4);
+            console.warn('cool 1');
             const response = await http.request(request);
+            console.warn('cool 2');
             if (response.status === 200) {
                 __classPrivateFieldSet(this, _DatabaseConnection_token, JSON.parse(response.body).token, "f");
                 resolve(response);
@@ -123,6 +125,7 @@ class DatabaseConnection {
                 logMessage('Other response!');
                 resolve(response);
             }
+            console.warn('cool 3');
         });
     }
     /**
