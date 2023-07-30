@@ -43,11 +43,11 @@ export async function main() {
             ;
         }
     }, 4);
-    Mc.world.afterEvents.entityHit.subscribe((eventData) => {
-        const { entity, hitEntity } = eventData;
-        if (hitEntity && entity.typeId === 'minecraft:player' && playerData.instaKill[entity.id]) {
+    Mc.world.afterEvents.entityHitEntity.subscribe((eventData) => {
+        const { entity: damagingEntity, hitEntity } = eventData;
+        if (hitEntity && damagingEntity.typeId === 'minecraft:player' && playerData.instaKill[damagingEntity.id]) {
             hitEntity.kill();
-            playerData.instaKill[entity.id] = false;
+            playerData.instaKill[damagingEntity.id] = false;
         }
     });
     Mc.world.afterEvents.playerJoin.subscribe(async (eventData) => {

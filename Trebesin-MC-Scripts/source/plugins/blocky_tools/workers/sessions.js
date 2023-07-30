@@ -77,12 +77,12 @@ export function main() {
         const selection = session.getCurrentSelection();
         selection.setCorner(0, session.pointerBlockLocation);
     });
-    Mc.world.afterEvents.entityHit.subscribe((eventData) => {
+    Mc.world.afterEvents.entityHitEntity.subscribe((eventData) => {
         //logMessage(`EntityHit ${eventData.entity.name} - E:${eventData?.hitEntity?.typeId} B:${eventData?.hitBlock?.typeId} T:${Mc.system.currentTick}`);
-        const itemHolding = getEquipedItem(eventData.entity);
+        const itemHolding = getEquipedItem(eventData.damagingEntity);
         if (itemHolding?.typeId !== 'trebesin:bt_blocky_axe')
             return;
-        const session = getSession(eventData.entity);
+        const session = getSession(eventData.damagingEntity);
         const selection = session.getCurrentSelection();
         selection.setCorner(1, session.pointerBlockLocation);
     });
