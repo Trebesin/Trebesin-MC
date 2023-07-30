@@ -46,7 +46,7 @@ class DatabaseConnection {
             .addHeader('content-type','application/json')
             .addHeader('accept','text/plain')
             .setBody('{}')
-            .setMethod(HttpRequestMethod.POST)
+            .setMethod(HttpRequestMethod.Post)
             .setTimeout(4);
             const response = await http.request(request);
             if (response.status === 200) {
@@ -121,7 +121,7 @@ class DatabaseConnection {
             .addHeader('full-response',reqOptions.fullResponse ? 'true' : 'false')
             .addHeader('accept','text/plain')
             .setBody(JSON.stringify(queryOptions))
-            .setMethod(HttpRequestMethod.POST)
+            .setMethod(HttpRequestMethod.Post)
             .setTimeout(reqOptions.timeout);
             const response = await http.request(request);
             if (response.status === 200) {
