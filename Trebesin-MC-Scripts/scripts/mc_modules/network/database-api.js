@@ -74,7 +74,7 @@ class DatabaseConnection {
             .addHeader('content-type','application/json')
             .addHeader('accept','text/plain')
             .setBody(JSON.stringify(this.#options.connection))
-            .setMethod(HttpRequestMethod.POST)
+            .setMethod(HttpRequestMethod.Post)
             .setTimeout(4);
 
             const response = await http.request(request);
