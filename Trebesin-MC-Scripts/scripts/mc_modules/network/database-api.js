@@ -76,10 +76,9 @@ class DatabaseConnection {
             .setBody(JSON.stringify(this.#options.connection))
             .setMethod(HttpRequestMethod.POST)
             .setTimeout(4);
-            console.warn('cool 1')
+
             const response = await http.request(request);
             
-            console.warn('cool 2')
             if (response.status === 200) {
                 this.#token = JSON.parse(response.body).token;
                 resolve(response);
@@ -98,7 +97,6 @@ class DatabaseConnection {
                 logMessage('Other response!')
                 resolve(response);
             }
-            console.warn('cool 3')
         });
     }
 
