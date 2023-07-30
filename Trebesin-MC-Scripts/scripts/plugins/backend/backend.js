@@ -75,6 +75,7 @@ export function sendLongMessage(title, content, sender, rewriteOld = true){
     }
 }
 
+console.warn('cool')
 export const name = 'Backend';
 export async function main() {
     //# Database
