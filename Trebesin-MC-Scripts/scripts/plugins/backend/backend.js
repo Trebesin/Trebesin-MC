@@ -10,12 +10,14 @@ import * as Items from '../../mc_modules/items';
 import { CommandParser } from '../../mc_modules/commandParser';
 import { sendMessage } from '../../mc_modules/players';
 
+console.warn('cool 0')
 export const Commands = new CommandParser({
     prefix: "!", caseSensitive: false
 });
 export const Server = new ServerModule(0);
 Server.cancelTerminations = true;
 
+console.warn('cool 1')
 export const DB = new DatabaseConnection({
     connection: {
         host: 'db1.falix.cc',
@@ -30,7 +32,7 @@ export const DB = new DatabaseConnection({
         password: serverAdmin.variables.get('db-server-password')
     }
 });
-
+console.warn('cool 2')
 const messages = {}
 
 function more(sender, parameters) {
@@ -50,14 +52,14 @@ function more(sender, parameters) {
     message += `§2Use !more [pageNumber] for other pages.`;
     sender.sendMessage(message);
 }
-
+console.warn('cool 3')
 Commands.registerCommand('more',{
         aliases: [],
         description: ['Manages sent messages to player so that chat doesn\'t become a mess.'],
         parameters: [{id:'page', type:'int', optional: false}],
         run: more
 });
-
+console.warn('cool 4')
 export function sendLongMessage(title, content, sender, rewriteOld = true){
     if (rewriteOld && messages[sender.id]) {
         delete messages[sender.id]
@@ -74,8 +76,7 @@ export function sendLongMessage(title, content, sender, rewriteOld = true){
         more(sender, {page: 1});
     }
 }
-
-console.warn('cool')
+console.warn('cool cool')
 export const name = 'Backend';
 export async function main() {
     //# Database
