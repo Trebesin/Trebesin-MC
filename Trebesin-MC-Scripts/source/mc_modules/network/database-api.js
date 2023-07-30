@@ -98,7 +98,7 @@ class DatabaseConnection {
                 .addHeader('content-type', 'application/json')
                 .addHeader('accept', 'text/plain')
                 .setBody(JSON.stringify(__classPrivateFieldGet(this, _DatabaseConnection_options, "f").connection))
-                .setMethod(HttpRequestMethod.POST)
+                .setMethod(HttpRequestMethod.Post)
                 .setTimeout(4);
             const response = await http.request(request);
             if (response.status === 200) {
