@@ -51,13 +51,6 @@ function more(sender, parameters) {
     sender.sendMessage(message);
 }
 
-Commands.registerCommand('more',{
-        aliases: [],
-        description: ['Manages sent messages to player so that chat doesn\'t become a mess.'],
-        parameters: [{id:'page', type:'int', optional: false}],
-        run: more
-});
-
 export function sendLongMessage(title, content, sender, rewriteOld = true){
     if (rewriteOld && messages[sender.id]) {
         delete messages[sender.id]
@@ -77,7 +70,15 @@ export function sendLongMessage(title, content, sender, rewriteOld = true){
 
 export const name = 'Backend';
 export async function main() {
+    console.warn('cool1')
+    Commands.registerCommand('more',{
+        aliases: [],
+        description: ['Manages sent messages to player so that chat doesn\'t become a mess.'],
+        parameters: [{id:'page', type:'int', optional: false}],
+        run: more
+    });
     //# Database
+    console.warn('cool2')
     try {
         const response = await DB.connect();
         if (response.status === 200) Debug.logMessage('Successfully connected to the database!');
@@ -86,6 +87,7 @@ export async function main() {
         Debug.logMessage(error);
     }
     //# Custom Events
+    console.warn('cool3')
     Server.registerEvent('player',{
         callbacks: {
             playerEquip: new ServerEventCallback(),
@@ -138,7 +140,7 @@ export async function main() {
             playerSneak: {}
         }
     });
-
+    console.warn('cool4')
     Server.registerEvent('itemStartUseOn',{
         callbacks: {
             itemStartUseOn: new ServerEventCallback()
@@ -156,7 +158,7 @@ export async function main() {
         execute() {},
         data: {}
     });
-
+    console.warn('cool5');
     Server.registerEvent('beforeItemStartUseOn',{
         callbacks: {
             beforeItemStartUseOn: new ServerEventCallback()
