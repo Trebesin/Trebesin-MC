@@ -70,7 +70,6 @@ export function sendLongMessage(title, content, sender, rewriteOld = true){
 
 export const name = 'Backend';
 export async function main() {
-    console.warn('cool1')
     Commands.registerCommand('more',{
         aliases: [],
         description: ['Manages sent messages to player so that chat doesn\'t become a mess.'],
@@ -78,17 +77,14 @@ export async function main() {
         run: more
     });
     //# Database
-    console.warn('cool2')
     try {
         const response = await DB.connect();
-        console.warn('cool2.1')
         if (response.status === 200) Debug.logMessage('Successfully connected to the database!');
         else Debug.logMessage(`Couldn't connect to database! [${response.status}]\n${response.body}`);
     } catch (error) {
         Debug.logMessage(error);
     }
     //# Custom Events
-    console.warn('cool3')
     Server.registerEvent('player',{
         callbacks: {
             playerEquip: new ServerEventCallback(),
@@ -141,7 +137,6 @@ export async function main() {
             playerSneak: {}
         }
     });
-    console.warn('cool4')
     Server.registerEvent('itemStartUseOn',{
         callbacks: {
             itemStartUseOn: new ServerEventCallback()
@@ -159,7 +154,6 @@ export async function main() {
         execute() {},
         data: {}
     });
-    console.warn('cool5');
     Server.registerEvent('beforeItemStartUseOn',{
         callbacks: {
             beforeItemStartUseOn: new ServerEventCallback()
