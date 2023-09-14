@@ -14,7 +14,7 @@ import * as Mc from "@minecraft/server";
 import { ChunkManager, getSubchunksCoords } from './chunk.js';
 import { randInt } from '../js_modules/random.js';
 import { insertToArray, deleteFromArray } from "../js_modules/array.js";
-import * as Debug from '../plugins/debug/debug.js';
+import * as Debug from './../plugins/debug/debug';
 /**
  * @description - Class with helper functions that relate to scheduling or backend functioning of the server.
  */

@@ -11,7 +11,7 @@ var __classPrivateFieldSet = (this && this.__classPrivateFieldSet) || function (
 };
 var _CommandParser_instances, _CommandParser_helpCommand, _CommandParser_commands, _CommandParser_options, _CommandParser_getParameterChain, _CommandParser_parseParameterType, _CommandParser_parsePosition, _CommandParser_parseSelector, _ParameterStringParser_index, _ParameterStringParser_string, _ParameterStringParser_options;
 import * as Mc from '@minecraft/server';
-import { setVectorLength } from '../js_modules/vector';
+import { setVectorLength } from './../js_modules/vector';
 import { filter } from '../js_modules/array';
 import { randInt } from '../js_modules/random';
 import { findCharIndex, findLastCharIndex, findNumber } from '../js_modules/string';

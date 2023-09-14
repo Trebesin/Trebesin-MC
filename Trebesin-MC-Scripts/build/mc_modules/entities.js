@@ -1,6 +1,6 @@
 import { world } from '@minecraft/server';
 import { filter } from '../js_modules/array';
-import { DIMENSION_IDS } from './constants';
+import { DIMENSION_IDS } from '../mc_modules/constants';
 import { logMessage } from '../plugins/debug/debug';
 /**
  * Function used to get entity with a specified ID from the world.

@@ -1,7 +1,7 @@
 //APIs:
 import * as Mc from '@minecraft/server';
 //Plugins:
-import * as Debug from '../../debug/debug';
+import * as Debug from './../../debug/debug';
 import { playerData as serverPlayerData } from '../../server/server';
 import { Commands } from '../../backend/backend';
 //Modules:

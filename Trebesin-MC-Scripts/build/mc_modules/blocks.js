@@ -16,7 +16,7 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 import * as Mc from '@minecraft/server';
-import * as VectorMath from '../js_modules/vectorMath';
+import * as VectorMath from './../js_modules/vectorMath';
 import { logMessage, sendLogMessage } from '../plugins/debug/debug';
 import { DIRECTIONS, BLOCK_STATE_COMPONENTS } from './constants';
 /**

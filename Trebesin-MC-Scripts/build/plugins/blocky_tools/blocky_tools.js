@@ -2,7 +2,7 @@
 import * as ItemWorker from './workers/items';
 import * as CommandWorker from './workers/commands';
 import * as SessionsWorker from './workers/sessions';
-import * as Debug from '../debug/debug';
+import * as Debug from './../debug/debug';
 export const name = 'Blocky Tools';
 export async function main() {
     ItemWorker.main();

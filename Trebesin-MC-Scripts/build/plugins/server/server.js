@@ -1,8 +1,8 @@
 //APIs:
 import * as Mc from '@minecraft/server';
-import * as Debug from '../debug/debug';
+import * as Debug from './../debug/debug';
 //MC modules
-import * as Particles from '../../mc_modules/particles';
+import * as Particles from './../../mc_modules/particles';
 import { sendMessage } from '../../mc_modules/players';
 import { FACE_DIRECTIONS } from '../../mc_modules/constants';
 //JS modules

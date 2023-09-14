@@ -1,7 +1,7 @@
 //APIs:
 import * as Mc from '@minecraft/server';
 //Plugins:
-import * as Debug from '../../debug/debug';
+import * as Debug from './../../debug/debug';
 import { Server } from '../../backend/backend';
 //Modules:
 import { mapArray, insertToArray } from '../../../js_modules/array';
