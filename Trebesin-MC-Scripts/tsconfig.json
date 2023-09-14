@@ -8,10 +8,12 @@
         "noImplicitAny": true,
         "sourceMap": true,
         "newLine": "crlf",
-        "allowJs": true
+        "allowJs": true,
+        "outDir": "./build"
     },
     "include": ["source/**/*"],
     "exclude": [
+        "build/**/*.js",
         "build/**/*",
         "build",
         "build/*",
