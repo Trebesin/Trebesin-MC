@@ -15,14 +15,18 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
+
 import * as Mc from "@minecraft/server";
 import * as ArrayOps from '../js_modules/array';
 import * as VectorMath from '../js_modules/vectorMath';
+
+
 /**
  * @typedef Position Defines an exact position in a Minecraft world.
  * @prop {Mc.Dimension} dimension Dimension where coordinate location is contained.
  * @prop {VectorMath.Vector3} location The coordinate location.
  */
+
 /**
  * @param {Mc.Entity | Mc.Block} object Entity or a block to get the position of.
  * @returns {Position}
@@ -33,43 +37,51 @@ export function getPosition(object) {
         dimension: object.dimension
     };
 }
+
 /**
  * Function for comparing 2 positions.
  * @param {Position} positionA 1st position to compare.
  * @param {Position} positionB 2nd position to compare.
  * @returns {boolean} Boolean that is equal to `true` if the positions are at the exact same place, otherwise `false`.
  */
-export function comparePositions(positionA, positionB) {
-    return (positionA.dimension.id === positionB.dimension.id &&
+export function comparePositions(positionA,positionB) {
+    return (
+        positionA.dimension.id === positionB.dimension.id &&
         positionA.location.x === positionB.location.x &&
         positionA.location.y === positionB.location.y &&
-        positionA.location.z === positionB.location.z);
+        positionA.location.z === positionB.location.z
+    );
 }
+
 //!remove all usage of arrays to store locations/vectors
+
 export function getTopBlock(x, z, dimension, solid = false) {
-    return dimension.getBlockFromRay({ x, y: 320, z }, { x: 0, y: -1, z: 0 }, { includeLiquidBlocks: !solid, includePassableBlocks: !solid, maxDistance: 400 });
+    return dimension.getBlockFromRay(
+        {x,y:320,z},
+        {x:0,y:-1,z:0},
+        {includeLiquidBlocks: !solid, includePassableBlocks: !solid, maxDistance: 400}
+    );
 }
+
 export function getClosestBlock(coordinate, dimension = Mc.world.getDimension('overworld'), typeId = 'minecraft:air', options = {}) {
-    const OPTIONS = Object.assign({ vectorMap: [{ x: 0, y: 1, z: 0 }, { x: 0, y: -1, z: 0 }], maxDistance: 256 }, options);
+    const OPTIONS = Object.assign({vectorMap:[{x:0,y:1,z:0},{x:0,y:-1,z:0}],maxDistance:256},options)
     let emptyBlock = null;
     const checkedBlocks = new Set();
     let coords = [coordinate];
     while (coords.length) {
         const newCoords = [];
-        for (let index = 0; index < coords.length; index++) {
+        for (let index = 0;index < coords.length;index++) {
             const coord = coords[index];
-            if (coord.some((element, index) => Math.abs(coordinate[index] - element) > maxDistance))
-                continue;
+            if (coord.some((element, index) => Math.abs(coordinate[index] - element) > maxDistance)) continue;
             if (dimension.getBlock(coord).typeId === typeId) {
                 emptyBlock = coord;
                 coords.length = 0;
                 break;
-            }
-            else {
+            } else {
                 checkedBlocks.add(locationToString(coord));
-                for (let vectorIndex = 0; vectorIndex < OPTIONS.vectorMap.length; vectorIndex++) {
+                for (let vectorIndex = 0;vectorIndex < OPTIONS.vectorMap.length;vectorIndex++) {
                     const vector = OPTIONS.vectorMap[vectorIndex];
-                    const newCoord = VectorMath.sum(vector, coord);
+                    const newCoord = VectorMath.sum(vector,coord);
                     if (!checkedBlocks.has(locationToString(newCoord))) {
                         newCoords.push(newCoord);
                     }
@@ -80,6 +92,7 @@ export function getClosestBlock(coordinate, dimension = Mc.world.getDimension('o
     }
     return emptyBlock;
 }
+
 /**
    * @arg {number[]} coordinate - Array of 3 integers reprsenting base coordinate, which the function spreads from.
    * @arg {Object} options - Information defining behavior of the spread function.
@@ -99,11 +112,12 @@ export function createRandomSpread(coordinate, options, vectorMap = { x: [-1, 1]
         chanceFunc: value => value / 2,
         amountFunc: value => value / 2
     }, options);
+
     while (coords.length) {
         currentSpread++;
-        if (currentSpread > spread.max)
-            return;
+        if (currentSpread > spread.max) return
         const newCoords = [];
+
         for (const coord of coords) {
             for (let index = spread.amount; index > 0; index--) {
                 if (Math.random() <= spread.chance) {
@@ -128,6 +142,7 @@ export function createRandomSpread(coordinate, options, vectorMap = { x: [-1, 1]
         });
     }
 }
+
 //!Instead one callback with argument 
 /**
    * Gets all blocks that can be filled starting from a single location and returns them and the edges, alternatively callbacks can also be used.
@@ -145,63 +160,71 @@ export function getAreaFill(origin, dimension, options, innerCallback, outerCall
     const fill = Object.assign({
         whitelist: ['minecraft:air'],
         maxDistance: 256,
-        vectorMap: [[1, 0, 0], [-1, 0, 0], [0, 1, 0], [0, -1, 0], [0, 0, 1], [0, 0, -1]]
-    }, options);
+        vectorMap: [[1,0,0],[-1,0,0],[0,1,0],[0,-1,0],[0,0,1],[0,0,-1]]
+    },options);
+    
     const coords = [origin];
     const checkedBlocks = new Set();
     while (coords.length) {
         const coord = coords.shift();
-        if (outsideDistance(coord, origin, fill.maxDistance))
-            continue;
+        if (outsideDistance(coord,origin,fill.maxDistance)) continue;
         const currentBlock = dimension.getBlock(coord);
-        if (ArrayOps.includes(fill.whitelist, currentBlock.typeId)) {
+        if (ArrayOps.includes(fill.whitelist,currentBlock.typeId)) {
             innerCallback(coord);
             for (const vector of fill.vectorMap) {
-                const newCoord = VectorMath.sum(coord, vector);
-                const newCoordString = locationToString(newCoord);
+                const newCoord = VectorMath.sum(coord,vector);
+                const newCoordString = locationToString(newCoord)
                 if (!checkedBlocks.has(newCoordString)) {
                     coords.push(newCoord);
                 }
             }
-        }
-        else {
+        } else {
             outerCallback(coord);
         }
         checkedBlocks.add(locationToString(coord));
     }
 }
-function containsArray(array, item) {
+
+function containsArray(array,item) {
     const indexes = item.length;
     let found = false;
-    arrayLoop: for (const element of array) {
+    arrayLoop: 
+    for (const element of array) {
         for (let index = 0; index < indexes; index++) {
             if (!(element[index] === item[index])) {
-                continue arrayLoop;
+                continue arrayLoop
             }
         }
         found = true;
-        break arrayLoop;
+        break arrayLoop 
     }
-    return found;
+    return found
 }
+
 function randInt(min, max) {
     max++;
     return Math.floor(Math.random() * (max - min) + min);
 }
+
 function locationToString(location) {
     return `${location.x},${location.y},${location.z}`;
 }
-function outsideDistance(locationA, locationB, distance) {
-    return (Math.abs(locationA.x - locationB.x) > distance ||
+
+function outsideDistance(locationA,locationB,distance) {
+    return (
+        Math.abs(locationA.x - locationB.x) > distance ||
         Math.abs(locationA.y - locationB.y) > distance ||
-        Math.abs(locationA.z - locationB.z) > distance);
+        Math.abs(locationA.z - locationB.z) > distance
+    )
 }
-function outsideDistanceSquered(locationA, locationB, distance) {
-    return ((locationA.x - locationB.x) ** 2 +
-        (locationA.y - locationB.y) ** 2 +
-        (locationA.z - locationB.z) ** 2) > distance ** 2;
+
+function outsideDistanceSquered(locationA,locationB,distance) {
+    return (
+        (locationA.x-locationB.x)**2+
+        (locationA.y-locationB.y)**2+
+        (locationA.z-locationB.z)**2
+    ) > distance**2;
 }
+
 //!new filler algorithm - start with 6 main vectors with set children vectors which are vectors
 //!that are sent by the main vector to start checking too
-
-//# sourceMappingURL=dimensions.js.map

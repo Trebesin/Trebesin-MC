@@ -10,9 +10,11 @@
         "newLine": "crlf",
         "allowJs": true
     },
+    "include": ["source/**/*"],
     "exclude": [
-        "source",
-        "source/*",
+        "build/**/*",
+        "build",
+        "build/*",
         "node_modules",
         "**/node_modules/*"
     ]

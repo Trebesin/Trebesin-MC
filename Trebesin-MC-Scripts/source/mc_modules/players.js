@@ -14,8 +14,9 @@ function hasItem(entity, typeId, data, amount = { min: 1, max: 64 }) {
             }
         }
     }
-    return hasItem;
+    return hasItem
 }
+
 function hasItemInv(entity, typeId, data, amount = { min: 1, max: 64 }) {
     let hasItem = false;
     let totalAmount = 0;
@@ -37,8 +38,9 @@ function hasItemInv(entity, typeId, data, amount = { min: 1, max: 64 }) {
     if (totalAmount >= amount.min && totalAmount <= amount.max) {
         hasItem = true;
     }
-    return hasItem;
+    return hasItem
 }
+
 function clearItemInv(entity, typeId, type, data, amount = { min: 4, max: 64 }) {
     const inventory = entity.getComponent('inventory');
     const container = inventory.container;
@@ -54,8 +56,7 @@ function clearItemInv(entity, typeId, type, data, amount = { min: 4, max: 64 }) 
                     clearSlots.push([slot, item.amount - left2Clear]);
                     totalAmount += left2Clear;
                     break;
-                }
-                else {
+                } else {
                     clearSlots.push([slot, 0]);
                     totalAmount += item.amount;
                 }
@@ -64,13 +65,14 @@ function clearItemInv(entity, typeId, type, data, amount = { min: 4, max: 64 }) 
     }
     if (totalAmount < amount.min) {
         totalAmount = 0;
-        return totalAmount;
+        return totalAmount
     }
     for (const clearSlot of clearSlots) {
         container.setItem(clearSlot[0], new ItemStack(type, clearSlot[1], data));
     }
-    return totalAmount;
+    return totalAmount
 }
+
 function clearItem(entity, typeId, type, data, amount = { min: 1, max: 64 }) {
     const inventory = entity.getComponent('inventory');
     const container = inventory.container;
@@ -85,39 +87,37 @@ function clearItem(entity, typeId, type, data, amount = { min: 1, max: 64 }) {
                     clearAmount = 0;
                 }
                 if (item.amount > amount.max) {
-                    clearAmount = amount.max;
+                    clearAmount = amount.max
                 }
                 container.setItem(slot, new ItemStack(type, item.amount - clearAmount, item.data));
             }
         }
     }
-    return clearAmount;
+    return clearAmount
 }
+
 export function getEquipedItem(entity) {
     const container = entity.getComponent('inventory').container;
     return container.getItem(entity.selectedSlot);
 }
+
 /**
- *
- * @param {string} message
+ * 
+ * @param {string} message 
  * @param {string} [senderText]
  * @param {Mc.Player|MC.Player[]} [player]
  */
-export function sendMessage(message, senderText = null, player = null) {
+export function sendMessage(message,senderText = null,player = null) {
     const messageText = senderText == null ? message : `[${senderText}§r] ${message}`;
     if (!player) {
         Mc.world.sendMessage(messageText);
-    }
-    else {
+    } else {
         if (!Array.isArray(player)) {
             player.sendMessage(messageText);
-        }
-        else {
-            for (let playerIndex = 0; playerIndex < player.length; playerIndex++) {
+        } else {
+            for (let playerIndex = 0;playerIndex < player.length;playerIndex++) {
                 player[playerIndex].sendMessage(messageText);
             }
         }
     }
 }
-
-//# sourceMappingURL=players.js.map

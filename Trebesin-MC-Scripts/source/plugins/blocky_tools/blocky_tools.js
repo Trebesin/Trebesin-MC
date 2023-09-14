@@ -3,6 +3,8 @@ import * as ItemWorker from './workers/items';
 import * as CommandWorker from './workers/commands';
 import * as SessionsWorker from './workers/sessions';
 import * as Debug from './../debug/debug';
+
+
 export const name = 'Blocky Tools';
 export async function main() {
     ItemWorker.main();
@@ -12,5 +14,3 @@ export async function main() {
     SessionsWorker.main();
     Debug.sendLogMessage('   Sessions Worker Loaded');
 }
-
-//# sourceMappingURL=blocky_tools.js.map
