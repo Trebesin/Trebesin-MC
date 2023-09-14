@@ -16,7 +16,7 @@ export const Server = new ServerModule(0);
 Server.cancelTerminations = true;
 export const DB = new DatabaseConnection({
     connection: {
-        host: 'db1.falix.cc',
+        host: serverAdmin.variables.get('db-connection-host'),
         user: serverAdmin.variables.get('db-connection-username'),
         password: serverAdmin.variables.get('db-connection-password'),
         multipleStatements: true,
