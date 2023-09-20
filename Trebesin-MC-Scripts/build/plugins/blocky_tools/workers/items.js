@@ -18,66 +18,64 @@ export function main() {
         else
             showChunkBorder[eventData.player.id] = 0;
     });
-    Debug.logMessage('Subing');
-    Server.events.itemStartUseOn.subscribe(async (eventData) => {
-        Debug.logMessage('ItemStartUseOn Subbed');
-        if (eventData.itemStack.typeId === 'trebesin:bt_debug_stick') {
-            /** @type {Mc.Player} */
-            const player = eventData.source;
-            /** @type {Mc.Block} */
-            const block = player.dimension.getBlock(eventData.block.location);
-            const propertyList = block.permutation.getAllStates();
-            //let blockTagText = '';
-            //const blockTags = block.getTags();
-            //for (let tagIndex = 0;tagIndex < blockTags.length;tagIndex++) {
-            //    blockTagText += `${blockTags[tagIndex]}`;
-            //    if (tagIndex != blockTags.length - 1) blockTagText += ',';
-            //}
-            const menuData = {
-                title: `${block.typeId}`,
-                withIds: true,
-                structure: []
-            };
-            for (const propertyName in propertyList) {
-                const option = {
-                    id: propertyName
+    Server.events.beforeItemStartUseOn.subscribe((eventData) => {
+        if (eventData.itemStack.typeId === 'trebesin:bt_debug_stick')
+            Mc.system.run(async () => {
+                /** @type {Mc.Player} */
+                const player = eventData.source;
+                /** @type {Mc.Block} */
+                const block = player.dimension.getBlock(eventData.block.location);
+                const propertyList = block.permutation.getAllStates();
+                //let blockTagText = '';
+                //const blockTags = block.getTags();
+                //for (let tagIndex = 0;tagIndex < blockTags.length;tagIndex++) {
+                //    blockTagText += `${blockTags[tagIndex]}`;
+                //    if (tagIndex != blockTags.length - 1) blockTagText += ',';
+                //}
+                const menuData = {
+                    title: `${block.typeId}`,
+                    withIds: true,
+                    structure: []
                 };
-                const propertyDefinition = Mc.BlockStates.get(propertyName);
-                const propertyType = typeof propertyDefinition.validValues[0];
-                option.label = `§2${propertyName} [${propertyType}]`;
-                if (propertyType === 'boolean') {
-                    option.type = 'toggle';
-                    option.defaultValue = propertyList[propertyName];
+                for (const propertyName in propertyList) {
+                    const option = {
+                        id: propertyName
+                    };
+                    const propertyDefinition = Mc.BlockStates.get(propertyName);
+                    const propertyType = typeof propertyDefinition.validValues[0];
+                    option.label = `§2${propertyName} [${propertyType}]`;
+                    if (propertyType === 'boolean') {
+                        option.type = 'toggle';
+                        option.defaultValue = propertyList[propertyName];
+                    }
+                    else {
+                        option.type = 'dropdown';
+                        option.options = propertyDefinition.validValues.map((value) => `${value}`);
+                        option.defaultValueIndex = propertyDefinition.validValues.indexOf(propertyList[propertyName]);
+                    }
+                    menuData.structure.push(option);
                 }
-                else {
-                    option.type = 'dropdown';
-                    option.options = propertyDefinition.validValues.map((value) => `${value}`);
-                    option.defaultValueIndex = propertyDefinition.validValues.indexOf(propertyList[propertyName]);
+                if (menuData.structure.length === 0)
+                    return;
+                const response = await FormUi.modalMenu(menuData, player);
+                if (block?.typeId == null)
+                    return;
+                const propertyRecord = {};
+                for (const propertyName in propertyList) {
+                    const propertyDefinition = Mc.BlockStates.get(propertyName);
+                    const propertyType = typeof propertyDefinition.validValues[0];
+                    if (propertyType === 'boolean') {
+                        propertyRecord[propertyName] = response.formValues[propertyName];
+                    }
+                    else {
+                        const index = response.formValues[propertyName];
+                        propertyRecord[propertyName] = propertyDefinition.validValues[index];
+                    }
                 }
-                menuData.structure.push(option);
-            }
-            if (menuData.structure.length === 0)
-                return;
-            const response = await FormUi.modalMenu(menuData, player);
-            if (block?.typeId == null)
-                return;
-            const propertyRecord = {};
-            for (const propertyName in propertyList) {
-                const propertyDefinition = Mc.BlockStates.get(propertyName);
-                const propertyType = typeof propertyDefinition.validValues[0];
-                if (propertyType === 'boolean') {
-                    propertyRecord[propertyName] = response.formValues[propertyName];
-                }
-                else {
-                    const index = response.formValues[propertyName];
-                    propertyRecord[propertyName] = propertyDefinition.validValues[index];
-                }
-            }
-            const updatedPermutations = Mc.BlockPermutation.resolve(block.typeId, propertyRecord);
-            setBlockPermutation(block, updatedPermutations, { actorId: player.id, updateType: 'blockyTools: player' });
-        }
+                const updatedPermutations = Mc.BlockPermutation.resolve(block.typeId, propertyRecord);
+                setBlockPermutation(block, updatedPermutations, { actorId: player.id, updateType: 'blockyTools: player' });
+            });
     });
-    Debug.logMessage('Finished');
     Mc.system.runInterval(() => {
         const players = Mc.world.getAllPlayers();
         for (let playerIndex = 0; playerIndex < players.length; playerIndex++) {
