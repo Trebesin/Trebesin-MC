@@ -17,9 +17,9 @@ export const name = 'Server';
 export async function main() {
     Mc.system.runInterval(() => {
         for (const player of Mc.world.getPlayers()) {
-            player.addEffect(Mc.MinecraftEffectTypes.saturation, 9999, { showParticles: false, amplifier: 128 });
+            player.addEffect('saturation', 9999, { showParticles: false, amplifier: 128 });
             if (!player.hasTag("nvoff"))
-                player.addEffect(Mc.MinecraftEffectTypes.nightVision, 300, { showParticles: false, amplifier: 128 });
+                player.addEffect('night_vision', 300, { showParticles: false, amplifier: 128 });
         }
     }, 20);
     Mc.system.runInterval(() => {
