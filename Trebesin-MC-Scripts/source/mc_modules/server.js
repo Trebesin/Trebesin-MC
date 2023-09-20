@@ -14,7 +14,8 @@ export class Server {
         //## Relative Tick, Loaded Players, Custom Events
         Mc.system.runInterval(() => {
             this.#tick++;
-            for (const eventId in this.#eventsRegister) this.#eventsRegister[eventId].execute?.(this);
+            for (const eventId in this.#eventsRegister) console.warn(JSON.stringify(this.#eventsRegister[eventId]));
+            for (const eventId in this.#eventsRegister) this.#eventsRegister[eventId]?.execute?.(this);
             if (!this.#playersLoaded && Mc.world.getAllPlayers().length) this.#playersLoaded = true;
         },1);
 
