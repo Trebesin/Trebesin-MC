@@ -900,7 +900,7 @@ async function reverseBlocks(blocks, sender) {
         const block = Mc.world.getDimension(blocks[i].dimension_id).getBlock(blocks[i]);
         const blockOld = Blocks.copyBlockState(block, true);
         const permutationsBefore = Mc.BlockPermutation.resolve(blocks[i].before_id, JSON.parse(blocks[i].before_permutations));
-        block.setType(Mc.MinecraftBlockTypes.get(blocks[i].before_id));
+        block.setType(Mc.BlockTypes.get(blocks[i].before_id));
         block.setPermutation(permutationsBefore);
         BlockHistoryPlugin.saveBlockUpdate({
             before: blockOld,
