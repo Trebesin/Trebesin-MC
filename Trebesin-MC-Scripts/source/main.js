@@ -1,5 +1,4 @@
 //Plugins:
-import { world } from '@minecraft/server';
 import * as BlockHistoryPlugin from './plugins/block_history/block_history';
 import * as BlockyToolsPlugin from './plugins/blocky_tools/blocky_tools';
 import * as ServerPlugin from './plugins/server/server';
