@@ -43,7 +43,7 @@ export async function main() {
             return 0;
         try {
             const response = await connection.query(request, true);
-            Debug.logMessage(response);
+            Debug.logMessage(JSON.stringify(response));
         }
         catch (error) {
             for (const prop in error) {
