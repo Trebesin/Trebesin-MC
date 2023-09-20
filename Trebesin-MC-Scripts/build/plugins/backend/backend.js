@@ -101,7 +101,11 @@ export async function main() {
                     data.playerEquip[player.id] ??= {};
                     const itemBefore = data.playerEquip[player.id].item;
                     const slotBefore = data.playerEquip[player.id].slot;
-                    const itemAfter = player.getComponent('inventory').container?.getSlot(player.selectedSlot).clone();
+                    /**
+                     * @type {Mc.EntityInventoryComponent}
+                     */
+                    //const inv = player.getComponent('inventory');
+                    const itemAfter = player.getComponent('inventory').container?.getSlot(player.selectedSlot).getItem();
                     const slotAfter = player.selectedSlot;
                     if (!Items.compare(itemAfter, itemBefore) || slotBefore != slotAfter) {
                         data.playerEquip[player.id].item = itemAfter;
