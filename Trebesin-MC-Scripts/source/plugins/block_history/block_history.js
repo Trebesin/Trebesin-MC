@@ -195,6 +195,7 @@ export async function main() {
         const faceBlockOld = Blocks.copyBlockState(faceBlock,true);
         const block = player.dimension.getBlock(eventData.block.location);
         const blockOld = Blocks.copyBlockState(block,true);
+        Debug.logMessage(`FACE OLD:\n${faceBlockOld}`)
 
         //These Blocks:
         Mc.system.runTimeout(async () => {
@@ -214,6 +215,7 @@ export async function main() {
             //    location: block.location,
             //    dimension: block.dimension
             //};
+            Debug.logMessage(`FACE NEW:\n${JSON.stringify(Blocks.copyBlockState(faceBlock,true))}`)
             saveBlockUpdate({before:faceBlockOld,after:Blocks.copyBlockState(faceBlock,true)},{actorId:player.id});
             saveBlockUpdate({before:blockOld,after:Blocks.copyBlockState(block,true)},{actorId:player.id});
             //Falling Blocks
