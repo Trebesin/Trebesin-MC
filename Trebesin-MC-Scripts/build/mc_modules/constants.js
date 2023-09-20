@@ -1,11 +1,11 @@
 export const DIMENSION_IDS = ['minecraft:overworld', 'minecraft:nether', 'minecraft:the_end'];
 export const FACE_DIRECTIONS = {
-    west: { x: -1, y: 0, z: 0 },
-    east: { x: 1, y: 0, z: 0 },
-    down: { x: 0, y: -1, z: 0 },
-    up: { x: 0, y: 1, z: 0 },
-    north: { x: 0, y: 0, z: -1 },
-    south: { x: 0, y: 0, z: 1 }
+    West: { x: -1, y: 0, z: 0 },
+    East: { x: 1, y: 0, z: 0 },
+    Down: { x: 0, y: -1, z: 0 },
+    Up: { x: 0, y: 1, z: 0 },
+    North: { x: 0, y: 0, z: -1 },
+    South: { x: 0, y: 0, z: 1 }
 };
 export const TREBESIN_PERMUTATIONS = {
     'trebesin:direction': null,
