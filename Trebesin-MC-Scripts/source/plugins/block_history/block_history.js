@@ -60,7 +60,7 @@ export async function main() {
         if (empty) return 0;
         try {
             const response = await connection.query(request,true);
-            Debug.logMessage(response);
+            Debug.logMessage(JSON.stringify(response));
         } catch (error) {
             for (const prop in error) {
                 Debug.sendLogMessage(`SQL Error: ${prop} ${error[prop]}`);
