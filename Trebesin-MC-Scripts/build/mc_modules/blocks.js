@@ -15,6 +15,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
+//! Rename BlockState to BlockData or RawBlockData or RawBlock and so on... (to avoid confusion with API terminology)
 import * as Mc from '@minecraft/server';
 import * as VectorMath from './../js_modules/vectorMath';
 import { logMessage, sendLogMessage } from '../plugins/debug/debug';

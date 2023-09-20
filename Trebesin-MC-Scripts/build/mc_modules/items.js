@@ -1,3 +1,4 @@
+//! Rename ItemState to ItemData or RawItemData or RawItem and so on... (to avoid confusion with API terminology)
 import * as Mc from '@minecraft/server';
 import { ITEM_STATE_COMPONENTS } from './constants';
 export function compare(itemA, itemB) {
