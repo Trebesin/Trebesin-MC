@@ -18,9 +18,9 @@ export function main() {
         if (eventData.itemAfter.typeId === 'trebesin:bt_debug_stick') showChunkBorder[eventData.player.id] = 1;
         else showChunkBorder[eventData.player.id] = 0;
     });
-    
+
     Server.events.beforeItemStartUseOn.subscribe((eventData) => {
-        Debug.logMessage('HUH')
+        if (eventData.itemStack.typeId === 'trebesin:bt_debug_stick') Debug.logMessage('HUH TRUE')
         if (eventData.itemStack.typeId === 'trebesin:bt_debug_stick') Mc.system.run(async () => {
             /** @type {Mc.Player} */
             const player = eventData.source;
