@@ -19,6 +19,7 @@ export function main() {
             showChunkBorder[eventData.player.id] = 0;
     });
     Server.events.itemStartUseOn.subscribe(async (eventData) => {
+        console.warn('debugg');
         if (eventData.itemStack.typeId === 'trebesin:bt_debug_stick') {
             /** @type {Mc.Block} */
             const block = eventData.source.dimension.getBlock(eventData.block.location);
