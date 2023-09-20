@@ -152,6 +152,7 @@ export async function main() {
                 if (((data[eventData.source.id] ?? 0) + 1) < Mc.system.currentTick) {
                     callbackData.runCallbacks(eventData);
                 }
+                Debug.logMessage('ItemStartUseOn Backend');
                 data[eventData.source.id] = Mc.system.currentTick;
             });
         },
