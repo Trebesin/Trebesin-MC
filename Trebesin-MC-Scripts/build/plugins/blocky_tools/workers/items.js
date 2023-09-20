@@ -18,13 +18,15 @@ export function main() {
         else
             showChunkBorder[eventData.player.id] = 0;
     });
+    Debug.logMessage('Subing');
     Server.events.itemStartUseOn.subscribe(async (eventData) => {
-        console.warn('debugg');
+        Debug.logMessage('ItemStartUseOn Subbed');
         if (eventData.itemStack.typeId === 'trebesin:bt_debug_stick') {
-            /** @type {Mc.Block} */
-            const block = eventData.source.dimension.getBlock(eventData.block.location);
-            const propertyList = block.permutation.getAllStates();
+            /** @type {Mc.Player} */
             const player = eventData.source;
+            /** @type {Mc.Block} */
+            const block = player.dimension.getBlock(eventData.block.location);
+            const propertyList = block.permutation.getAllStates();
             //let blockTagText = '';
             //const blockTags = block.getTags();
             //for (let tagIndex = 0;tagIndex < blockTags.length;tagIndex++) {
@@ -75,6 +77,7 @@ export function main() {
             setBlockPermutation(block, updatedPermutations, { actorId: player.id, updateType: 'blockyTools: player' });
         }
     });
+    Debug.logMessage('Finished');
     Mc.system.runInterval(() => {
         const players = Mc.world.getAllPlayers();
         for (let playerIndex = 0; playerIndex < players.length; playerIndex++) {
