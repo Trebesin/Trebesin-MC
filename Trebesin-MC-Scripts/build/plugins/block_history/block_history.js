@@ -157,21 +157,14 @@ export async function main() {
     //## Block Placing Detection:
     Mc.world.afterEvents.itemStartUseOn.subscribe(async (eventData) => {
         const player = eventData.source;
-        Debug.logMessage('after player');
         const offset = FACE_DIRECTIONS[eventData.blockFace];
-        Debug.logMessage('after offset');
         const faceBlockLocation = VectorMath.sum(eventData.block.location, offset);
-        Debug.logMessage('after faceblockloc');
         //Debug.logMessage(`FBL: ${faceBlockLocation?.x} ${faceBlockLocation?.y} ${faceBlockLocation?.z}`);
         const faceBlock = player.dimension.getBlock(faceBlockLocation);
-        Debug.logMessage('after faceblock');
         //Debug.logMessage(`FB: ${faceBlock?.typeId}`);
         const faceBlockOld = Blocks.copyBlockState(faceBlock, true);
-        Debug.logMessage('after faceblockold');
         const block = player.dimension.getBlock(eventData.block.location);
-        Debug.logMessage('after block');
         const blockOld = Blocks.copyBlockState(block, true);
-        Debug.logMessage('after blockold');
         //These Blocks:
         Mc.system.runTimeout(async () => {
             //const faceBlocks = {
