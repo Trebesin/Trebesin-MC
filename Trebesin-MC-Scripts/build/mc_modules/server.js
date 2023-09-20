@@ -31,7 +31,9 @@ export class Server {
             var _a;
             __classPrivateFieldSet(this, _Server_tick, (_a = __classPrivateFieldGet(this, _Server_tick, "f"), _a++, _a), "f");
             for (const eventId in __classPrivateFieldGet(this, _Server_eventsRegister, "f"))
-                __classPrivateFieldGet(this, _Server_eventsRegister, "f")[eventId].execute?.(this);
+                console.warn(JSON.stringify(__classPrivateFieldGet(this, _Server_eventsRegister, "f")[eventId]));
+            for (const eventId in __classPrivateFieldGet(this, _Server_eventsRegister, "f"))
+                __classPrivateFieldGet(this, _Server_eventsRegister, "f")[eventId]?.execute?.(this);
             if (!__classPrivateFieldGet(this, _Server_playersLoaded, "f") && Mc.world.getAllPlayers().length)
                 __classPrivateFieldSet(this, _Server_playersLoaded, true, "f");
         }, 1);
