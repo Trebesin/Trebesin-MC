@@ -93,7 +93,7 @@ export async function main() {
         }
     }, 1);
     //## Block Breaking Detection:
-    Mc.world.afterEvents.blockBreak.subscribe(async (eventData) => {
+    Mc.world.afterEvents.playerBreakBlock.subscribe(async (eventData) => {
         Debug.logMessage(`§cBlock Break§r - ${Mc.system.currentTick}`);
         const playerId = eventData.player.id;
         const blockOld = {
