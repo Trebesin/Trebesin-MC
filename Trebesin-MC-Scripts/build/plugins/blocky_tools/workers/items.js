@@ -19,14 +19,12 @@ export function main() {
             showChunkBorder[eventData.player.id] = 0;
     });
     Server.events.beforeItemStartUseOn.subscribe((eventData) => {
-        if (eventData.itemStack.typeId === 'trebesin:bt_debug_stick')
-            Debug.logMessage('HUH TRUE');
+        /** @type {Mc.Player} */
+        const player = eventData.source;
+        /** @type {Mc.Block} */
+        const block = player.dimension.getBlock(eventData.block.location);
         if (eventData.itemStack.typeId === 'trebesin:bt_debug_stick')
             Mc.system.run(async () => {
-                /** @type {Mc.Player} */
-                const player = eventData.source;
-                /** @type {Mc.Block} */
-                const block = player.dimension.getBlock(eventData.block.location);
                 const propertyList = block.permutation.getAllStates();
                 //let blockTagText = '';
                 //const blockTags = block.getTags();
