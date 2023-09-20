@@ -42,7 +42,8 @@ export async function main() {
         if (empty)
             return 0;
         try {
-            await connection.query(request, true);
+            const response = await connection.query(request, true);
+            Debug.logMessage(response);
         }
         catch (error) {
             for (const prop in error) {
