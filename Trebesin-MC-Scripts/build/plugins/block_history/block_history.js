@@ -43,7 +43,7 @@ export async function main() {
             return 0;
         try {
             const response = await connection.query(request, true);
-            Debug.logMessage(JSON.stringify(response));
+            //Debug.logMessage(JSON.stringify(response));
         }
         catch (error) {
             for (const prop in error) {
@@ -166,7 +166,7 @@ export async function main() {
         const faceBlockOld = Blocks.copyBlockState(faceBlock, true);
         const block = player.dimension.getBlock(eventData.block.location);
         const blockOld = Blocks.copyBlockState(block, true);
-        Debug.logMessage(`FACE OLD:\n${faceBlockOld}`);
+        Debug.logMessage(`FACE OLD:\n${JSON.stringify(faceBlockOld)}`);
         //These Blocks:
         Mc.system.runTimeout(async () => {
             //const faceBlocks = {
