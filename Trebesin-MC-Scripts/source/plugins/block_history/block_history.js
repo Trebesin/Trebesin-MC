@@ -185,6 +185,10 @@ export async function main() {
     });
 
     //## Block Placing Detection:
+    Mc.world.beforeEvents.itemUseOn.subscribe(() => {
+        Debug.logMessage('Before item use on')
+    })
+
     Mc.world.afterEvents.itemStartUseOn.subscribe(async(eventData) => {
         const player = eventData.source;
         const offset = FACE_DIRECTIONS[eventData.blockFace];
