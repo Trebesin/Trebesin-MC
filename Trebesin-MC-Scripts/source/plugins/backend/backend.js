@@ -141,25 +141,23 @@ export async function main() {
             playerSneak: {}
         }
     });
-    Server.registerEvent('itemStartUseOn',{
-        callbacks: {
-            itemStartUseOn: new ServerEventCallback()
-        },
-        initialize() {
-            const {data,callbacks} = this;
-            Mc.world.afterEvents.itemUseOn.subscribe(eventData => {
-                
-                Debug.logMessage('huh');
-                const callbackData = callbacks.itemStartUseOn;
-                if (((data[eventData.source.id] ?? 0) + 1) < Mc.system.currentTick) {
-                    callbackData.runCallbacks(eventData);
-                }
-                data[eventData.source.id] = Mc.system.currentTick;
-            });
-        },
-        execute() {},
-        data: {}
-    });
+    //Server.registerEvent('itemStartUseOn',{
+    //    callbacks: {
+    //        itemStartUseOn: new ServerEventCallback()
+    //    },
+    //    initialize() {
+    //        const {data,callbacks} = this;
+    //        Mc.world.afterEvents.itemUseOn.subscribe(eventData => {
+    //            const callbackData = callbacks.itemStartUseOn;
+    //            if (((data[eventData.source.id] ?? 0) + 1) < Mc.system.currentTick) {
+    //                callbackData.runCallbacks(eventData);
+    //            }
+    //            data[eventData.source.id] = Mc.system.currentTick;
+    //        });
+    //    },
+    //    execute() {},
+    //    data: {}
+    //});
     Server.registerEvent('beforeItemStartUseOn',{
         callbacks: {
             beforeItemStartUseOn: new ServerEventCallback()
@@ -167,7 +165,6 @@ export async function main() {
         initialize() {
             const {data,callbacks} = this;
             Mc.world.beforeEvents.itemUseOn.subscribe(eventData => {
-                Debug.logMessage('huh before');
                 const callbackData = callbacks.beforeItemStartUseOn;
                 if (((data[eventData.source.id] ?? 0) + 1) < Mc.system.currentTick) {
                     callbackData.runCallbacks(eventData);

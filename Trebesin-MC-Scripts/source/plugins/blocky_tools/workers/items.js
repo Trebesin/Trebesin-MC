@@ -19,10 +19,8 @@ export function main() {
         else showChunkBorder[eventData.player.id] = 0;
     });
     
-    Debug.logMessage('Subing')
-    Server.events.itemStartUseOn.subscribe(async (eventData) => {
-        Debug.logMessage('ItemStartUseOn Subbed');
-        if (eventData.itemStack.typeId === 'trebesin:bt_debug_stick') {
+    Server.events.beforeItemStartUseOn.subscribe((eventData) => {
+        if (eventData.itemStack.typeId === 'trebesin:bt_debug_stick') Mc.system.run(async () => {
             /** @type {Mc.Player} */
             const player = eventData.source;
             /** @type {Mc.Block} */
@@ -77,9 +75,8 @@ export function main() {
             }
             const updatedPermutations = Mc.BlockPermutation.resolve(block.typeId, propertyRecord);
             setBlockPermutation(block,updatedPermutations,{actorId:player.id,updateType:'blockyTools: player'});
-        }
+        });
     });
-    Debug.logMessage('Finished');
 
     Mc.system.runInterval(() => {
         const players = Mc.world.getAllPlayers();
