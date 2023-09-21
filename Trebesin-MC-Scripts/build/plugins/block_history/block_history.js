@@ -159,7 +159,6 @@ export async function main() {
     //## Block Placing Detection:
     const oldBlocksRegister = {};
     Mc.world.beforeEvents.itemUseOn.subscribe((eventData) => {
-        Debug.logMessage('Before item use on');
         const offset = FACE_DIRECTIONS[eventData.blockFace];
         const faceBlockLocation = VectorMath.sum(eventData.block.location, offset);
         oldBlocksRegister[vec3ToString(faceBlockLocation)] = Blocks.copyBlockState(eventData.block.dimension.getBlock(faceBlockLocation), true);
@@ -175,26 +174,10 @@ export async function main() {
         const faceBlockOld = oldBlocksRegister[vec3ToString(faceBlockLocation)]; //Blocks.copyBlockState(faceBlock,true);
         const block = player.dimension.getBlock(eventData.block.location);
         const blockOld = oldBlocksRegister[vec3ToString(eventData.block.location)]; //Blocks.copyBlockState(block,true);
-        Debug.logMessage(`FACE OLD:\n${JSON.stringify(faceBlockOld)}`);
+        //Debug.logMessage(`FACE OLD:\n${JSON.stringify(faceBlockOld)}`);
         //These Blocks:
         Mc.system.runTimeout(async () => {
-            //const faceBlocks = {
-            //    before: faceBlockOld,
-            //    after: copyBlockState(faceBlock,true)
-            //};
-            //const facePosition = {
-            //    location: faceBlock.location,
-            //    dimension: faceBlock.dimension
-            //};
-            //const blocks = {
-            //    before: blockOld,
-            //    after: Blocks.copyBlockState(block,true)
-            //};
-            //const position = {
-            //    location: block.location,
-            //    dimension: block.dimension
-            //};
-            Debug.logMessage(`FACE NEW:\n${JSON.stringify(Blocks.copyBlockState(faceBlock, true))}`);
+            //Debug.logMessage(`FACE NEW:\n${JSON.stringify(Blocks.copyBlockState(faceBlock,true))}`)
             saveBlockUpdate({ before: faceBlockOld, after: Blocks.copyBlockState(faceBlock, true) }, { actorId: player.id });
             saveBlockUpdate({ before: blockOld, after: Blocks.copyBlockState(block, true) }, { actorId: player.id });
             //Falling Blocks
