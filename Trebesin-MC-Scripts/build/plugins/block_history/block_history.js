@@ -160,11 +160,10 @@ export async function main() {
     const oldBlocksRegister = {};
     Mc.world.beforeEvents.itemUseOn.subscribe((eventData) => {
         Debug.logMessage('Before item use on');
-        oldBlocksRegister[vec3ToString(eventData.faceLocation)] = Blocks.copyBlockState(eventData.block.dimension.getBlock(eventData.faceLocation), true);
-        Debug.logMessage(JSON.stringify(eventData.faceLocation));
-        Debug.logMessage(JSON.stringify(oldBlocksRegister[vec3ToString(eventData.faceLocation)]));
+        const offset = FACE_DIRECTIONS[eventData.blockFace];
+        const faceBlockLocation = VectorMath.sum(eventData.block.location, offset);
+        oldBlocksRegister[vec3ToString(faceBlockLocation)] = Blocks.copyBlockState(eventData.block.dimension.getBlock(faceBlockLocation), true);
         oldBlocksRegister[vec3ToString(eventData.block.location)] = Blocks.copyBlockState(eventData.block, true);
-        Debug.logMessage(JSON.stringify(oldBlocksRegister[vec3ToString(eventData.block.location)]));
     });
     Mc.world.afterEvents.itemStartUseOn.subscribe(async (eventData) => {
         const player = eventData.source;
