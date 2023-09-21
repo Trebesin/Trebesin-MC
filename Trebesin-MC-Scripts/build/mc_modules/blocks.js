@@ -17,9 +17,11 @@
 */
 //! Rename BlockState to BlockData or RawBlockData or RawBlock and so on... (to avoid confusion with API terminology)
 import * as Mc from '@minecraft/server';
+import * as Test from './network/test';
 import * as VectorMath from './../js_modules/vectorMath';
 import { logMessage, sendLogMessage } from '../plugins/debug/debug';
 import { DIRECTIONS, BLOCK_STATE_COMPONENTS } from './constants';
+Test.testMe('test');
 /**
  * Function for comparing 2 `Block` class objects.
  * @param {Mc.Block} blockA 1st block to compare the other with.
