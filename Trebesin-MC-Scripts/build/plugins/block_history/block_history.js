@@ -161,6 +161,7 @@ export async function main() {
     Mc.world.beforeEvents.itemUseOn.subscribe((eventData) => {
         Debug.logMessage('Before item use on');
         oldBlocksRegister[vec3ToString(eventData.block.location)] = Blocks.copyBlockState(eventData.block, true);
+        Debug.logMessage(JSON.stringify(oldBlocksRegister[vec3ToString(eventData.block.location)]));
     });
     Mc.world.afterEvents.itemStartUseOn.subscribe(async (eventData) => {
         const player = eventData.source;
