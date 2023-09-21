@@ -189,7 +189,7 @@ export async function main() {
     const oldBlocksRegister = {};
     Mc.world.beforeEvents.itemUseOn.subscribe((eventData) => {
         Debug.logMessage('Before item use on');
-        oldBlocksRegister[eventData.block.location] = Blocks.copyBlockState(eventData.block,true);
+        oldBlocksRegister[vec3ToString(eventData.block.location)] = Blocks.copyBlockState(eventData.block,true);
     });
 
     Mc.world.afterEvents.itemStartUseOn.subscribe(async(eventData) => {
