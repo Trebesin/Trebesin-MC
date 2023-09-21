@@ -189,6 +189,9 @@ export async function main() {
     const oldBlocksRegister = {};
     Mc.world.beforeEvents.itemUseOn.subscribe((eventData) => {
         Debug.logMessage('Before item use on');
+        oldBlocksRegister[vec3ToString(eventData.block.faceLocation)] = Blocks.copyBlockState(
+            eventData.block.dimension.getBlock(eventData.faceLocation),true
+        );
         oldBlocksRegister[vec3ToString(eventData.block.location)] = Blocks.copyBlockState(eventData.block,true);
         Debug.logMessage(JSON.stringify(oldBlocksRegister[vec3ToString(eventData.block.location)]));
     });
