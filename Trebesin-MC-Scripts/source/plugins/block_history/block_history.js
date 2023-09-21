@@ -10,6 +10,7 @@ import * as VectorMath from '../../js_modules/vectorMath';
 import { containsArray, filter, insertToArray, deleteFromArray } from '../../js_modules/array';
 import * as Blocks from '../../mc_modules/blocks';
 import * as Dimensions from '../../mc_modules/dimensions';
+import { vec3ToString } from '../../mc_modules/utils';
 import { DIMENSION_IDS , FACE_DIRECTIONS } from '../../mc_modules/constants';
 import { getEquipedItem, sendMessage } from '../../mc_modules/players';
 
@@ -185,9 +186,11 @@ export async function main() {
     });
 
     //## Block Placing Detection:
-    Mc.world.beforeEvents.itemUseOn.subscribe(() => {
-        Debug.logMessage('Before item use on')
-    })
+    const oldBlocksRegister = {};
+    Mc.world.beforeEvents.itemUseOn.subscribe((eventData) => {
+        Debug.logMessage('Before item use on');
+        oldBlocksRegister[eventData.block.location] = Blocks.copyBlockState(eventData.block,true);
+    });
 
     Mc.world.afterEvents.itemStartUseOn.subscribe(async(eventData) => {
         const player = eventData.source;
@@ -196,9 +199,9 @@ export async function main() {
         //Debug.logMessage(`FBL: ${faceBlockLocation?.x} ${faceBlockLocation?.y} ${faceBlockLocation?.z}`);
         const faceBlock = player.dimension.getBlock(faceBlockLocation);
         //Debug.logMessage(`FB: ${faceBlock?.typeId}`);
-        const faceBlockOld = Blocks.copyBlockState(faceBlock,true);
+        const faceBlockOld = oldBlocksRegister[vec3ToString(faceBlockLocation)];//Blocks.copyBlockState(faceBlock,true);
         const block = player.dimension.getBlock(eventData.block.location);
-        const blockOld = Blocks.copyBlockState(block,true);
+        const blockOld = oldBlocksRegister[vec3ToString(eventData.block.location)];//Blocks.copyBlockState(block,true);
         Debug.logMessage(`FACE OLD:\n${JSON.stringify(faceBlockOld)}`);
 
         //These Blocks:
