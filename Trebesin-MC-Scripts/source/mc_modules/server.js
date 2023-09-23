@@ -227,30 +227,41 @@ import * as VectorMath from '../js_modules/vectorMath.js';
  * @param {*} loadedChunks 
  * @param {*} tickSpeed 
  */
-function executeRandomTick(callback/*Array*/,loadedChunks,tickSpeed) {
-    //if (callbackArray.length) {
-        for (const dimensionId in loadedChunks) {
-            const dimension = Mc.world.getDimension(dimensionId);
-            const chunks = loadedChunks[dimensionId];
-            for (let chunkIndex = 0;chunkIndex < chunks.length;chunkIndex++) {
-                const subChunks = getSubchunksCoords(chunks[chunkIndex],true);
-                for (let subChunkIndex = 0;subChunkIndex < subChunks.length;subChunkIndex++) {
-                    //!the performance problem lies here:
-                    //!40-45% CPU Usage Getting The Block, 40-45% CPU Usage Generating the Number :/
-                    const subChunk = subChunks[subChunkIndex];
-                    const subChunkEnd = VectorMath.sum(subChunk,{x:15,y:15,z:15});
-                    for (let index = 0;index <= tickSpeed;index++) {
-                        callback(dimension.getBlock({
-                            x: randInt(subChunk.x,subChunkEnd.x),
-                            y: randInt(subChunk.y,subChunkEnd.y),
-                            z: randInt(subChunk.z,subChunkEnd.z)
-                        }));
-                        //for (let callbackIndex = 0;callbackIndex < callbackArray.length;callbackIndex++) {
-                        //    callbackArray[callbackIndex](block);
-                        //}
-                    }
-                }
+function executeRandomTick(callback,loadedChunks,tickSpeed) {
+    for (const dimensionId in loadedChunks) {
+        const dimension = Mc.world.getDimension(dimensionId);
+        const chunks = loadedChunks[dimensionId];
+        const randomDistributions = [
+            [],[],[],[]
+        ];
+        for (let index = 0;index <= tickSpeed;index++) {
+            for (let distIndex = 0;distIndex < randomDistributions.length;distIndex++) {
+                randomDistributions[distIndex].push(randomVector(0,15));
             }
         }
-    //}
+        for (let chunkIndex = 0;chunkIndex < chunks.length;chunkIndex++) {
+            const subChunks = getSubchunksCoords(chunks[chunkIndex],true);
+            for (let subChunkIndex = 0;subChunkIndex < subChunks.length;subChunkIndex++) {
+                const subChunk = subChunks[subChunkIndex];
+                const distribution = randomDistributions[randInt(0,randomDistributions.length-1)];
+                for (let vectorIndex = 0;vectorIndex < distribution.length;vectorIndex++) {
+                    callback(dimension.getBlock(VectorMath.sum(distribution[vectorIndex],subChunk)));
+                }
+                //!the performance problem lies here:
+                //!40-45% CPU Usage Getting The Block, 40-45% CPU Usage Generating the Number :/
+                //const subChunkEnd = VectorMath.sum(subChunk,{x:15,y:15,z:15});
+                //for (let index = 0;index <= tickSpeed;index++) {
+                //    callback(dimension.getBlock({
+                //        x: randInt(subChunk.x,subChunkEnd.x),
+                //        y: randInt(subChunk.y,subChunkEnd.y),
+                //        z: randInt(subChunk.z,subChunkEnd.z)
+                //    }));
+                //}
+            }
+        }
+    }
+}
+
+function randomVector(min,max) {
+    return {x:randInt(min,max),y:randInt(min,max),z:randInt(min,max)};
 }
