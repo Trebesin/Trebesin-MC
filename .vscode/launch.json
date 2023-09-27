@@ -7,10 +7,10 @@
         "name": "Trebesin-MC Script Debug",
         "host": "prem2.falixserver.net",
         "mode": "connect",
-        "localRoot": "${workspaceFolder}/Trebesin-MC-Scripts/scripts/",
+        "localRoot": "${workspaceFolder}/Trebesin-MC-Scripts/source/",
         "port": 25588,
-        "sourceMapRoot": "${workspaceFolder}/Trebesin-MC-Scripts/source/",
-        "generatedSourceRoot": "${workspaceFolder}/Trebesin-MC-Scripts/source/",
+        "sourceMapRoot": "${workspaceFolder}/Trebesin-MC-Scripts/build/",
+        "generatedSourceRoot": "${workspaceFolder}/Trebesin-MC-Scripts/build/",
       }
     ]
   }
