@@ -8,11 +8,15 @@
         "noImplicitAny": true,
         "sourceMap": true,
         "newLine": "crlf",
-        "allowJs": true
+        "allowJs": true,
+        "outDir": "./build"
     },
+    "include": ["source/**/*"],
     "exclude": [
-        "source",
-        "source/*",
+        "build/**/*.js",
+        "build/**/*",
+        "build",
+        "build/*",
         "node_modules",
         "**/node_modules/*"
     ]

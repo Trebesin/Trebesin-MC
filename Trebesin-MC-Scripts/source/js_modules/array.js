@@ -15,6 +15,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
+
 /**
  * @description Inserts value at the first empty index in the array and returns the index.
  * @param {any[]} array - Array to insert the value into.
@@ -22,15 +23,15 @@
  * @returns {number|undefined|null} Index that the value was inserted to.
  **/
 export function insertToArray(array, value) {
-    if (!Array.isArray(array))
-        return null;
-    for (let index = 0; index <= array.length; index++) {
+    if (!Array.isArray(array)) return null
+    for (let index = 0;index <= array.length;index++) {
         if (array[index] == null) {
             array[index] = value;
             return index;
         }
     }
 }
+
 /**
  * @description Deletes item from an array at a given index and shortenes the array if possible.
  * @param {any[]} array - Array to delete the item from.
@@ -40,7 +41,7 @@ export function insertToArray(array, value) {
 export function deleteFromArray(array, index) {
     let newLength = 0;
     delete array[index];
-    for (let index = 0; index < array.length; index++) {
+    for (let index = 0;index < array.length;index++) {
         if (array[index] != null) {
             newLength = index + 1;
         }
@@ -48,6 +49,7 @@ export function deleteFromArray(array, index) {
     array.length = newLength;
     return newLength;
 }
+
 /**
  * Creates an object from an array. Values are each corresponding items of the array and keys are the return values of the callback.
  * @param {any[]} array - Array to convert into an object.
@@ -56,63 +58,70 @@ export function deleteFromArray(array, index) {
  **/
 export function arrayToObject(array, callback) {
     const newObject = {};
-    for (let index = 0; index < array.length; index++) {
+    for (let index = 0;index < array.length;index++) {
         const value = array[index];
-        const key = callback(value, index, array);
+        const key = callback(value,index,array);
         newObject[key] = value;
     }
     return newObject;
 }
+
 /**
- *
+ * 
  * @param {Array} array - Array to get the mode of.
  * @returns {Array} Array of 2 values - first value is array of all the modes found and second is the amount of times each mode is found in the array.
  */
 export function getMode(array) {
     const items = new Map();
-    let mode = [[null], -1];
+    let mode = [[null],-1];
+
     for (const item of array) {
         const value = items.get(item);
         if (value == null) {
             items.set(item, 1);
-        }
-        else {
-            items.set(item, value + 1);
+        } else {
+            items.set(item, value+1);
         }
     }
     for (const item of items) {
         if (item[1] > mode[1]) {
             mode[0] = [item[0]];
             mode[1] = item[1];
-        }
-        else if (item[1] === mode[1]) {
+        } else if (item[1] === mode[1]) {
             mode[0].push(item[0]);
         }
     }
-    return mode;
+
+    return mode
 }
-export function containsArray(array, item) {
+
+
+export function containsArray(array,item) {
     const indexes = item.length;
     let found = false;
-    arrayLoop: for (const element of array) {
+    arrayLoop: 
+    for (const element of array) {
         for (let index = 0; index < indexes; index++) {
             if (!(element[index] === item[index])) {
-                continue arrayLoop;
+                continue arrayLoop
             }
         }
         found = true;
-        break arrayLoop;
+        break arrayLoop 
     }
-    return found;
+    return found
 }
-function subArrays(array1, array2) {
+
+
+function subArrays(array1,array2) {
     const newArray = [];
-    for (let index = 0; index < array1.length; index++) {
+    for (let index = 0;index < array1.length;index++) {
         newArray[index] = array1[index] - array2[index];
     }
     return newArray;
 }
-export function range(start, end, step = 1) {
+
+export function range(start,end,step = 1) {
     if (end == null) {
         end = start;
         start = 0;
@@ -123,55 +132,57 @@ export function range(start, end, step = 1) {
         newArray.push(number);
         number += step;
     }
-    return rangeArray;
+    return rangeArray
 }
-export function arrayDifference(array, subArray) {
-    return filter(array, (value) => !includes(subArray, value));
+
+export function arrayDifference(array,subArray) {
+    return filter(array,(value) => !includes(subArray,value));
 }
+
 //*Built-in JS functions recreated
 //!Faster
-export function includes(array, value) {
-    for (let index = 0; index < array.length; index++) {
-        if (array[index] === value)
-            return true;
+export function includes(array,value) {
+    for (let index = 0;index < array.length;index++) {
+        if (array[index] === value) return true;
     }
-    return false;
+    return false
 }
-export function filter(array, condition) {
+
+export function filter(array,condition) {
     const filterArray = [];
-    for (let index = 0; index < array.length; index++) {
-        if (condition(array[index], index, array))
-            filterArray.push(array[index]);
+    for (let index = 0;index < array.length;index++) {
+        if (condition(array[index],index,array)) filterArray.push(array[index]);
     }
-    return filterArray;
+    return filterArray
 }
+
 //!Slower
-export function findLast(array, condition, indexRange = null) {
+export function findLast(array,condition,indexRange = null) {
     const startIndex = indexRange?.[0] ?? 0;
     const endIndex = indexRange?.[1] ?? array.length;
-    for (let index = endIndex; index > startIndex; index--) {
-        if (condition(array[index], index, array)) {
-            return { value: array[index], index };
+    for (let index = endIndex;index > startIndex;index--) {
+        if (condition(array[index],index,array)) {
+            return {value: array[index], index};
         }
     }
     return null;
 }
-export function find(array, condition, indexRange = null) {
+
+export function find(array,condition,indexRange = null) {
     const startIndex = indexRange?.[0] ?? 0;
     const endIndex = indexRange?.[1] ?? array.length;
-    for (let index = startIndex; index < endIndex; index++) {
-        if (condition(array[index], index, array)) {
-            return { value: array[index], index };
+    for (let index = startIndex;index < endIndex;index++) {
+        if (condition(array[index],index,array)) {
+            return {value: array[index], index};
         }
     }
     return null;
 }
-export function mapArray(array, callback) {
+
+export function mapArray(array,callback) {
     const mappedArray = [];
-    for (let index = 0; index < array.length; index++) {
-        mappedArray[index] = callback(array[index], index, array);
+    for (let index = 0;index < array.length;index++) {
+        mappedArray[index] = callback(array[index],index,array);
     }
     return mappedArray;
 }
-
-//# sourceMappingURL=array.js.map

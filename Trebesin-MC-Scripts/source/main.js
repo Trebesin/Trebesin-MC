@@ -1,15 +1,16 @@
 //Plugins:
-import { world } from '@minecraft/server';
 import * as BlockHistoryPlugin from './plugins/block_history/block_history';
 import * as BlockyToolsPlugin from './plugins/blocky_tools/blocky_tools';
 import * as ServerPlugin from './plugins/server/server';
 import * as CommandsPlugin from './plugins/commands/commands';
 import * as Debug from './plugins/debug/debug';
 import * as Backend from './plugins/backend/backend';
-import * as unitTesting from './plugins/unit_testing/unit_testing';
+import * as unitTesting from './plugins/unit_testing/unit_testing'
+
 //#This is the main executable file of the script. It loads all imported plugins.
 //#Order of the loading is important, Debug and Backend must be loaded first!
 //#To ensure the order eveything is asynchrounus and awaited.
+
 async function executePlugins() {
     Debug.logMessage('\nReloading Trebesin Mod Script...\n');
     //!Debug && Backend (1.):
@@ -20,18 +21,17 @@ async function executePlugins() {
     await loadPlugin(BlockHistoryPlugin);
     await loadPlugin(BlockyToolsPlugin);
     await loadPlugin(CommandsPlugin);
-    await loadPlugin(unitTesting);
+    await loadPlugin(unitTesting)
 }
+
 async function loadPlugin(pluginImport) {
     try {
         Debug.logMessage(`Loading ${pluginImport.name}...\n{`);
         await pluginImport.main();
         Debug.logMessage(`}\n${pluginImport.name} loaded successfully!`);
-    }
-    catch (error) {
+    } catch (error) {
         Debug.logMessage(`}\nError has occured during the load, read below!\n${error}`);
     }
 }
-executePlugins();
 
-//# sourceMappingURL=main.js.map
+executePlugins();
